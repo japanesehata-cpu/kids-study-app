@@ -27,6 +27,16 @@ const args = process.argv.slice(2)
 const onlyArg = args.find((a) => a.startsWith('--only='))
 const onlyIds = onlyArg ? new Set(onlyArg.slice('--only='.length).split(',')) : null
 
+// A bare single-word synthesis sounds distorted for these 10 words on every Kokoro voice
+// (confirmed: their G2P phonemes are correct, so it's an acoustic-model artifact on isolated
+// words). The fix in production is NOT this script's plain output — it's the *second* word
+// isolated out of a "word, word." synthesis, which picks up natural prosody from the first
+// utterance. Re-running this script with these ids would silently overwrite that fix with the
+// original bad-sounding audio; regenerate them only via the trim technique instead.
+const REPEAT_TRIM_FIXED_IDS = new Set([
+  'bird', 'fish', 'sheep', 'koala', 'fox', 'grape', 'tomato', 'potato', 'peach', 'ship',
+])
+
 async function checkKokoroRunning() {
   try {
     const res = await fetch(`${KOKORO_URL}/health`, { signal: AbortSignal.timeout(1500) })
@@ -59,6 +69,10 @@ async function main() {
   console.log(`Generating ${entries.length} word pronunciation(s) via Kokoro...`)
 
   for (const { id, word } of entries) {
+    if (REPEAT_TRIM_FIXED_IDS.has(id)) {
+      console.log(`skip  word-en-${id}: hand-fixed with the repeat-and-trim technique, not plain synthesis (see comment above)`)
+      continue
+    }
     const outPath = path.join(OUTPUT_DIR, `word-en-${id}.wav`)
     try {
       const wav = await synthesize(word)

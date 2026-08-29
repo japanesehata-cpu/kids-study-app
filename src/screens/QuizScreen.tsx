@@ -20,8 +20,9 @@ import { generateNumericChoices } from '../lib/choices'
 import { getWordById } from '../domain/wordBank'
 import { getHiraganaById, hiraganaSpeechPhrase } from '../domain/hiraganaBank'
 import { getKatakanaById, katakanaSpeechPhrase } from '../domain/katakanaBank'
-import { getAlphabetById, getSoundByVariant, phonicsSpeechPhrase } from '../domain/alphabetBank'
-import { formatClockKey } from '../domain/questionGenerators/clock'
+import { getAlphabetById } from '../domain/alphabetBank'
+import { formatClockKey, buildSetTimePrompt } from '../domain/questionGenerators/clock'
+import { InteractiveClock } from '../components/InteractiveClock'
 import { buildFeedbackMessage } from '../domain/feedbackMessages'
 import { buildExplanation } from '../domain/explanations'
 import { speak, type SpeechLang, type VoiceProfile } from '../lib/tts'
@@ -156,7 +157,12 @@ function computeAutoSpeech(
       cacheKey: `katakana-${question.charId}`,
     }
   }
-  if (isClock(question)) return { text: t('clockPrompt'), speechLang, cacheKey: ja ? 'prompt-clock' : undefined }
+  if (isClock(question)) {
+    if (question.kind === 'setTime') {
+      return { text: buildSetTimePrompt(question.hour, question.minute, lang), speechLang }
+    }
+    return { text: t('clockPrompt'), speechLang, cacheKey: ja ? 'prompt-clock' : undefined }
+  }
   if (isSpotDifference(question)) {
     return { text: t('spotDifferencePrompt'), speechLang, cacheKey: ja ? 'prompt-spotdifference' : undefined }
   }
@@ -165,17 +171,10 @@ function computeAutoSpeech(
   }
   if (isAlphabet(question)) {
     const entry = getAlphabetById(question.letterId)
-    // caseMatch has no sound of its own to test — always speak the letter's primary sound
-    // as reinforcement, using a fixed variant so the cache key stays predictable.
-    const sound =
-      question.kind === 'phonics'
-        ? getSoundByVariant(entry, question.soundVariant ?? entry.sounds[0].variant)
-        : entry.sounds[0]
-    return {
-      text: phonicsSpeechPhrase(sound),
-      speechLang: 'en-US',
-      cacheKey: `phonics-${question.letterId}-${sound.variant}`,
-    }
+    // caseMatch tests case correspondence, not the letter's name — speak the upper-case
+    // form as plain reinforcement instead.
+    const letterChar = question.kind === 'letterName' ? question.answerChar : entry.upper
+    return { text: letterChar, speechLang: 'en-US' }
   }
   // englishWords
   if (question.mode === 'listenAndPick') {
@@ -342,12 +341,6 @@ function AlphabetQuestionView({
   caseMatchPrompt: string
   voiceProfile: VoiceProfile
 }) {
-  const entry = getAlphabetById(question.letterId)
-  const sound =
-    question.kind === 'phonics'
-      ? getSoundByVariant(entry, question.soundVariant ?? entry.sounds[0].variant)
-      : entry.sounds[0]
-
   if (question.kind === 'caseMatch') {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
@@ -360,14 +353,7 @@ function AlphabetQuestionView({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
       <p className="subtitle">{listenPrompt}</p>
-      <TtsButton
-        text={phonicsSpeechPhrase(sound)}
-        lang="en-US"
-        label="listen"
-        size={96}
-        voiceProfile={voiceProfile}
-        cacheKey={`phonics-${question.letterId}-${sound.variant}`}
-      />
+      <TtsButton text={question.answerChar} lang="en-US" label="listen" size={96} voiceProfile={voiceProfile} />
     </div>
   )
 }
@@ -430,6 +416,69 @@ function ClockQuestionView({
       <ClockFace hour={question.hour} minute={question.minute} size={160} />
       <p className="subtitle">{promptText}</p>
       <TtsButton text={promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
+    </div>
+  )
+}
+
+/** ★2+'s "production" clock question: told a target time, drag the hands to set it —
+ * InteractiveClock owns the drag mechanics (see that component), this just tracks the
+ * latest value it reports and turns "できた！" into the same `"H:M"` choice string
+ * multipleChoice clock questions already use, so isCorrectChoice's existing clock
+ * branch checks it with no changes needed. Starts the hands away from the target so
+ * "できた" can't be tapped for free. */
+function ClockSetTimeView({
+  question,
+  promptText,
+  doneLabel,
+  lang,
+  voiceProfile,
+  cacheKey,
+  onSubmit,
+  disabled,
+}: {
+  question: ClockQuestion
+  promptText: string
+  doneLabel: string
+  lang: Lang
+  voiceProfile: VoiceProfile
+  cacheKey?: string
+  onSubmit: (choice: string) => void
+  disabled: boolean
+}) {
+  const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
+  const startTotalMinutes = useMemo(() => {
+    const targetTotal = (question.hour % 12) * 60 + question.minute
+    // Any fixed offset away from the target works — this just has to not already be the
+    // answer when the clock first renders.
+    return (targetTotal + 180) % 720
+  }, [question])
+  // Seeded from the same starting position InteractiveClock renders at, so tapping
+  // "できた" without ever touching the hands reports that starting time — not a stale
+  // {0, 0} placeholder — and correctly comes up wrong.
+  const startHour12 = Math.floor(startTotalMinutes / 60) % 12 || 12
+  const current = useRef({ hour: startHour12, minute: startTotalMinutes % 60 })
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+      <p className="subtitle">{promptText}</p>
+      <TtsButton text={promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
+      <InteractiveClock
+        key={question.id}
+        size={200}
+        initialTotalMinutes={startTotalMinutes}
+        hintText=""
+        onChange={(hour12, minute) => {
+          current.current = { hour: hour12, minute }
+        }}
+      />
+      <button
+        type="button"
+        className="primary-button"
+        disabled={disabled}
+        onClick={() => onSubmit(`${current.current.hour}:${current.current.minute}`)}
+      >
+        {doneLabel}
+      </button>
     </div>
   )
 }
@@ -678,11 +727,8 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
           )
         } else if (isAlphabet(question)) {
           const entry = getAlphabetById(question.letterId)
-          const sound =
-            question.kind === 'phonics'
-              ? getSoundByVariant(entry, question.soundVariant ?? entry.sounds[0].variant)
-              : entry.sounds[0]
-          speak(phonicsSpeechPhrase(sound), 'en-US', voiceProfile, `phonics-${question.letterId}-${sound.variant}`)
+          const letterChar = question.kind === 'letterName' ? question.answerChar : entry.upper
+          speak(letterChar, 'en-US', voiceProfile)
         } else if (isEnglishWord(question) && correct) {
           // An incorrect answer already speaks the word correctly in en-US as part of the
           // feedback sentence above (see buildFeedbackMessage) — repeating it here too
@@ -760,6 +806,18 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
             caseMatchPrompt={t('alphabetCaseMatchPrompt')}
             voiceProfile={voiceProfile}
           />
+        ) : isClock(question) && question.kind === 'setTime' ? (
+          <ClockSetTimeView
+            key={question.id}
+            question={question}
+            promptText={autoSpeech.text}
+            doneLabel={t('handwritingDoneButton')}
+            lang={lang}
+            voiceProfile={voiceProfile}
+            cacheKey={autoSpeech.cacheKey}
+            onSubmit={(choice) => handleSelect(choice)}
+            disabled={selected !== null}
+          />
         ) : isClock(question) ? (
           <ClockQuestionView
             question={question}
@@ -797,7 +855,7 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
           />
         )}
 
-        {!isSpotDifference(question) && (
+        {!isSpotDifference(question) && !(isClock(question) && question.kind === 'setTime') && (
           <div className="choice-grid">
             {choices.map((choice) => (
               <button

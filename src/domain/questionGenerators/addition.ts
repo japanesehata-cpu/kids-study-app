@@ -9,13 +9,15 @@ function makeId(): string {
   return `add-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 }
 
-/** Sum bands per level: ★1 age 4, ★2 age 5, ★3 age 6 — both operands stay single digits (1-9). */
+/** Sum bands per level — each level's range is strictly higher than the last, so the
+ * numbers involved (and, once the sum passes 10, whether carrying is required at all)
+ * keep climbing all the way from ★1 to ★5 instead of ★3-★5 sharing one identical band. */
 const SUM_BAND: Record<Level, [number, number]> = {
   1: [2, 5],
   2: [6, 10],
-  3: [11, 18],
-  4: [11, 18],
-  5: [11, 18],
+  3: [11, 13],
+  4: [14, 16],
+  5: [17, 18],
 }
 
 function generateOperands(level: Level): { a: number; b: number } {

@@ -4,11 +4,13 @@ import { generateAdditionQuestion } from '../questionGenerators/addition'
 const SUM_BAND: Record<number, [number, number]> = {
   1: [2, 5],
   2: [6, 10],
-  3: [11, 18],
+  3: [11, 13],
+  4: [14, 16],
+  5: [17, 18],
 }
 
 describe('generateAdditionQuestion', () => {
-  for (const level of [1, 2, 3] as const) {
+  for (const level of [1, 2, 3, 4, 5] as const) {
     it(`Lv${level} stays within its sum band and both operands are single digits`, () => {
       const [min, max] = SUM_BAND[level]
       for (let i = 0; i < 200; i++) {

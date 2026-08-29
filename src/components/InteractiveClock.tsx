@@ -4,6 +4,16 @@ import { formatClockKey } from '../domain/questionGenerators/clock'
 
 interface InteractiveClockProps {
   size?: number
+  /** "minutes since 12:00" (0-719) to start the hands at — defaults to 3:00 for the
+   * free-play widget on LevelSelectScreen. */
+  initialTotalMinutes?: number
+  /** Fires on every hand move with the current 12-hour hour and minute — lets a quiz
+   * question track what the child has set without this component knowing about quiz
+   * answer-checking at all. */
+  onChange?: (hour12: number, minute: number) => void
+  /** The free-play widget's "try moving the hands!" caption doesn't fit a quiz question
+   * that already has its own prompt — omit it there. */
+  hintText?: string
 }
 
 type DragTarget = 'hour' | 'minute' | null
@@ -26,15 +36,24 @@ function angleFromCenter(clientX: number, clientY: number, rect: DOMRect): numbe
  * "minutes since 12:00" value (0-719) as the sole source of truth for both hands and the
  * digital readout, instead of two independently-set numbers that could show an
  * impossible hand position. */
-export function InteractiveClock({ size = 220 }: InteractiveClockProps) {
+export function InteractiveClock({ size = 220, initialTotalMinutes = 3 * 60, onChange, hintText }: InteractiveClockProps) {
   const { t, lang } = useI18n()
   const svgRef = useRef<SVGSVGElement>(null)
   const dragTarget = useRef<DragTarget>(null)
-  const [totalMinutes, setTotalMinutes] = useState(3 * 60) // starts at 3:00
+  const [totalMinutes, setTotalMinutes] = useState(initialTotalMinutes)
 
   const hour12 = Math.floor(totalMinutes / 60) % 12
   const minute = totalMinutes % 60
   const displayHour = hour12 === 0 ? 12 : hour12
+
+  function updateTotalMinutes(updater: (prev: number) => number) {
+    setTotalMinutes((prev) => {
+      const next = updater(prev)
+      const nextHour12 = Math.floor(next / 60) % 12
+      onChange?.(nextHour12 === 0 ? 12 : nextHour12, next % 60)
+      return next
+    })
+  }
 
   const hourAngle = totalMinutes * 0.5
   const minuteAngle = minute * 6
@@ -48,7 +67,7 @@ export function InteractiveClock({ size = 220 }: InteractiveClockProps) {
 
     if (dragTarget.current === 'minute') {
       const rawMinute = Math.round(angle / 6) % 60
-      setTotalMinutes((prev) => {
+      updateTotalMinutes((prev) => {
         const prevMinute = prev % 60
         const hourBase = prev - prevMinute
         let nextHourBase = hourBase
@@ -59,7 +78,7 @@ export function InteractiveClock({ size = 220 }: InteractiveClockProps) {
       })
     } else {
       const rawHour = Math.round(angle / 30) % 12
-      setTotalMinutes((prev) => rawHour * 60 + (prev % 60))
+      updateTotalMinutes((prev) => rawHour * 60 + (prev % 60))
     }
   }
 
@@ -193,7 +212,7 @@ export function InteractiveClock({ size = 220 }: InteractiveClockProps) {
       </svg>
 
       <div className="digital-clock">{digitalText}</div>
-      <p className="hint-caption">{t('clockPracticeHint')}</p>
+      <p className="hint-caption">{hintText ?? t('clockPracticeHint')}</p>
       <p className="digital-clock-reading">{spokenText}</p>
     </div>
   )

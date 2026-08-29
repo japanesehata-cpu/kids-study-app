@@ -144,8 +144,8 @@ export const characterThemes: Record<Category, CharacterTheme> = {
     colorAccent: '#6ec6ff',
     colorAccentDark: '#3f9bd9',
     // playful and a little goofy — an alpaca who loves ABC blocks (its Japanese-language
-    // lines are spoken in this VOICEVOX voice; the letter phonics themselves are always
-    // spoken in English via Kokoro, see src/lib/tts.ts's local-voice-server tier)
+    // lines are spoken in this VOICEVOX voice; the letters themselves are always spoken
+    // in English via Kokoro, see src/lib/tts.ts's local-voice-server tier)
     voiceProfile: {
       pitch: 1.2,
       rate: 1.0,

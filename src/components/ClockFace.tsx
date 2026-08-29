@@ -1,6 +1,6 @@
 interface ClockFaceProps {
   hour: number
-  minute: 0 | 15 | 30 | 45
+  minute: number
   size?: number
 }
 

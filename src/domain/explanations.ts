@@ -3,7 +3,6 @@ import type { Question } from './types'
 import { getWordById, type WordEntry } from './wordBank'
 import { getHiraganaById } from './hiraganaBank'
 import { getKatakanaById } from './katakanaBank'
-import { getAlphabetById, getSoundByVariant } from './alphabetBank'
 import { formatClockKey } from './questionGenerators/clock'
 
 const CATEGORY_LABEL: Record<WordEntry['category'], Record<Lang, string>> = {
@@ -12,6 +11,16 @@ const CATEGORY_LABEL: Record<WordEntry['category'], Record<Lang, string>> = {
   nature: { ja: 'しぜんの もの', en: 'nature things' },
   color: { ja: 'いろ', en: 'colors' },
   vehicle: { ja: 'のりもの', en: 'vehicles' },
+  clothing: { ja: 'ふくや もちもの', en: 'things you wear' },
+  household: { ja: 'いえの なかの もの', en: 'household things' },
+  school: { ja: 'がっこうの どうぐ', en: 'school things' },
+  weather: { ja: 'おてんき', en: 'weather' },
+  bodyPart: { ja: 'からだの ぶぶん', en: 'body parts' },
+  toy: { ja: 'おもちゃ', en: 'toys' },
+  sport: { ja: 'スポーツ', en: 'sports' },
+  instrument: { ja: 'がっき', en: 'instruments' },
+  shape: { ja: 'かたち', en: 'shapes' },
+  place: { ja: 'ばしょ', en: 'places' },
 }
 
 function wordLabel(id: string, lang: Lang): string {
@@ -104,11 +113,9 @@ export function buildExplanation(question: Question, lang: Lang): string {
           ? `「${promptChar}」と「${answerChar}」は おなじ もじだよ。`
           : `"${promptChar}" and "${answerChar}" are the same letter.`
       }
-      const entry = getAlphabetById(question.letterId)
-      const sound = getSoundByVariant(entry, question.soundVariant ?? entry.sounds[0].variant)
       return lang === 'ja'
-        ? `「${question.answerChar}」は 「${sound.mnemonic}」の 「${sound.speech}」だよ。`
-        : `"${question.answerChar}" makes the "${sound.speech}" sound, like in "${sound.mnemonic}."`
+        ? `いまの おとは 「${question.answerChar}」だよ。`
+        : `That was the letter "${question.answerChar}."`
     }
     case 'clock': {
       const { hour, minute } = question

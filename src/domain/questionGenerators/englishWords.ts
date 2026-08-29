@@ -9,12 +9,37 @@ function shuffle<T>(items: T[]): T[] {
   return [...items].sort(() => Math.random() - 0.5)
 }
 
-function pickTarget(): WordEntry {
-  return shuffle(wordBank)[0]
+/** Word length as a free difficulty signal — no per-word hand-tagging needed, and it
+ * tracks vocabulary difficulty well enough in practice (bird/cat/dog vs. rhinoceros/
+ * chameleon/playground). Each level's cap is strictly looser than the last, so the
+ * word pool keeps opening up through all 5 levels instead of leveling off at ★3. */
+const MAX_WORD_LENGTH: Record<Level, number> = {
+  1: 4,
+  2: 6,
+  3: 8,
+  4: 11,
+  5: Infinity,
 }
 
-/** ★3 pulls distractors from the same theme (e.g. other fruits), which is much harder to
- * eliminate than an obviously-unrelated word. */
+/** Falls back to the whole bank if a level's length cap leaves too few words to pick a
+ * varied target from (mainly a concern for ★1's short-word pool). */
+const MIN_POOL_SIZE = 10
+
+function pickTarget(level: Level): WordEntry {
+  const capped = wordBank.filter((w) => w.word.length <= MAX_WORD_LENGTH[level])
+  const pool = capped.length >= MIN_POOL_SIZE ? capped : wordBank
+  return shuffle(pool)[0]
+}
+
+/** ★1 always uses obviously-unrelated distractors; ★2 mixes in same-theme ones half the
+ * time; ★3+ always pulls from the same theme (e.g. other fruits), which is much harder
+ * to eliminate than an obviously-unrelated word. */
+function shouldUseHardDistractors(level: Level): boolean {
+  if (level <= 1) return false
+  if (level === 2) return Math.random() < 0.5
+  return true
+}
+
 function pickDistractors(target: WordEntry, sameCategory: boolean, count: number): WordEntry[] {
   const sameCategoryPool = wordBank.filter((w) => w.category === target.category && w.id !== target.id)
   const pool = sameCategory && sameCategoryPool.length >= count ? sameCategoryPool : wordBank.filter((w) => w.id !== target.id)
@@ -26,8 +51,8 @@ function buildQuestion(
   mode: EnglishWordQuestion['mode'],
   level: Level,
 ): EnglishWordQuestion {
-  const target = pickTarget()
-  const useHardDistractors = level >= 3
+  const target = pickTarget(level)
+  const useHardDistractors = shouldUseHardDistractors(level)
   const distractors = pickDistractors(target, useHardDistractors, 3)
   const choiceWordIds = shuffle([target.id, ...distractors.map((d) => d.id)])
 

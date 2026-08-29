@@ -3,21 +3,19 @@ import { generateAlphabetQuestion } from '../questionGenerators/alphabet'
 import { getAlphabetById } from '../alphabetBank'
 
 describe('generateAlphabetQuestion', () => {
-  it('★1 is always uppercase phonics: hear the sound, pick the uppercase letter', () => {
+  it('★1 is always uppercase letter-name: hear the letter, pick the uppercase form', () => {
     for (let i = 0; i < 100; i++) {
       const q = generateAlphabetQuestion(1)
-      expect(q.kind).toBe('phonics')
+      expect(q.kind).toBe('letterName')
       const entry = getAlphabetById(q.letterId)
       expect(q.answerChar).toBe(entry.upper)
-      expect(q.soundVariant).toBeDefined()
-      expect(entry.sounds.some((s) => s.variant === q.soundVariant)).toBe(true)
     }
   })
 
-  it('★2 is always lowercase phonics: hear the sound, pick the lowercase letter', () => {
+  it('★2 is always lowercase letter-name: hear the letter, pick the lowercase form', () => {
     for (let i = 0; i < 100; i++) {
       const q = generateAlphabetQuestion(2)
-      expect(q.kind).toBe('phonics')
+      expect(q.kind).toBe('letterName')
       const entry = getAlphabetById(q.letterId)
       expect(q.answerChar).toBe(entry.lower)
     }

@@ -32,23 +32,24 @@ describe('generateLogicQuestion', () => {
     }
   })
 
-  it('pattern: the answer correctly continues the repeating cycle', () => {
-    for (let i = 0; i < 100; i++) {
-      const q = generateLogicQuestion(3) // Lv3 (age 6): 10-symbol strip, 3-5 symbol cycle
-      if (q.kind !== 'pattern') continue
-      const seq = q.sequence!
-      expect(seq).toHaveLength(10)
-      // the cycle length is exactly how many distinct symbols appear (each cycle repeats
-      // the same symbols in the same order), and it should always be 3-5 at this level
-      const cycleLen = new Set(seq).size
-      expect(cycleLen).toBeGreaterThanOrEqual(3)
-      expect(cycleLen).toBeLessThanOrEqual(5)
-      // whatever the cycle, the sequence should repeat with period cycleLen
-      for (let j = cycleLen; j < seq.length; j++) {
-        expect(seq[j]).toBe(seq[j - cycleLen])
+  it('pattern: the answer correctly continues the repeating cycle, and the cycle strictly lengthens from Lv3 to Lv5', () => {
+    const expectedCycleLen: Record<number, number> = { 3: 3, 4: 4, 5: 5 }
+    const expectedSeqLen: Record<number, number> = { 3: 8, 4: 9, 5: 10 }
+    for (const level of [3, 4, 5] as const) {
+      for (let i = 0; i < 100; i++) {
+        const q = generateLogicQuestion(level)
+        if (q.kind !== 'pattern') continue
+        const seq = q.sequence!
+        expect(seq).toHaveLength(expectedSeqLen[level])
+        const cycleLen = new Set(seq).size
+        expect(cycleLen).toBe(expectedCycleLen[level])
+        // whatever the cycle, the sequence should repeat with period cycleLen
+        for (let j = cycleLen; j < seq.length; j++) {
+          expect(seq[j]).toBe(seq[j - cycleLen])
+        }
+        expect(q.choices).toContain(q.answer)
+        expect(new Set(q.choices).size).toBe(4)
       }
-      expect(q.choices).toContain(q.answer)
-      expect(new Set(q.choices).size).toBe(4)
     }
   })
 

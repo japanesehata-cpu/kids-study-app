@@ -9,20 +9,42 @@ function makeId(): string {
   return `sub-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 }
 
-/** Minuend bands per level: ★1 age 4, ★2 age 5, ★3 age 6 — the subtrahend never exceeds
- * the minuend's ones digit, so ★3 never requires borrowing across the tens place. */
+/** Minuend bands per level — each strictly higher than the last (mirrors addition's
+ * SUM_BAND), so ★3-★5 no longer collapse into one identical range. ★1/★2 stay
+ * single-digit, where borrowing doesn't apply. */
 const MINUEND_BAND: Record<Level, [number, number]> = {
   1: [2, 5],
   2: [6, 10],
-  3: [11, 18],
-  4: [11, 18],
-  5: [11, 18],
+  3: [11, 13],
+  4: [14, 16],
+  5: [17, 18],
+}
+
+/** How often ★3+ draws a subtrahend that forces borrowing across the tens place (13 - 7,
+ * say) rather than one the ones digit alone covers (13 - 3) — climbing from "sometimes"
+ * to "always" is what makes ★5 the hardest tier even though ★3-★5 all use two-digit
+ * minuends. */
+const BORROW_CHANCE: Record<Level, number> = {
+  1: 0,
+  2: 0,
+  3: 0.5,
+  4: 0.8,
+  5: 1,
+}
+
+function pickSubtrahend(a: number, level: Level): number {
+  if (level <= 2) return randomInt(1, a)
+  const onesDigit = a % 10
+  const mustBorrow = Math.random() < BORROW_CHANCE[level]
+  if (mustBorrow) return randomInt(onesDigit + 1, a - 1)
+  return randomInt(1, onesDigit)
 }
 
 export function generateSubtractionQuestion(level: Level): ArithmeticQuestion {
   const [min, max] = MINUEND_BAND[level]
   const a = randomInt(min, max)
-  const b = a <= 10 ? randomInt(1, a) : randomInt(1, a % 10)
+  const b = pickSubtrahend(a, level)
+  const requiresBorrow = level >= 3 && b > a % 10
   const story = level >= 3 && Math.random() < 0.5 ? buildSubtractionStory(a, b) : undefined
 
   return {
@@ -36,6 +58,6 @@ export function generateSubtractionQuestion(level: Level): ArithmeticQuestion {
     // taken away is what makes "takeaway" click, not just the ★1 (4yo) easy cases.
     showVisual: true,
     story,
-    subSkill: a <= 10 ? 'subtraction-basic' : 'subtraction-extended',
+    subSkill: level <= 2 ? 'subtraction-basic' : requiresBorrow ? 'subtraction-borrow' : 'subtraction-extended',
   }
 }

@@ -77,16 +77,12 @@ export interface AlphabetQuestion {
   category: 'alphabet'
   level: Level
   letterId: string
-  /** 'phonics' (levels 1-2): hear the letter's phonics sound (see alphabetBank.ts — NOT the
-   * letter name), pick the matching letter within one case. 'caseMatch' (level 3): shown a
-   * letter in one case, pick the same letter in the other case — the dedicated
-   * upper/lower-case correspondence drill. */
-  kind: 'phonics' | 'caseMatch'
+  /** 'letterName' (levels 1-2): hear the letter's name spoken, pick the matching letter
+   * within one case. 'caseMatch' (level 3): shown a letter in one case, pick the same
+   * letter in the other case — the dedicated upper/lower-case correspondence drill. */
+  kind: 'letterName' | 'caseMatch'
   /** caseMatch only: the character actually shown as the question's stimulus. */
   promptChar?: string
-  /** phonics only: which of the letter's 1-2 phonics sounds this question uses (see
-   * AlphabetEntry.sounds) — some letters (vowels, c, g) have two. */
-  soundVariant?: string
   /** the character the child must tap among choiceIds */
   answerChar: string
   choiceIds: string[]
@@ -108,8 +104,15 @@ export interface ClockQuestion {
   category: 'clock'
   level: Level
   hour: number
-  minute: 0 | 15 | 30 | 45
-  /** each choice is a "H:M" key (language-independent); the view formats it for display */
+  /** 0-59 — ★1-★3 only ever produce quarter-hour values, ★4-★5 produce 5-minute and
+   * then any-minute values (see LEVEL_MINUTES in questionGenerators/clock.ts). */
+  minute: number
+  /** 'multipleChoice': shown a clock face, pick the matching time from 4 options.
+   * 'setTime': told a target time, drag the clock's own hands to set it — a harder,
+   * production (not just recognition) test of the same skill. */
+  kind: 'multipleChoice' | 'setTime'
+  /** multipleChoice only: each choice is a "H:M" key (language-independent); the view
+   * formats it for display. Empty for setTime, which has no choice-grid. */
   choiceKeys: string[]
   subSkill: string
 }

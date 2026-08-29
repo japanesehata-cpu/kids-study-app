@@ -1,37 +1,59 @@
 #!/usr/bin/env python3
-# Regenerates public/audio/word-en-${id}.wav for the handful of englishWords entries whose
-# plain single-word Kokoro synthesis sounds distorted on every voice (see the
-# REPEAT_TRIM_FIXED_IDS comment in generate-word-audio-en.mjs). Their G2P phonemes are
-# confirmed correct, so the problem is Kokoro's acoustic model on an isolated word — saying
-# the word twice ("word, word.") gives the *second* occurrence natural prosody carried over
-# from the first, so this synthesizes that and cuts out just the second occurrence.
+# Regenerates public/audio/word-en-${id}.wav for englishWords entries using the
+# repeat-and-trim technique: a bare single-word Kokoro synthesis reliably sounds
+# distorted (confirmed: G2P phonemes are correct, so the problem is Kokoro's acoustic
+# model on an isolated word), but saying the word twice ("word, word.") gives the
+# *second* occurrence natural prosody carried over from the first. This is now the
+# standard way every word-bank pronunciation is generated — not just the original 10
+# flagged words — so plain single-word synthesis (generate-word-audio-en.mjs) should no
+# longer be used for word-en-*.wav at all.
 #
-# A single amplitude threshold can't reliably find the boundary between the two occurrences:
-# a stop consonant inside the word (the "p" in "ship") can dip the envelope just as low as the
-# gap between words. Instead this finds the two energy peaks (each word's vowel nucleus) and
-# splits at the true local minimum between them, which works regardless of how loud either
-# occurrence is or how shallow the gap between them is.
+# A single amplitude threshold can't reliably find the boundary between the two
+# occurrences: a stop consonant inside the word (the "p" in "ship") can dip the envelope
+# just as low as the gap between words. Instead this finds the two energy peaks (each
+# occurrence's vowel nucleus) and splits at the true local minimum between them, which
+# works regardless of how loud either occurrence is or how shallow the gap is.
 #
 # Usage:
 #   ~/kokoro-env/bin/python3 scripts/kokoro_server.py --port 8900   # in another terminal
 #   ~/kokoro-env/bin/python3 scripts/generate-word-audio-en-repeat-trim.py
 #   ~/kokoro-env/bin/python3 scripts/generate-word-audio-en-repeat-trim.py --only=ship,grape
+#   ~/kokoro-env/bin/python3 scripts/generate-word-audio-en-repeat-trim.py --force
 
+import io
+import json
+import os
+import subprocess
 import sys
-import urllib.request
 import urllib.parse
+import urllib.request
+
 import numpy as np
 import soundfile as sf
-import io
-import os
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.dirname(SCRIPT_DIR)
 KOKORO_URL = os.environ.get("KOKORO_SERVER_URL", "http://127.0.0.1:8900")
-OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "..", "public", "audio")
+OUTPUT_DIR = os.path.join(REPO_ROOT, "public", "audio")
 PAD = 0.04  # seconds of padding kept on each side of the extracted word
 
-# Keep in sync with REPEAT_TRIM_FIXED_IDS in generate-word-audio-en.mjs. Every one of these
-# ids' word text is identical to the id itself, which the split-in-half text below relies on.
-WORDS = ["bird", "fish", "sheep", "koala", "fox", "grape", "tomato", "potato", "peach", "ship"]
+
+def load_word_bank():
+    """wordBank.ts is the single source of truth for word content — shell out to Node to
+    import it directly rather than hand-duplicating the list here, so this can never drift
+    out of sync with the app (same approach as generate-word-images-local.py)."""
+    script = (
+        "import('./src/domain/wordBank.ts').then(m => "
+        "process.stdout.write(JSON.stringify(m.wordBank)))"
+    )
+    result = subprocess.run(
+        ["node", "--experimental-strip-types", "-e", script],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return json.loads(result.stdout)
 
 
 def check_kokoro_running():
@@ -92,9 +114,12 @@ def extract_second_occurrence(audio, sr):
 
 def main():
     only = None
+    force = False
     for arg in sys.argv[1:]:
         if arg.startswith("--only="):
             only = set(arg[len("--only="):].split(","))
+        elif arg == "--force":
+            force = True
 
     if not check_kokoro_running():
         print(
@@ -105,19 +130,25 @@ def main():
         sys.exit(1)
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    words = [w for w in WORDS if only is None or w in only]
-    print(f"Generating {len(words)} repeat-and-trim word pronunciation(s) via Kokoro...")
 
-    for word in words:
+    word_bank = load_word_bank()
+    targets = [w for w in word_bank if only is None or w["id"] in only]
+    if not force:
+        targets = [w for w in targets if not os.path.exists(os.path.join(OUTPUT_DIR, f"word-en-{w['id']}.wav"))]
+
+    print(f"Generating {len(targets)} repeat-and-trim word pronunciation(s) via Kokoro...")
+
+    for entry in targets:
+        word_id, word = entry["id"], entry["word"]
         try:
             wav_bytes = synthesize(f"{word}, {word}.")
             audio, sr = sf.read(io.BytesIO(wav_bytes))
             segment = extract_second_occurrence(audio, sr)
-            out_path = os.path.join(OUTPUT_DIR, f"word-en-{word}.wav")
+            out_path = os.path.join(OUTPUT_DIR, f"word-en-{word_id}.wav")
             sf.write(out_path, segment, sr, subtype="PCM_16")
-            print(f"done  word-en-{word} ({len(segment) / sr:.2f}s) -> public/audio/word-en-{word}.wav")
+            print(f"done  word-en-{word_id} ({len(segment) / sr:.2f}s) -> public/audio/word-en-{word_id}.wav")
         except Exception as err:
-            print(f"fail  word-en-{word}: {err}", file=sys.stderr)
+            print(f"fail  word-en-{word_id}: {err}", file=sys.stderr)
 
 
 if __name__ == "__main__":

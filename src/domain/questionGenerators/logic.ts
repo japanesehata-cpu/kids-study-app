@@ -17,25 +17,29 @@ function shuffle<T>(items: T[]): T[] {
   return [...items].sort(() => Math.random() - 0.5)
 }
 
-/** 'color' is excluded entirely: it's an attribute, not a kind of thing like the other
- * categories (animal/food/nature/vehicle), so pitting a color swatch against a photo of an
- * actual object is an apples-to-oranges comparison — colors keep their proper role in the
- * englishWords word↔swatch matching game instead.
+/** 'color' and 'shape' are excluded entirely: both are attributes, not a kind of thing like
+ * the other categories (animal/food/nature/vehicle/...), so pitting a color swatch or a bare
+ * geometric outline against a photo of an actual object is an apples-to-oranges comparison —
+ * they keep their proper role in the englishWords word↔picture matching game instead.
  *
  * heart/star/balloon are excluded by id even though wordBank still tags them 'nature' (that
  * tag only needs to be roughly right for englishWords' same-category distractor picking) —
  * rendered through the realistic-photo style, they come out as a plush cushion, a hanging
  * ornament, and a party balloon, i.e. man-made decorative objects, not anything natural. */
 const ODD_ONE_OUT_EXCLUDED_IDS = new Set(['heart', 'star', 'balloon'])
-const ODD_ONE_OUT_POOL = wordBank.filter((w) => w.category !== 'color' && !ODD_ONE_OUT_EXCLUDED_IDS.has(w.id))
+const ODD_ONE_OUT_EXCLUDED_CATEGORIES = new Set(['color', 'shape'])
+const ODD_ONE_OUT_POOL = wordBank.filter(
+  (w) => !ODD_ONE_OUT_EXCLUDED_CATEGORIES.has(w.category) && !ODD_ONE_OUT_EXCLUDED_IDS.has(w.id),
+)
 
 /** Not every pair of categories makes a fair "which one doesn't belong" contrast: 'nature'
  * (sun/moon/flower/cloud/mountain) is itself a natural thing, so pitting it against
  * 'animal' or 'food' produces a false explanation ("the others are all natural, but only
- * the banana is different" — a banana is natural too). 'vehicle' is the one category
- * that's unambiguously not natural, so those two pairings are disallowed in both
- * directions; every other pair of categories is fine and can freely mix. */
-const CATEGORY_CONTRAST_DISALLOWED = new Set(['animal|nature', 'food|nature'])
+ * the banana is different" — a banana is natural too). 'weather' (rain/snow/wind) and
+ * 'place' (beach/farm/park have real natural elements) share that same problem against
+ * 'nature' specifically. Every other pair of categories — including these two against
+ * animal/food/vehicle — is a fine, unambiguous contrast and can freely mix. */
+const CATEGORY_CONTRAST_DISALLOWED = new Set(['animal|nature', 'food|nature', 'nature|weather', 'nature|place'])
 
 function allowedOddCategories(mainCategory: string, categories: string[]): string[] {
   return categories.filter((c) => {
@@ -75,15 +79,18 @@ export const SYMBOL_SETS: string[][] = [
   ['💗', '💛', '💚', '💙', '💜'],
 ]
 
+/** ★2 (pattern's first appearance) keeps a simple 2-symbol cycle on a short 5-symbol
+ * strip. ★3-★5 each draw a strictly longer cycle (3, then 4, then 5 symbols) instead of
+ * a random 3-5 for all three, so the hardest tier is reliably the hardest tier rather
+ * than sometimes coinciding with ★3's easiest possible draw. */
+const PATTERN_CYCLE_LEN: Record<Level, number> = { 1: 2, 2: 2, 3: 3, 4: 4, 5: 5 }
+const PATTERN_SEQ_LEN: Record<Level, number> = { 1: 5, 2: 5, 3: 8, 4: 9, 5: 10 }
+
 function generatePattern(level: Level): LogicQuestion {
   const set = pickRandom(SYMBOL_SETS)
-  // ★2 (age 5, pattern's first appearance) keeps it to a simple 2-symbol cycle shown as a
-  // short 5-symbol strip. ★3 (age 6, the hardest level) draws a longer cycle — 3 to 5
-  // symbols — shown across a full 10-symbol strip, so even a 5-symbol cycle repeats at
-  // least once before the blank.
-  const cycleLen = level <= 2 ? 2 : randomInt(3, 5)
+  const cycleLen = PATTERN_CYCLE_LEN[level]
   const symbols = set.slice(0, cycleLen)
-  const seqLen = level <= 2 ? 5 : 10
+  const seqLen = PATTERN_SEQ_LEN[level]
 
   const sequence = Array.from({ length: seqLen }, (_, i) => symbols[i % cycleLen])
   const answer = symbols[seqLen % cycleLen]
@@ -112,10 +119,13 @@ function generatePattern(level: Level): LogicQuestion {
   }
 }
 
+// compare only ever appears at ★3+ — its own range still climbs across those levels
+// instead of coin-flipping between easy/hard regardless of which one, so ★5 reliably
+// compares bigger numbers than ★3 does.
+const COMPARE_MAX: Record<Level, number> = { 1: 10, 2: 10, 3: 10, 4: 14, 5: 18 }
+
 function generateCompare(level: Level): LogicQuestion {
-  // compare only ever appears at ★3 (age 6) now, so it varies its own range rather than
-  // splitting easy/hard across two levels the way the old 5-level scale did.
-  const max = Math.random() < 0.5 ? 10 : 18
+  const max = COMPARE_MAX[level]
   const numbers = new Set<number>()
   while (numbers.size < 4) numbers.add(randomInt(0, max))
   const numberList = [...numbers]
@@ -135,11 +145,20 @@ function generateCompare(level: Level): LogicQuestion {
   }
 }
 
-/** ★1 age 4: oddOneOut only. ★2 age 5: adds pattern. ★3 age 6: adds compare. */
+/** ★1: oddOneOut only. ★2: adds pattern. ★3+: adds compare, and each higher level leans
+ * further toward pattern/compare (each with its own escalating internal difficulty
+ * above) instead of picking uniformly among all three the way ★3-★5 used to, so the
+ * overall question mix keeps getting harder too, not just the individual question types. */
+const KIND_WEIGHTS: Record<Level, LogicQuestion['kind'][]> = {
+  1: ['oddOneOut'],
+  2: ['oddOneOut', 'oddOneOut', 'pattern'],
+  3: ['oddOneOut', 'pattern', 'compare'],
+  4: ['oddOneOut', 'pattern', 'pattern', 'compare', 'compare'],
+  5: ['oddOneOut', 'pattern', 'compare', 'compare', 'compare'],
+}
+
 export function generateLogicQuestion(level: Level): LogicQuestion {
-  const availableKinds: LogicQuestion['kind'][] =
-    level <= 1 ? ['oddOneOut'] : level <= 2 ? ['oddOneOut', 'pattern'] : ['oddOneOut', 'pattern', 'compare']
-  const kind = pickRandom(availableKinds)
+  const kind = pickRandom(KIND_WEIGHTS[level])
 
   switch (kind) {
     case 'oddOneOut':

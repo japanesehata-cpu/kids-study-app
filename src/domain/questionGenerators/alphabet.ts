@@ -1,5 +1,5 @@
 import type { AlphabetQuestion, Level } from '../types'
-import { alphabetBank, pickRandomSound, type AlphabetEntry } from '../alphabetBank'
+import { alphabetBank, type AlphabetEntry } from '../alphabetBank'
 
 function makeId(): string {
   return `alphabet-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
@@ -44,11 +44,10 @@ export function generateAlphabetQuestion(level: Level): AlphabetQuestion {
     }
   }
 
-  // ★1 (uppercase) / ★2 (lowercase): hear the letter's phonics sound, pick the matching
-  // glyph — mirrors hiragana/katakana's listen-and-pick-the-glyph shape, scoped to one case
-  // per level so the case distinction stays unambiguous while it's still new.
+  // ★1 (uppercase) / ★2 (lowercase): hear the letter's name, pick the matching glyph —
+  // mirrors hiragana/katakana's listen-and-pick-the-glyph shape, scoped to one case per
+  // level so the case distinction stays unambiguous while it's still new.
   const useUpper = level === 1
-  const sound = pickRandomSound(target)
   const answerChar = useUpper ? target.upper : target.lower
   const choiceIds = shuffle([answerChar, ...distractors.map((d) => (useUpper ? d.upper : d.lower))])
 
@@ -57,8 +56,7 @@ export function generateAlphabetQuestion(level: Level): AlphabetQuestion {
     category: 'alphabet',
     level,
     letterId: target.id,
-    kind: 'phonics',
-    soundVariant: sound.variant,
+    kind: 'letterName',
     answerChar,
     choiceIds,
     subSkill: subSkillForLevel(level),

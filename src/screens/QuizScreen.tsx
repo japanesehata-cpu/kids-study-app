@@ -503,6 +503,26 @@ function renderChoiceContent(question: Question, choice: Choice, lang: Lang) {
   )
 }
 
+/** Shown/spoken when the answer was wrong (see buildFeedbackMessage's `{answer}` segment).
+ * An if-chain rather than a nested ternary — the ternary version accreted a new level with
+ * every category this session added and became genuinely error-prone to extend correctly. */
+function computeCorrectAnswerLabel(question: Question, lang: Lang): string {
+  if (isArithmetic(question)) return String(question.answer)
+  if (isLogic(question)) {
+    if (question.kind === 'oddOneOut') {
+      return lang === 'ja' ? getWordById(question.answer).translationJa : getWordById(question.answer).word
+    }
+    return question.answer
+  }
+  if (isHiragana(question)) return question.char
+  if (isKatakana(question)) return question.char
+  if (isAlphabet(question)) return question.answerChar
+  if (isClock(question)) return formatClockKey(`${question.hour}:${question.minute}`, lang)
+  if (isSpotDifference(question)) return ''
+  if (isCounting(question)) return String(question.count)
+  return getWordById(question.wordId).word
+}
+
 export function QuizScreen({ category, level, setSize, progress, onComplete, onExit, onHome }: QuizScreenProps) {
   const { t, lang } = useI18n()
   const [questions] = useState<Question[]>(() =>
@@ -580,27 +600,7 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
     return ''
   }
 
-  const correctAnswerLabel = isArithmetic(question)
-    ? String(question.answer)
-    : isLogic(question)
-      ? question.kind === 'oddOneOut'
-        ? lang === 'ja'
-          ? getWordById(question.answer).translationJa
-          : getWordById(question.answer).word
-        : question.answer
-      : isHiragana(question)
-        ? question.char
-        : isKatakana(question)
-          ? question.char
-          : isAlphabet(question)
-            ? question.answerChar
-            : isClock(question)
-          ? formatClockKey(`${question.hour}:${question.minute}`, lang)
-          : isSpotDifference(question)
-            ? ''
-            : isCounting(question)
-              ? String(question.count)
-              : getWordById(question.wordId).word
+  const correctAnswerLabel = computeCorrectAnswerLabel(question, lang)
 
   // The englishWords correct answer is always this question's own word, regardless of
   // which choice was picked — so its cache entry is knowable up front, unlike every other

@@ -78,4 +78,9 @@ async function main() {
   }
 }
 
-main()
+// Guards against a plain `import()` of this module (e.g. tooling introspecting it)
+// accidentally triggering a real Kokoro run and disk writes as a side effect — this script
+// should only actually generate audio when invoked directly.
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main()
+}

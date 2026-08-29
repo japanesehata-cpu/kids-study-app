@@ -116,8 +116,15 @@ export function HandwritingCanvas({
   function handleDoneClick() {
     const canvas = inkRef.current
     const ctx = canvas?.getContext('2d')
+    if (!canvas || !ctx) return
+    // targetMaskRef can still be null on a very fast tap before the web font finishes
+    // loading (see the effect above) — rather than leave the button looking broken (no
+    // onDone call at all), fall back to a flat middle score instead of blocking completion.
     const targetMask = targetMaskRef.current
-    if (!canvas || !ctx || !targetMask) return
+    if (!targetMask) {
+      onDone(2)
+      return
+    }
     const data = ctx.getImageData(0, 0, size, size).data
     const inkMask = new Uint8Array(size * size)
     for (let i = 0; i < inkMask.length; i++) inkMask[i] = data[i * 4 + 3] > ALPHA_THRESHOLD ? 1 : 0

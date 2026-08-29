@@ -33,7 +33,7 @@ function shuffle<T>(items: T[]): T[] {
  * rules — only the underlying script differs — so a single generic wrapper covers both
  * instead of duplicating this per category. */
 function speechPhraseFor(category: 'hiragana' | 'katakana', entry: HiraganaEntry | KatakanaEntry): string {
-  return category === 'hiragana' ? hiraganaSpeechPhrase(entry as HiraganaEntry) : katakanaSpeechPhrase(entry as KatakanaEntry)
+  return category === 'hiragana' ? hiraganaSpeechPhrase(entry) : katakanaSpeechPhrase(entry)
 }
 
 export function HandwritingScreen({ category, onBack, onHome }: HandwritingScreenProps) {

@@ -473,6 +473,19 @@ cross symbol and no other markings, natural paint texture,
 soft diffused daylight, shallow depth of field, smooth neutral
 background, natural unedited photograph
 """,
+    # The generic shape_prompt rendered this as a 6- or 8-sided shape almost every time —
+    # even spelling out "five straight edges" explicitly wasn't reliable across seeds.
+    # Anchoring it to a concrete, well-known pentagon-shaped real object (a baseball home
+    # plate) worked far better, though still not on every seed — this exact wording is
+    # paired with WORD_SEED_OVERRIDES below, the one combination confirmed correct by eye.
+    "pentagon": """
+RAW product photograph of a real solid painted wooden pentagon shape block,
+shaped exactly like a baseball home plate, a flat bottom, two straight
+angled sides, and a pointed top forming five straight edges total,
+centered in frame, natural wood grain through matte paint,
+soft diffused daylight, neutral studio background,
+natural unedited product photograph
+""",
 }
 
 WORD_NEGATIVE_OVERRIDES = {
@@ -480,6 +493,7 @@ WORD_NEGATIVE_OVERRIDES = {
     "shrimp": "insect, spider, face, eyes, antennae close-up",
     "worm": "caterpillar, green, insect legs, segmented shell, coiled into a ring",
     "ambulance": "logo, badge, emblem, readable text, letters, license plate",
+    "pentagon": "six sides, seven sides, eight sides, square, cube, hexagon, octagon",
 }
 
 
@@ -510,6 +524,7 @@ def build_negative_prompt(entry):
 # turn up more.
 WORD_SEED_OVERRIDES = {
     "ambulance": 555,  # pairs with the WORD_PROMPT_OVERRIDES entry above — see its comment
+    "pentagon": 1,  # pairs with the WORD_PROMPT_OVERRIDES entry above — see its comment
 }
 
 

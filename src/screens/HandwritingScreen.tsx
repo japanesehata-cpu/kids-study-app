@@ -12,7 +12,9 @@ import { playCorrectSfx } from '../lib/sfx'
 
 interface HandwritingScreenProps {
   category: 'hiragana' | 'katakana'
+  /** one step back — the screen this was opened from (LevelSelectScreen) */
   onBack: () => void
+  onHome: () => void
 }
 
 type HandwritingLevel = 1 | 2
@@ -22,6 +24,10 @@ const BANK_BY_CATEGORY: Record<'hiragana' | 'katakana', (HiraganaEntry | Katakan
   katakana: katakanaBank,
 }
 
+function shuffle<T>(items: T[]): T[] {
+  return [...items].sort(() => Math.random() - 0.5)
+}
+
 /** Both banks share the exact same entry shape (id/char/row/mnemonic?) and phrase-wrapping
  * rules — only the underlying script differs — so a single generic wrapper covers both
  * instead of duplicating this per category. */
@@ -29,13 +35,16 @@ function speechPhraseFor(category: 'hiragana' | 'katakana', entry: HiraganaEntry
   return category === 'hiragana' ? hiraganaSpeechPhrase(entry as HiraganaEntry) : katakanaSpeechPhrase(entry as KatakanaEntry)
 }
 
-export function HandwritingScreen({ category, onBack }: HandwritingScreenProps) {
+export function HandwritingScreen({ category, onBack, onHome }: HandwritingScreenProps) {
   const { t, lang } = useI18n()
   const [level, setLevel] = useState<HandwritingLevel | null>(null)
   const [index, setIndex] = useState(0)
+  // Shuffled fresh each time a level is picked (see handleSelectLevel) rather than always
+  // stepping through the bank in its stored gojuon order — 五十音順 every session made the
+  // practice too predictable to actually test recognition.
+  const [order, setOrder] = useState<(HiraganaEntry | KatakanaEntry)[]>(() => shuffle(BANK_BY_CATEGORY[category]))
   const [praise, setPraise] = useState<{ stars: number; text: string } | null>(null)
-  const bank = BANK_BY_CATEGORY[category]
-  const entry = bank[index % bank.length]
+  const entry = order[index % order.length]
   const voiceProfile = characterThemes[category].voiceProfile
   const cacheKey = `${category}-${entry.id}`
   const speechPhrase = speechPhraseFor(category, entry)
@@ -59,7 +68,13 @@ export function HandwritingScreen({ category, onBack }: HandwritingScreenProps) 
 
   function handleNext() {
     setPraise(null)
-    setIndex((i) => (i + 1) % bank.length)
+    setIndex((i) => (i + 1) % order.length)
+  }
+
+  function handleSelectLevel(lvl: HandwritingLevel) {
+    setOrder(shuffle(BANK_BY_CATEGORY[category]))
+    setIndex(0)
+    setLevel(lvl)
   }
 
   function handleBack() {
@@ -76,19 +91,24 @@ export function HandwritingScreen({ category, onBack }: HandwritingScreenProps) 
     return (
       <div className="screen">
         <div className="top-bar">
-          <button type="button" className="secondary-button" onClick={onBack}>
-            {t('backHomeButton')}
-          </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button type="button" className="secondary-button" onClick={onBack}>
+              {t('backButton')}
+            </button>
+            <button type="button" className="secondary-button" onClick={onHome}>
+              {t('backHomeButton')}
+            </button>
+          </div>
           <CategoryHeader category={category} />
         </div>
         <p className="subtitle">{t('handwritingLevelSelectTitle')}</p>
         <div className="level-grid">
-          <button type="button" className="level-button" onClick={() => setLevel(1)}>
+          <button type="button" className="level-button" onClick={() => handleSelectLevel(1)}>
             <span className="level-number">{t('handwritingLevel1Label')}</span>
             <span className="level-stars">★☆</span>
             <span className="hint-caption">{t('handwritingLevel1Description')}</span>
           </button>
-          <button type="button" className="level-button" onClick={() => setLevel(2)}>
+          <button type="button" className="level-button" onClick={() => handleSelectLevel(2)}>
             <span className="level-number">{t('handwritingLevel2Label')}</span>
             <span className="level-stars">★★</span>
             <span className="hint-caption">{t('handwritingLevel2Description')}</span>
@@ -101,9 +121,14 @@ export function HandwritingScreen({ category, onBack }: HandwritingScreenProps) 
   return (
     <div className="screen">
       <div className="top-bar">
-        <button type="button" className="secondary-button" onClick={handleBack}>
-          {t('backHomeButton')}
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button type="button" className="secondary-button" onClick={handleBack}>
+            {t('backButton')}
+          </button>
+          <button type="button" className="secondary-button" onClick={onHome}>
+            {t('backHomeButton')}
+          </button>
+        </div>
         <CategoryHeader category={category} />
       </div>
 

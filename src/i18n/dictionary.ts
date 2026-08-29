@@ -83,6 +83,7 @@ export const dictionary = {
   resultBestStreak: { ja: 'さいこうきろく：{streak}もんれんぞく せいかい！', en: 'Best streak: {streak} in a row!' },
   tryAgainButton: { ja: 'もういちど', en: 'Try again' },
   backHomeButton: { ja: 'ホームへ', en: 'Back home' },
+  backButton: { ja: 'もどる', en: 'Back' },
 
   subSkillAdditionNoCarry: { ja: 'くりあがりなしのたしざん', en: 'addition without carrying' },
   subSkillAdditionCarry: { ja: 'くりあがりのあるたしざん', en: 'addition with carrying' },

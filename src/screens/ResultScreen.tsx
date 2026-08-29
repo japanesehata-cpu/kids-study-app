@@ -13,10 +13,12 @@ interface ResultScreenProps {
   result: SetResult
   streak: PlayStreak
   onRetry: () => void
+  /** one step back — LevelSelectScreen, to pick a different level instead of the same one again */
+  onBack: () => void
   onBackHome: () => void
 }
 
-export function ResultScreen({ result, streak, onRetry, onBackHome }: ResultScreenProps) {
+export function ResultScreen({ result, streak, onRetry, onBack, onBackHome }: ResultScreenProps) {
   const { t, lang } = useI18n()
   const leveledUp = result.leveledUp
   const correctCount = result.answers.filter((a) => a.correct).length
@@ -121,6 +123,9 @@ export function ResultScreen({ result, streak, onRetry, onBackHome }: ResultScre
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
           <button type="button" className="primary-button" onClick={onRetry}>
             {t('tryAgainButton')}
+          </button>
+          <button type="button" className="secondary-button" onClick={onBack}>
+            {t('backButton')}
           </button>
           <button type="button" className="secondary-button" onClick={onBackHome}>
             {t('backHomeButton')}

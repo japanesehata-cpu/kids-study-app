@@ -44,7 +44,9 @@ interface QuizScreenProps {
   setSize: number
   progress: ProgressState
   onComplete: (answers: AnswerRecord[]) => void
+  /** one step back — LevelSelectScreen */
   onExit: () => void
+  onHome: () => void
 }
 
 type Choice = number | string
@@ -501,7 +503,7 @@ function renderChoiceContent(question: Question, choice: Choice, lang: Lang) {
   )
 }
 
-export function QuizScreen({ category, level, setSize, progress, onComplete, onExit }: QuizScreenProps) {
+export function QuizScreen({ category, level, setSize, progress, onComplete, onExit, onHome }: QuizScreenProps) {
   const { t, lang } = useI18n()
   const [questions] = useState<Question[]>(() =>
     generateQuestionSet(category, level, progress[category].reviewQueue, setSize),
@@ -705,9 +707,14 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
     <div className="screen">
       {celebrationKey > 0 && <RewardRain key={celebrationKey} />}
       <div className="top-bar">
-        <button type="button" className="secondary-button" onClick={onExit}>
-          {t('backHomeButton')}
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button type="button" className="secondary-button" onClick={onExit}>
+            {t('backButton')}
+          </button>
+          <button type="button" className="secondary-button" onClick={onHome}>
+            {t('backHomeButton')}
+          </button>
+        </div>
         <CategoryHeader category={category} />
         <span className="subtitle">
           {t('quizProgress', { current: index + 1, total: questions.length })}

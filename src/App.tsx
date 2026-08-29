@@ -37,6 +37,11 @@ function AppContent() {
   const [progress, setProgress] = useState<ProgressState>(() => loadProgress())
   const [streak, setStreak] = useState<PlayStreak>(() => loadStreak())
   const [screen, setScreen] = useState<Screen>(() => (loadIntroSeen() ? { name: 'home' } : { name: 'intro' }))
+  // Every screen below Home keeps a "もどる" (back one step) button alongside "ホームへ" (go
+  // straight home) — this stack is what makes "one step back" actually mean the screen the
+  // player came from, not always Home, e.g. Quiz -> LevelSelect, or LevelSelect ->
+  // EnglishEntry when that's how English was reached.
+  const [, setHistory] = useState<Screen[]>([])
 
   useEffect(() => {
     persistProgress(progress)
@@ -46,9 +51,30 @@ function AppContent() {
     persistStreak(streak)
   }, [streak])
 
+  function navigate(next: Screen) {
+    setHistory((h) => [...h, screen])
+    setScreen(next)
+  }
+
+  function goBack() {
+    setHistory((h) => {
+      if (h.length === 0) {
+        setScreen({ name: 'home' })
+        return h
+      }
+      setScreen(h[h.length - 1])
+      return h.slice(0, -1)
+    })
+  }
+
+  function goHome() {
+    setHistory([])
+    setScreen({ name: 'home' })
+  }
+
   function handleDismissIntro() {
     saveIntroSeen()
-    setScreen({ name: 'home' })
+    goHome()
   }
 
   function handleQuizComplete(category: Category, level: Level, setSize: number, answers: AnswerRecord[]) {
@@ -58,7 +84,7 @@ function AppContent() {
     const nextStreak = recordPlaySession(streak)
     setStreak(nextStreak)
 
-    setScreen({
+    navigate({
       name: 'result',
       category,
       level,
@@ -76,33 +102,35 @@ function AppContent() {
         return (
           <HomeScreen
             streak={streak}
-            onSelectCategory={(category) => setScreen({ name: 'levelSelect', category })}
-            onOpenEnglishEntry={() => setScreen({ name: 'englishEntry' })}
-            onOpenParentGate={() => setScreen({ name: 'parentGate' })}
+            onSelectCategory={(category) => navigate({ name: 'levelSelect', category })}
+            onOpenEnglishEntry={() => navigate({ name: 'englishEntry' })}
+            onOpenParentGate={() => navigate({ name: 'parentGate' })}
           />
         )
       case 'englishEntry':
         return (
           <EnglishEntryScreen
-            onSelect={(category) => setScreen({ name: 'levelSelect', category })}
-            onBack={() => setScreen({ name: 'home' })}
+            onSelect={(category) => navigate({ name: 'levelSelect', category })}
+            onBack={goBack}
+            onHome={goHome}
           />
         )
       case 'levelSelect':
         return (
           <LevelSelectScreen
             category={screen.category}
-            onSelectLevel={(level, setSize) => setScreen({ name: 'quiz', category: screen.category, level, setSize })}
+            onSelectLevel={(level, setSize) => navigate({ name: 'quiz', category: screen.category, level, setSize })}
             onOpenHandwriting={
               screen.category === 'hiragana' || screen.category === 'katakana'
-                ? () => setScreen({ name: 'handwriting', category: screen.category as 'hiragana' | 'katakana' })
+                ? () => navigate({ name: 'handwriting', category: screen.category as 'hiragana' | 'katakana' })
                 : undefined
             }
-            onBack={() => setScreen({ name: 'home' })}
+            onBack={goBack}
+            onHome={goHome}
           />
         )
       case 'handwriting':
-        return <HandwritingScreen category={screen.category} onBack={() => setScreen({ name: 'home' })} />
+        return <HandwritingScreen category={screen.category} onBack={goBack} onHome={goHome} />
       case 'quiz':
         return (
           <QuizScreen
@@ -111,7 +139,8 @@ function AppContent() {
             setSize={screen.setSize}
             progress={progress}
             onComplete={(answers) => handleQuizComplete(screen.category, screen.level, screen.setSize, answers)}
-            onExit={() => setScreen({ name: 'home' })}
+            onExit={goBack}
+            onHome={goHome}
           />
         )
       case 'result':
@@ -120,20 +149,21 @@ function AppContent() {
             result={screen.result}
             streak={screen.streak}
             onRetry={() =>
-              setScreen({ name: 'quiz', category: screen.category, level: screen.level, setSize: screen.setSize })
+              navigate({ name: 'quiz', category: screen.category, level: screen.level, setSize: screen.setSize })
             }
-            onBackHome={() => setScreen({ name: 'home' })}
+            onBack={goBack}
+            onBackHome={goHome}
           />
         )
       case 'parentGate':
         return (
           <ParentGate
-            onSuccess={() => setScreen({ name: 'progress' })}
-            onCancel={() => setScreen({ name: 'home' })}
+            onSuccess={() => navigate({ name: 'progress' })}
+            onCancel={goBack}
           />
         )
       case 'progress':
-        return <ProgressScreen progress={progress} onBack={() => setScreen({ name: 'home' })} />
+        return <ProgressScreen progress={progress} onBack={goBack} />
     }
   }
 

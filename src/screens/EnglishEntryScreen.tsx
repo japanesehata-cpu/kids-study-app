@@ -4,22 +4,30 @@ import { characterThemes } from '../components/characters/characterThemes'
 
 interface EnglishEntryScreenProps {
   onSelect: (mode: 'englishSpelling' | 'englishListening') => void
+  /** one step back — from here, the same as onHome since Home is the only screen that
+   * opens this one, but kept for consistency with every other screen's back button pair */
   onBack: () => void
+  onHome: () => void
 }
 
 /** English is presented as a single combined home-screen card (see HomeScreen) that opens
  * this よむ/きく chooser instead of two separate cards — englishSpelling and
  * englishListening remain fully separate categories underneath, each with its own
  * independent level/progress (see LevelSelectScreen), this is just the entry point. */
-export function EnglishEntryScreen({ onSelect, onBack }: EnglishEntryScreenProps) {
+export function EnglishEntryScreen({ onSelect, onBack, onHome }: EnglishEntryScreenProps) {
   const { t } = useI18n()
 
   return (
     <div className="screen">
       <div className="top-bar">
-        <button type="button" className="secondary-button" onClick={onBack}>
-          {t('backHomeButton')}
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button type="button" className="secondary-button" onClick={onBack}>
+            {t('backButton')}
+          </button>
+          <button type="button" className="secondary-button" onClick={onHome}>
+            {t('backHomeButton')}
+          </button>
+        </div>
       </div>
 
       <CharacterPortrait theme={characterThemes.englishSpelling} mood="happy" size={150} />

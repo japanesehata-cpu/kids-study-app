@@ -11,7 +11,9 @@ interface LevelSelectScreenProps {
   category: Category
   onSelectLevel: (level: Level, setSize: number) => void
   onOpenHandwriting?: () => void
+  /** one step back — Home for most categories, EnglishEntryScreen for englishSpelling/englishListening */
   onBack: () => void
+  onHome: () => void
 }
 
 const SET_SIZE_OPTIONS = [5, 10] as const
@@ -21,6 +23,7 @@ export function LevelSelectScreen({
   onSelectLevel,
   onOpenHandwriting,
   onBack,
+  onHome,
 }: LevelSelectScreenProps) {
   const { t } = useI18n()
   const theme = characterThemes[category]
@@ -31,9 +34,14 @@ export function LevelSelectScreen({
   return (
     <div className="screen">
       <div className="top-bar">
-        <button type="button" className="secondary-button" onClick={onBack}>
-          {t('backHomeButton')}
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button type="button" className="secondary-button" onClick={onBack}>
+            {t('backButton')}
+          </button>
+          <button type="button" className="secondary-button" onClick={onHome}>
+            {t('backHomeButton')}
+          </button>
+        </div>
         <CategoryHeader category={category} />
       </div>
 

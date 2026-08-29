@@ -163,7 +163,10 @@ function AppContent() {
           />
         )
       case 'progress':
-        return <ProgressScreen progress={progress} onBack={goBack} />
+        // ProgressScreen's single button always meant "go straight home" (it isn't one of
+        // the もどる/ホームへ pairs added elsewhere) — goBack() would instead reopen
+        // ParentGate's math challenge, which is a worse experience, not a genuine "back".
+        return <ProgressScreen progress={progress} onBack={goHome} />
     }
   }
 

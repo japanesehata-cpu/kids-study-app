@@ -56,6 +56,7 @@ export const dictionary = {
   handwritingTracePrompt: { ja: 'うすいじを なぞってみよう', en: 'Trace the faint character' },
   handwritingListenWritePrompt: { ja: 'きこえたじを かいてみよう', en: 'Listen, then write the character' },
   handwritingDoneButton: { ja: 'できた！', en: 'Done!' },
+  handwritingAnswerLabel: { ja: 'こたえは これ！', en: 'The answer is:' },
   handwritingClearButton: { ja: 'けす', en: 'Clear' },
   clockPrompt: { ja: 'いま なんじ？', en: 'What time is it?' },
   clockPracticeHint: { ja: 'はりをうごかしてみよう！', en: 'Try moving the hands!' },

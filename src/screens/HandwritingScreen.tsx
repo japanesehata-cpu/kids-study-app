@@ -5,6 +5,7 @@ import { pickHandwritingPraise } from '../domain/handwritingPraise'
 import { useI18n } from '../i18n/I18nContext'
 import { CategoryHeader } from '../components/CategoryHeader'
 import { HandwritingCanvas } from '../components/HandwritingCanvas'
+import { HiraganaChar } from '../components/HiraganaChar'
 import { TtsButton } from '../components/TtsButton'
 import { characterThemes } from '../components/characters/characterThemes'
 import { speak, type SpeechLang } from '../lib/tts'
@@ -144,6 +145,11 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
             {'★'.repeat(praise.stars)}
             {'☆'.repeat(3 - praise.stars)}
           </div>
+          {/* The answer check — level 1 already showed this faintly the whole time, but
+              level 2 (listen & write) never shows the glyph at all until now, so this is
+              the child's first chance to compare what they wrote against the real thing. */}
+          <p className="hint-caption">{t('handwritingAnswerLabel')}</p>
+          <HiraganaChar char={entry.char} size={96} />
           <p className="handwriting-praise-text">{praise.text}</p>
           <button type="button" className="primary-button" onClick={handleNext}>
             {t('nextButton')}

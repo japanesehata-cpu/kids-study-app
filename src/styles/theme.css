@@ -1,0 +1,51 @@
+:root {
+  --color-bg: #fff2f8;
+  --color-bg-soft: #ffe4f1;
+  --color-primary: #ff8fc7;
+  --color-primary-dark: #ff5fae;
+  --color-primary-soft: #ffd3ea;
+  --color-accent: #ffd166;
+  --color-accent-soft: #fff1cf;
+  --color-success: #7ed6a5;
+  --color-success-soft: #dff7ea;
+  --color-error: #ff9b8a;
+  --color-error-soft: #ffe6e1;
+  --color-text: #4a3b4a;
+  --color-text-soft: #8a7a8a;
+  --color-surface: #ffffff;
+
+  --radius-lg: 32px;
+  --radius-md: 24px;
+  --radius-sm: 16px;
+
+  --shadow-card: 0 8px 24px rgba(255, 95, 174, 0.18);
+  --shadow-button: 0 6px 0 var(--color-primary-dark);
+
+  --font-family: 'Hiragino Maru Gothic ProN', 'Rounded Mplus 1c', 'Zen Maru Gothic',
+    'Hiragino Sans', sans-serif;
+
+  --touch-target-min: 88px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background: linear-gradient(160deg, var(--color-bg) 0%, var(--color-bg-soft) 100%);
+  color: var(--color-text);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+button {
+  font-family: inherit;
+}

@@ -1,0 +1,39 @@
+{
+  "name": "kids-study-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "generate:word-images": "node --env-file-if-exists=.env scripts/generate-word-images.mjs",
+    "generate:characters": "node --env-file-if-exists=.env scripts/generate-character-portraits.mjs",
+    "generate:rewards": "node --env-file-if-exists=.env scripts/generate-reward-images.mjs",
+    "optimize:word-images": "cd public/images/words && for f in *.png; do sips -Z 320 \"$f\"; done",
+    "tts-server": "~/piper-env/bin/python3 scripts/piper_server.py",
+    "generate:tts-cache": "node --env-file-if-exists=.env scripts/generate-tts-cache.mjs"
+  },
+  "dependencies": {
+    "framer-motion": "^13.1.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "vite-plugin-pwa": "^1.3.0"
+  },
+  "devDependencies": {
+    "@google/genai": "^2.19.0",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.4",
+    "jsdom": "^30.0.1",
+    "oxlint": "^1.75.0",
+    "typescript": "~6.0.2",
+    "vite": "^8.2.0",
+    "vitest": "^4.1.11"
+  }
+}

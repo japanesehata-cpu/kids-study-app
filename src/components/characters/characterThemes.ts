@@ -29,6 +29,7 @@ export const characterThemes: Record<Category, CharacterTheme> = {
       rate: 1.05,
       playbackRate: 1.2,
       voicevoxSpeaker: { name: '四国めたん', style: 'ノーマル' },
+      kokoroVoice: 'af_bella',
     },
   },
   subtraction: {
@@ -44,6 +45,7 @@ export const characterThemes: Record<Category, CharacterTheme> = {
       rate: 0.88,
       playbackRate: 0.82,
       voicevoxSpeaker: { name: '東北きりたん', style: 'ノーマル' },
+      kokoroVoice: 'af_sky',
     },
   },
   // englishSpelling and englishListening are two separate entry points into the same skill
@@ -62,6 +64,9 @@ export const characterThemes: Record<Category, CharacterTheme> = {
       rate: 1.0,
       playbackRate: 1.32,
       voicevoxSpeaker: { name: '雨晴はう', style: 'ノーマル' },
+      // hana is literally the englishWords mascot, so give her the exact voice already
+      // used for word-en-*.wav pronunciation instead of a different one.
+      kokoroVoice: 'af_heart',
     },
   },
   englishListening: {
@@ -77,6 +82,9 @@ export const characterThemes: Record<Category, CharacterTheme> = {
       rate: 1.0,
       playbackRate: 1.32,
       voicevoxSpeaker: { name: '雨晴はう', style: 'ノーマル' },
+      // hana is literally the englishWords mascot, so give her the exact voice already
+      // used for word-en-*.wav pronunciation instead of a different one.
+      kokoroVoice: 'af_heart',
     },
   },
   logic: {
@@ -92,6 +100,7 @@ export const characterThemes: Record<Category, CharacterTheme> = {
       rate: 0.9,
       playbackRate: 0.92,
       voicevoxSpeaker: { name: '冥鳴ひまり', style: 'ノーマル' },
+      kokoroVoice: 'af_nicole',
     },
   },
   hiragana: {
@@ -107,6 +116,7 @@ export const characterThemes: Record<Category, CharacterTheme> = {
       rate: 0.92,
       playbackRate: 1.06,
       voicevoxSpeaker: { name: '春日部つむぎ', style: 'ノーマル' },
+      kokoroVoice: 'bf_emma',
     },
   },
   katakana: {
@@ -123,6 +133,7 @@ export const characterThemes: Record<Category, CharacterTheme> = {
       rate: 1.1,
       playbackRate: 1.15,
       voicevoxSpeaker: { name: '満別花丸', style: '元気' },
+      kokoroVoice: 'af_jessica',
     },
   },
   alphabet: {
@@ -140,6 +151,7 @@ export const characterThemes: Record<Category, CharacterTheme> = {
       rate: 1.0,
       playbackRate: 1.05,
       voicevoxSpeaker: { name: '猫使アル', style: 'うきうき' },
+      kokoroVoice: 'am_puck',
     },
   },
   clock: {
@@ -155,6 +167,7 @@ export const characterThemes: Record<Category, CharacterTheme> = {
       rate: 0.9,
       playbackRate: 0.88,
       voicevoxSpeaker: { name: '琴詠ニア', style: 'ノーマル' },
+      kokoroVoice: 'bm_george',
     },
   },
   spotDifference: {
@@ -170,6 +183,7 @@ export const characterThemes: Record<Category, CharacterTheme> = {
       rate: 1.08,
       playbackRate: 1.26,
       voicevoxSpeaker: { name: 'ずんだもん', style: 'ノーマル' },
+      kokoroVoice: 'af_kore',
     },
   },
   counting: {
@@ -185,6 +199,7 @@ export const characterThemes: Record<Category, CharacterTheme> = {
       rate: 1.0,
       playbackRate: 1.0,
       voicevoxSpeaker: { name: 'もち子さん', style: 'ノーマル' },
+      kokoroVoice: 'am_michael',
     },
   },
 }

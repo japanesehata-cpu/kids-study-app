@@ -3,12 +3,14 @@ import { isVoicevoxAvailable, resolveVoicevoxSpeakerId, synthesizeVoicevox } fro
 export type SpeechLang = 'ja-JP' | 'en-US'
 
 /** Per-character vocal identity.
- * voicevoxSpeaker names a specific, genuinely distinct VOICEVOX voice (see voicevox.ts)
- * when that engine is running and has that character installed — the strongest source of
- * identity, since it's a different voice, not just a pitch-shifted one. pitch/rate drive
- * the Web Speech fallback; playbackRate re-pitches the local-voice-server fallback (speed +
- * pitch shift together, like an old tape) when neither VOICEVOX nor a matching system voice
- * is available. */
+ * voicevoxSpeaker names a specific, genuinely distinct VOICEVOX voice (see voicevox.ts) for
+ * Japanese, and kokoroVoice does the same for English (e.g. 'af_bella') — Kokoro's voice
+ * packs are lightweight enough that one server process can synthesize with any of them per
+ * request (see scripts/kokoro_server.py), so this is a real different voice, not a
+ * pitch-shifted one. pitch/rate drive the Web Speech fallback; playbackRate re-pitches the
+ * local-voice-server fallback (speed + pitch shift together, like an old tape) only when
+ * that tier has no genuinely distinct voice to reach for (no voicevoxSpeaker/kokoroVoice, or
+ * the matching server isn't running). */
 export interface VoiceProfile {
   pitch: number
   rate: number
@@ -16,6 +18,8 @@ export interface VoiceProfile {
   /** Omit for generic, non-character speech (e.g. the intro screen), which skips the
    * VOICEVOX tier. */
   voicevoxSpeaker?: { name: string; style: string }
+  /** Omit to use the English local-voice-server's default voice. */
+  kokoroVoice?: string
 }
 
 export const DEFAULT_VOICE_PROFILE: VoiceProfile = { pitch: 1.15, rate: 0.98, playbackRate: 1 }
@@ -178,14 +182,18 @@ async function speakWithVoicevox(
 /** Resolves true if audio played or was intentionally skipped (superseded), false if the caller should fall back. */
 async function speakWithLocalVoice(text: string, token: number, profile: VoiceProfile, lang: SpeechLang): Promise<boolean> {
   try {
-    const res = await fetch(`${LOCAL_VOICE_SERVER_URL[lang]}/synthesize?text=${encodeURIComponent(text)}`, {
+    const voiceParam = lang === 'en-US' && profile.kokoroVoice ? `&voice=${encodeURIComponent(profile.kokoroVoice)}` : ''
+    const res = await fetch(`${LOCAL_VOICE_SERVER_URL[lang]}/synthesize?text=${encodeURIComponent(text)}${voiceParam}`, {
       signal: AbortSignal.timeout(5000),
     })
     if (!res.ok) return false
     if (token !== callToken) return true
 
     const blob = await res.blob()
-    return await playBlob(blob, token, profile.playbackRate)
+    // A genuinely distinct Kokoro voice already carries its own natural pitch/pacing — the
+    // playbackRate re-pitch hack is only for when there's no such voice to reach for.
+    const playbackRate = lang === 'en-US' && profile.kokoroVoice ? undefined : profile.playbackRate
+    return await playBlob(blob, token, playbackRate)
   } catch {
     return false
   }

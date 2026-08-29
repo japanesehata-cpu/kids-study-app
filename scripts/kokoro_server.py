@@ -86,9 +86,14 @@ def make_handler(pipeline, voice, speed):
                     self._set_cors_headers()
                     self.end_headers()
                     return
+                # Kokoro's voice packs are lightweight embeddings shared by one loaded model,
+                # so a single running pipeline can synthesize with any of them per call — no
+                # need for a separate server process per character voice. Falls back to the
+                # server's --voice default when the caller doesn't ask for a specific one.
+                request_voice = (params.get("voice") or [voice])[0]
 
                 try:
-                    audio_bytes = synthesize_to_wav_bytes(pipeline, text, voice, speed)
+                    audio_bytes = synthesize_to_wav_bytes(pipeline, text, request_voice, speed)
 
                     self.send_response(200)
                     self._set_cors_headers()

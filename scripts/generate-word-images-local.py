@@ -665,6 +665,26 @@ centered in frame, natural wood grain through matte paint,
 soft diffused daylight, neutral studio background,
 natural unedited product photograph
 """,
+    # "river" and "stream" both fell into nature_prompt()'s shared generic landscape
+    # template ("a real {word}, wide-angle nature photography...") with nothing to tell
+    # the model they're different scales of the same thing — both rendered as visually
+    # near-identical narrow forest creeks, indistinguishable to a child. Anchored each to
+    # an explicit, opposite scale cue instead.
+    "river": """
+RAW documentary landscape photograph of a real wide river,
+a broad, substantial river much wider than a person could jump across,
+calm open water, visible riverbanks on both sides, flowing through an
+open landscape, wide-angle nature photography, natural daylight,
+neutral natural colors, unedited landscape photograph,
+no people, no buildings, no boats, no text
+""",
+    "stream": """
+RAW documentary landscape photograph of a real small narrow stream,
+a thin trickling brook barely a step wide, shallow clear water running
+over visible pebbles, meandering through a green meadow,
+wide-angle nature photography, natural daylight, neutral natural colors,
+unedited landscape photograph, no people, no buildings, no text
+""",
 }
 
 WORD_NEGATIVE_OVERRIDES = {
@@ -675,6 +695,8 @@ WORD_NEGATIVE_OVERRIDES = {
     "pentagon": "six sides, seven sides, eight sides, square, cube, hexagon, octagon",
     "melon": "cut, sliced, cross section, halved, quartered, seeds visible",
     "mole": "rat, vole, capybara, nutria, visible eyes, long tail",
+    "river": "narrow, tiny, small stream, brook, trickle",
+    "stream": "wide, large river, distant riverbanks, broad open water",
 }
 
 

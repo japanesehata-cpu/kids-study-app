@@ -51,7 +51,7 @@ export function LevelSelectScreen({
 
       <p className="subtitle">{t('levelSelectTitle')}</p>
 
-      {(category === 'hiragana' || category === 'katakana') && onOpenHandwriting && (
+      {(category === 'hiragana' || category === 'katakana' || category === 'alphabet') && onOpenHandwriting && (
         <button type="button" className="secondary-button" onClick={onOpenHandwriting}>
           {t('handwritingButton')}
         </button>

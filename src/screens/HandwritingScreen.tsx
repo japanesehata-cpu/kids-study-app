@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { hiraganaBank, hiraganaSpeechPhrase, type HiraganaEntry } from '../domain/hiraganaBank'
 import { katakanaBank, katakanaSpeechPhrase, type KatakanaEntry } from '../domain/katakanaBank'
+import { alphabetBank } from '../domain/alphabetBank'
 import { pickHandwritingPraise } from '../domain/handwritingPraise'
 import { useI18n } from '../i18n/I18nContext'
 import { CategoryHeader } from '../components/CategoryHeader'
@@ -11,8 +12,10 @@ import { characterThemes } from '../components/characters/characterThemes'
 import { speak, type SpeechLang } from '../lib/tts'
 import { playCorrectSfx } from '../lib/sfx'
 
+type HandwritingCategory = 'hiragana' | 'katakana' | 'alphabet'
+
 interface HandwritingScreenProps {
-  category: 'hiragana' | 'katakana'
+  category: HandwritingCategory
   /** one step back — the screen this was opened from (LevelSelectScreen) */
   onBack: () => void
   onHome: () => void
@@ -20,42 +23,61 @@ interface HandwritingScreenProps {
 
 type HandwritingLevel = 1 | 2
 
-const BANK_BY_CATEGORY: Record<'hiragana' | 'katakana', (HiraganaEntry | KatakanaEntry)[]> = {
+/** Alphabet practice has no mnemonic/row — just a glyph to write — since case doesn't
+ * change a letter's name (unlike hiragana/katakana, where every glyph is spoken via its
+ * own dedicated phrase-building function). */
+interface AlphabetWritableEntry {
+  id: string
+  char: string
+}
+
+/** Upper and lower case are both practiced, as two separate glyphs to draw — not a single
+ * "A/a" entry — the same way hiragana/katakana practice one glyph at a time. */
+const ALPHABET_HANDWRITING_BANK: AlphabetWritableEntry[] = alphabetBank.flatMap((a) => [
+  { id: `${a.id}-upper`, char: a.upper },
+  { id: `${a.id}-lower`, char: a.lower },
+])
+
+type WritableEntry = HiraganaEntry | KatakanaEntry | AlphabetWritableEntry
+
+const BANK_BY_CATEGORY: Record<HandwritingCategory, WritableEntry[]> = {
   hiragana: hiraganaBank,
   katakana: katakanaBank,
+  alphabet: ALPHABET_HANDWRITING_BANK,
 }
 
 function shuffle<T>(items: T[]): T[] {
   return [...items].sort(() => Math.random() - 0.5)
 }
 
-/** Both banks share the exact same entry shape (id/char/row/mnemonic?) and phrase-wrapping
- * rules — only the underlying script differs — so a single generic wrapper covers both
- * instead of duplicating this per category. */
-function speechPhraseFor(category: 'hiragana' | 'katakana', entry: HiraganaEntry | KatakanaEntry): string {
-  return category === 'hiragana' ? hiraganaSpeechPhrase(entry) : katakanaSpeechPhrase(entry)
+/** hiragana/katakana speak their own script (spoken phrase wraps the glyph with a mnemonic
+ * word, see {hiragana,katakana}SpeechPhrase); alphabet just speaks the letter's name (see
+ * the phonics-to-letter-name change in questionGenerators/alphabet.ts — this mirrors it).
+ * The casts are safe: `entry` always comes from BANK_BY_CATEGORY[category], so its runtime
+ * shape always matches whichever branch `category` selects here. */
+function speechInfoFor(category: HandwritingCategory, entry: WritableEntry): { phrase: string; lang: SpeechLang } {
+  if (category === 'hiragana') return { phrase: hiraganaSpeechPhrase(entry as HiraganaEntry), lang: 'ja-JP' }
+  if (category === 'katakana') return { phrase: katakanaSpeechPhrase(entry as KatakanaEntry), lang: 'ja-JP' }
+  return { phrase: entry.char, lang: 'en-US' }
 }
 
 export function HandwritingScreen({ category, onBack, onHome }: HandwritingScreenProps) {
   const { t, lang } = useI18n()
   const [level, setLevel] = useState<HandwritingLevel | null>(null)
   const [index, setIndex] = useState(0)
-  // Shuffled fresh each time a level is picked (see handleSelectLevel) rather than always
-  // stepping through the bank in its stored gojuon order — 五十音順 every session made the
-  // practice too predictable to actually test recognition.
-  const [order, setOrder] = useState<(HiraganaEntry | KatakanaEntry)[]>(() => shuffle(BANK_BY_CATEGORY[category]))
+  const [order, setOrder] = useState<WritableEntry[]>(() => shuffle(BANK_BY_CATEGORY[category]))
   const [praise, setPraise] = useState<{ stars: number; text: string } | null>(null)
   const entry = order[index % order.length]
   const voiceProfile = characterThemes[category].voiceProfile
-  const cacheKey = `${category}-${entry.id}`
-  const speechPhrase = speechPhraseFor(category, entry)
+  // Only hiragana/katakana have pre-rendered cache files (see generate-tts-cache.mjs) —
+  // alphabet falls through to the live local-voice-server/Web Speech tiers instead, same
+  // as the quiz side's letter-name speech.
+  const cacheKey = category === 'alphabet' ? undefined : `${category}-${entry.id}`
+  const { phrase: speechPhrase, lang: speechLang } = speechInfoFor(category, entry)
 
-  // Level 2 (listen & write) has no visible guide, so the child's only way to know which
-  // character to write is hearing it — speak it the moment a new one appears, same as every
-  // quiz question's auto-speak.
   useEffect(() => {
     if (level !== 2 || praise) return
-    speak(speechPhrase, 'ja-JP', voiceProfile, cacheKey)
+    speak(speechPhrase, speechLang, voiceProfile, cacheKey)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [level, entry.id, praise])
 
@@ -63,8 +85,8 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
     playCorrectSfx()
     const { text, cacheKey: praiseCacheKey } = pickHandwritingPraise(lang, category)
     setPraise({ stars, text })
-    const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
-    speak(text, speechLang, voiceProfile, praiseCacheKey)
+    const praiseSpeechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
+    speak(text, praiseSpeechLang, voiceProfile, praiseCacheKey)
   }
 
   function handleNext() {
@@ -136,7 +158,14 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
       <p className="subtitle">{t(level === 1 ? 'handwritingTracePrompt' : 'handwritingListenWritePrompt')}</p>
 
       {level === 2 && !praise && (
-        <TtsButton text={speechPhrase} lang="ja-JP" label="listen" size={72} voiceProfile={voiceProfile} cacheKey={cacheKey} />
+        <TtsButton
+          text={speechPhrase}
+          lang={speechLang}
+          label="listen"
+          size={72}
+          voiceProfile={voiceProfile}
+          cacheKey={cacheKey}
+        />
       )}
 
       {praise ? (

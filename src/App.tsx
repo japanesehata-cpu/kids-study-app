@@ -20,7 +20,7 @@ type Screen =
   | { name: 'home' }
   | { name: 'englishEntry' }
   | { name: 'levelSelect'; category: Category }
-  | { name: 'handwriting'; category: 'hiragana' | 'katakana' }
+  | { name: 'handwriting'; category: 'hiragana' | 'katakana' | 'alphabet' }
   | { name: 'quiz'; category: Category; level: Level; setSize: number }
   | {
       name: 'result'
@@ -121,8 +121,8 @@ function AppContent() {
             category={screen.category}
             onSelectLevel={(level, setSize) => navigate({ name: 'quiz', category: screen.category, level, setSize })}
             onOpenHandwriting={
-              screen.category === 'hiragana' || screen.category === 'katakana'
-                ? () => navigate({ name: 'handwriting', category: screen.category as 'hiragana' | 'katakana' })
+              screen.category === 'hiragana' || screen.category === 'katakana' || screen.category === 'alphabet'
+                ? () => navigate({ name: 'handwriting', category: screen.category as 'hiragana' | 'katakana' | 'alphabet' })
                 : undefined
             }
             onBack={goBack}

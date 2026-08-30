@@ -16,7 +16,7 @@ export interface HandwritingPraise {
   cacheKey?: string
 }
 
-export function pickHandwritingPraise(lang: Lang, category: 'hiragana' | 'katakana'): HandwritingPraise {
+export function pickHandwritingPraise(lang: Lang, category: 'hiragana' | 'katakana' | 'alphabet'): HandwritingPraise {
   const idx = Math.floor(Math.random() * PRAISE[lang].length)
   const text = PRAISE[lang][idx]
   const cacheKey = lang === 'ja' ? `handwriting-praise-${category}-${idx}` : undefined

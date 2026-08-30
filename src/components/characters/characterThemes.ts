@@ -132,7 +132,12 @@ export const characterThemes: Record<Category, CharacterTheme> = {
       pitch: 1.3,
       rate: 1.1,
       playbackRate: 1.15,
-      voicevoxSpeaker: { name: '満別花丸', style: '元気' },
+      // 'ノーマル' (normal), not '元気' (energetic) — the energetic style's exaggerated
+      // pitch/pacing came at the cost of clear articulation, confirmed by ear against the
+      // normal style using the same speaker (see the katakana voice comparison this was
+      // decided from); every other character here uses its speaker's clear/normal style
+      // too, aru's うきうき being the one deliberate exception.
+      voicevoxSpeaker: { name: '満別花丸', style: 'ノーマル' },
       kokoroVoice: 'af_jessica',
     },
   },

@@ -47,9 +47,16 @@ export function getAlphabetById(id: string): AlphabetEntry {
 }
 
 /** Mirrors hiraganaSpeechPhrase/katakanaSpeechPhrase's "glyph, mnemonic's glyph" pattern
- * (e.g. "あ、ありのあ") in English ABC-chart style: always the upper-case form, since a
- * letter's name doesn't change with case (see AlphabetWritableEntry.upper's comment in
- * HandwritingScreen.tsx for why a bare lower-case letter is unsafe to speak on its own). */
+ * (e.g. "あ、ありのあ" — letter, then word, then letter again) in English ABC-chart style:
+ * always the upper-case form, since a letter's name doesn't change with case (see
+ * AlphabetWritableEntry.upper's comment in HandwritingScreen.tsx for why a bare lower-case
+ * letter is unsafe to speak on its own).
+ *
+ * The two letter occurrences must NOT be adjacent ("B. B for Ball." puts them back-to-back
+ * with nothing but a period between them) — confirmed via direct phoneme inspection that
+ * Kokoro's G2P drops that period's pause entirely (`bˈi bˈi fɔɹ bˈɔl.`, no pause phoneme
+ * between the two `bˈi`s), so the two short syllables blend into what sounds like "bb".
+ * Putting the mnemonic word between them ("B. Ball. B.") gives real acoustic separation. */
 export function alphabetSpeechPhrase(entry: AlphabetEntry): string {
-  return `${entry.upper}. ${entry.upper} for ${entry.mnemonic}.`
+  return `${entry.upper}. ${entry.mnemonic}. ${entry.upper}.`
 }

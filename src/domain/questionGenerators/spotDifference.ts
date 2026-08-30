@@ -16,18 +16,19 @@ const BOARD: Record<Level, { columns: number; slots: number; differences: number
   5: { columns: 3, slots: 9, differences: 4 },
 }
 
-type DiffType = 'swap' | 'remove' | 'resize' | 'flip'
+type DiffType = 'swap' | 'resize' | 'flip'
 
-/** ★1 sticks to differences a 4yo can spot at a glance (a whole different picture, or one
- * missing entirely). ★2 adds a size change; ★3 adds mirroring, the subtlest cue — never a
- * recolor, since tinting a real photo would contradict the "true to life" teaching goal
- * for these icons. */
+/** ★1 sticks to a difference a 4yo can spot at a glance (a whole different picture). ★2
+ * adds a size change; ★3 adds mirroring, the subtlest cue — never a recolor, since tinting
+ * a real photo would contradict the "true to life" teaching goal for these icons. An
+ * empty/removed slot was dropped entirely: it rendered as a blank dashed placeholder that
+ * read as a rendering glitch rather than an intentional puzzle piece. */
 const DIFF_TYPES: Record<Level, DiffType[]> = {
-  1: ['swap', 'remove'],
-  2: ['swap', 'remove', 'resize'],
-  3: ['swap', 'remove', 'resize', 'flip'],
-  4: ['swap', 'remove', 'resize', 'flip'],
-  5: ['swap', 'remove', 'resize', 'flip'],
+  1: ['swap'],
+  2: ['swap', 'resize'],
+  3: ['swap', 'resize', 'flip'],
+  4: ['swap', 'resize', 'flip'],
+  5: ['swap', 'resize', 'flip'],
 }
 
 function makeId(): string {
@@ -50,8 +51,6 @@ function subSkillForLevel(level: Level): string {
 
 function applyDifference(iconId: string, usedIds: string[], type: DiffType): SpotDifferenceSlot {
   switch (type) {
-    case 'remove':
-      return { iconId: null, flipped: false, scale: 1 }
     case 'flip':
       return { iconId, flipped: true, scale: 1 }
     case 'resize':

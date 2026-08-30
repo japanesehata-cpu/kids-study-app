@@ -99,7 +99,25 @@ def extract_second_occurrence(audio, sr):
     p1 = s_start + int(np.argmax(smoothed[s_start:mid]))
     p2 = mid + int(np.argmax(smoothed[mid:s_end + 1]))
 
-    valley_idx = p1 + int(np.argmin(smoothed[p1:p2 + 1]))
+    # The split point is the *nearest genuinely silent* local minimum to p2, not just the
+    # deepest dip anywhere between p1 and p2, and not just the nearest local wiggle either.
+    # A multi-syllable word (hip-po-POT-a-mus, back-PACK, EL-bow) has its own internal
+    # syllable gaps: taking the global minimum can pick a dip that's still inside word 1
+    # (leaking its tail into the extracted "second occurrence"'s start), while taking the
+    # nearest local minimum with no depth check can stop at a shallow formant ripple within
+    # a single vowel, well short of the real word/word gap. Scanning backward from p2 for
+    # the last local minimum that actually drops below a noise-floor-relative threshold
+    # finds the true gap; if nothing in range is that quiet (true for short monosyllables
+    # like "ship" whose two occurrences nearly run together — see the original word-list
+    # this technique was built for), falling back to the global minimum reproduces the
+    # split points already confirmed correct by ear for those.
+    local_minima = [i for i in range(p1 + 1, p2) if smoothed[i] <= smoothed[i - 1] and smoothed[i] <= smoothed[i + 1]]
+    quiet_thresh = smoothed.max() * 0.08
+    quiet_minima = [i for i in local_minima if smoothed[i] < quiet_thresh]
+    if quiet_minima:
+        valley_idx = quiet_minima[-1]
+    else:
+        valley_idx = p1 + int(np.argmin(smoothed[p1:p2 + 1]))
 
     tail_thresh = smoothed[p2] * 0.08
     end_frame = p2

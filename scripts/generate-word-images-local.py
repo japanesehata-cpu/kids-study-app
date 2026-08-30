@@ -129,6 +129,7 @@ EXTRA_NEGATIVE = {
     "place": "visible people, readable signage",
     "instrument": "logo, brand name, readable text",
     "animal": "front view, facing camera, portrait, head-on",
+    "color": "draped, hanging fabric, dramatic folds, twisted, silk, swirl",
 }
 
 # Animal photography sub-styles: not every animal reads well as "perched on a branch,
@@ -231,13 +232,40 @@ natural unedited product photograph
 
 
 NATURE_SCENE_IDS = {
-    "mountain", "rainbow", "cloud", "volcano", "waterfall", "desert", "island", "river",
+    "mountain", "rainbow", "cloud", "volcano", "waterfall", "desert", "river",
     "lake", "ocean", "forest", "valley", "cave", "cliff", "jungle", "swamp", "pond",
-    "stream", "hill", "meadow", "wave", "comet", "planet", "galaxy", "meteor", "glacier",
+    "stream", "hill", "meadow", "wave", "comet", "galaxy", "meteor", "glacier",
+}
+# Space objects, not landscapes — "planet" was getting swept into the landscape
+# template (which pulled toward the nearest thing it resembles: a canyon) since
+# NATURE_SCENE_IDS' wide-angle-lens/daylight language has no "this is in space" signal.
+SPACE_IDS = {"planet", "comet", "galaxy", "meteor"}
+
+ISLAND_PROMPT = """
+RAW aerial documentary photograph of a real island,
+small landmass completely surrounded by ocean water on all sides,
+seen from directly above, blue water visible on every edge,
+natural daylight, neutral natural colors,
+photographed with a professional wide-angle lens,
+unedited aerial landscape photograph, no people, no boats
+"""
+
+SPACE_PROMPTS = {
+    "planet": "a real planet in space, spherical, visible surface detail and atmosphere, floating in a starfield, black background of space",
+    "comet": "a real comet in space with a bright icy nucleus and a long glowing tail, starfield background",
+    "galaxy": "a real spiral galaxy in space, glowing spiral arms of stars, black background of space",
+    "meteor": "a real meteor streaking across a dark night sky, bright glowing trail, stars visible in background",
 }
 
 
 def nature_prompt(word):
+    if word == "island":
+        return ISLAND_PROMPT
+    if word in SPACE_IDS:
+        return f"""
+RAW astrophotograph of {SPACE_PROMPTS[word]},
+high detail, unedited space photograph, no text, no people
+"""
     if word in NATURE_SCENE_IDS:
         return f"""
 RAW documentary landscape photograph of a real {word},
@@ -261,14 +289,18 @@ natural unedited product photograph
 
 
 def color_prompt(word):
+    # A dramatic silk drape reads inconsistently across renders (deep shadows and
+    # highlights can make the same fabric look like several different shades) — a
+    # flat, minimally-folded square swatch shows the true color evenly, and keeps
+    # every color card looking like part of the same set. "Completely flat... lying
+    # on a table" reads more reliably than "flat... with slight folds", which still
+    # let some colors drift into a dramatic draped/twisted look.
     return f"""
-RAW product photograph of a smooth solid {word} colored fabric swatch,
-entirely and accurately {word}, no other colors, no pattern, no gradient,
-soft diffused daylight,
-neutral studio background,
-centered composition,
-photographed with a professional camera lens,
-natural unedited product photograph
+RAW product photograph of a folded square {word} colored fabric
+swatch, lying completely flat on a table, minimal folds,
+entirely and accurately {word}, no other colors, no pattern,
+soft even studio lighting, plain white background, centered
+composition, natural unedited product photograph
 """
 
 
@@ -317,47 +349,56 @@ natural unedited product photograph
 
 
 def body_part_prompt(word):
+    # "macro" reliably pushed toward unpleasant, over-textured skin close-ups (visible
+    # pores, wrinkles, veins) — found by QA on toe/knee/teeth/ear specifically. A plain
+    # "photograph" at a normal (not macro) distance, with skin described positively
+    # rather than just "clean," avoids that without losing the body part itself.
     # Deliberately age/gender-neutral wording — avoid specifying a child's body part.
+    if word == "teeth":
+        return """
+RAW photograph of a real human smile showing healthy white teeth,
+lips slightly parted, centered in frame, natural even skin tone,
+soft diffused daylight, neutral studio background, well-lit,
+natural unedited photograph
+"""
     return f"""
-RAW macro photograph of a real human {word},
-close-up, centered in frame,
-smooth clean skin, natural skin tone,
+RAW photograph of a real human {word},
+centered in frame, smooth healthy skin, natural even skin tone,
 soft diffused daylight,
 neutral studio background,
 well-lit, clearly isolated,
-photographed with a professional macro lens,
+photographed with a standard portrait lens,
 natural unedited photograph
 """
 
 
-SPORT_EQUIPMENT = {
-    "soccer": "a soccer ball resting on green grass",
-    "baseball": "a baseball and a baseball bat crossed on the ground",
-    "basketball": "a basketball resting on a court",
-    "tennis": "a tennis racket and a tennis ball",
-    "swimming": "a pair of swim goggles and a pool float beside a swimming pool",
-    "running": "a pair of running shoes on a running track",
-    "skiing": "a pair of skis and ski poles standing upright in snow",
-    "skating": "a pair of ice skates on ice",
-    "surfing": "a surfboard standing upright in sand at the beach",
-    "golf": "a golf ball and a golf club on grass",
-    "volleyball": "a volleyball resting on sand",
-    "badminton": "a badminton racket and a shuttlecock",
-    "boxing": "a pair of boxing gloves",
-    "judo": "a folded white judo uniform belt",
+SPORT_ACTIONS = {
+    "soccer": "an athlete kicking a soccer ball on a grass field",
+    "baseball": "an athlete swinging a baseball bat at a ball",
+    "basketball": "an athlete shooting a basketball toward a hoop",
+    "tennis": "an athlete swinging a tennis racket at a ball on a court",
+    "swimming": "a swimmer swimming in a pool, mid-stroke",
+    "running": "a runner sprinting on an outdoor running track",
+    "skiing": "a skier skiing down a snowy slope",
+    "skating": "an ice skater gliding on an ice rink",
+    "surfing": "a surfer riding a wave on a surfboard",
+    "golf": "a golfer swinging a golf club on a grass course",
+    "volleyball": "an athlete spiking a volleyball at a net",
+    "badminton": "an athlete swinging a badminton racket at a shuttlecock",
+    "boxing": "an athlete wearing boxing gloves in a fighting stance",
+    "judo": "two athletes in judo uniforms grappling during a judo match",
 }
 
 
 def sport_prompt(word):
-    subject = SPORT_EQUIPMENT.get(word, f"equipment for {word}")
+    subject = SPORT_ACTIONS.get(word, f"an athlete playing {word}")
     return f"""
-RAW documentary photograph of {subject},
-natural daylight,
+RAW action photograph of {subject},
+mid-action, natural daylight,
 neutral natural colors,
 shallow depth of field,
-photographed with a professional camera lens,
-natural unedited photograph,
-no people
+photographed with a professional sports camera lens,
+natural unedited photograph, no visible faces, no logos, no readable text
 """
 
 
@@ -374,7 +415,7 @@ natural unedited product photograph
 
 
 WEATHER_SCENES = {
-    "rain": "rain falling, visible raindrops and gentle streaks against a soft overcast sky",
+    "rain": "heavy rain falling on a window, many large visible water droplets and streaks running down clear glass, blurred greenery behind",
     "snow": "snow falling over a snow-covered landscape, soft visible snowflakes",
     "wind": "tall grass and tree branches bending in a strong wind",
     "storm": "a dark dramatic storm cloud over a landscape",
@@ -441,6 +482,144 @@ CATEGORY_PROMPT_BUILDERS = {
 # instead of a smooth pink-brown earthworm. Found via visual QA — add more entries here
 # as spot-checking turns up further specific failures.
 WORD_PROMPT_OVERRIDES = {
+    "bat": """
+RAW wildlife photograph of a real bat in flight,
+wings fully spread showing their membrane shape, side view,
+natural fur texture, dark night sky background, soft flash lighting,
+unedited documentary nature photograph
+""",
+    "walrus": """
+RAW wildlife photograph of a real walrus,
+side profile view, entire body visible from head to tail,
+long visible tusks, natural wrinkled skin texture, resting on ice,
+soft diffused daylight, unedited documentary nature photograph
+""",
+    "otter": """
+RAW wildlife photograph of a real otter lying on a rock,
+side profile view, full body stretched out from head to long tail,
+natural wet fur texture, soft diffused daylight,
+unedited documentary nature photograph
+""",
+    "platypus": """
+RAW wildlife photograph of a real platypus,
+side profile view, entire body visible, distinctive flat duck-like
+bill clearly visible, flat wide tail, webbed feet, natural brown
+fur texture, resting on a riverbank,
+soft diffused daylight, unedited documentary nature photograph
+""",
+    "stingray": """
+RAW underwater wildlife photograph of a real stingray,
+side profile view showing its flat diamond-shaped body and long
+tail, gliding alone through clear open water, natural skin texture,
+soft diffused light through water,
+unedited documentary nature photograph
+""",
+    "crocodile": """
+RAW wildlife photograph of a real crocodile's head from the side,
+long narrow V-shaped snout with a visible fourth tooth jutting up
+outside the closed jaw, natural scale texture,
+soft diffused daylight, unedited documentary nature photograph
+""",
+    "alligator": """
+RAW wildlife photograph of a real alligator's head from the side,
+short wide rounded U-shaped snout, no teeth visible outside the
+closed jaw, natural dark scale texture,
+soft diffused daylight, unedited documentary nature photograph
+""",
+    # Japanese tree sparrow (スズメ) specifically, not the house sparrow — the
+    # chestnut-brown cap and black cheek patch are its distinguishing field marks.
+    "sparrow": """
+RAW wildlife photograph of a real Japanese tree sparrow,
+side profile view, entire body visible, perched on a branch,
+chestnut brown cap, black patch on white cheek, black bib,
+soft diffused daylight, unedited documentary nature photograph
+""",
+    # Japanese red-crowned crane (タンチョウ) — the culturally iconic crane in Japan,
+    # not a generic heron-like wading bird.
+    "crane": """
+RAW wildlife photograph of a real Japanese red-crowned crane,
+side profile view, entire body visible, standing in snow,
+white body plumage, black wing feathers, small red patch on the
+crown of the head, long black neck,
+soft diffused daylight, unedited documentary nature photograph
+""",
+    "porcupine": """
+RAW wildlife photograph of a real porcupine,
+side profile view, entire body visible, covered in long thick
+sharp quills standing out from its body, natural coloring,
+soft diffused daylight, unedited documentary nature photograph
+""",
+    "squid": """
+RAW underwater wildlife photograph of a real squid,
+side profile view, long torpedo-shaped mantle with side fins,
+two long tentacles and eight arms trailing behind, natural
+translucent skin, soft diffused light through water,
+unedited documentary nature photograph
+""",
+    "mole": """
+RAW macro wildlife photograph of a real mole on soil,
+side profile view, entire small body visible, no visible eyes,
+long pointed pink snout, huge broad shovel-like front paws with
+claws held forward, dark velvety fur, small compact body,
+soft diffused daylight, unedited documentary nature photograph
+""",
+    "grape": """
+RAW product photograph of a real bunch of grapes,
+one full cluster of many grapes hanging together, on the vine,
+natural texture with a light dusty bloom, soft diffused daylight,
+neutral studio background, natural unedited product photograph
+""",
+    # "product photograph of a whole melon" kept rendering it cut open regardless of
+    # negative prompting (strong training bias toward cut-open melon food photography) —
+    # reframing it as a garden/vine photograph instead of product photography avoided
+    # that association entirely.
+    "melon": """
+RAW documentary photograph of a whole melon growing on a vine in a
+garden, intact rind, resting on soil among green leaves,
+natural outdoor daylight, unedited garden photograph
+""",
+    # The generic "romaine lettuce" fix for the food template doesn't apply here — this
+    # needed its own scene since a plain "bunch of noodles" rendered as an unrecognizable
+    # abstract blur.
+    "noodles": """
+RAW product photograph of a real serving of noodles,
+a coiled tangled bunch of long noodles piled on a plate,
+visible individual strands, natural texture, soft diffused daylight,
+neutral studio background, natural unedited food photograph
+""",
+    # Kewpie mayonnaise's red-capped, clear soft squeeze bottle with a diamond-quilted
+    # texture is the culturally standard "mayonnaise" reference in Japan.
+    "mayonnaise": """
+RAW product photograph of a real mayonnaise squeeze bottle,
+clear plastic bottle with diamond quilted texture, red twist cap,
+plain white label with no readable text, standing upright,
+soft diffused daylight, neutral studio background,
+natural unedited product photograph
+""",
+    # Long, slender, dark green, bumpy-skinned Asian/Japanese cucumber (kyuri) rather
+    # than a short bumpy Western cucumber — shown whole, not cut, so the characteristic
+    # shape reads clearly.
+    "cucumber": """
+RAW product photograph of a real whole Japanese cucumber,
+long slender dark green bumpy skin, one whole cucumber centered
+in frame, soft diffused daylight, neutral studio background,
+natural unedited product photograph
+""",
+    # "top" the toy (a spinning top) needs disambiguating from "top" the generic word —
+    # the plain toy_prompt rendered it as a picture frame instead.
+    "top": """
+RAW product photograph of a real wooden spinning top toy,
+classic cone shape with a pointed tip and a hand grip on top,
+colorful painted stripes, standing upright, centered in frame,
+soft diffused daylight, neutral studio background,
+natural unedited product photograph
+""",
+    "oval": """
+RAW product photograph of a real solid painted wooden oval shape
+block, a flat elongated ellipse, not a bowl or dish, centered in
+frame, natural wood grain through matte paint, soft diffused
+daylight, neutral studio background, natural unedited product photograph
+""",
     "lettuce": """
 RAW product photograph of a fresh head of romaine lettuce,
 long upright pale green leaves, whole head standing upright,
@@ -494,6 +673,8 @@ WORD_NEGATIVE_OVERRIDES = {
     "worm": "caterpillar, green, insect legs, segmented shell, coiled into a ring",
     "ambulance": "logo, badge, emblem, readable text, letters, license plate",
     "pentagon": "six sides, seven sides, eight sides, square, cube, hexagon, octagon",
+    "melon": "cut, sliced, cross section, halved, quartered, seeds visible",
+    "mole": "rat, vole, capybara, nutria, visible eyes, long tail",
 }
 
 
@@ -525,6 +706,7 @@ def build_negative_prompt(entry):
 WORD_SEED_OVERRIDES = {
     "ambulance": 555,  # pairs with the WORD_PROMPT_OVERRIDES entry above — see its comment
     "pentagon": 1,  # pairs with the WORD_PROMPT_OVERRIDES entry above — see its comment
+    "melon": 1,  # pairs with the WORD_PROMPT_OVERRIDES entry above — see its comment
 }
 
 

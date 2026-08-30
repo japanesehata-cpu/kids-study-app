@@ -96,7 +96,7 @@ export function HandwritingCanvas({
     ctx.lineWidth = size * 0.06
     ctx.lineCap = 'round'
     ctx.lineJoin = 'round'
-    ctx.strokeStyle = '#5b3a8f'
+    ctx.strokeStyle = '#ff8fc7'
     ctx.lineTo(x, y)
     ctx.stroke()
   }

@@ -342,10 +342,22 @@ function AlphabetQuestionView({
   voiceProfile: VoiceProfile
 }) {
   if (question.kind === 'caseMatch') {
+    // Same speak-again affordance as the letterName view below — the question is already
+    // auto-spoken once on load (see computeAutoSpeech's isAlphabet branch, which doesn't
+    // distinguish kind), but caseMatch had no way to hear it a second time.
+    const entry = getAlphabetById(question.letterId)
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
         <p className="subtitle">{caseMatchPrompt}</p>
         <HiraganaChar char={question.promptChar ?? ''} size={120} />
+        <TtsButton
+          text={alphabetSpeechPhrase(entry)}
+          lang="en-US"
+          label="listen"
+          size={72}
+          voiceProfile={voiceProfile}
+          cacheKey={`alphabet-letter-${question.letterId}`}
+        />
       </div>
     )
   }

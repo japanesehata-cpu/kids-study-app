@@ -16,12 +16,15 @@ const LEVEL_3_ROWS: HiraganaRow[] = [
   'a', 'ka', 'sa', 'ta', 'na', 'ha', 'ma', 'ya', 'ra', 'wa', 'ga', 'za', 'da', 'ba', 'pa',
 ]
 
+// ★4 is a dedicated 拗音 (youon) milestone, not cumulative with ★1-3 — same shape as
+// alphabet's ★3 case-match drill being its own focused skill rather than folded into an
+// earlier level's pool.
 const LEVEL_ROWS: Record<Level, HiraganaRow[]> = {
   1: ['a', 'ka', 'sa'],
   2: ['a', 'ka', 'sa', 'ta', 'na', 'ha', 'ma'],
   3: LEVEL_3_ROWS,
-  4: LEVEL_3_ROWS,
-  5: LEVEL_3_ROWS,
+  4: ['youon'],
+  5: ['youon'],
 }
 
 function poolForLevel(level: Level): HiraganaEntry[] {
@@ -33,6 +36,7 @@ function subSkillForRow(row: HiraganaRow): string {
   if (row === 'a') return 'hiragana-vowels'
   if (row === 'ka' || row === 'sa') return 'hiragana-basic'
   if (row === 'ta' || row === 'na' || row === 'ha') return 'hiragana-mid'
+  if (row === 'youon') return 'hiragana-youon'
   return 'hiragana-advanced'
 }
 

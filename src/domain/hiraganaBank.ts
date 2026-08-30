@@ -14,6 +14,11 @@ export type HiraganaRow =
   | 'da'
   | 'ba'
   | 'pa'
+  /** 拗音 (youon) — a consonant kana + small ゃ/ゅ/ょ read as one mora (きゃ, しゅ, ちょ, ...).
+   * One flat row for all 11 consonant groups (rather than a group per consonant, like the
+   * base rows) since they're taught and practiced together as a single milestone — see
+   * questionGenerators/hiragana.ts's ★4. */
+  | 'youon'
 
 export interface HiraganaEntry {
   id: string
@@ -102,6 +107,43 @@ export const hiraganaBank: HiraganaEntry[] = [
   { id: 'pu', char: 'ぷ', row: 'pa', mnemonic: 'ぷりん' },
   { id: 'pe', char: 'ぺ', row: 'pa', mnemonic: 'ぺんぎん' },
   { id: 'po', char: 'ぽ', row: 'pa', mnemonic: 'ぽけっと' },
+  // 拗音 (youon) — taught as their own milestone after the base chart + dakuten/handakuten
+  // (see questionGenerators/hiragana.ts's ★4). A few morae (myu, rya, bya, pya) have no
+  // common Japanese word that actually starts with them — left without a mnemonic, same
+  // as を/ん/ぢ/づ above, rather than reaching for an obscure one.
+  { id: 'kya', char: 'きゃ', row: 'youon', mnemonic: 'きゃべつ' },
+  { id: 'kyu', char: 'きゅ', row: 'youon', mnemonic: 'きゅうり' },
+  { id: 'kyo', char: 'きょ', row: 'youon', mnemonic: 'きょうりゅう' },
+  { id: 'sha', char: 'しゃ', row: 'youon', mnemonic: 'しゃしん' },
+  { id: 'shu', char: 'しゅ', row: 'youon', mnemonic: 'しゅくだい' },
+  { id: 'sho', char: 'しょ', row: 'youon', mnemonic: 'しょうぼうしゃ' },
+  { id: 'cha', char: 'ちゃ', row: 'youon', mnemonic: 'ちゃいろ' },
+  { id: 'chu', char: 'ちゅ', row: 'youon', mnemonic: 'ちゅうしゃ' },
+  { id: 'cho', char: 'ちょ', row: 'youon', mnemonic: 'ちょきん' },
+  { id: 'nya', char: 'にゃ', row: 'youon', mnemonic: 'にゃんこ' },
+  { id: 'nyu', char: 'にゅ', row: 'youon', mnemonic: 'にゅうがく' },
+  { id: 'nyo', char: 'にょ', row: 'youon', mnemonic: 'にょろにょろ' },
+  { id: 'hya', char: 'ひゃ', row: 'youon', mnemonic: 'ひゃくえん' },
+  { id: 'hyu', char: 'ひゅ', row: 'youon', mnemonic: 'ひゅうひゅう' },
+  { id: 'hyo', char: 'ひょ', row: 'youon', mnemonic: 'ひょう' },
+  { id: 'mya', char: 'みゃ', row: 'youon', mnemonic: 'みゃく' },
+  { id: 'myu', char: 'みゅ', row: 'youon' },
+  { id: 'myo', char: 'みょ', row: 'youon', mnemonic: 'みょうじ' },
+  { id: 'rya', char: 'りゃ', row: 'youon' },
+  { id: 'ryu', char: 'りゅ', row: 'youon', mnemonic: 'りゅう' },
+  { id: 'ryo', char: 'りょ', row: 'youon', mnemonic: 'りょこう' },
+  { id: 'gya', char: 'ぎゃ', row: 'youon', mnemonic: 'ぎゃく' },
+  { id: 'gyu', char: 'ぎゅ', row: 'youon', mnemonic: 'ぎゅっと' },
+  { id: 'gyo', char: 'ぎょ', row: 'youon', mnemonic: 'ぎょうざ' },
+  { id: 'ja', char: 'じゃ', row: 'youon', mnemonic: 'じゃがいも' },
+  { id: 'ju', char: 'じゅ', row: 'youon', mnemonic: 'じゅう' },
+  { id: 'jo', char: 'じょ', row: 'youon', mnemonic: 'じょうぎ' },
+  { id: 'bya', char: 'びゃ', row: 'youon' },
+  { id: 'byu', char: 'びゅ', row: 'youon', mnemonic: 'びゅーん' },
+  { id: 'byo', char: 'びょ', row: 'youon', mnemonic: 'びょういん' },
+  { id: 'pya', char: 'ぴゃ', row: 'youon' },
+  { id: 'pyu', char: 'ぴゅ', row: 'youon', mnemonic: 'ぴゅう' },
+  { id: 'pyo', char: 'ぴょ', row: 'youon', mnemonic: 'ぴょんぴょん' },
 ]
 
 export function getHiraganaById(id: string): HiraganaEntry {

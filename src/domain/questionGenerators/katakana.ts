@@ -14,12 +14,15 @@ const LEVEL_3_ROWS: KatakanaRow[] = [
   'a', 'ka', 'sa', 'ta', 'na', 'ha', 'ma', 'ya', 'ra', 'wa', 'ga', 'za', 'da', 'ba', 'pa',
 ]
 
+// ★4 (youon) and ★5 (gairaigo) are each their own dedicated milestone, not cumulative with
+// ★1-3 — katakana gets one level further than hiragana since loanword-only extended kana
+// (gairaigo) has no hiragana equivalent to mirror.
 const LEVEL_ROWS: Record<Level, KatakanaRow[]> = {
   1: ['a', 'ka', 'sa'],
   2: ['a', 'ka', 'sa', 'ta', 'na', 'ha', 'ma'],
   3: LEVEL_3_ROWS,
-  4: LEVEL_3_ROWS,
-  5: LEVEL_3_ROWS,
+  4: ['youon'],
+  5: ['gairaigo'],
 }
 
 function poolForLevel(level: Level): KatakanaEntry[] {
@@ -31,6 +34,8 @@ function subSkillForRow(row: KatakanaRow): string {
   if (row === 'a') return 'katakana-vowels'
   if (row === 'ka' || row === 'sa') return 'katakana-basic'
   if (row === 'ta' || row === 'na' || row === 'ha') return 'katakana-mid'
+  if (row === 'youon') return 'katakana-youon'
+  if (row === 'gairaigo') return 'katakana-gairaigo'
   return 'katakana-advanced'
 }
 

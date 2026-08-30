@@ -14,6 +14,14 @@ export type KatakanaRow =
   | 'da'
   | 'ba'
   | 'pa'
+  /** 拗音 (youon) — mirrors hiraganaBank.ts's own 'youon' row exactly, same 11 consonant
+   * groups, one flat row (see questionGenerators/katakana.ts's ★4). */
+  | 'youon'
+  /** Extended katakana used specifically to spell foreign-loanword sounds that don't exist
+   * in native Japanese (ファ=fa, ティ=ti, ウィ=wi, ...) — hiragana has no equivalent of this
+   * row, since loanwords are always written in katakana (see questionGenerators/katakana.ts's
+   * ★5, the level above youon). */
+  | 'gairaigo'
 
 export interface KatakanaEntry {
   id: string
@@ -102,6 +110,63 @@ export const katakanaBank: KatakanaEntry[] = [
   { id: 'pu', char: 'プ', row: 'pa', mnemonic: 'プリン' },
   { id: 'pe', char: 'ペ', row: 'pa', mnemonic: 'ペンギン' },
   { id: 'po', char: 'ポ', row: 'pa', mnemonic: 'ポケット' },
+  // 拗音 (youon) — mirrors hiraganaBank.ts's own set exactly (see ★4). Several morae have no
+  // common katakana loanword that actually starts with them — left without a mnemonic, same
+  // as ヂ/ヅ above, rather than reaching for an obscure one. A few use a real, if less
+  // universally common, loanword rather than hiragana's native onomatopoeia equivalent,
+  // since katakana content should read as genuinely katakana in origin.
+  { id: 'kya', char: 'キャ', row: 'youon', mnemonic: 'キャベツ' },
+  { id: 'kyu', char: 'キュ', row: 'youon', mnemonic: 'キュート' },
+  { id: 'kyo', char: 'キョ', row: 'youon', mnemonic: 'キョロキョロ' },
+  { id: 'sha', char: 'シャ', row: 'youon', mnemonic: 'シャツ' },
+  { id: 'shu', char: 'シュ', row: 'youon', mnemonic: 'シュート' },
+  { id: 'sho', char: 'ショ', row: 'youon', mnemonic: 'ショートケーキ' },
+  { id: 'cha', char: 'チャ', row: 'youon', mnemonic: 'チャイム' },
+  { id: 'chu', char: 'チュ', row: 'youon', mnemonic: 'チューリップ' },
+  { id: 'cho', char: 'チョ', row: 'youon', mnemonic: 'チョコレート' },
+  { id: 'nya', char: 'ニャ', row: 'youon', mnemonic: 'ニャンコ' },
+  { id: 'nyu', char: 'ニュ', row: 'youon', mnemonic: 'ニュース' },
+  { id: 'nyo', char: 'ニョ', row: 'youon' },
+  { id: 'hya', char: 'ヒャ', row: 'youon' },
+  { id: 'hyu', char: 'ヒュ', row: 'youon', mnemonic: 'ヒュー' },
+  { id: 'hyo', char: 'ヒョ', row: 'youon', mnemonic: 'ヒョウ' },
+  { id: 'mya', char: 'ミャ', row: 'youon', mnemonic: 'ミャンマー' },
+  { id: 'myu', char: 'ミュ', row: 'youon', mnemonic: 'ミュージック' },
+  { id: 'myo', char: 'ミョ', row: 'youon' },
+  { id: 'rya', char: 'リャ', row: 'youon' },
+  { id: 'ryu', char: 'リュ', row: 'youon', mnemonic: 'リュック' },
+  { id: 'ryo', char: 'リョ', row: 'youon' },
+  { id: 'gya', char: 'ギャ', row: 'youon', mnemonic: 'ギャング' },
+  { id: 'gyu', char: 'ギュ', row: 'youon' },
+  { id: 'gyo', char: 'ギョ', row: 'youon', mnemonic: 'ギョーザ' },
+  { id: 'ja', char: 'ジャ', row: 'youon', mnemonic: 'ジャム' },
+  { id: 'ju', char: 'ジュ', row: 'youon', mnemonic: 'ジュース' },
+  { id: 'jo', char: 'ジョ', row: 'youon', mnemonic: 'ジョギング' },
+  { id: 'bya', char: 'ビャ', row: 'youon' },
+  { id: 'byu', char: 'ビュ', row: 'youon', mnemonic: 'ビュッフェ' },
+  { id: 'byo', char: 'ビョ', row: 'youon' },
+  { id: 'pya', char: 'ピャ', row: 'youon' },
+  { id: 'pyu', char: 'ピュ', row: 'youon', mnemonic: 'ピュア' },
+  { id: 'pyo', char: 'ピョ', row: 'youon' },
+  // 外来語表記 (gairaigo) — extended katakana for foreign sounds with no native equivalent
+  // (see ★5). Every entry here has a genuinely common loanword, unlike several youon morae
+  // above — this row exists specifically because these sounds show up constantly in real
+  // katakana words, so a weak/obscure mnemonic would defeat the point.
+  { id: 'fa', char: 'ファ', row: 'gairaigo', mnemonic: 'ファン' },
+  { id: 'fi', char: 'フィ', row: 'gairaigo', mnemonic: 'フィギュア' },
+  { id: 'fe', char: 'フェ', row: 'gairaigo', mnemonic: 'フェリー' },
+  { id: 'fo', char: 'フォ', row: 'gairaigo', mnemonic: 'フォーク' },
+  { id: 'ti', char: 'ティ', row: 'gairaigo', mnemonic: 'ティッシュ' },
+  // 'di2'/'wo2': plain 'di'/'wo' are already taken by the base bank's ヂ/ヲ entries above —
+  // this ディ/ウォ is a different, unrelated character that just happens to romanize the
+  // same way.
+  { id: 'di2', char: 'ディ', row: 'gairaigo', mnemonic: 'ディズニー' },
+  { id: 'wi', char: 'ウィ', row: 'gairaigo', mnemonic: 'ウィンク' },
+  { id: 'we', char: 'ウェ', row: 'gairaigo', mnemonic: 'ウェーブ' },
+  { id: 'wo2', char: 'ウォ', row: 'gairaigo', mnemonic: 'ウォーター' },
+  { id: 'che', char: 'チェ', row: 'gairaigo', mnemonic: 'チェリー' },
+  { id: 'je', char: 'ジェ', row: 'gairaigo', mnemonic: 'ジェット' },
+  { id: 'she', char: 'シェ', row: 'gairaigo', mnemonic: 'シェフ' },
 ]
 
 export function getKatakanaById(id: string): KatakanaEntry {

@@ -25,15 +25,17 @@ export const MAX_LEVEL: Level = 5
 
 /** addition/subtraction/logic/clock/spotDifference/counting are scaled to 3 steps (★1-3,
  * ages 4/5/6) instead of the original 5 — see LevelSelectScreen, which reads this to size
- * its level grid. */
+ * its level grid. hiragana/katakana go further: ★4 is a dedicated 拗音 (youon) milestone for
+ * both, and katakana alone adds ★5 for 外来語表記 (gairaigo) — extended katakana used only
+ * for loanword sounds, with no hiragana equivalent (see questionGenerators/katakana.ts). */
 export const CATEGORY_MAX_LEVEL: Record<Category, Level> = {
   addition: 3,
   subtraction: 3,
   englishSpelling: 3,
   englishListening: 3,
   logic: 3,
-  hiragana: 3,
-  katakana: 3,
+  hiragana: 4,
+  katakana: 5,
   alphabet: 3,
   clock: 3,
   spotDifference: 3,

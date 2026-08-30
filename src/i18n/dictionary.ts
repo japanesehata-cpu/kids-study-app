@@ -58,6 +58,8 @@ export const dictionary = {
   handwritingDoneButton: { ja: 'できた！', en: 'Done!' },
   handwritingAnswerLabel: { ja: 'こたえは これ！', en: 'The answer is:' },
   handwritingClearButton: { ja: 'けす', en: 'Clear' },
+  handwritingCaseUpper: { ja: 'おおもじで かいてね', en: 'Write it in UPPERCASE' },
+  handwritingCaseLower: { ja: 'こもじで かいてね', en: 'write it in lowercase' },
   clockPrompt: { ja: 'いま なんじ？', en: 'What time is it?' },
   clockPracticeHint: { ja: 'はりをうごかしてみよう！', en: 'Try moving the hands!' },
   spotDifferencePrompt: {

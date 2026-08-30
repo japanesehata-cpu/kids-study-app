@@ -29,13 +29,17 @@ type HandwritingLevel = 1 | 2
 interface AlphabetWritableEntry {
   id: string
   char: string
+  case: 'upper' | 'lower'
 }
 
 /** Upper and lower case are both practiced, as two separate glyphs to draw — not a single
- * "A/a" entry — the same way hiragana/katakana practice one glyph at a time. */
+ * "A/a" entry — the same way hiragana/katakana practice one glyph at a time. `case` is kept
+ * as its own field (rather than derived from `char`'s letter case, which would break for
+ * letters with no case distinction in appearance) so level 2 can tell the child which case
+ * to write — the spoken letter name alone ("A") can't distinguish "A" from "a". */
 const ALPHABET_HANDWRITING_BANK: AlphabetWritableEntry[] = alphabetBank.flatMap((a) => [
-  { id: `${a.id}-upper`, char: a.upper },
-  { id: `${a.id}-lower`, char: a.lower },
+  { id: `${a.id}-upper`, char: a.upper, case: 'upper' as const },
+  { id: `${a.id}-lower`, char: a.lower, case: 'lower' as const },
 ])
 
 type WritableEntry = HiraganaEntry | KatakanaEntry | AlphabetWritableEntry
@@ -158,14 +162,21 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
       <p className="subtitle">{t(level === 1 ? 'handwritingTracePrompt' : 'handwritingListenWritePrompt')}</p>
 
       {level === 2 && !praise && (
-        <TtsButton
-          text={speechPhrase}
-          lang={speechLang}
-          label="listen"
-          size={72}
-          voiceProfile={voiceProfile}
-          cacheKey={cacheKey}
-        />
+        <>
+          {category === 'alphabet' && (
+            <span className={`handwriting-case-badge handwriting-case-badge--${(entry as AlphabetWritableEntry).case}`}>
+              {t((entry as AlphabetWritableEntry).case === 'upper' ? 'handwritingCaseUpper' : 'handwritingCaseLower')}
+            </span>
+          )}
+          <TtsButton
+            text={speechPhrase}
+            lang={speechLang}
+            label="listen"
+            size={72}
+            voiceProfile={voiceProfile}
+            cacheKey={cacheKey}
+          />
+        </>
       )}
 
       {praise ? (

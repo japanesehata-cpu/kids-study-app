@@ -91,9 +91,12 @@ def make_handler(pipeline, voice, speed):
                 # need for a separate server process per character voice. Falls back to the
                 # server's --voice default when the caller doesn't ask for a specific one.
                 request_voice = (params.get("voice") or [voice])[0]
+                # Same override pattern for speed — falls back to the server's --speed
+                # default (1.0 unless overridden at startup) when not given per-request.
+                request_speed = float((params.get("speed") or [speed])[0])
 
                 try:
-                    audio_bytes = synthesize_to_wav_bytes(pipeline, text, request_voice, speed)
+                    audio_bytes = synthesize_to_wav_bytes(pipeline, text, request_voice, request_speed)
 
                     self.send_response(200)
                     self._set_cors_headers()

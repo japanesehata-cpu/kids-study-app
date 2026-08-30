@@ -38,6 +38,10 @@ REPO_ROOT = os.path.dirname(SCRIPT_DIR)
 KOKORO_URL = os.environ.get("KOKORO_SERVER_URL", "http://127.0.0.1:8900")
 OUTPUT_DIR = os.path.join(REPO_ROOT, "public", "audio")
 VOICE = "am_puck"
+# Slightly slower than Kokoro's default 1.0, per feedback that the default pace read too
+# flat/rushed for a young child to follow — needs kokoro_server.py's `speed` query param
+# (added alongside this), so the server must be running an up-to-date copy.
+SPEED = 0.85
 
 
 def load_alphabet_bank():
@@ -68,7 +72,7 @@ def check_kokoro_running():
 
 
 def synthesize(text):
-    url = f"{KOKORO_URL}/synthesize?text={urllib.parse.quote(text)}&voice={VOICE}"
+    url = f"{KOKORO_URL}/synthesize?text={urllib.parse.quote(text)}&voice={VOICE}&speed={SPEED}"
     with urllib.request.urlopen(url, timeout=30) as res:
         return res.read()
 

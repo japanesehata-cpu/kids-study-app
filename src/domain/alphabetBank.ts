@@ -56,5 +56,9 @@ export function getAlphabetById(id: string): AlphabetEntry {
  * between them (confirmed via phoneme inspection: `bˈi bˈi fɔɹ bˈɔl.`, no pause phoneme),
  * blending into what sounded like "bb". One occurrence sidesteps that entirely. */
 export function alphabetSpeechPhrase(entry: AlphabetEntry): string {
-  return `${entry.upper} for ${entry.mnemonic}.`
+  // "!" rather than "." — a small, low-risk nudge toward livelier, less flat/monotone
+  // delivery (Kokoro's prosody is otherwise fixed by its acoustic model; text/punctuation
+  // is the only lever available here). The actual pacing is controlled separately by
+  // generate-alphabet-audio-en.py's SPEED constant, not by anything in this phrase text.
+  return `${entry.upper} for ${entry.mnemonic}!`
 }

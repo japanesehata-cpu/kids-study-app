@@ -35,6 +35,10 @@ interface AlphabetWritableEntry {
    * lower-case `char` to TTS is also outright wrong for some letters ("a"/"i" are real
    * English words, not just the letter name, and would be read as such). */
   upper: string
+  /** The base alphabetBank id ("a".."z"), shared by both this letter's upper and lower
+   * entries — used to key the pre-rendered alphabet-letter-*.wav cache (see
+   * generate-alphabet-audio-en.py), since the same audio covers both cases. */
+  letterId: string
 }
 
 /** Upper and lower case are both practiced, as two separate glyphs to draw — not a single
@@ -43,8 +47,8 @@ interface AlphabetWritableEntry {
  * letters with no case distinction in appearance) so level 2 can tell the child which case
  * to write — the spoken letter name alone ("A") can't distinguish "A" from "a". */
 const ALPHABET_HANDWRITING_BANK: AlphabetWritableEntry[] = alphabetBank.flatMap((a) => [
-  { id: `${a.id}-upper`, char: a.upper, case: 'upper' as const, upper: a.upper },
-  { id: `${a.id}-lower`, char: a.lower, case: 'lower' as const, upper: a.upper },
+  { id: `${a.id}-upper`, char: a.upper, case: 'upper' as const, upper: a.upper, letterId: a.id },
+  { id: `${a.id}-lower`, char: a.lower, case: 'lower' as const, upper: a.upper, letterId: a.id },
 ])
 
 type WritableEntry = HiraganaEntry | KatakanaEntry | AlphabetWritableEntry
@@ -79,10 +83,13 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
   const [praise, setPraise] = useState<{ stars: number; text: string } | null>(null)
   const entry = order[index % order.length]
   const voiceProfile = characterThemes[category].voiceProfile
-  // Only hiragana/katakana have pre-rendered cache files (see generate-tts-cache.mjs) —
-  // alphabet falls through to the live local-voice-server/Web Speech tiers instead, same
-  // as the quiz side's letter-name speech.
-  const cacheKey = category === 'alphabet' ? undefined : `${category}-${entry.id}`
+  // Alphabet's cache key is keyed by the base letter, not the upper/lower entry id — the
+  // same alphabet-letter-*.wav (see generate-alphabet-audio-en.py) covers both cases,
+  // since a letter's spoken name doesn't change with case.
+  const cacheKey =
+    category === 'alphabet'
+      ? `alphabet-letter-${(entry as AlphabetWritableEntry).letterId}`
+      : `${category}-${entry.id}`
   const { phrase: speechPhrase, lang: speechLang } = speechInfoFor(category, entry)
 
   useEffect(() => {

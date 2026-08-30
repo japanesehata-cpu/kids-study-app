@@ -175,7 +175,7 @@ function computeAutoSpeech(
     // letter's name — TTS would read it as that word instead. Always speak the upper-case
     // form regardless of question kind or which case is being tested.
     const entry = getAlphabetById(question.letterId)
-    return { text: entry.upper, speechLang: 'en-US' }
+    return { text: entry.upper, speechLang: 'en-US', cacheKey: `alphabet-letter-${question.letterId}` }
   }
   // englishWords
   if (question.mode === 'listenAndPick') {
@@ -356,7 +356,14 @@ function AlphabetQuestionView({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
       <p className="subtitle">{listenPrompt}</p>
-      <TtsButton text={entry.upper} lang="en-US" label="listen" size={96} voiceProfile={voiceProfile} />
+      <TtsButton
+        text={entry.upper}
+        lang="en-US"
+        label="listen"
+        size={96}
+        voiceProfile={voiceProfile}
+        cacheKey={`alphabet-letter-${question.letterId}`}
+      />
     </div>
   )
 }
@@ -731,7 +738,7 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
         } else if (isAlphabet(question)) {
           // Always speak the upper-case form — see computeAutoSpeech's isAlphabet branch.
           const entry = getAlphabetById(question.letterId)
-          speak(entry.upper, 'en-US', voiceProfile)
+          speak(entry.upper, 'en-US', voiceProfile, `alphabet-letter-${question.letterId}`)
         } else if (isEnglishWord(question) && correct) {
           // An incorrect answer already speaks the word correctly in en-US as part of the
           // feedback sentence above (see buildFeedbackMessage) — repeating it here too

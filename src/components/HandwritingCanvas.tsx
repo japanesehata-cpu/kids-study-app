@@ -51,8 +51,12 @@ export function HandwritingCanvas({
       const guide = guideRef.current
       const ctx = guide?.getContext('2d')
       if (!guide || !ctx) return
+      // Youon/gairaigo combos (きゃ, ディ, ...) are two glyphs read side by side — the base
+      // size is tuned for a single glyph, so a 2-character string needs to shrink or it
+      // crowds/overflows the canvas edges.
+      const fontPx = Math.round(size * (char.length > 1 ? 0.42 : 0.7))
       ctx.clearRect(0, 0, size, size)
-      ctx.font = `700 ${Math.round(size * 0.7)}px ${CANVAS_FONT_FAMILY}`
+      ctx.font = `700 ${fontPx}px ${CANVAS_FONT_FAMILY}`
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
       ctx.fillStyle = `rgba(74, 59, 74, ${GUIDE_ALPHA})`
@@ -63,7 +67,7 @@ export function HandwritingCanvas({
       for (let i = 0; i < mask.length; i++) mask[i] = data[i * 4 + 3] > 10 ? 1 : 0
       targetMaskRef.current = mask
     }
-    document.fonts.load(`700 ${Math.round(size * 0.7)}px BIZ UDGothic`).then(draw).catch(draw)
+    document.fonts.load(`700 ${Math.round(size * (char.length > 1 ? 0.42 : 0.7))}px BIZ UDGothic`).then(draw).catch(draw)
     return () => {
       cancelled = true
     }

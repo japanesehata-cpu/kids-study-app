@@ -56,9 +56,13 @@ export function getAlphabetById(id: string): AlphabetEntry {
  * between them (confirmed via phoneme inspection: `bˈi bˈi fɔɹ bˈɔl.`, no pause phoneme),
  * blending into what sounded like "bb". One occurrence sidesteps that entirely. */
 export function alphabetSpeechPhrase(entry: AlphabetEntry): string {
-  // "!" rather than "." — a small, low-risk nudge toward livelier, less flat/monotone
-  // delivery (Kokoro's prosody is otherwise fixed by its acoustic model; text/punctuation
-  // is the only lever available here). The actual pacing is controlled separately by
-  // generate-alphabet-audio-en.py's SPEED constant, not by anything in this phrase text.
-  return `${entry.upper} for ${entry.mnemonic}!`
+  // Only used by the live-fallback TTS path (cache miss) — the actual cached audio (see
+  // generate-alphabet-audio-en.py) doesn't synthesize this string directly at all. It
+  // synthesizes the letter and "for <word>" as two separate clips and splices in an
+  // explicit silence gap, because measuring it directly showed punctuation-driven pauses
+  // (comma/ellipsis/period) only run ~30-70ms regardless of which mark is used — far too
+  // short to read as a real pause between the letter and "for". The "..." here is the best
+  // this single-string fallback path can do, which is why the real audio is generated the
+  // other way instead of trusting this text alone.
+  return `${entry.upper}... for ${entry.mnemonic}!`
 }

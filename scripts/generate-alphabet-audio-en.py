@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-# Regenerates public/audio/alphabet-letter-${id}.wav — one clean spoken mnemonic phrase per
-# alphabet entry ("L for Lion."), mirroring hiragana/katakana's own "glyph, mnemonic's
-# glyph" pattern (see alphabetSpeechPhrase in src/domain/alphabetBank.ts) rather than
-# speaking the bare letter alone. Always the upper-case form: a letter's name doesn't change
-# with case, and see HandwritingScreen.tsx / QuizScreen.tsx for why a bare lower-case letter
-# is unsafe to synthesize on its own.
+# Regenerates public/audio/alphabet-letter-${id}.wav — one spoken mnemonic phrase per
+# alphabet entry ("A ... for Apple!", see alphabetSpeechPhrase in
+# src/domain/alphabetBank.ts for the live-fallback text this mirrors) rather than speaking
+# the bare letter alone. Always the upper-case form: a letter's name doesn't change with
+# case, and see HandwritingScreen.tsx / QuizScreen.tsx for why a bare lower-case letter is
+# unsafe to synthesize on its own.
 #
-# Unlike word-en-*.wav's single bare word (which needs the repeat-and-trim technique — a
-# lone one-syllable Kokoro synthesis reliably sounds distorted), this is already a full
-# multi-word sentence with its own natural sentence-level prosody, so it's synthesized
-# directly in one pass, the same way generate-tts-cache.mjs renders hiragana/katakana's
-# mnemonic phrases directly with no trimming.
+# The letter and "for <word>" are synthesized as two SEPARATE clips and spliced together
+# with an explicit silence gap, rather than relying on punctuation (comma/ellipsis) inside
+# one synthesis call to produce a pause — confirmed by direct envelope measurement that
+# Kokoro's punctuation-driven pauses only run ~30-70ms regardless of comma/ellipsis/period,
+# too short to read as a real pause, which is why "A for Apple" ran together. Splicing gives
+# full deterministic control over the gap instead.
 #
 # Also fixes a real, confirmed bug: alphabet letters had NO cached audio at all before this,
 # so every real visitor (Kokoro only ever answers on localhost) fell through to the
@@ -31,6 +32,7 @@ import sys
 import urllib.parse
 import urllib.request
 
+import numpy as np
 import soundfile as sf
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -38,20 +40,23 @@ REPO_ROOT = os.path.dirname(SCRIPT_DIR)
 KOKORO_URL = os.environ.get("KOKORO_SERVER_URL", "http://127.0.0.1:8900")
 OUTPUT_DIR = os.path.join(REPO_ROOT, "public", "audio")
 VOICE = "am_puck"
-# Slightly slower than Kokoro's default 1.0, per feedback that the default pace read too
-# flat/rushed for a young child to follow — needs kokoro_server.py's `speed` query param
-# (added alongside this), so the server must be running an up-to-date copy.
-SPEED = 0.85
+# Slower than Kokoro's default 1.0 — per feedback that even 0.85 still read too fast for a
+# young child to follow. Needs kokoro_server.py's `speed` query param.
+SPEED = 0.7
+# Explicit, deterministic silence between the letter and "for <word>" — see the module
+# docstring for why this is spliced in rather than left to punctuation.
+PAUSE_S = 0.45
+# Padding kept around each trimmed segment's real speech content.
+PAD_S = 0.06
 
 
 def load_alphabet_bank():
     """alphabetBank.ts is the single source of truth for content (id/upper/mnemonic) — shell
     out to Node to import it directly, same approach as generate-word-audio-en-repeat-trim.py,
-    so this can never drift out of sync with alphabetSpeechPhrase's own wording."""
+    so this can never drift out of sync with the app's own data."""
     script = (
         "import('./src/domain/alphabetBank.ts').then(m => "
-        "process.stdout.write(JSON.stringify(m.alphabetBank.map(a => "
-        "({id: a.id, phrase: m.alphabetSpeechPhrase(a)})))))"
+        "process.stdout.write(JSON.stringify(m.alphabetBank)))"
     )
     result = subprocess.run(
         ["node", "--experimental-strip-types", "-e", script],
@@ -74,7 +79,23 @@ def check_kokoro_running():
 def synthesize(text):
     url = f"{KOKORO_URL}/synthesize?text={urllib.parse.quote(text)}&voice={VOICE}&speed={SPEED}"
     with urllib.request.urlopen(url, timeout=30) as res:
-        return res.read()
+        audio, sr = sf.read(io.BytesIO(res.read()))
+        return audio, sr
+
+
+def trim_to_speech(audio, sr, rel_thresh=0.05):
+    """Cuts silence off both ends, keeping PAD_S of padding on each side — same idea as
+    generate-word-audio-en-repeat-trim.py's active_range, just without needing envelope
+    smoothing or peak-finding since there's only one occurrence to isolate here."""
+    win = int(sr * 0.01)
+    n = len(audio) // win
+    env = np.array([np.sqrt(np.mean(audio[i * win:(i + 1) * win] ** 2)) for i in range(n)])
+    thresh = env.max() * rel_thresh
+    above = np.where(env > thresh)[0]
+    pad = int(PAD_S * sr)
+    start = max(0, above[0] * win - pad)
+    end = min(len(audio), (above[-1] + 1) * win + pad)
+    return audio[start:end]
 
 
 def main():
@@ -101,16 +122,23 @@ def main():
     if not force:
         targets = [a for a in targets if not os.path.exists(os.path.join(OUTPUT_DIR, f"alphabet-letter-{a['id']}.wav"))]
 
-    print(f"Generating {len(targets)} alphabet mnemonic-phrase pronunciation(s) via Kokoro ({VOICE})...")
+    print(f"Generating {len(targets)} alphabet mnemonic-phrase pronunciation(s) via Kokoro ({VOICE}, speed={SPEED})...")
 
     for entry in targets:
-        letter_id, phrase = entry["id"], entry["phrase"]
+        letter_id, upper, mnemonic = entry["id"], entry["upper"], entry["mnemonic"]
         try:
-            wav_bytes = synthesize(phrase)
-            audio, sr = sf.read(io.BytesIO(wav_bytes))
+            letter_audio, sr = synthesize(f"{upper}.")
+            rest_audio, sr2 = synthesize(f"For {mnemonic}!")
+            assert sr == sr2
+
+            letter_clip = trim_to_speech(letter_audio, sr)
+            rest_clip = trim_to_speech(rest_audio, sr)
+            silence = np.zeros(int(PAUSE_S * sr), dtype=letter_clip.dtype)
+            combined = np.concatenate([letter_clip, silence, rest_clip])
+
             out_path = os.path.join(OUTPUT_DIR, f"alphabet-letter-{letter_id}.wav")
-            sf.write(out_path, audio, sr, subtype="PCM_16")
-            print(f"done  alphabet-letter-{letter_id} ({len(audio) / sr:.2f}s, {phrase!r}) -> public/audio/alphabet-letter-{letter_id}.wav")
+            sf.write(out_path, combined, sr, subtype="PCM_16")
+            print(f"done  alphabet-letter-{letter_id} ({len(combined) / sr:.2f}s, '{upper} ... for {mnemonic}!') -> public/audio/alphabet-letter-{letter_id}.wav")
         except Exception as err:
             print(f"fail  alphabet-letter-{letter_id}: {err}", file=sys.stderr)
 

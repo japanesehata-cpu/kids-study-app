@@ -665,12 +665,11 @@
 
 /* Alphabet's level 2 (listen & write) can't disambiguate case through audio alone — "A" and
    "a" share one spoken letter name — so this badge carries the distinction visually instead.
-   The ::before glyph is always a fixed sample "A"/"a", never the target letter itself, so it
-   signals case without giving away which letter to write. */
+   Text only, no A/a glyph: a sample letter icon here reads as part of the question itself
+   and gets confused with the actual target letter being tested. */
 .handwriting-case-badge {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
   padding: 10px 26px;
   border-radius: 999px;
   font-size: 20px;
@@ -678,26 +677,11 @@
   color: white;
 }
 
-.handwriting-case-badge::before {
-  font-family: 'BIZ UDGothic', 'Hiragino Maru Gothic ProN', sans-serif;
-  line-height: 1;
-}
-
 .handwriting-case-badge--upper {
   background: var(--color-primary-dark);
-}
-
-.handwriting-case-badge--upper::before {
-  content: 'A';
-  font-size: 30px;
 }
 
 .handwriting-case-badge--lower {
   background: var(--color-accent);
   color: var(--color-text);
-}
-
-.handwriting-case-badge--lower::before {
-  content: 'a';
-  font-size: 22px;
 }

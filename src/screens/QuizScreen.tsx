@@ -170,11 +170,12 @@ function computeAutoSpeech(
     return { text: t('countingPrompt'), speechLang, cacheKey: ja ? 'prompt-counting' : undefined }
   }
   if (isAlphabet(question)) {
+    // A letter's *name* doesn't change with case, and a bare lower-case answerChar is
+    // sometimes a real English word in its own right ("a", "i") rather than just the
+    // letter's name — TTS would read it as that word instead. Always speak the upper-case
+    // form regardless of question kind or which case is being tested.
     const entry = getAlphabetById(question.letterId)
-    // caseMatch tests case correspondence, not the letter's name — speak the upper-case
-    // form as plain reinforcement instead.
-    const letterChar = question.kind === 'letterName' ? question.answerChar : entry.upper
-    return { text: letterChar, speechLang: 'en-US' }
+    return { text: entry.upper, speechLang: 'en-US' }
   }
   // englishWords
   if (question.mode === 'listenAndPick') {
@@ -350,10 +351,12 @@ function AlphabetQuestionView({
     )
   }
 
+  // Always speak the upper-case form — see computeAutoSpeech's isAlphabet branch for why.
+  const entry = getAlphabetById(question.letterId)
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
       <p className="subtitle">{listenPrompt}</p>
-      <TtsButton text={question.answerChar} lang="en-US" label="listen" size={96} voiceProfile={voiceProfile} />
+      <TtsButton text={entry.upper} lang="en-US" label="listen" size={96} voiceProfile={voiceProfile} />
     </div>
   )
 }
@@ -726,9 +729,9 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
             `katakana-${question.charId}`,
           )
         } else if (isAlphabet(question)) {
+          // Always speak the upper-case form — see computeAutoSpeech's isAlphabet branch.
           const entry = getAlphabetById(question.letterId)
-          const letterChar = question.kind === 'letterName' ? question.answerChar : entry.upper
-          speak(letterChar, 'en-US', voiceProfile)
+          speak(entry.upper, 'en-US', voiceProfile)
         } else if (isEnglishWord(question) && correct) {
           // An incorrect answer already speaks the word correctly in en-US as part of the
           // feedback sentence above (see buildFeedbackMessage) — repeating it here too

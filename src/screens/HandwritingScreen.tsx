@@ -30,6 +30,11 @@ interface AlphabetWritableEntry {
   id: string
   char: string
   case: 'upper' | 'lower'
+  /** Always the upper-case form, even for a lower-case entry — a letter's *name* doesn't
+   * change with case, so speech always uses this rather than `char`. Sending a bare
+   * lower-case `char` to TTS is also outright wrong for some letters ("a"/"i" are real
+   * English words, not just the letter name, and would be read as such). */
+  upper: string
 }
 
 /** Upper and lower case are both practiced, as two separate glyphs to draw — not a single
@@ -38,8 +43,8 @@ interface AlphabetWritableEntry {
  * letters with no case distinction in appearance) so level 2 can tell the child which case
  * to write — the spoken letter name alone ("A") can't distinguish "A" from "a". */
 const ALPHABET_HANDWRITING_BANK: AlphabetWritableEntry[] = alphabetBank.flatMap((a) => [
-  { id: `${a.id}-upper`, char: a.upper, case: 'upper' as const },
-  { id: `${a.id}-lower`, char: a.lower, case: 'lower' as const },
+  { id: `${a.id}-upper`, char: a.upper, case: 'upper' as const, upper: a.upper },
+  { id: `${a.id}-lower`, char: a.lower, case: 'lower' as const, upper: a.upper },
 ])
 
 type WritableEntry = HiraganaEntry | KatakanaEntry | AlphabetWritableEntry
@@ -56,13 +61,14 @@ function shuffle<T>(items: T[]): T[] {
 
 /** hiragana/katakana speak their own script (spoken phrase wraps the glyph with a mnemonic
  * word, see {hiragana,katakana}SpeechPhrase); alphabet just speaks the letter's name (see
- * the phonics-to-letter-name change in questionGenerators/alphabet.ts — this mirrors it).
+ * the phonics-to-letter-name change in questionGenerators/alphabet.ts — this mirrors it),
+ * always using the upper-case form (see AlphabetWritableEntry.upper's comment).
  * The casts are safe: `entry` always comes from BANK_BY_CATEGORY[category], so its runtime
  * shape always matches whichever branch `category` selects here. */
 function speechInfoFor(category: HandwritingCategory, entry: WritableEntry): { phrase: string; lang: SpeechLang } {
   if (category === 'hiragana') return { phrase: hiraganaSpeechPhrase(entry as HiraganaEntry), lang: 'ja-JP' }
   if (category === 'katakana') return { phrase: katakanaSpeechPhrase(entry as KatakanaEntry), lang: 'ja-JP' }
-  return { phrase: entry.char, lang: 'en-US' }
+  return { phrase: (entry as AlphabetWritableEntry).upper, lang: 'en-US' }
 }
 
 export function HandwritingScreen({ category, onBack, onHome }: HandwritingScreenProps) {

@@ -20,7 +20,7 @@ import { generateNumericChoices } from '../lib/choices'
 import { getWordById } from '../domain/wordBank'
 import { getHiraganaById, hiraganaSpeechPhrase } from '../domain/hiraganaBank'
 import { getKatakanaById, katakanaSpeechPhrase } from '../domain/katakanaBank'
-import { getAlphabetById } from '../domain/alphabetBank'
+import { alphabetSpeechPhrase, getAlphabetById } from '../domain/alphabetBank'
 import { formatClockKey, buildSetTimePrompt } from '../domain/questionGenerators/clock'
 import { InteractiveClock } from '../components/InteractiveClock'
 import { buildFeedbackMessage } from '../domain/feedbackMessages'
@@ -170,12 +170,11 @@ function computeAutoSpeech(
     return { text: t('countingPrompt'), speechLang, cacheKey: ja ? 'prompt-counting' : undefined }
   }
   if (isAlphabet(question)) {
-    // A letter's *name* doesn't change with case, and a bare lower-case answerChar is
-    // sometimes a real English word in its own right ("a", "i") rather than just the
-    // letter's name — TTS would read it as that word instead. Always speak the upper-case
-    // form regardless of question kind or which case is being tested.
+    // Speak the letter wrapped in its ABC-chart mnemonic (see alphabetSpeechPhrase) rather
+    // than the bare letter, always using the upper-case form since a letter's name doesn't
+    // change with case regardless of question kind or which case is being tested.
     const entry = getAlphabetById(question.letterId)
-    return { text: entry.upper, speechLang: 'en-US', cacheKey: `alphabet-letter-${question.letterId}` }
+    return { text: alphabetSpeechPhrase(entry), speechLang: 'en-US', cacheKey: `alphabet-letter-${question.letterId}` }
   }
   // englishWords
   if (question.mode === 'listenAndPick') {
@@ -351,13 +350,13 @@ function AlphabetQuestionView({
     )
   }
 
-  // Always speak the upper-case form — see computeAutoSpeech's isAlphabet branch for why.
+  // See computeAutoSpeech's isAlphabet branch for why this speaks the mnemonic phrase.
   const entry = getAlphabetById(question.letterId)
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
       <p className="subtitle">{listenPrompt}</p>
       <TtsButton
-        text={entry.upper}
+        text={alphabetSpeechPhrase(entry)}
         lang="en-US"
         label="listen"
         size={96}
@@ -736,9 +735,9 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
             `katakana-${question.charId}`,
           )
         } else if (isAlphabet(question)) {
-          // Always speak the upper-case form — see computeAutoSpeech's isAlphabet branch.
+          // See computeAutoSpeech's isAlphabet branch for why this speaks the mnemonic phrase.
           const entry = getAlphabetById(question.letterId)
-          speak(entry.upper, 'en-US', voiceProfile, `alphabet-letter-${question.letterId}`)
+          speak(alphabetSpeechPhrase(entry), 'en-US', voiceProfile, `alphabet-letter-${question.letterId}`)
         } else if (isEnglishWord(question) && correct) {
           // An incorrect answer already speaks the word correctly in en-US as part of the
           // feedback sentence above (see buildFeedbackMessage) — repeating it here too

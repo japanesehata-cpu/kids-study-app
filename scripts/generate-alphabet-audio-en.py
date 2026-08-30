@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
-# Regenerates public/audio/alphabet-letter-${id}.wav — one clean spoken letter name per
-# alphabet entry (always the upper-case form: a letter's name doesn't change with case,
-# and see HandwritingScreen.tsx / QuizScreen.tsx for why a bare lower-case letter is
-# unsafe to synthesize on its own). Kokoro itself pronounces isolated letters correctly
-# (confirmed via direct phoneme inspection: "B" and "b" both -> bˈi, no "capital" prefix
-# anywhere) — the problem this fixes is that alphabet letters had NO cached audio at all,
-# so every real visitor (Kokoro only ever answers on localhost) fell through to the
-# browser's raw Web Speech fallback, whose voice reads a bare capital letter as "capital
-# B" for disambiguation. A static cache file sidesteps that fallback entirely, the same
-# way word-en-*.wav and the hiragana/katakana caches already do.
+# Regenerates public/audio/alphabet-letter-${id}.wav — one clean spoken mnemonic phrase per
+# alphabet entry ("L. L for Lion."), mirroring hiragana/katakana's own "glyph, mnemonic's
+# glyph" pattern (see alphabetSpeechPhrase in src/domain/alphabetBank.ts) rather than
+# speaking the bare letter alone. Always the upper-case form: a letter's name doesn't change
+# with case, and see HandwritingScreen.tsx / QuizScreen.tsx for why a bare lower-case letter
+# is unsafe to synthesize on its own.
 #
-# Same repeat-and-trim technique as generate-word-audio-en-repeat-trim.py: a single bare
-# synthesis of a one-syllable utterance sounds clipped/distorted, but saying it twice and
-# keeping the second occurrence (which inherits natural prosody from the first) sounds
-# clean. voice=am_puck explicitly, matching the alphabet category's kokoroVoice (aru) —
-# the running Kokoro server's own --voice default may differ.
+# Unlike word-en-*.wav's single bare word (which needs the repeat-and-trim technique — a
+# lone one-syllable Kokoro synthesis reliably sounds distorted), this is already a full
+# multi-word sentence with its own natural sentence-level prosody, so it's synthesized
+# directly in one pass, the same way generate-tts-cache.mjs renders hiragana/katakana's
+# mnemonic phrases directly with no trimming.
+#
+# Also fixes a real, confirmed bug: alphabet letters had NO cached audio at all before this,
+# so every real visitor (Kokoro only ever answers on localhost) fell through to the
+# browser's raw Web Speech fallback, whose voice reads a bare capital letter as "capital B"
+# for disambiguation — a static cache file sidesteps that fallback entirely.
 #
 # Usage:
 #   ~/kokoro-env/bin/python3 scripts/kokoro_server.py --port 8900   # in another terminal
@@ -30,7 +31,6 @@ import sys
 import urllib.parse
 import urllib.request
 
-import numpy as np
 import soundfile as sf
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -38,13 +38,16 @@ REPO_ROOT = os.path.dirname(SCRIPT_DIR)
 KOKORO_URL = os.environ.get("KOKORO_SERVER_URL", "http://127.0.0.1:8900")
 OUTPUT_DIR = os.path.join(REPO_ROOT, "public", "audio")
 VOICE = "am_puck"
-PAD = 0.04
 
 
 def load_alphabet_bank():
+    """alphabetBank.ts is the single source of truth for content (id/upper/mnemonic) — shell
+    out to Node to import it directly, same approach as generate-word-audio-en-repeat-trim.py,
+    so this can never drift out of sync with alphabetSpeechPhrase's own wording."""
     script = (
         "import('./src/domain/alphabetBank.ts').then(m => "
-        "process.stdout.write(JSON.stringify(m.alphabetBank)))"
+        "process.stdout.write(JSON.stringify(m.alphabetBank.map(a => "
+        "({id: a.id, phrase: m.alphabetSpeechPhrase(a)})))))"
     )
     result = subprocess.run(
         ["node", "--experimental-strip-types", "-e", script],
@@ -68,51 +71,6 @@ def synthesize(text):
     url = f"{KOKORO_URL}/synthesize?text={urllib.parse.quote(text)}&voice={VOICE}"
     with urllib.request.urlopen(url, timeout=30) as res:
         return res.read()
-
-
-def envelope(audio, sr, win_s=0.01):
-    win = int(sr * win_s)
-    n = len(audio) // win
-    return np.array([np.sqrt(np.mean(audio[i * win:(i + 1) * win] ** 2)) for i in range(n)]), win
-
-
-def smooth(env, radius=3):
-    kernel = np.ones(2 * radius + 1) / (2 * radius + 1)
-    return np.convolve(env, kernel, mode="same")
-
-
-def active_range(env, rel_thresh=0.02):
-    thresh = env.max() * rel_thresh
-    above = np.where(env > thresh)[0]
-    return int(above[0]), int(above[-1])
-
-
-def extract_second_occurrence(audio, sr):
-    env, win = envelope(audio, sr)
-    smoothed = smooth(env)
-
-    s_start, s_end = active_range(smoothed)
-    mid = (s_start + s_end) // 2
-    p1 = s_start + int(np.argmax(smoothed[s_start:mid]))
-    p2 = mid + int(np.argmax(smoothed[mid:s_end + 1]))
-
-    local_minima = [i for i in range(p1 + 1, p2) if smoothed[i] <= smoothed[i - 1] and smoothed[i] <= smoothed[i + 1]]
-    quiet_thresh = smoothed.max() * 0.08
-    quiet_minima = [i for i in local_minima if smoothed[i] < quiet_thresh]
-    if quiet_minima:
-        valley_idx = quiet_minima[-1]
-    else:
-        valley_idx = p1 + int(np.argmin(smoothed[p1:p2 + 1]))
-
-    tail_thresh = smoothed[p2] * 0.08
-    end_frame = p2
-    while end_frame < len(smoothed) - 1 and smoothed[end_frame] > tail_thresh:
-        end_frame += 1
-
-    pad = int(PAD * sr)
-    start = max(0, valley_idx * win - pad)
-    end = min(len(audio), end_frame * win + pad)
-    return audio[start:end]
 
 
 def main():
@@ -139,17 +97,16 @@ def main():
     if not force:
         targets = [a for a in targets if not os.path.exists(os.path.join(OUTPUT_DIR, f"alphabet-letter-{a['id']}.wav"))]
 
-    print(f"Generating {len(targets)} repeat-and-trim alphabet letter pronunciation(s) via Kokoro ({VOICE})...")
+    print(f"Generating {len(targets)} alphabet mnemonic-phrase pronunciation(s) via Kokoro ({VOICE})...")
 
     for entry in targets:
-        letter_id, upper = entry["id"], entry["upper"]
+        letter_id, phrase = entry["id"], entry["phrase"]
         try:
-            wav_bytes = synthesize(f"{upper}, {upper}.")
+            wav_bytes = synthesize(phrase)
             audio, sr = sf.read(io.BytesIO(wav_bytes))
-            segment = extract_second_occurrence(audio, sr)
             out_path = os.path.join(OUTPUT_DIR, f"alphabet-letter-{letter_id}.wav")
-            sf.write(out_path, segment, sr, subtype="PCM_16")
-            print(f"done  alphabet-letter-{letter_id} ({len(segment) / sr:.2f}s) -> public/audio/alphabet-letter-{letter_id}.wav")
+            sf.write(out_path, audio, sr, subtype="PCM_16")
+            print(f"done  alphabet-letter-{letter_id} ({len(audio) / sr:.2f}s, {phrase!r}) -> public/audio/alphabet-letter-{letter_id}.wav")
         except Exception as err:
             print(f"fail  alphabet-letter-{letter_id}: {err}", file=sys.stderr)
 

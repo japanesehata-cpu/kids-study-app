@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { hiraganaBank, hiraganaSpeechPhrase, type HiraganaEntry } from '../domain/hiraganaBank'
 import { katakanaBank, katakanaSpeechPhrase, type KatakanaEntry } from '../domain/katakanaBank'
-import { alphabetBank } from '../domain/alphabetBank'
+import { alphabetBank, alphabetSpeechPhrase, getAlphabetById } from '../domain/alphabetBank'
 import { pickHandwritingPraise } from '../domain/handwritingPraise'
 import { useI18n } from '../i18n/I18nContext'
 import { CategoryHeader } from '../components/CategoryHeader'
@@ -30,14 +30,10 @@ interface AlphabetWritableEntry {
   id: string
   char: string
   case: 'upper' | 'lower'
-  /** Always the upper-case form, even for a lower-case entry — a letter's *name* doesn't
-   * change with case, so speech always uses this rather than `char`. Sending a bare
-   * lower-case `char` to TTS is also outright wrong for some letters ("a"/"i" are real
-   * English words, not just the letter name, and would be read as such). */
-  upper: string
   /** The base alphabetBank id ("a".."z"), shared by both this letter's upper and lower
-   * entries — used to key the pre-rendered alphabet-letter-*.wav cache (see
-   * generate-alphabet-audio-en.py), since the same audio covers both cases. */
+   * entries — used to look up the mnemonic phrase and key the pre-rendered
+   * alphabet-letter-*.wav cache (see alphabetSpeechPhrase / generate-alphabet-audio-en.py),
+   * since the same audio covers both cases (a letter's name doesn't change with case). */
   letterId: string
 }
 
@@ -47,8 +43,8 @@ interface AlphabetWritableEntry {
  * letters with no case distinction in appearance) so level 2 can tell the child which case
  * to write — the spoken letter name alone ("A") can't distinguish "A" from "a". */
 const ALPHABET_HANDWRITING_BANK: AlphabetWritableEntry[] = alphabetBank.flatMap((a) => [
-  { id: `${a.id}-upper`, char: a.upper, case: 'upper' as const, upper: a.upper, letterId: a.id },
-  { id: `${a.id}-lower`, char: a.lower, case: 'lower' as const, upper: a.upper, letterId: a.id },
+  { id: `${a.id}-upper`, char: a.upper, case: 'upper' as const, letterId: a.id },
+  { id: `${a.id}-lower`, char: a.lower, case: 'lower' as const, letterId: a.id },
 ])
 
 type WritableEntry = HiraganaEntry | KatakanaEntry | AlphabetWritableEntry
@@ -63,16 +59,15 @@ function shuffle<T>(items: T[]): T[] {
   return [...items].sort(() => Math.random() - 0.5)
 }
 
-/** hiragana/katakana speak their own script (spoken phrase wraps the glyph with a mnemonic
- * word, see {hiragana,katakana}SpeechPhrase); alphabet just speaks the letter's name (see
- * the phonics-to-letter-name change in questionGenerators/alphabet.ts — this mirrors it),
- * always using the upper-case form (see AlphabetWritableEntry.upper's comment).
- * The casts are safe: `entry` always comes from BANK_BY_CATEGORY[category], so its runtime
- * shape always matches whichever branch `category` selects here. */
+/** All three wrap their glyph in a mnemonic phrase for clearer, more natural TTS — see
+ * {hiragana,katakana,alphabet}SpeechPhrase. alphabet's phrase always uses the upper-case
+ * form (see AlphabetWritableEntry.upper's comment) since a letter's name doesn't change
+ * with case. The casts are safe: `entry` always comes from BANK_BY_CATEGORY[category], so
+ * its runtime shape always matches whichever branch `category` selects here. */
 function speechInfoFor(category: HandwritingCategory, entry: WritableEntry): { phrase: string; lang: SpeechLang } {
   if (category === 'hiragana') return { phrase: hiraganaSpeechPhrase(entry as HiraganaEntry), lang: 'ja-JP' }
   if (category === 'katakana') return { phrase: katakanaSpeechPhrase(entry as KatakanaEntry), lang: 'ja-JP' }
-  return { phrase: (entry as AlphabetWritableEntry).upper, lang: 'en-US' }
+  return { phrase: alphabetSpeechPhrase(getAlphabetById((entry as AlphabetWritableEntry).letterId)), lang: 'en-US' }
 }
 
 export function HandwritingScreen({ category, onBack, onHome }: HandwritingScreenProps) {

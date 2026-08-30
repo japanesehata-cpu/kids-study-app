@@ -2,35 +2,40 @@ export interface AlphabetEntry {
   id: string
   upper: string
   lower: string
+  /** A common example word starting with this letter (the classic ABC-chart mnemonic
+   * style, same idea as hiragana/katakana's own mnemonic field) — TTS pronounces an
+   * isolated single letter name poorly/ambiguously in isolation, so speech always wraps
+   * it in this short phrase instead (see alphabetSpeechPhrase). */
+  mnemonic: string
 }
 
 export const alphabetBank: AlphabetEntry[] = [
-  { id: 'a', upper: 'A', lower: 'a' },
-  { id: 'b', upper: 'B', lower: 'b' },
-  { id: 'c', upper: 'C', lower: 'c' },
-  { id: 'd', upper: 'D', lower: 'd' },
-  { id: 'e', upper: 'E', lower: 'e' },
-  { id: 'f', upper: 'F', lower: 'f' },
-  { id: 'g', upper: 'G', lower: 'g' },
-  { id: 'h', upper: 'H', lower: 'h' },
-  { id: 'i', upper: 'I', lower: 'i' },
-  { id: 'j', upper: 'J', lower: 'j' },
-  { id: 'k', upper: 'K', lower: 'k' },
-  { id: 'l', upper: 'L', lower: 'l' },
-  { id: 'm', upper: 'M', lower: 'm' },
-  { id: 'n', upper: 'N', lower: 'n' },
-  { id: 'o', upper: 'O', lower: 'o' },
-  { id: 'p', upper: 'P', lower: 'p' },
-  { id: 'q', upper: 'Q', lower: 'q' },
-  { id: 'r', upper: 'R', lower: 'r' },
-  { id: 's', upper: 'S', lower: 's' },
-  { id: 't', upper: 'T', lower: 't' },
-  { id: 'u', upper: 'U', lower: 'u' },
-  { id: 'v', upper: 'V', lower: 'v' },
-  { id: 'w', upper: 'W', lower: 'w' },
-  { id: 'x', upper: 'X', lower: 'x' },
-  { id: 'y', upper: 'Y', lower: 'y' },
-  { id: 'z', upper: 'Z', lower: 'z' },
+  { id: 'a', upper: 'A', lower: 'a', mnemonic: 'Apple' },
+  { id: 'b', upper: 'B', lower: 'b', mnemonic: 'Ball' },
+  { id: 'c', upper: 'C', lower: 'c', mnemonic: 'Cat' },
+  { id: 'd', upper: 'D', lower: 'd', mnemonic: 'Dog' },
+  { id: 'e', upper: 'E', lower: 'e', mnemonic: 'Elephant' },
+  { id: 'f', upper: 'F', lower: 'f', mnemonic: 'Fish' },
+  { id: 'g', upper: 'G', lower: 'g', mnemonic: 'Grape' },
+  { id: 'h', upper: 'H', lower: 'h', mnemonic: 'Hat' },
+  { id: 'i', upper: 'I', lower: 'i', mnemonic: 'Ice' },
+  { id: 'j', upper: 'J', lower: 'j', mnemonic: 'Juice' },
+  { id: 'k', upper: 'K', lower: 'k', mnemonic: 'Kite' },
+  { id: 'l', upper: 'L', lower: 'l', mnemonic: 'Lion' },
+  { id: 'm', upper: 'M', lower: 'm', mnemonic: 'Monkey' },
+  { id: 'n', upper: 'N', lower: 'n', mnemonic: 'Nose' },
+  { id: 'o', upper: 'O', lower: 'o', mnemonic: 'Orange' },
+  { id: 'p', upper: 'P', lower: 'p', mnemonic: 'Pig' },
+  { id: 'q', upper: 'Q', lower: 'q', mnemonic: 'Queen' },
+  { id: 'r', upper: 'R', lower: 'r', mnemonic: 'Rabbit' },
+  { id: 's', upper: 'S', lower: 's', mnemonic: 'Sun' },
+  { id: 't', upper: 'T', lower: 't', mnemonic: 'Tiger' },
+  { id: 'u', upper: 'U', lower: 'u', mnemonic: 'Umbrella' },
+  { id: 'v', upper: 'V', lower: 'v', mnemonic: 'Violin' },
+  { id: 'w', upper: 'W', lower: 'w', mnemonic: 'Watermelon' },
+  { id: 'x', upper: 'X', lower: 'x', mnemonic: 'Xylophone' },
+  { id: 'y', upper: 'Y', lower: 'y', mnemonic: 'Yak' },
+  { id: 'z', upper: 'Z', lower: 'z', mnemonic: 'Zebra' },
 ]
 
 export function getAlphabetById(id: string): AlphabetEntry {
@@ -39,4 +44,12 @@ export function getAlphabetById(id: string): AlphabetEntry {
     throw new Error(`Unknown alphabet id: ${id}`)
   }
   return entry
+}
+
+/** Mirrors hiraganaSpeechPhrase/katakanaSpeechPhrase's "glyph, mnemonic's glyph" pattern
+ * (e.g. "あ、ありのあ") in English ABC-chart style: always the upper-case form, since a
+ * letter's name doesn't change with case (see AlphabetWritableEntry.upper's comment in
+ * HandwritingScreen.tsx for why a bare lower-case letter is unsafe to speak on its own). */
+export function alphabetSpeechPhrase(entry: AlphabetEntry): string {
+  return `${entry.upper}. ${entry.upper} for ${entry.mnemonic}.`
 }

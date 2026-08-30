@@ -3,6 +3,7 @@ import type { DictionaryKey } from './dictionary'
 export const subSkillLabelKey: Record<string, DictionaryKey> = {
   'addition-no-carry': 'subSkillAdditionNoCarry',
   'addition-carry': 'subSkillAdditionCarry',
+  'addition-tens': 'subSkillAdditionTens',
   // No longer produced by the generator (every level shows visuals now), but kept
   // mapped so a subSkill tag saved to localStorage before this change can still resolve
   // to a label instead of crashing the results breakdown — same class of bug just fixed
@@ -11,6 +12,7 @@ export const subSkillLabelKey: Record<string, DictionaryKey> = {
   'subtraction-basic': 'subSkillSubtractionBasic',
   'subtraction-extended': 'subSkillSubtractionExtended',
   'subtraction-borrow': 'subSkillSubtractionBorrow',
+  'subtraction-tens': 'subSkillSubtractionTens',
   'word-animal': 'subSkillWordAnimal',
   // 'fruit' was folded into the broader 'food' category below; kept mapped so an older
   // saved subSkill tag still resolves instead of crashing the results breakdown.

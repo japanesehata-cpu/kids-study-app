@@ -10,26 +10,28 @@ function makeId(): string {
 }
 
 /** Minuend bands per level — each strictly higher than the last (mirrors addition's
- * SUM_BAND), so ★3-★5 no longer collapse into one identical range. ★1/★2 stay
- * single-digit, where borrowing doesn't apply. */
+ * SUM_BAND). ★1/★2 stay single-digit, where borrowing doesn't apply. ★4's single-digit-
+ * operand half merges what would have been two separate bands (14-16, 17-18) into one,
+ * since ★4 is the last level for this category (see CATEGORY_MAX_LEVEL) — the harder half
+ * of its content is the round-tens branch below, not a still-higher minuend band. */
 const MINUEND_BAND: Record<Level, [number, number]> = {
   1: [2, 5],
   2: [6, 10],
   3: [11, 13],
-  4: [14, 16],
-  5: [17, 18],
+  4: [14, 18],
+  // ★5 is never reached (CATEGORY_MAX_LEVEL caps subtraction at ★4) — kept only so this
+  // Record's type checks against the full Level union.
+  5: [14, 18],
 }
 
 /** How often ★3+ draws a subtrahend that forces borrowing across the tens place (13 - 7,
- * say) rather than one the ones digit alone covers (13 - 3) — climbing from "sometimes"
- * to "always" is what makes ★5 the hardest tier even though ★3-★5 all use two-digit
- * minuends. */
+ * say) rather than one the ones digit alone covers (13 - 3). */
 const BORROW_CHANCE: Record<Level, number> = {
   1: 0,
   2: 0,
   3: 0.5,
-  4: 0.8,
-  5: 1,
+  4: 0.9,
+  5: 0.9,
 }
 
 function pickSubtrahend(a: number, level: Level): number {
@@ -40,12 +42,33 @@ function pickSubtrahend(a: number, level: Level): number {
   return randomInt(1, onesDigit)
 }
 
+/** ★4's round-tens half — 50-20-style, one digit's worth of subtraction scaled up by 10
+ * (10-90 instead of 1-9), mirroring addition's generateTensOperands. Subtrahend is always
+ * strictly less than the minuend so the result stays positive. */
+function generateTensOperands(): { a: number; b: number } {
+  const tensA = randomInt(2, 9) // minuend/10, so the actual minuend lands on 20-90
+  const tensB = randomInt(1, tensA - 1)
+  return { a: tensA * 10, b: tensB * 10 }
+}
+
 export function generateSubtractionQuestion(level: Level): ArithmeticQuestion {
-  const [min, max] = MINUEND_BAND[level]
-  const a = randomInt(min, max)
-  const b = pickSubtrahend(a, level)
-  const requiresBorrow = level >= 3 && b > a % 10
-  const story = level >= 3 && Math.random() < 0.5 ? buildSubtractionStory(a, b) : undefined
+  // ★4 splits evenly between two harder-but-different skills — a still-bigger single-digit
+  // minuend (continuing the ★1-3 progression) and the new round-tens skill.
+  const useTens = level === 4 && Math.random() < 0.5
+  let a: number
+  let b: number
+  if (useTens) {
+    ;({ a, b } = generateTensOperands())
+  } else {
+    const [min, max] = MINUEND_BAND[level]
+    a = randomInt(min, max)
+    b = pickSubtrahend(a, level)
+  }
+  const requiresBorrow = !useTens && level >= 3 && b > a % 10
+  // ★4 is deliberately abstract — no apple visual, no word-problem framing — since neither
+  // scales to a round-tens difference (50 apples, or "20 apples" in a sentence, both read
+  // oddly) and the whole point of this level is practicing the bare equation.
+  const story = level === 3 && Math.random() < 0.5 ? buildSubtractionStory(a, b) : undefined
 
   return {
     id: makeId(),
@@ -54,10 +77,14 @@ export function generateSubtractionQuestion(level: Level): ArithmeticQuestion {
     operandA: a,
     operandB: b,
     answer: a - b,
-    // Every level shows the apple visual now, mirroring addition — watching apples get
-    // taken away is what makes "takeaway" click, not just the ★1 (4yo) easy cases.
-    showVisual: true,
+    showVisual: level < 4,
     story,
-    subSkill: level <= 2 ? 'subtraction-basic' : requiresBorrow ? 'subtraction-borrow' : 'subtraction-extended',
+    subSkill: useTens
+      ? 'subtraction-tens'
+      : level <= 2
+        ? 'subtraction-basic'
+        : requiresBorrow
+          ? 'subtraction-borrow'
+          : 'subtraction-extended',
   }
 }

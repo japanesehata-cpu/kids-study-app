@@ -199,11 +199,12 @@ function ArithmeticQuestionView({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-      {/* Every addition question shows the apple visual, independent of showVisual — that
-          field can be stale for a question replayed from a review queue saved to
-          localStorage before addition always showed it (or restored from an older app
-          version), so category alone decides here rather than trusting persisted data. */}
-      {question.category === 'addition' && (
+      {/* ★4's round-tens questions can have a 20-90 operand — rendering that many apple
+          emoji would be absurd, which is exactly why ★4 sets showVisual: false (see
+          questionGenerators/addition.ts). A persisted pre-★4 question's showVisual is
+          always true (that field didn't exist as a meaningful toggle before ★4), so
+          checking it here can't hide the visual for any older ★1-3 question. */}
+      {question.category === 'addition' && question.showVisual !== false && (
         <div className="addition-visual">
           <div className="addition-visual-group">
             {Array.from({ length: question.operandA }).map((_, i) => (
@@ -222,9 +223,8 @@ function ArithmeticQuestionView({
           </div>
         </div>
       )}
-      {/* Same reasoning as the addition block above: category alone decides, not the
-          persisted showVisual field. */}
-      {question.category === 'subtraction' && (
+      {/* Same reasoning as the addition block above. */}
+      {question.category === 'subtraction' && question.showVisual !== false && (
         <div className="subtraction-visual-row">
           {Array.from({ length: question.operandA }).map((_, i) => (
             <span
@@ -629,6 +629,12 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
 
   const choices = useMemo<Choice[]>(() => {
     if (isArithmetic(question)) {
+      // ★4's round-tens branch (see questionGenerators/{addition,subtraction}.ts) needs a
+      // much wider range than ★1-3's single-digit-operand answers, and distractors that are
+      // themselves round tens (50/70/80, not 58/61) — the same "which tens place" mistake a
+      // child could plausibly make, rather than an arbitrary off-by-one/two.
+      const isTens = question.operandA % 10 === 0 && question.operandB % 10 === 0 && question.operandA >= 10
+      if (isTens) return generateNumericChoices(question.answer, 10, 90, 10)
       const max = question.category === 'subtraction' ? 15 : 19
       return generateNumericChoices(question.answer, 0, max)
     }

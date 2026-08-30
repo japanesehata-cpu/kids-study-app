@@ -219,25 +219,71 @@ function buildJobs() {
     }
   }
 
-  // Every subtraction equation the generator can actually say, in both phrasings. Unlike
-  // addition, the minuend (a) is NOT clamped to a single digit — MINUEND_BAND in
-  // questionGenerators/subtraction.ts goes up to 18 at ★3 (age 6, the highest level the
-  // level picker actually offers), so a 1-9 cross product silently missed every single
-  // ★3 subtraction question, forcing all of them through live/Web Speech synthesis. Cover
-  // the full range the generator can produce instead (a up to 18, b up to 10 — the a=10
-  // edge case at ★2 can pick b anywhere in 1-10).
+  // ★4's round-tens branch (20+30-style, see generateTensOperands in
+  // questionGenerators/addition.ts) uses operands the 1-9 cross product above never
+  // produces (10, 20, ... 90) — never has a story variant (★4 is deliberately abstract, no
+  // word-problem framing), so only the plain equation needs covering here. Full 9x9 grid
+  // of tens (10-90 × 10-90) for the same reason the single-digit loop above is a full 9x9
+  // grid: simpler to cover every combination than to reverse-engineer exactly which ones
+  // the sum-then-split algorithm can actually produce.
+  for (let ta = 1; ta <= 9; ta++) {
+    for (let tb = 1; tb <= 9; tb++) {
+      const a = ta * 10
+      const b = tb * 10
+      jobs.push({
+        cacheKey: `equation-addition-${a}-${b}`,
+        text: `${a} たす ${b} は？`,
+        speakerName: additionSpeakerName,
+        styleName: additionStyleName,
+      })
+    }
+  }
+
+  // Every subtraction equation the generator can actually say. Unlike addition, the
+  // minuend (a) is NOT clamped to a single digit — MINUEND_BAND in
+  // questionGenerators/subtraction.ts goes up to 18 at ★4 (the highest level the level
+  // picker actually offers), so a 1-9 cross product silently missed every single ★3+
+  // subtraction question, forcing all of them through live/Web Speech synthesis. Cover the
+  // full range the generator can produce instead — a up to 18, b up to 17 (pickSubtrahend's
+  // mustBorrow branch can return up to a-1, so a=18 can pair with b as high as 17).
   const { name: subtractionSpeakerName, style: subtractionStyleName } = speakerFor('subtraction')
   for (let a = 1; a <= 18; a++) {
-    for (let b = 1; b <= 10; b++) {
+    for (let b = 1; b <= 17; b++) {
       jobs.push({
         cacheKey: `equation-subtraction-${a}-${b}`,
         text: `${a} ひく ${b} は？`,
         speakerName: subtractionSpeakerName,
         styleName: subtractionStyleName,
       })
+    }
+  }
+  // Story phrasing is only ever used at ★3 (word-problem framing, a:11-13 — ★4 is
+  // deliberately abstract, no story), so this stays scoped to that narrower range rather
+  // than the ★4-driven equation loop above, to avoid generating hundreds of story lines
+  // that ★3's actual a/b combinations can never produce.
+  for (let a = 1; a <= 13; a++) {
+    for (let b = 1; b <= 12; b++) {
       jobs.push({
         cacheKey: `story-subtraction-${a}-${b}`,
         text: buildSubtractionStory(a, b).ja,
+        speakerName: subtractionSpeakerName,
+        styleName: subtractionStyleName,
+      })
+    }
+  }
+  // ★4's round-tens branch (50-20-style, see generateTensOperands in
+  // questionGenerators/subtraction.ts) — never has a story variant, same reasoning as
+  // addition's tens loop above. Unlike addition's tens loop, this skips tb >= ta: a
+  // subtrahend can never equal or exceed the minuend (the generator always keeps the
+  // result positive), so those combinations can never actually be asked.
+  for (let ta = 1; ta <= 9; ta++) {
+    for (let tb = 1; tb <= 9; tb++) {
+      if (tb >= ta) continue
+      const a = ta * 10
+      const b = tb * 10
+      jobs.push({
+        cacheKey: `equation-subtraction-${a}-${b}`,
+        text: `${a} ひく ${b} は？`,
         speakerName: subtractionSpeakerName,
         styleName: subtractionStyleName,
       })

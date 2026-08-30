@@ -23,14 +23,18 @@ export const SET_SIZE = 10
 /** Kept for the categories that still use the full 5-step scale. */
 export const MAX_LEVEL: Level = 5
 
-/** addition/subtraction/logic/clock/spotDifference/counting are scaled to 3 steps (★1-3,
- * ages 4/5/6) instead of the original 5 — see LevelSelectScreen, which reads this to size
- * its level grid. hiragana/katakana go further: ★4 is a dedicated 拗音 (youon) milestone for
- * both, and katakana alone adds ★5 for 外来語表記 (gairaigo) — extended katakana used only
- * for loanword sounds, with no hiragana equivalent (see questionGenerators/katakana.ts). */
+/** logic/englishSpelling/englishListening/alphabet/clock/spotDifference/counting are scaled
+ * to 3 steps (★1-3, ages 4/5/6) instead of the original 5 — see LevelSelectScreen, which
+ * reads this to size its level grid. addition/subtraction/hiragana/katakana go further:
+ * addition/subtraction add ★4, a deliberately abstract (no apple visual, no word-problem
+ * framing) milestone mixing a still-harder single-digit sum/minuend with a new round-tens
+ * skill (20+30-style — see questionGenerators/{addition,subtraction}.ts). hiragana's ★4 is
+ * a dedicated 拗音 (youon) milestone, and katakana alone adds ★5 for 外来語表記 (gairaigo) —
+ * extended katakana used only for loanword sounds, with no hiragana equivalent (see
+ * questionGenerators/katakana.ts). */
 export const CATEGORY_MAX_LEVEL: Record<Category, Level> = {
-  addition: 3,
-  subtraction: 3,
+  addition: 4,
+  subtraction: 4,
   englishSpelling: 3,
   englishListening: 3,
   logic: 3,

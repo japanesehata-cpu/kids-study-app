@@ -90,10 +90,12 @@ export const dictionary = {
 
   subSkillAdditionNoCarry: { ja: 'くりあがりなしのたしざん', en: 'addition without carrying' },
   subSkillAdditionCarry: { ja: 'くりあがりのあるたしざん', en: 'addition with carrying' },
+  subSkillAdditionTens: { ja: '10のまとまりのたしざん', en: 'addition with tens' },
   subSkillSubtractionVisual: { ja: 'えをつかったひきざん', en: 'picture subtraction' },
   subSkillSubtractionBasic: { ja: 'きほんのひきざん', en: 'basic subtraction' },
   subSkillSubtractionExtended: { ja: 'すこしむずかしいひきざん', en: 'trickier subtraction' },
   subSkillSubtractionBorrow: { ja: 'くりさがりのあるひきざん', en: 'subtraction with borrowing' },
+  subSkillSubtractionTens: { ja: '10のまとまりのひきざん', en: 'subtraction with tens' },
   subSkillWordAnimal: { ja: 'どうぶつのことば', en: 'animal words' },
   subSkillWordFruit: { ja: 'くだもののことば', en: 'fruit words' },
   subSkillWordFood: { ja: 'たべもののことば', en: 'food words' },

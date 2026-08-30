@@ -48,13 +48,35 @@ describe('generateSubtractionQuestion', () => {
     expect(sawNoBorrow).toBe(true)
   })
 
-  it('Lv5 (hardest) uses a 17-18 minuend and always requires borrowing', () => {
+  // ★4 mixes two branches — a harder single-digit minuend (14-18) and a round-tens
+  // minuend (20-90, both operands multiples of 10) — never shows the visual or a
+  // word-problem story, and exercises both branches across enough draws.
+  it('Lv4 mixes a harder single-digit minuend with a round-tens minuend, never shows the visual, and never has a story', () => {
+    let sawSingleDigit = false
+    let sawTens = false
     for (let i = 0; i < 200; i++) {
-      const q = generateSubtractionQuestion(5)
-      expect(q.operandA).toBeGreaterThanOrEqual(17)
-      expect(q.operandA).toBeLessThanOrEqual(18)
-      expect(q.operandB).toBeGreaterThan(q.operandA % 10)
-      expect(q.subSkill).toBe('subtraction-borrow')
+      const q = generateSubtractionQuestion(4)
+      expect(q.answer).toBe(q.operandA - q.operandB)
+      expect(q.answer).toBeGreaterThanOrEqual(0)
+      expect(q.showVisual).toBe(false)
+      expect(q.story).toBeUndefined()
+
+      const isTens = q.operandA % 10 === 0 && q.operandB % 10 === 0
+      if (isTens) {
+        sawTens = true
+        expect(q.operandA).toBeGreaterThanOrEqual(20)
+        expect(q.operandA).toBeLessThanOrEqual(90)
+        expect(q.operandB).toBeGreaterThanOrEqual(10)
+        expect(q.operandB).toBeLessThan(q.operandA)
+        expect(q.subSkill).toBe('subtraction-tens')
+      } else {
+        sawSingleDigit = true
+        expect(q.operandA).toBeGreaterThanOrEqual(14)
+        expect(q.operandA).toBeLessThanOrEqual(18)
+        expect(['subtraction-borrow', 'subtraction-extended']).toContain(q.subSkill)
+      }
     }
+    expect(sawSingleDigit).toBe(true)
+    expect(sawTens).toBe(true)
   })
 })

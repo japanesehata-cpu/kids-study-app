@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Regenerates public/audio/alphabet-letter-${id}.wav — one clean spoken mnemonic phrase per
-# alphabet entry ("L. Lion. L."), mirroring hiragana/katakana's own "glyph, mnemonic's
+# alphabet entry ("L for Lion."), mirroring hiragana/katakana's own "glyph, mnemonic's
 # glyph" pattern (see alphabetSpeechPhrase in src/domain/alphabetBank.ts) rather than
 # speaking the bare letter alone. Always the upper-case form: a letter's name doesn't change
 # with case, and see HandwritingScreen.tsx / QuizScreen.tsx for why a bare lower-case letter

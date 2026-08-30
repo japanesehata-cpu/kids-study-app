@@ -46,17 +46,15 @@ export function getAlphabetById(id: string): AlphabetEntry {
   return entry
 }
 
-/** Mirrors hiraganaSpeechPhrase/katakanaSpeechPhrase's "glyph, mnemonic's glyph" pattern
- * (e.g. "あ、ありのあ" — letter, then word, then letter again) in English ABC-chart style:
- * always the upper-case form, since a letter's name doesn't change with case (see
- * AlphabetWritableEntry.upper's comment in HandwritingScreen.tsx for why a bare lower-case
- * letter is unsafe to speak on its own).
+/** English ABC-chart mnemonic style ("X for Xylophone"), always the upper-case form since a
+ * letter's name doesn't change with case (see AlphabetWritableEntry.upper's comment in
+ * HandwritingScreen.tsx for why a bare lower-case letter is unsafe to speak on its own).
  *
- * The two letter occurrences must NOT be adjacent ("B. B for Ball." puts them back-to-back
- * with nothing but a period between them) — confirmed via direct phoneme inspection that
- * Kokoro's G2P drops that period's pause entirely (`bˈi bˈi fɔɹ bˈɔl.`, no pause phoneme
- * between the two `bˈi`s), so the two short syllables blend into what sounds like "bb".
- * Putting the mnemonic word between them ("B. Ball. B.") gives real acoustic separation. */
+ * A single occurrence only — an earlier "letter, word, letter" version (mirroring hiragana/
+ * katakana's own "あ、ありのあ" pattern) put two adjacent same-letter utterances too close
+ * together in one phrasing ("B. B for Ball."), which Kokoro rendered with no real pause
+ * between them (confirmed via phoneme inspection: `bˈi bˈi fɔɹ bˈɔl.`, no pause phoneme),
+ * blending into what sounded like "bb". One occurrence sidesteps that entirely. */
 export function alphabetSpeechPhrase(entry: AlphabetEntry): string {
-  return `${entry.upper}. ${entry.mnemonic}. ${entry.upper}.`
+  return `${entry.upper} for ${entry.mnemonic}.`
 }

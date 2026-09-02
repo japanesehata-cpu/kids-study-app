@@ -289,18 +289,17 @@ natural unedited product photograph
 
 
 def color_prompt(word):
-    # A dramatic silk drape reads inconsistently across renders (deep shadows and
-    # highlights can make the same fabric look like several different shades) — a
-    # flat, minimally-folded square swatch shows the true color evenly, and keeps
-    # every color card looking like part of the same set. "Completely flat... lying
-    # on a table" reads more reliably than "flat... with slight folds", which still
-    # let some colors drift into a dramatic draped/twisted look.
+    # QA finding: the fabric-swatch framing (however flat/plain) still reads as "a
+    # {word} handkerchief" first and "the color {word}" second — a child sees an object,
+    # not a color sample. Filling the ENTIRE frame with the color (a flat painted
+    # surface, not a garment-shaped piece of fabric) makes the color itself the whole
+    # subject instead of a property of some other object.
     return f"""
-RAW product photograph of a folded square {word} colored fabric
-swatch, lying completely flat on a table, minimal folds,
-entirely and accurately {word}, no other colors, no pattern,
-soft even studio lighting, plain white background, centered
-composition, natural unedited product photograph
+RAW photograph of a solid {word} colored flat surface filling the
+entire frame edge to edge, no visible object or shape, uniform
+{word} color from edge to edge, no other colors, no pattern,
+no texture, no fabric folds, soft even studio lighting,
+natural unedited photograph
 """
 
 
@@ -380,7 +379,7 @@ SPORT_ACTIONS = {
     "swimming": "a swimmer swimming in a pool, mid-stroke",
     "running": "a runner sprinting on an outdoor running track",
     "skiing": "a skier skiing down a snowy slope",
-    "skating": "an ice skater gliding on an ice rink",
+    "skating": "an ice skater in casual winter clothing gliding on an indoor ice rink, ice skates clearly visible",
     "surfing": "a surfer riding a wave on a surfboard",
     "golf": "a golfer swinging a golf club on a grass course",
     "volleyball": "an athlete spiking a volleyball at a net",
@@ -520,11 +519,16 @@ long narrow V-shaped snout with a visible fourth tooth jutting up
 outside the closed jaw, natural scale texture,
 soft diffused daylight, unedited documentary nature photograph
 """,
+    # QA found the mouth kept rendering open with teeth showing despite the prompt
+    # already saying "closed jaw, no teeth" — the earlier wording apparently wasn't
+    # forceful enough against this model's strong "reptile with open mouth and teeth"
+    # training bias. Paired with a seed override below.
     "alligator": """
 RAW wildlife photograph of a real alligator's head from the side,
-short wide rounded U-shaped snout, no teeth visible outside the
-closed jaw, natural dark scale texture,
-soft diffused daylight, unedited documentary nature photograph
+mouth fully closed, short wide flat rounded U-shaped snout much
+wider than a crocodile's snout, no teeth visible anywhere,
+natural dark scale texture, soft diffused daylight,
+unedited documentary nature photograph
 """,
     # Japanese tree sparrow (スズメ) specifically, not the house sparrow — the
     # chestnut-brown cap and black cheek patch are its distinguishing field marks.
@@ -535,13 +539,16 @@ chestnut brown cap, black patch on white cheek, black bib,
 soft diffused daylight, unedited documentary nature photograph
 """,
     # Japanese red-crowned crane (タンチョウ) — the culturally iconic crane in Japan,
-    # not a generic heron-like wading bird.
+    # not a generic heron-like wading bird. Re-worded after a QA flag even though the
+    # species framing was already correct — spells out the red crown as a small
+    # circular patch (not spiky head plumes, which an earlier render drifted toward).
     "crane": """
 RAW wildlife photograph of a real Japanese red-crowned crane,
-side profile view, entire body visible, standing in snow,
-white body plumage, black wing feathers, small red patch on the
-crown of the head, long black neck,
-soft diffused daylight, unedited documentary nature photograph
+side profile view, entire body clearly visible, standing in snow,
+pure white body plumage, black wing feathers, one small bright red
+circular bald patch on the crown of the head, long black stripe
+down the neck, soft diffused daylight,
+unedited documentary nature photograph
 """,
     "porcupine": """
 RAW wildlife photograph of a real porcupine,
@@ -588,22 +595,32 @@ visible individual strands, natural texture, soft diffused daylight,
 neutral studio background, natural unedited food photograph
 """,
     # Kewpie mayonnaise's red-capped, clear soft squeeze bottle with a diamond-quilted
-    # texture is the culturally standard "mayonnaise" reference in Japan.
+    # texture is the culturally standard "mayonnaise" reference in Japan. QA found the
+    # label kept rendering as garbled fake brand text no matter how the prompt asked for
+    # a blank/unlabeled one (tried "blank plain white label" and "no label at all", both
+    # still produced fake text — a strong training bias for a labeled design on this
+    # bottle shape). Framing the shot as an extreme close-up on the cap and shoulder
+    # instead pushes the label out of frame entirely, sidestepping the problem rather
+    # than fighting it. See WORD_SEED_OVERRIDES — seed 42 was the only one of several
+    # tried that kept the label fully out of frame.
     "mayonnaise": """
-RAW product photograph of a real mayonnaise squeeze bottle,
-clear plastic bottle with diamond quilted texture, red twist cap,
-plain white label with no readable text, standing upright,
-soft diffused daylight, neutral studio background,
-natural unedited product photograph
+RAW product photograph of a real soft squeeze mayonnaise bottle,
+extreme close-up on the cap and shoulder of the bottle, soft narrow
+spouted red cap in sharp focus, clear plastic bottle with diamond
+quilted texture showing the creamy mayonnaise inside, very shallow
+depth of field, lower half of the bottle softly out of focus and
+blurred, standing upright, soft diffused daylight
 """,
     # Long, slender, dark green, bumpy-skinned Asian/Japanese cucumber (kyuri) rather
-    # than a short bumpy Western cucumber — shown whole, not cut, so the characteristic
-    # shape reads clearly.
+    # than a short bumpy Western cucumber. QA found it still rendering too short/stubby
+    # (closer to a Western pickling cucumber) — spelled out a length ratio and added a
+    # matching negative to push it further from that shape.
     "cucumber": """
 RAW product photograph of a real whole Japanese cucumber,
-long slender dark green bumpy skin, one whole cucumber centered
-in frame, soft diffused daylight, neutral studio background,
-natural unedited product photograph
+very long and slender, at least four times longer than it is wide,
+uniform width along its whole length, dark green bumpy skin, one
+whole cucumber centered in frame, soft diffused daylight,
+neutral studio background, natural unedited product photograph
 """,
     # "top" the toy (a spinning top) needs disambiguating from "top" the generic word —
     # the plain toy_prompt rendered it as a picture frame instead.
@@ -685,6 +702,452 @@ over visible pebbles, meandering through a green meadow,
 wide-angle nature photography, natural daylight, neutral natural colors,
 unedited landscape photograph, no people, no buildings, no text
 """,
+
+    # --- 2026-09 image review round: entries below fix specific issues a full
+    # visual QA pass flagged on the already-deployed images (see the word-pronunciation
+    # session's image review artifact) — grouped by category, each with a short note on
+    # what was wrong before.
+
+    # ANIMALS
+    "sloth": """
+RAW wildlife photograph of a real sloth hanging from a tree branch,
+side profile view, entire body visible, long curved sharp claws
+clearly visible gripping the branch, natural shaggy fur texture,
+soft diffused daylight, unedited documentary nature photograph
+""",
+    # QA: rendered small enough to read as a wallaby, not a kangaroo specifically.
+    "kangaroo": """
+RAW wildlife photograph of a real large adult kangaroo standing
+upright, side profile view, entire body visible, thick powerful
+muscular hind legs, long thick tail, tall body clearly larger and
+more heavily built than a wallaby, natural fur texture, standing
+outdoors, soft diffused daylight, unedited documentary nature photograph
+""",
+    # QA: number of arms read as unnatural — a top-down view (not side profile) is what
+    # actually shows a starfish's five-arm shape clearly.
+    "starfish": """
+RAW underwater wildlife photograph of a real starfish,
+seen from directly above, exactly five arms clearly visible in a
+star shape, natural bumpy textured skin, resting on sand,
+soft diffused light through water, unedited documentary nature photograph
+""",
+    # QA: shape unclear — a stingray's flat diamond body only reads clearly from directly
+    # above, not the side-profile framing every other MARINE_IDS entry uses.
+    "stingray": """
+RAW underwater wildlife photograph of a real stingray,
+seen from directly above showing its flat diamond-shaped body and
+long thin tail clearly, gliding alone over sand, natural skin
+texture, soft diffused light through water,
+unedited documentary nature photograph
+""",
+    "seal": """
+RAW wildlife photograph of a real seal resting on a rock,
+side profile view, entire body clearly visible from head to tail,
+smooth rounded torpedo-shaped body, natural wet fur texture,
+soft diffused daylight, unedited documentary nature photograph
+""",
+    "tapir": """
+RAW wildlife photograph of a real tapir standing outdoors,
+side profile view, entire body visible, short flexible trunk-like
+snout clearly visible extending from its face, dark body, natural
+skin texture, soft diffused daylight, unedited documentary nature photograph
+""",
+    "peacock": """
+RAW wildlife photograph of a real peacock with its tail fully
+fanned open and upright, showing the full spread of iridescent
+blue-green tail feathers covered in eye-spot patterns, standing
+outdoors, soft diffused daylight, unedited documentary nature photograph
+""",
+    "hummingbird": """
+RAW wildlife photograph of a real hummingbird hovering in mid-air
+near a flower, side profile view, entire body visible, wings a
+soft motion blur from rapid flapping, iridescent feather texture,
+soft diffused daylight, unedited documentary nature photograph
+""",
+    "vulture": """
+RAW wildlife photograph of a real vulture perched on a dry branch,
+side profile view, entire body visible, dry African savanna
+landscape background with sparse dry grass and open sky, natural
+feather texture, soft diffused daylight, unedited documentary nature photograph
+""",
+
+    # FOOD
+    "hotdog": """
+RAW product photograph of a real hotdog in a bun,
+topped with visible lines of ketchup and yellow mustard,
+one hotdog centered in frame, natural appetizing texture,
+soft diffused daylight, neutral natural colors, shallow depth of
+field, smooth light beige background, natural unedited food photograph
+""",
+    "rice": """
+RAW product photograph of a real full bowl of steamed white rice,
+a generous mounded serving filling the bowl, many individual
+grains visible, natural texture, soft diffused daylight,
+neutral studio background, natural unedited food photograph
+""",
+    # QA: rendered as the pepper fruit/plant rather than the ground table condiment.
+    "pepper": """
+RAW product photograph of a real pepper shaker filled with ground
+black pepper, coarsely ground black pepper visible through clear
+glass, standing upright, centered in frame, soft diffused daylight,
+neutral studio background, natural unedited product photograph
+""",
+    # QA: wants a Japanese-style rolled omelette (tamagoyaki-adjacent), not a Western
+    # folded omelette.
+    "omelette": """
+RAW product photograph of a real Japanese-style rolled omelette,
+sliced into rounds showing swirled golden-yellow layers, on a
+plate, natural appetizing texture, soft diffused daylight,
+neutral natural colors, smooth light beige background,
+natural unedited food photograph
+""",
+    "tea": """
+RAW product photograph of a real cup of hot green tea,
+visible steam rising, in a traditional Japanese ceramic teacup
+with no handle, soft diffused daylight, neutral studio background,
+natural unedited product photograph
+""",
+    "coffee": """
+RAW product photograph of a real cup of coffee in a coffee mug
+with a handle, viewed from a clear three-quarter angle showing
+both the cup and the coffee inside, soft diffused daylight,
+neutral studio background, natural unedited product photograph
+""",
+    # QA: wants Japan's "ramune" style soda specifically, with its distinctive marble-neck
+    # bottle and visible carbonation. In practice this model could not render the marble
+    # at all — 20 seeds tried across four framings (plain description, "Codd-neck bottle"
+    # terminology, an extreme macro crop on just the neck) and none showed it; "Codd-neck"
+    # even backfired by embossing the literal word "Codd" as fake branding, and the macro
+    # crop produced abstract water-droplet texture with no bottle shape at all. Settled for
+    # this framing + WORD_SEED_OVERRIDES below, which reliably gives a clean, correctly
+    # shaped glass soda bottle with visible carbonation and no garbled embossed text — the
+    # closest available, missing only the marble.
+    "soda": """
+RAW product photograph of a real Japanese ramune soda bottle,
+distinctive round glass bottle with a visible glass marble trapped
+in the narrow neck, plain unlabeled glass with no engraving or
+embossed writing anywhere, clear bubbly soda visible inside with
+many visible carbonation bubbles, standing upright, soft diffused
+daylight, neutral studio background, natural unedited product photograph
+""",
+    "bean": """
+RAW product photograph of a small pile of real dried soybeans,
+many individual beans visible, natural texture and coloring,
+soft diffused daylight, neutral natural colors, shallow depth of
+field, smooth light beige background, natural unedited product photograph
+""",
+    # QA: wants the premium Japanese Satonishiki cherry variety specifically — bright
+    # glossy red, always shown in a joined pair with its stem.
+    "cherry": """
+RAW product photograph of a real pair of Satonishiki cherries
+joined by their stems, bright glossy red skin, natural texture,
+soft diffused daylight, neutral natural colors, shallow depth of
+field, smooth light beige background, natural unedited product photograph
+""",
+    # QA: wants a whole, uncut papaya. The default studio product-shot framing had an
+    # extremely strong bias toward showing papaya cut open (14/14 seeds across three
+    # studio framings — plain, market-crate pair, single-fruit-only — still split it open
+    # to reveal the seeds, since that's how papaya is almost always photographed).
+    # Switching the context to the fruit still hanging on its tree broke the bias
+    # entirely (5/6 seeds came out whole) — paired with WORD_SEED_OVERRIDES below.
+    "papaya": """
+RAW photograph of ripe papaya fruits still hanging from a papaya
+tree trunk, whole intact fruit attached to the tree by its stem,
+smooth yellow-orange skin, tropical green leaves in background,
+natural daylight, unedited documentary photograph
+""",
+    # QA: wants a Japanese sumomo plum specifically (round, red-skinned), not a Western
+    # oval purple prune-plum.
+    "plum": """
+RAW product photograph of a real Japanese sumomo plum,
+round shape, smooth red skin, one whole plum centered in frame,
+natural texture, soft diffused daylight, neutral natural colors,
+shallow depth of field, smooth light beige background,
+natural unedited product photograph
+""",
+
+    # NATURE
+    "flower": """
+RAW product photograph of a real flower in full bloom,
+natural smooth petal shapes and texture, one flower centered in
+frame, soft diffused daylight, neutral natural colors, shallow
+depth of field, smooth light beige background, natural unedited product photograph
+""",
+    # QA: an incidental lake in the background was distracting from the mountain itself.
+    # "no lake or body of water in the scene" alone wasn't enough — the model kept adding
+    # one anyway (weak negative-prompt adherence, same pattern as alligator/mayonnaise).
+    # Naming a specific dry terrain (rocky slopes and scree) instead of just negating
+    # water gave the model something concrete to fill the foreground with — paired with
+    # WORD_SEED_OVERRIDES below, 8/8 seeds tried came out lake-free.
+    "mountain": """
+RAW documentary landscape photograph of a real mountain peak, dry
+rocky slopes and scree, clear sky in the background, no lake, no
+river, no pond, no water of any kind in the scene, wide-angle nature
+photography, natural daylight, neutral natural colors,
+unedited landscape photograph, no people, no buildings, no text
+""",
+    "grass": """
+RAW documentary photograph of a real lush patch of green grass,
+dense thick grass filling most of the frame, natural texture,
+soft diffused daylight, neutral natural colors,
+natural unedited photograph, no people
+""",
+    # QA: a spiral shell read as a snail shell, not "seashell" — a bivalve (clam/scallop)
+    # shape is the more universally recognized "seashell" silhouette.
+    "seashell": """
+RAW product photograph of a real bivalve seashell,
+a single open scallop or clam shell showing its ridged fan shape,
+natural texture and coloring, soft diffused daylight,
+neutral studio background, natural unedited product photograph
+""",
+    # QA: wants playground sand specifically, not beach sand.
+    "sand": """
+RAW documentary photograph of real light tan playground sand,
+loose fine sand filling the frame, natural texture,
+soft diffused daylight, natural unedited photograph, no people
+""",
+    "forest": """
+RAW documentary landscape photograph of a real old-growth primary
+forest, tall mature trees, dense natural canopy, wide-angle nature
+photography, natural daylight, neutral natural colors,
+unedited landscape photograph, no people, no buildings, no text
+""",
+    # QA: the previous render looked like a beach, not the open ocean itself.
+    "ocean": """
+RAW documentary landscape photograph of the real open ocean,
+wide expanse of deep blue open water with gentle waves, no visible
+shore or beach in frame, wide-angle nature photography, natural
+daylight, neutral natural colors, unedited landscape photograph,
+no people, no boats, no text
+""",
+
+    # VEHICLES
+    # QA: wants a Japanese commuter train aesthetic — a modern electric multiple unit,
+    # not a generic/Western-style train.
+    "train": """
+RAW product photograph of a real Japanese commuter electric train,
+modern multiple-unit train car, side profile view, plain unbranded
+paint with no readable text, natural material texture,
+soft diffused daylight, shallow depth of field, smooth neutral
+background, natural unedited product photograph
+""",
+    "submarine": """
+RAW product photograph of a real submarine underwater,
+side profile view, entire hull visible, surrounded by blue ocean
+water, natural material texture, soft diffused light through
+water, natural unedited underwater photograph
+""",
+    "rocket": """
+RAW product photograph of a real space rocket standing upright on
+a launch pad, entire rocket visible, launch tower structure beside
+it, natural material texture, daylight, natural unedited photograph
+""",
+    "tram": """
+RAW product photograph of a real tram running on street-level
+rails, side profile view, plain unbranded paint with no readable
+text, urban street setting, natural material texture,
+soft diffused daylight, natural unedited photograph
+""",
+    # QA: wants it visibly on the ocean. The "product photograph, water spray around it"
+    # framing (originally meant to keep it moving/dynamic) pulled it onto a plain studio
+    # background every time, and switching to an action shot on real water (see script
+    # history) put a rider on it every time instead — a strong bias, jet skis are almost
+    # never photographed unridden mid-action. A parked/docked framing broke both biases
+    # at once: real ocean water, no rider, on all 6 seeds tried.
+    "jet ski": """
+RAW photograph of a real jet ski parked and floating empty at a
+dock, side profile view, entire jet ski visible, blue ocean water
+around it, no one aboard, empty seat, sunny daylight,
+natural unedited photograph
+""",
+    "kayak": """
+RAW product photograph of a real kayak floating on a calm lake,
+side profile view, entire kayak visible, still water and shoreline
+in the background, natural material texture, soft diffused
+daylight, natural unedited photograph, no people
+""",
+    "canoe": """
+RAW product photograph of a real canoe floating on a calm lake,
+side profile view, entire canoe visible, still water and shoreline
+in the background, natural material texture, soft diffused
+daylight, natural unedited photograph, no people
+""",
+    "subway": """
+RAW product photograph of a real subway train stopped at an
+underground subway station platform, side profile view, plain
+unbranded paint with no readable text, natural material texture,
+station lighting, natural unedited photograph, no people
+""",
+    # QA: wants it visibly climbing a mountain slope. The "product photograph" framing
+    # (used for the other vehicles) pulled it onto a plain studio background every time,
+    # dropping the mountain context. Switching to "documentary photograph" and describing
+    # the mountainside filling the frame fixed it on all 6 seeds tried — see
+    # WORD_SEED_OVERRIDES below.
+    "cable car": """
+RAW documentary photograph of a real cable car gondola climbing a
+steep mountain slope on its cable, entire cable car visible, rocky
+mountain slope filling the background, cable line visible extending
+up the mountainside, daylight, natural unedited photograph, no people
+""",
+    "hot air balloon": """
+RAW product photograph of a real hot air balloon floating high in
+the sky, entire balloon and basket visible, colorful balloon
+envelope, blue sky background, soft diffused daylight,
+natural unedited photograph, no people
+""",
+
+    # CLOTHING / HOUSEHOLD / SCHOOL
+    # QA: rendered too plain/colorless.
+    "shirt": """
+RAW product photograph of a real colorful patterned shirt,
+one shirt laid flat on a simple surface, centered in frame,
+vivid natural color and pattern, natural fabric texture and folds,
+soft diffused daylight, neutral studio background,
+natural unedited flat-lay product photograph
+""",
+    "shoes": """
+RAW product photograph of a real pair of sneakers,
+side profile view, both sneakers centered in frame,
+natural fabric and rubber texture, soft diffused daylight,
+neutral studio background, natural unedited product photograph
+""",
+    "scarf": """
+RAW product photograph of a real knitted wool scarf,
+long knitted texture clearly visible, loosely coiled on a simple
+surface, centered in frame, soft diffused daylight,
+neutral studio background, natural unedited flat-lay product photograph
+""",
+    "umbrella": """
+RAW product photograph of a real open umbrella in falling rain,
+entire umbrella visible, visible raindrops around it,
+natural fabric texture, soft diffused daylight,
+natural unedited photograph, no people
+""",
+    "toilet": """
+RAW product photograph of a real toilet with its lid closed,
+side profile view, entire toilet visible, natural ceramic texture,
+soft diffused daylight, neutral studio background,
+natural unedited product photograph
+""",
+    # QA: previous render looked like a decorative cushion, not a bed pillow.
+    "pillow": """
+RAW product photograph of a real rectangular bed pillow,
+plain white pillowcase, soft puffy filled shape, centered in
+frame, natural fabric texture, soft diffused daylight,
+neutral studio background, natural unedited product photograph
+""",
+    "book": """
+RAW product photograph of a real closed book standing upright,
+visible front cover with a plain solid-color cover and no readable
+text, natural paper and cover texture, soft diffused daylight,
+neutral studio background, natural unedited product photograph
+""",
+    # QA: wants a clean modern laptop look (referencing a MacBook), not a bulky old
+    # desktop tower. "plain unbranded lid" alone didn't stop a fake brand logo from
+    # rendering on the bezel below the screen (12 seeds tried, every one had some kind
+    # of garbled logo there — a strong bias, laptop bezels almost always carry a brand
+    # in training photos). Cropping the shot so that bezel strip is out of frame entirely
+    # (paired with WORD_SEED_OVERRIDES below) sidesteps it while keeping the screen and
+    # keyboard both clearly visible.
+    "computer": """
+RAW product photograph of a real modern silver laptop computer, open
+at a natural angle, tight close-up crop showing only the upper
+screen area and the keyboard, the thin hinge bezel strip between them
+cropped out of frame and not visible, plain unbranded brushed metal,
+screen showing a plain blue desktop background, soft diffused
+daylight, neutral studio background,
+natural unedited product photograph
+""",
+    "crayon": """
+RAW product photograph of a real set of many colorful crayons,
+a dozen or more crayons in different bright colors scattered
+together, natural wax texture, soft diffused daylight,
+neutral studio background, natural unedited product photograph
+""",
+
+    # PLACES
+    # QA: animals were too small to make out. "wide-angle scene" was working against
+    # "in the foreground" — dropping the wide-angle framing and saying the animals should
+    # fill a big part of the frame instead got them clearly large and close on all 6
+    # seeds tried (paired with WORD_SEED_OVERRIDES below).
+    "zoo": """
+RAW documentary photograph of a real zoo enclosure, several large
+animals close to the camera and filling a big part of the frame,
+clearly recognizable, some background zoo fencing visible, natural
+daylight, neutral natural colors, natural unedited photograph,
+no visible people, no readable signage
+""",
+    "farm": """
+RAW documentary photograph of a real farm,
+farmland with visible livestock animals such as cows or sheep in
+the field, wide-angle scene, natural daylight, neutral natural
+colors, natural unedited photograph, no visible people
+""",
+    "station": """
+RAW documentary photograph of a real train station,
+a train stopped at the platform, wide-angle scene, natural
+daylight, neutral natural colors, natural unedited photograph,
+no visible people, no readable signage
+""",
+    "library": """
+RAW documentary photograph of a real library interior,
+tall bookshelves densely filled with books clearly visible,
+wide-angle scene, natural daylight, neutral natural colors,
+natural unedited photograph, no visible people, no readable signage
+""",
+    "lighthouse": """
+RAW documentary photograph of a real lighthouse at dusk,
+warm sunset lighting, coastal scene, wide-angle view,
+natural colors, natural unedited photograph,
+no visible people, no readable signage
+""",
+    "park": """
+RAW documentary photograph of a real public park,
+green lawn and trees with a lively gathering-place feel, benches
+and pathways visible, wide-angle scene, natural daylight,
+neutral natural colors, natural unedited photograph,
+no visible people, no readable signage
+""",
+    "school": """
+RAW documentary photograph of a real school classroom,
+a teacher standing at the front and students seated at desks,
+wide-angle scene, natural daylight, neutral natural colors,
+natural unedited photograph, no readable signage, no visible faces
+""",
+    # QA: wants both a doctor and a patient to appear. "a doctor and a patient clearly
+    # visible" alone rendered only the patient every time — spelling out the doctor's
+    # action (standing beside the bed, examining) rather than just naming their presence
+    # got both figures in frame reliably (paired with WORD_SEED_OVERRIDES below).
+    "hospital": """
+RAW documentary photograph of a real hospital room, a doctor in a
+white coat standing beside the bed examining a patient lying in the
+bed, both the doctor and the patient clearly visible in frame,
+wide-angle scene, natural daylight, neutral natural colors, natural
+unedited photograph, no readable signage, no visible faces
+""",
+    "playground": """
+RAW documentary photograph of a real playground,
+several different play structures visible such as a slide, swings,
+and climbing equipment, wide-angle scene, natural daylight,
+neutral natural colors, natural unedited photograph,
+no visible people, no readable signage
+""",
+    # QA questioned whether this was really ice skating. It was, but the default
+    # sport_prompt() template's "no visible faces" instruction (meant to avoid rendering
+    # a photorealistic child's face) kept losing to a strong bias toward frontal
+    # skater shots — 5/6 seeds tried still showed a clear face. Framing the shot from
+    # behind the skater instead (so there's no face to render in the first place) is
+    # what actually worked, paired with WORD_SEED_OVERRIDES below. This fully replaces
+    # the shared sport_prompt()/SPORT_ACTIONS template for this one word.
+    "skating": """
+RAW action photograph of an ice skater in casual winter clothing
+gliding on an indoor ice rink, photographed from behind and to the
+side so the back of the head is shown and the face is not visible,
+ice skates clearly visible, mid-action, natural daylight, neutral
+natural colors, shallow depth of field, photographed with a
+professional sports camera lens, natural unedited photograph,
+no logos, no readable text
+""",
 }
 
 WORD_NEGATIVE_OVERRIDES = {
@@ -697,6 +1160,28 @@ WORD_NEGATIVE_OVERRIDES = {
     "mole": "rat, vole, capybara, nutria, visible eyes, long tail",
     "river": "narrow, tiny, small stream, brook, trickle",
     "stream": "wide, large river, distant riverbanks, broad open water",
+    "alligator": "open mouth, visible teeth, narrow snout, pointed snout, crocodile",
+    "mayonnaise": "readable text, logo, letters, brand name, garbled text",
+    "soda": "readable text, embossed logo, engraved text, brand name, cursive writing, label",
+    "papaya": "cut, sliced, halved, cross section, cut open, seeds visible, interior, flesh",
+    "cable car": "studio background, plain background, indoor, showroom, gray backdrop, neutral background",
+    "jet ski": "studio background, plain background, indoor, showroom, garage, person, rider, human, man, woman, driver",
+    "computer": "logo, brand name, readable text, letters, engraved text, hinge bezel, bottom bezel strip",
+    "hospital": "empty room, no people, single person only",
+    "skating": "face, visible face, facial features, front view, facing camera",
+    "zoo": "distant, small, tiny, far away, empty enclosure, wide empty space",
+    # QA sweep: this word's default hash-derived seed happened to render a folded 3D
+    # card-corner shape instead of a flat fill (5/6 seeds tried were fine — a one-off
+    # bad draw, not a prompt problem). Reuses the "color" category's extra negative plus
+    # terms targeting the specific 3D-corner artifact, paired with WORD_SEED_OVERRIDES
+    # below.
+    "blue": "draped, hanging fabric, dramatic folds, twisted, silk, swirl, corner, edge, fold, 3d shape, object, card, paper, cube, block",
+    "cucumber": "short, stubby, thick, gherkin, pickle",
+    "kangaroo": "wallaby, small, joey",
+    "starfish": "four arms, six arms, seven arms, side view",
+    "ocean": "beach, shore, sand, coastline",
+    "mountain": "lake, water, reflection, river, pond, ocean, sea, stream",
+    "seashell": "spiral shell, conch, snail shell",
 }
 
 
@@ -729,6 +1214,34 @@ WORD_SEED_OVERRIDES = {
     "ambulance": 555,  # pairs with the WORD_PROMPT_OVERRIDES entry above — see its comment
     "pentagon": 1,  # pairs with the WORD_PROMPT_OVERRIDES entry above — see its comment
     "melon": 1,  # pairs with the WORD_PROMPT_OVERRIDES entry above — see its comment
+    # Tried 11 seeds against the strengthened "mouth fully closed" prompt — every one
+    # still showed an open mouth with visible teeth (a very strong training bias for
+    # "reptile head" imagery), except this one, which comes out nearly closed with only
+    # a tooth tip showing — the best available, not a perfect result.
+    "alligator": 999,
+    # Tried seeds [1, 42, 100, 999] against the close-crop-on-cap prompt above — 1, 100,
+    # and 999 all still rendered a fake brand label in the shot; only 42 kept the label
+    # fully out of frame as intended.
+    "mayonnaise": 42,
+    # Tried 20 seeds across four prompt framings — none rendered the ramune marble, but
+    # this seed gives a clean bottle with no garbled embossed text (many other seeds had
+    # fake cursive brand text embossed in the glass). Best available, not a full fix.
+    "soda": 88,
+    # Tried 14 seeds in studio framings, all cut the fruit open. This seed (tree framing)
+    # was the clearest single whole fruit of the 5/6 that broke the cut-open bias.
+    "papaya": 1,
+    # Naming the dry terrain broke the lake bias on all 8 seeds tried; this one has the
+    # cleanest single-peak silhouette.
+    "mountain": 42,
+    "cablecar": 1,
+    "jetski": 42,
+    "computer": 42,
+    # 6/6 seeds gave both a doctor and a patient; this one was the cleanest composition.
+    "hospital": 100,
+    # Only 1 of 6 seeds kept the face out of frame from behind.
+    "skating": 999,
+    "zoo": 42,
+    "blue": 1,
 }
 
 

@@ -25,9 +25,22 @@ const MAX_WORD_LENGTH: Record<Level, number> = {
  * varied target from (mainly a concern for ★1's short-word pool). */
 const MIN_POOL_SIZE = 10
 
+/** Held back from quiz rotation — pronunciation still unresolved after five rounds of
+ * audio-fix attempts (single-utterance, repeat-trim, long-sentence carrier, minimal
+ * carrier, and an alternate voice all tried; see the word-pronunciation project memory).
+ * Assets (image, audio file) stay on disk under public/ — only question selection skips
+ * these ids, for both target and distractor draws, so a bad word never gets spoken or
+ * shown as a choice. Remove an id here once its audio is fixed. */
+const EXCLUDED_WORD_IDS = new Set(['pasta', 'taco', 'turquoise', 'umbrella', 'socks', 'ostrich', 'eye'])
+
+function eligibleWordBank(): WordEntry[] {
+  return wordBank.filter((w) => !EXCLUDED_WORD_IDS.has(w.id))
+}
+
 function pickTarget(level: Level): WordEntry {
-  const capped = wordBank.filter((w) => w.word.length <= MAX_WORD_LENGTH[level])
-  const pool = capped.length >= MIN_POOL_SIZE ? capped : wordBank
+  const eligible = eligibleWordBank()
+  const capped = eligible.filter((w) => w.word.length <= MAX_WORD_LENGTH[level])
+  const pool = capped.length >= MIN_POOL_SIZE ? capped : eligible
   return shuffle(pool)[0]
 }
 
@@ -41,8 +54,9 @@ function shouldUseHardDistractors(level: Level): boolean {
 }
 
 function pickDistractors(target: WordEntry, sameCategory: boolean, count: number): WordEntry[] {
-  const sameCategoryPool = wordBank.filter((w) => w.category === target.category && w.id !== target.id)
-  const pool = sameCategory && sameCategoryPool.length >= count ? sameCategoryPool : wordBank.filter((w) => w.id !== target.id)
+  const eligible = eligibleWordBank()
+  const sameCategoryPool = eligible.filter((w) => w.category === target.category && w.id !== target.id)
+  const pool = sameCategory && sameCategoryPool.length >= count ? sameCategoryPool : eligible.filter((w) => w.id !== target.id)
   return shuffle(pool).slice(0, count)
 }
 

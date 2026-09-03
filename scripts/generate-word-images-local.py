@@ -335,30 +335,106 @@ natural unedited flat-lay product photograph
 
 
 def generic_object_prompt(word):
+    # QA sweep found nearly every word using this builder rendering as a picture
+    # framed/shadow-boxed art piece instead of the object itself — traced it to the
+    # literal word "frame" in "centered in frame" (ordinary photography jargon, but the
+    # model was taking it as an instruction to include a picture frame). Dropping that
+    # phrase eliminated the framing bug across every word tested.
     return f"""
 RAW product photograph of a real {word},
-one {word} centered in frame,
+one {word} placed on a plain table,
 natural material and texture,
 soft diffused daylight,
 neutral studio background,
 shallow depth of field,
-photographed with a professional camera lens,
 natural unedited product photograph
 """
 
 
 def body_part_prompt(word):
-    # "macro" reliably pushed toward unpleasant, over-textured skin close-ups (visible
-    # pores, wrinkles, veins) — found by QA on toe/knee/teeth/ear specifically. A plain
-    # "photograph" at a normal (not macro) distance, with skin described positively
-    # rather than just "clean," avoids that without losing the body part itself.
-    # Deliberately age/gender-neutral wording — avoid specifying a child's body part.
+    # QA: the previous "photograph of a real human {word}" framing at portrait distance
+    # showed a fully recognizable adult face for every word — even ones with nothing to
+    # do with the face — and for the joints near the torso (chin, shoulder, elbow, knee)
+    # showed bare shoulders/chest. Not appropriate for a kids' app. The base negative
+    # prompt already says "face" and it didn't stop any of this (weak adherence, a
+    # familiar pattern) — every branch below instead crops tightly enough that a face
+    # structurally can't be in frame, and where a part sits near the torso, clothing
+    # covers everything except the part itself.
     if word == "teeth":
         return """
-RAW photograph of a real human smile showing healthy white teeth,
-lips slightly parted, centered in frame, natural even skin tone,
-soft diffused daylight, neutral studio background, well-lit,
+RAW extreme close-up photograph of a real human smile, showing only
+the mouth and healthy white teeth, lips slightly parted, nothing
+above the nose visible, no eyes, no full face, natural even skin
+tone, soft diffused daylight, neutral studio background,
 natural unedited photograph
+"""
+    # QA round 2: the first-pass "nose"/"hair" framings above still leaked an eye into
+    # frame (extreme close-up on a face reliably includes the eye right next to it,
+    # regardless of what the prompt asks to exclude) — needed reinforced wording plus
+    # WORD_SEED_OVERRIDES. "shoulder"/"elbow" leaked bare chest/nipple the same way.
+    # "knee" was the worst: five different clothed-leg framings in a row (shorts, rolled
+    # trousers while sitting, fabric-crease-only while standing) each still produced
+    # either underwear, a skeleton overlay, or bare-chested nudity — sitting/standing
+    # poses on a bent leg have an extremely strong bias toward fashion-shoot framing on
+    # this model. A kneeling-to-tie-a-shoelace pose finally broke it: it's a pose the
+    # model associates with practical fully-clothed activity, not fashion, and it
+    # naturally produces a sharp, clear knee bend. See WORD_SEED_OVERRIDES for all five.
+    if word == "nose":
+        return """
+RAW extreme close-up photograph of only the tip and nostrils of a
+real human nose, filling almost the entire frame, cropped so tightly
+that the eyes are far outside the frame and not visible at all,
+natural even skin tone, soft diffused daylight, neutral studio
+background, natural unedited photograph
+"""
+    if word == "head":
+        return """
+RAW photograph of the back of a real human head, hair covering the
+scalp, viewed from directly behind so no face is visible at all,
+natural daylight, neutral studio background,
+natural unedited photograph
+"""
+    if word == "hair":
+        return """
+RAW product photograph of a single lock of real human hair, a
+small bundle of several long hair strands tied together at one end,
+lying on a plain surface, no head, no face, no scalp, no person,
+just the hair strands themselves, soft diffused daylight, neutral
+studio background, natural unedited product photograph
+"""
+    if word == "chin":
+        return """
+RAW extreme close-up photograph of a real human chin and jawline
+only, cropped tightly so the mouth is barely visible and the eyes
+and nose are out of frame, natural even skin tone, soft diffused
+daylight, neutral studio background, natural unedited photograph
+"""
+    if word == "elbow":
+        return """
+RAW close-up photograph of a real human arm bent at the elbow,
+wearing an opaque plain short-sleeve t-shirt with the sleeve
+covering the shoulder and upper arm down to just above the elbow,
+only the forearm and elbow bare below the sleeve, cropped tightly so
+no face and no bare shoulder are visible, natural daylight, neutral
+studio background, natural unedited photograph
+"""
+    if word == "shoulder":
+        return """
+RAW close-up photograph of a real human shoulder, wearing an opaque
+plain crew-neck t-shirt that fully covers the chest and torso, the
+fabric visibly covering the chest with only the rounded top of the
+shoulder and upper arm exposed above the sleeve line, cropped
+tightly so no face, no chest skin, and no nipple are visible,
+natural daylight, neutral studio background,
+natural unedited photograph
+"""
+    if word == "knee":
+        return """
+RAW close-up photograph of a person kneeling on one bent knee on the
+ground, tying a shoelace, wearing long opaque trousers that fully
+cover both legs, a sharp fabric crease at the bent knee, no bare
+skin visible anywhere, cropped tightly on just the kneeling leg,
+natural daylight, neutral studio background, natural unedited photograph
 """
     return f"""
 RAW photograph of a real human {word},
@@ -376,16 +452,21 @@ SPORT_ACTIONS = {
     "baseball": "an athlete swinging a baseball bat at a ball",
     "basketball": "an athlete shooting a basketball toward a hoop",
     "tennis": "an athlete swinging a tennis racket at a ball on a court",
-    "swimming": "a swimmer swimming in a pool, mid-stroke",
+    # QA sweep: shows a visible face despite the shared sport_prompt() "no visible
+    # faces" instruction. Tried "viewed from behind, face down" and a from-behind-and-
+    # below underwater framing (8 seeds total) — every one still turned the swimmer to
+    # face the camera, an extremely strong bias in this checkpoint's underwater-action
+    # training data (similar in kind to mole's). Best available, not a full fix.
+    "swimming": "a swimmer swimming freestyle in a pool, viewed from behind and slightly above, face down in the water and not visible, mid-stroke with one arm extended forward",
     "running": "a runner sprinting on an outdoor running track",
     "skiing": "a skier skiing down a snowy slope",
     "skating": "an ice skater in casual winter clothing gliding on an indoor ice rink, ice skates clearly visible",
     "surfing": "a surfer riding a wave on a surfboard",
     "golf": "a golfer swinging a golf club on a grass course",
     "volleyball": "an athlete spiking a volleyball at a net",
-    "badminton": "an athlete swinging a badminton racket at a shuttlecock",
+    "badminton": "an athlete viewed from behind, swinging a badminton racket at a shuttlecock, back to the camera",
     "boxing": "an athlete wearing boxing gloves in a fighting stance",
-    "judo": "two athletes in judo uniforms grappling during a judo match",
+    "judo": "two athletes in judo uniforms grappling during a judo match, both viewed from the side or behind with their faces turned away from the camera",
 }
 
 
@@ -402,9 +483,11 @@ natural unedited photograph, no visible faces, no logos, no readable text
 
 
 def shape_prompt(word):
+    # QA: "square" rendered as a picture-framed shadow box instead of a solid block —
+    # same "centered in frame" literal-word bug found and fixed in generic_object_prompt().
     return f"""
 RAW product photograph of a real solid painted wooden {word} shape block,
-one centered in frame,
+one placed on a plain table,
 natural wood grain visible through matte paint,
 soft diffused daylight,
 neutral studio background,
@@ -556,6 +639,35 @@ side profile view, entire body visible, covered in long thick
 sharp quills standing out from its body, natural coloring,
 soft diffused daylight, unedited documentary nature photograph
 """,
+    # QA sweep: too tight a crop on the head/neck made it indistinguishable from an emu
+    # or rhea — an ostrich's most recognizable trait is its huge body on very long bare
+    # legs, which needs the whole animal in frame to read.
+    "ostrich": """
+RAW wildlife photograph of a real adult ostrich, full body visible
+from head to feet, standing on very long bare legs, small head on a
+long neck, large round body covered in black and white feathers,
+natural savanna ground, soft diffused daylight,
+unedited documentary nature photograph
+""",
+    # QA sweep: rendered with no visible tail at all — a scorpion's defining feature is
+    # its segmented tail arching up over its back ending in a stinger, which needs to be
+    # spelled out explicitly or it gets dropped.
+    "scorpion": """
+RAW macro wildlife photograph of a real scorpion viewed from above,
+a pair of large pincer claws in front, eight legs, and a long
+segmented tail curving up and over its back ending in a sharp
+pointed stinger, the tail and stinger clearly visible, natural dark
+coloring, soft diffused daylight, unedited documentary nature photograph
+""",
+    # QA sweep: rendered as an ordinary fly with no glowing abdomen — the defining
+    # feature (bioluminescence) needs to be spelled out or it's indistinguishable from
+    # any other small flying insect.
+    "firefly": """
+RAW macro wildlife photograph of a real firefly beetle at dusk, dark
+body, wings folded, the tip of its abdomen glowing with a bright
+soft yellow-green bioluminescent light, photographed against a dark
+background, unedited documentary nature photograph
+""",
     "squid": """
 RAW underwater wildlife photograph of a real squid,
 side profile view, long torpedo-shaped mantle with side fins,
@@ -563,12 +675,19 @@ two long tentacles and eight arms trailing behind, natural
 translucent skin, soft diffused light through water,
 unedited documentary nature photograph
 """,
+    # QA sweep: still rendered with prominent visible eyes and rat-like ears no matter
+    # how the prompt asked to hide them — tried "no visible eyes", "eyes hidden under
+    # fur", a nose-buried-in-soil framing, and finally a from-above-behind framing where
+    # the face structurally shouldn't be visible at all (16 seeds across these 4
+    # attempts) — every one still turned the mole to face the camera with visible eyes.
+    # Best available, not a full fix; see WORD_SEED_OVERRIDES below.
     "mole": """
-RAW macro wildlife photograph of a real mole on soil,
-side profile view, entire small body visible, no visible eyes,
-long pointed pink snout, huge broad shovel-like front paws with
-claws held forward, dark velvety fur, small compact body,
-soft diffused daylight, unedited documentary nature photograph
+RAW macro wildlife photograph of a real mole seen from directly
+above and behind as it digs forward into soil, only its back, dark
+velvety fur, and huge broad shovel-like front paws visible, its head
+and face pointed away from the camera into the dirt and completely
+out of view, small compact body, soft diffused daylight,
+unedited documentary nature photograph
 """,
     "grape": """
 RAW product photograph of a real bunch of grapes,
@@ -579,10 +698,12 @@ neutral studio background, natural unedited product photograph
     # "product photograph of a whole melon" kept rendering it cut open regardless of
     # negative prompting (strong training bias toward cut-open melon food photography) —
     # reframing it as a garden/vine photograph instead of product photography avoided
-    # that association entirely.
+    # that association entirely. QA sweep: also wants the distinctive rough netted skin
+    # of a Japanese Yubari-style melon, not smooth skin.
     "melon": """
 RAW documentary photograph of a whole melon growing on a vine in a
-garden, intact rind, resting on soil among green leaves,
+garden, intact rind covered in a rough raised netted pattern like a
+cantaloupe, resting on soil among green leaves,
 natural outdoor daylight, unedited garden photograph
 """,
     # The generic "romaine lettuce" fix for the food template doesn't apply here — this
@@ -610,6 +731,16 @@ spouted red cap in sharp focus, clear plastic bottle with diamond
 quilted texture showing the creamy mayonnaise inside, very shallow
 depth of field, lower half of the bottle softly out of focus and
 blurred, standing upright, soft diffused daylight
+""",
+    # QA sweep: rendered as an odd top-down spiral-embossed vase shape, not recognizable
+    # as a ketchup bottle at all. The same close-crop-on-the-cap trick used for
+    # mayonnaise (which sidesteps this model's garbled-label bias entirely) applies here.
+    "ketchup": """
+RAW product photograph of a real plastic squeeze ketchup bottle,
+extreme close-up on the cap and shoulder of the bottle, red plastic
+squeeze bottle with a white flip-top cap in sharp focus, very
+shallow depth of field, lower half of the bottle softly out of focus
+and blurred, standing upright, soft diffused daylight
 """,
     # Long, slender, dark green, bumpy-skinned Asian/Japanese cucumber (kyuri) rather
     # than a short bumpy Western cucumber. QA found it still rendering too short/stubby
@@ -912,6 +1043,14 @@ forest, tall mature trees, dense natural canopy, wide-angle nature
 photography, natural daylight, neutral natural colors,
 unedited landscape photograph, no people, no buildings, no text
 """,
+    # QA sweep: rendered as a dried decorative branch arrangement on a table, not
+    # recognizable as a plant root — needed the root shown actually emerging from soil.
+    "root": """
+RAW documentary photograph of a real plant's roots exposed at the
+base of its stem, pale branching root system visible where it meets
+dark soil, growing in the ground, natural daylight, neutral natural
+colors, unedited nature photograph, no people
+""",
     # QA: the previous render looked like a beach, not the open ocean itself.
     "ocean": """
 RAW documentary landscape photograph of the real open ocean,
@@ -936,6 +1075,14 @@ RAW product photograph of a real submarine underwater,
 side profile view, entire hull visible, surrounded by blue ocean
 water, natural material texture, soft diffused light through
 water, natural unedited underwater photograph
+""",
+    # QA sweep: rendered as a confusing broken-looking toy model kit with scattered
+    # panel lines, not clearly a spaceship.
+    "spaceship": """
+RAW product photograph of a real sleek futuristic spaceship model,
+entire spacecraft visible, smooth streamlined metallic hull, small
+viewport windows, standing on display against a dark starry
+background, soft dramatic lighting, natural unedited product photograph
 """,
     "rocket": """
 RAW product photograph of a real space rocket standing upright on
@@ -1065,6 +1212,95 @@ together, natural wax texture, soft diffused daylight,
 neutral studio background, natural unedited product photograph
 """,
 
+    # ROUND 2 — QA sweep of the ~80 no-note flagged words. Several of these are
+    # ambiguous single words (nail/iron/pot/recorder each have an unrelated common
+    # meaning) that generic_object_prompt()/instrument builder can't disambiguate on
+    # their own — they need the specific real-world object spelled out.
+    "nail": """
+RAW product photograph of a single real metal hardware nail, made of
+steel with a flat round head and a sharp pointed tip, plain bare
+metal, lying on a plain wooden surface, soft diffused daylight,
+neutral studio background, natural unedited product photograph
+""",
+    "iron": """
+RAW product photograph of a real clothes iron for ironing clothing,
+a household appliance with a flat metal soleplate, a handle on top,
+and a power cord, standing upright on its heel, soft diffused
+daylight, neutral studio background, natural unedited product photograph
+""",
+    "pot": """
+RAW product photograph of a real metal cooking pot, a round pot with
+two small side handles, used for cooking on a stove, sitting empty
+on a plain surface, soft diffused daylight, neutral studio
+background, natural unedited product photograph
+""",
+    "vacuum": """
+RAW product photograph of a real upright vacuum cleaner, the entire
+appliance visible from the floor nozzle up to the handle, a
+household cleaning appliance, standing upright, soft diffused
+daylight, neutral studio background, natural unedited product photograph
+""",
+    "ball": """
+RAW product photograph of a real bouncy rubber toy ball, smooth
+round bright solid-colored rubber, a child's playground ball, soft
+diffused daylight, neutral studio background, natural unedited
+product photograph
+""",
+    "slide": """
+RAW documentary photograph of a real playground slide, a tall metal
+or plastic slide with steps or a ladder leading up to a platform and
+a sloped chute going down, entire structure visible, natural
+daylight, neutral natural colors, natural unedited photograph,
+no visible people, no readable signage
+""",
+    "glue": """
+RAW product photograph of a real bottle of white school glue, a
+plain squeeze bottle with a pointed cap, no readable text or logo on
+the label, a small amount of white glue visible at the tip, soft
+diffused daylight, neutral studio background, natural unedited
+product photograph
+""",
+    "recorder": """
+RAW product photograph of a real wooden recorder musical instrument,
+a simple woodwind flute-like instrument with finger holes along a
+straight tube and a mouthpiece at the top end, standing upright,
+soft diffused daylight, neutral studio background, natural unedited
+product photograph
+""",
+    "tambourine": """
+RAW product photograph of a real tambourine, a round hand drum frame
+with pairs of small jingling metal discs set into the rim all the
+way around, the metal discs clearly visible, soft diffused daylight,
+neutral studio background, natural unedited product photograph
+""",
+    # QA sweep: rendered as an old antique leather-bound novel with foreign gothic
+    # script, not recognizable as a modern school textbook.
+    "textbook": """
+RAW product photograph of a real modern school textbook, a thick
+paperback book with a colorful printed cover showing simple shapes
+and no readable text, lying flat, soft diffused daylight, neutral
+studio background, natural unedited product photograph
+""",
+    # QA sweep: rendered as a chalk pastel stick / lipstick tube, not recognizable as a
+    # modern felt-tip marker pen.
+    "marker": """
+RAW product photograph of a real modern felt-tip marker pen, a
+cylindrical plastic barrel with its cap posted on the opposite end,
+bright solid plastic color, no readable text or logo, lying on a
+plain surface, soft diffused daylight, neutral studio background,
+natural unedited product photograph
+""",
+    # QA sweep: label kept rendering fake garbled brand text despite "no readable text".
+    # Same fix as mayonnaise/soda — describe a blank label explicitly rather than just
+    # negating text.
+    "glue": """
+RAW product photograph of a real bottle of white school glue, a
+plain squeeze bottle with a pointed cap, a blank plain white label
+with no text, logo, or writing of any kind, a small amount of white
+glue visible at the tip, soft diffused daylight, neutral studio
+background, natural unedited product photograph
+""",
+
     # PLACES
     # QA: animals were too small to make out. "wide-angle scene" was working against
     # "in the foreground" — dropping the wide-angle framing and saying the animals should
@@ -1157,7 +1393,7 @@ WORD_NEGATIVE_OVERRIDES = {
     "ambulance": "logo, badge, emblem, readable text, letters, license plate",
     "pentagon": "six sides, seven sides, eight sides, square, cube, hexagon, octagon",
     "melon": "cut, sliced, cross section, halved, quartered, seeds visible",
-    "mole": "rat, vole, capybara, nutria, visible eyes, long tail",
+    "mole": "rat, vole, capybara, nutria, visible eyes, long tail, external ears, whiskers, face, front view",
     "river": "narrow, tiny, small stream, brook, trickle",
     "stream": "wide, large river, distant riverbanks, broad open water",
     "alligator": "open mouth, visible teeth, narrow snout, pointed snout, crocodile",
@@ -1176,6 +1412,11 @@ WORD_NEGATIVE_OVERRIDES = {
     # terms targeting the specific 3D-corner artifact, paired with WORD_SEED_OVERRIDES
     # below.
     "blue": "draped, hanging fabric, dramatic folds, twisted, silk, swirl, corner, edge, fold, 3d shape, object, card, paper, cube, block",
+    "nose": "eye, eyes, eyelashes, eyebrow, eyelid, full face, mouth, lips",
+    "hair": "face, eye, eyes, head, scalp, forehead, person, skin",
+    "elbow": "bare shoulder, shirtless, no shirt, bare chest, face",
+    "shoulder": "bare chest, nude torso, nipple, shirtless, topless, bare skin below the collarbone, face",
+    "knee": "bare skin, bare leg, shorts, underwear, briefs, bare chest, nipple, torso, waist, bone, skeleton, x-ray, medical illustration, face",
     "cucumber": "short, stubby, thick, gherkin, pickle",
     "kangaroo": "wallaby, small, joey",
     "starfish": "four arms, six arms, seven arms, side view",
@@ -1242,6 +1483,14 @@ WORD_SEED_OVERRIDES = {
     "skating": 999,
     "zoo": 42,
     "blue": 1,
+    # Body-part content-safety fixes (see body_part_prompt() comment): each needed a
+    # specific seed after the framing change to reliably avoid faces/exposure.
+    "nose": 42,
+    "hair": 42,
+    "elbow": 999,
+    "shoulder": 999,
+    "knee": 1,
+    "mole": 1,
 }
 
 

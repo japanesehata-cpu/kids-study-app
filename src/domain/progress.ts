@@ -13,6 +13,7 @@ import { generateEnglishSpellingQuestion, generateEnglishListeningQuestion } fro
 import { generateLogicQuestion } from './questionGenerators/logic'
 import { generateHiraganaQuestion } from './questionGenerators/hiragana'
 import { generateKatakanaQuestion } from './questionGenerators/katakana'
+import { shuffle } from '../lib/shuffle'
 import { generateAlphabetQuestion } from './questionGenerators/alphabet'
 import { generateClockQuestion } from './questionGenerators/clock'
 import { generateSpotDifferenceQuestion } from './questionGenerators/spotDifference'
@@ -211,7 +212,7 @@ export function generateQuestionSet(
     questions.push(candidate)
   }
 
-  return questions.sort(() => Math.random() - 0.5)
+  return shuffle(questions)
 }
 
 function groupBySubSkill(answers: AnswerRecord[]): Record<string, { correct: number; total: number }> {

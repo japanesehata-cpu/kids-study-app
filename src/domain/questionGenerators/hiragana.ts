@@ -1,12 +1,9 @@
 import type { HiraganaQuestion, Level } from '../types'
 import { hiraganaBank, type HiraganaEntry, type HiraganaRow } from '../hiraganaBank'
+import { shuffle } from '../../lib/shuffle'
 
 function makeId(): string {
   return `hiragana-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
-}
-
-function shuffle<T>(items: T[]): T[] {
-  return [...items].sort(() => Math.random() - 0.5)
 }
 
 /** Rows unlocked cumulatively as the level goes up — mirrors how hiragana charts are usually taught.

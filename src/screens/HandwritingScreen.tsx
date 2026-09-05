@@ -11,6 +11,7 @@ import { TtsButton } from '../components/TtsButton'
 import { characterThemes } from '../components/characters/characterThemes'
 import { speak, type SpeechLang } from '../lib/tts'
 import { playCorrectSfx } from '../lib/sfx'
+import { shuffle } from '../lib/shuffle'
 
 type HandwritingCategory = 'hiragana' | 'katakana' | 'alphabet'
 
@@ -53,10 +54,6 @@ const BANK_BY_CATEGORY: Record<HandwritingCategory, WritableEntry[]> = {
   hiragana: hiraganaBank,
   katakana: katakanaBank,
   alphabet: ALPHABET_HANDWRITING_BANK,
-}
-
-function shuffle<T>(items: T[]): T[] {
-  return [...items].sort(() => Math.random() - 0.5)
 }
 
 /** All three wrap their glyph in a mnemonic phrase for clearer, more natural TTS — see

@@ -1,5 +1,6 @@
 import type { ClockQuestion, Level } from '../types'
 import type { Lang } from '../../i18n/dictionary'
+import { shuffle } from '../../lib/shuffle'
 
 function makeId(): string {
   return `clock-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
@@ -7,10 +8,6 @@ function makeId(): string {
 
 function randomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min
-}
-
-function shuffle<T>(items: T[]): T[] {
-  return [...items].sort(() => Math.random() - 0.5)
 }
 
 /** Minutes available at each level: ★1 whole hours only, ★2 adds half-past, ★3 adds

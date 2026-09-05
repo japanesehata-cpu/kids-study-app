@@ -1,5 +1,6 @@
 import type { Level, LogicQuestion } from '../types'
-import { wordBank } from '../wordBank'
+import { eligibleWordBank } from '../wordBank'
+import { shuffle } from '../../lib/shuffle'
 
 function makeId(): string {
   return `logic-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
@@ -13,10 +14,6 @@ function pickRandom<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)]
 }
 
-function shuffle<T>(items: T[]): T[] {
-  return [...items].sort(() => Math.random() - 0.5)
-}
-
 /** 'color' and 'shape' are excluded entirely: both are attributes, not a kind of thing like
  * the other categories (animal/food/nature/vehicle/...), so pitting a color swatch or a bare
  * geometric outline against a photo of an actual object is an apples-to-oranges comparison —
@@ -28,7 +25,8 @@ function shuffle<T>(items: T[]): T[] {
  * ornament, and a party balloon, i.e. man-made decorative objects, not anything natural. */
 const ODD_ONE_OUT_EXCLUDED_IDS = new Set(['heart', 'star', 'balloon'])
 const ODD_ONE_OUT_EXCLUDED_CATEGORIES = new Set(['color', 'shape'])
-const ODD_ONE_OUT_POOL = wordBank.filter(
+// eligibleWordBank() also drops any word whose image/audio isn't confirmed yet.
+const ODD_ONE_OUT_POOL = eligibleWordBank().filter(
   (w) => !ODD_ONE_OUT_EXCLUDED_CATEGORIES.has(w.category) && !ODD_ONE_OUT_EXCLUDED_IDS.has(w.id),
 )
 

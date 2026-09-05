@@ -1,11 +1,13 @@
 import type { Level, SpotDifferenceQuestion, SpotDifferenceSlot } from '../types'
-import { wordBank } from '../wordBank'
+import { eligibleWordBank } from '../wordBank'
+import { shuffle } from '../../lib/shuffle'
 
 /** Colors and shapes are abstract swatches/outlines, not scene-like objects, so they're
  * excluded — every icon used here is a real photo of an actual thing (see
  * REALISTIC_STYLE_GUARDRAIL), reused as-is rather than generating any new art for this
- * category. */
-const ICON_POOL = wordBank.filter((w) => w.category !== 'color' && w.category !== 'shape')
+ * category. Also excludes any word whose image/audio isn't confirmed yet — see
+ * eligibleWordBank(). */
+const ICON_POOL = eligibleWordBank().filter((w) => w.category !== 'color' && w.category !== 'shape')
 
 /** Grid size and difficulty per level: ★1 age 4, ★2 age 5, ★3 age 6. */
 const BOARD: Record<Level, { columns: number; slots: number; differences: number }> = {
@@ -33,10 +35,6 @@ const DIFF_TYPES: Record<Level, DiffType[]> = {
 
 function makeId(): string {
   return `spot-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
-}
-
-function shuffle<T>(items: T[]): T[] {
-  return [...items].sort(() => Math.random() - 0.5)
 }
 
 function pickRandom<T>(items: T[]): T {

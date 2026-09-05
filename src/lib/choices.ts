@@ -1,3 +1,5 @@
+import { shuffle } from './shuffle'
+
 /** `step` scales both the candidate deltas and the fallback filler — pass 10 for a
  * round-tens question (e.g. correct=60 draws distractors like 50/70/80, the same "which
  * tens place" mistake a child could plausibly make) so a ±1/±2 default step doesn't try to
@@ -20,5 +22,5 @@ export function generateNumericChoices(correct: number, min = 0, max = 20, step 
     choices.add(filler)
     filler += step
   }
-  return [...choices].sort(() => Math.random() - 0.5)
+  return shuffle([...choices])
 }

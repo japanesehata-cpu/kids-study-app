@@ -1,12 +1,9 @@
 import type { AlphabetQuestion, Level } from '../types'
 import { alphabetBank, type AlphabetEntry } from '../alphabetBank'
+import { shuffle } from '../../lib/shuffle'
 
 function makeId(): string {
   return `alphabet-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
-}
-
-function shuffle<T>(items: T[]): T[] {
-  return [...items].sort(() => Math.random() - 0.5)
 }
 
 function pickDistractors(target: AlphabetEntry, count: number): AlphabetEntry[] {

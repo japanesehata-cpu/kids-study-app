@@ -546,3 +546,43 @@ export function getWordById(id: string): WordEntry {
   }
   return entry
 }
+
+/** Held back from every quiz category that draws on wordBank (englishWords,
+ * spotDifference, logic) until BOTH its pronunciation and its flashcard image have
+ * been explicitly confirmed correct — either one failing is enough to exclude a word,
+ * so a bad image never shows up (as a quiz target, a distractor, or a spot-the-
+ * difference/odd-one-out icon) paired with correct audio, or vice versa. Assets
+ * (image, audio file) stay on disk under public/ — only question selection skips
+ * these ids. Remove an id here once *both* its audio and image are confirmed.
+ *
+ * Audio-unresolved (pronunciation still wrong after five rounds of fix attempts —
+ * see the word-pronunciation project memory):
+ * pasta, taco, turquoise, umbrella, socks, ostrich, eye
+ *
+ * Image-unconfirmed (regenerated via the standard, non-Lightning RealVisXL checkpoint
+ * after the Lightning-checkpoint version was reviewed as low quality, but not yet
+ * re-confirmed by a human reviewer — see the word-image-review project memory):
+ * breeze, caterpillar, chalk, chin, crane, crayon, cucumber, desert, diamond, drizzle,
+ * elbow, farm, firefly, garden, glacier, glue, hail, hair, head, humidity, jumprope,
+ * ketchup, knee, lighthouse, mango, mayonnaise, mole, mountain, nail, omelette, oval,
+ * pentagon, platypus, plum, porcupine, recorder, rectangle, root, sand, shelf,
+ * shoulder, skating, soda, square, squid, stingray, tambourine, tapir, textbook,
+ * thunder, top, valley, volcano, wind, xylophone, yoyo, zoo
+ */
+export const EXCLUDED_WORD_IDS = new Set([
+  // audio-unresolved
+  'pasta', 'taco', 'turquoise', 'umbrella', 'socks', 'ostrich', 'eye',
+  // image-unconfirmed
+  'breeze', 'caterpillar', 'chalk', 'chin', 'crane', 'crayon', 'cucumber', 'desert',
+  'diamond', 'drizzle', 'elbow', 'farm', 'firefly', 'garden', 'glacier', 'glue', 'hail',
+  'hair', 'head', 'humidity', 'jumprope', 'ketchup', 'knee', 'lighthouse', 'mango',
+  'mayonnaise', 'mole', 'mountain', 'nail', 'omelette', 'oval', 'pentagon', 'platypus',
+  'plum', 'porcupine', 'recorder', 'rectangle', 'root', 'sand', 'shelf', 'shoulder',
+  'skating', 'soda', 'square', 'squid', 'stingray', 'tambourine', 'tapir', 'textbook',
+  'thunder', 'top', 'valley', 'volcano', 'wind', 'xylophone', 'yoyo', 'zoo',
+])
+
+/** wordBank filtered to only words eligible for quiz use — see EXCLUDED_WORD_IDS. */
+export function eligibleWordBank(): WordEntry[] {
+  return wordBank.filter((w) => !EXCLUDED_WORD_IDS.has(w.id))
+}

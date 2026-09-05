@@ -1,6 +1,7 @@
 import type { CountingQuestion, Level } from '../types'
 import { wordBank } from '../wordBank'
 import { generateNumericChoices } from '../../lib/choices'
+import { shuffle } from '../../lib/shuffle'
 
 function makeId(): string {
   return `counting-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
@@ -8,10 +9,6 @@ function makeId(): string {
 
 function randomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min
-}
-
-function shuffle<T>(items: T[]): T[] {
-  return [...items].sort(() => Math.random() - 0.5)
 }
 
 function pickRandom<T>(items: T[]): T {

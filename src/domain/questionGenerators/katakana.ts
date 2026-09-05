@@ -1,12 +1,9 @@
 import type { KatakanaQuestion, Level } from '../types'
 import { katakanaBank, type KatakanaEntry, type KatakanaRow } from '../katakanaBank'
+import { shuffle } from '../../lib/shuffle'
 
 function makeId(): string {
   return `katakana-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
-}
-
-function shuffle<T>(items: T[]): T[] {
-  return [...items].sort(() => Math.random() - 0.5)
 }
 
 /** Mirrors hiragana.ts's LEVEL_ROWS exactly — same cumulative unlock shape, same row order. */

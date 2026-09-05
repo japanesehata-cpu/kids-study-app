@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 
 interface WordIconProps {
   wordId: string
@@ -246,21 +246,29 @@ function IconShape({ wordId }: { wordId: string }) {
 export function WordIcon({ wordId, size = 96 }: WordIconProps) {
   const [generatedImageFailed, setGeneratedImageFailed] = useState(false)
 
+  // `size` sets the mobile-baseline box via a CSS variable rather than a literal
+  // width/height attribute — the `.word-icon` rule in components.css scales it up at
+  // wider viewports (a PC browser window has far more room than a phone/tablet, and a
+  // flat pixel size left images too small to make out on a large screen; see the
+  // "画面サイズに合わせてイメージの大きさを調整" request). Each call site's relative
+  // sizing (a 140px hero image vs. a 72px choice tile) is preserved since they all
+  // scale by the same factor together.
+  const style = { '--icon-size': `${size}px` } as CSSProperties
+
   if (!generatedImageFailed) {
     return (
       <img
         src={`${import.meta.env.BASE_URL}images/words/${wordId}.png`}
         alt={wordId}
-        width={size}
-        height={size}
-        style={{ objectFit: 'contain', borderRadius: 16 }}
+        className="word-icon"
+        style={style}
         onError={() => setGeneratedImageFailed(true)}
       />
     )
   }
 
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100" role="img" aria-label={wordId}>
+    <svg className="word-icon" style={style} viewBox="0 0 100 100" role="img" aria-label={wordId}>
       <IconShape wordId={wordId} />
     </svg>
   )

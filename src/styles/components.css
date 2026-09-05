@@ -685,3 +685,35 @@
   background: var(--color-accent);
   color: var(--color-text);
 }
+
+/* WordIcon renders its `size` prop as a CSS variable (see WordIcon.tsx) rather than a
+ * literal pixel attribute so it can scale up on wider screens — a PC browser window has
+ * far more room than the phone/tablet viewport this app was originally sized for, and a
+ * flat pixel size left flashcard images too small to make out clearly on a large screen. */
+.word-icon {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  object-fit: contain;
+  border-radius: 16px;
+}
+
+@media (min-width: 900px) {
+  .word-icon {
+    width: calc(var(--icon-size) * 1.6);
+    height: calc(var(--icon-size) * 1.6);
+  }
+
+  .card-panel {
+    max-width: 820px;
+    padding: 44px;
+  }
+
+  .card-panel-wide {
+    max-width: 1180px;
+  }
+
+  .choice-grid {
+    max-width: 760px;
+    gap: 28px;
+  }
+}

@@ -74,12 +74,14 @@ export function createInitialProgress(): ProgressState {
 
 /** Drops a reviewQueue entry whose shape predates a mechanic rewrite for its category —
  * e.g. a spotDifference question saved to localStorage before it became a tap-the-board
- * game, still carrying the old choice-based fields. Replaying it as-is would crash the
- * board instead of just looking wrong, so it's safer to discard than reuse — same class of
- * bug as addition's stale showVisual field, but here the shape itself is incompatible. */
+ * game, still carrying the old choice-based fields (and, later, before the fixed-grid
+ * tile version became scattered scene items — leftIconIds/rightSlots replaced by
+ * leftItems/rightItems). Replaying it as-is would crash the board instead of just
+ * looking wrong, so it's safer to discard than reuse — same class of bug as addition's
+ * stale showVisual field, but here the shape itself is incompatible. */
 function isCompatibleQuestion(q: Question): boolean {
   if (q.category === 'spotDifference') {
-    return Array.isArray(q.leftIconIds) && Array.isArray(q.rightSlots) && Array.isArray(q.differenceIndexes)
+    return Array.isArray(q.leftItems) && Array.isArray(q.rightItems) && Array.isArray(q.differenceIndexes)
   }
   return true
 }
@@ -173,7 +175,9 @@ function questionSignature(q: Question): string {
   if (q.category === 'katakana') return `katakana:${q.charId}`
   if (q.category === 'alphabet') return `alphabet:${q.letterId}:${q.kind}:${q.answerChar}`
   if (q.category === 'clock') return `clock:${q.hour}:${q.minute}`
-  if (q.category === 'spotDifference') return `spot:${q.leftIconIds.join(',')}:${q.differenceIndexes.join(',')}`
+  if (q.category === 'spotDifference') {
+    return `spot:${q.leftItems.map((i) => i.iconId).join(',')}:${q.differenceIndexes.join(',')}`
+  }
   if (q.category === 'counting') return `counting:${q.targetWordId}:${q.count}:${q.displayIds.length}`
   return `${q.category}:${q.operandA}:${q.operandB}`
 }

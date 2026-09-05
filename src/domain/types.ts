@@ -117,26 +117,35 @@ export interface ClockQuestion {
   subSkill: string
 }
 
-/** One grid cell in a spot-the-difference board. `iconId: null` renders an empty slot —
- * itself a valid difference (something present on one side, missing on the other). */
-export interface SpotDifferenceSlot {
-  iconId: string | null
+export type SpotDifferenceDiffType = 'swap' | 'resize' | 'flip' | 'rotate'
+
+/** One item scattered freely across a spot-the-difference scene panel — not a grid cell.
+ * Every item gets its own baseline size/rotation, even ones that don't differ between
+ * panels, so a difference has to be found by comparing the two scenes rather than by
+ * noticing "which cell looks off" (a flaw of the earlier fixed-grid version, where only
+ * the differing cells ever varied from a uniform baseline). */
+export interface SpotDifferenceItem {
+  iconId: string
+  /** 0-100, position within the scene panel */
+  xPct: number
+  yPct: number
+  /** px */
+  size: number
+  /** degrees */
+  rotate: number
   flipped: boolean
-  scale: number
 }
 
 export interface SpotDifferenceQuestion {
   id: string
   category: 'spotDifference'
   level: Level
-  /** grid column count shared by both panels */
-  columns: number
-  /** the left ("reference") panel — always canonical: every slot filled, unflipped, scale 1 */
-  leftIconIds: string[]
-  /** the right panel, same length/order as leftIconIds; each entry may differ from its
-   * left counterpart (swapped icon, removed, resized, or mirrored) */
-  rightSlots: SpotDifferenceSlot[]
-  /** indexes (into leftIconIds/rightSlots) where the two panels actually differ — the tap targets */
+  /** the left ("reference") panel — always canonical */
+  leftItems: SpotDifferenceItem[]
+  /** the right panel, same length/order/position as leftItems; entries at
+   * differenceIndexes differ (swapped icon, resized, rotated, or mirrored) */
+  rightItems: SpotDifferenceItem[]
+  /** indexes (into leftItems/rightItems) where the two panels actually differ — the tap targets */
   differenceIndexes: number[]
   subSkill: string
 }

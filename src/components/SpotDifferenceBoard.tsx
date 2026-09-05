@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { SpotDifferenceQuestion } from '../domain/types'
+import type { SpotDifferenceItem, SpotDifferenceQuestion } from '../domain/types'
 import { useI18n } from '../i18n/I18nContext'
 import { playFoundSfx } from '../lib/sfx'
 import { WordIcon } from './WordIcon'
@@ -18,11 +18,68 @@ interface SpotDifferenceBoardProps {
   disabled: boolean
 }
 
-const ICON_SIZE = 84
-
 interface WrongTap {
   panel: 'left' | 'right'
   index: number
+}
+
+function ScenePanel({
+  items,
+  panel,
+  foundIndexes,
+  wrongTap,
+  disabled,
+  onTap,
+}: {
+  items: SpotDifferenceItem[]
+  panel: 'left' | 'right'
+  foundIndexes: Set<number>
+  wrongTap: WrongTap | null
+  disabled: boolean
+  onTap: (index: number) => void
+}) {
+  return (
+    <div className="spot-scene-panel">
+      {items.map((item, i) => {
+        const isFound = foundIndexes.has(i)
+        const isWrong = wrongTap?.panel === panel && wrongTap.index === i
+        return (
+          <button
+            key={i}
+            type="button"
+            className={`spot-scene-item ${isFound ? 'found' : ''}`.trim()}
+            style={{
+              left: `${item.xPct}%`,
+              top: `${item.yPct}%`,
+              width: item.size,
+              height: item.size,
+              // The button's own transform only ever centers/rotates/flips the item — a
+              // shake animation on this same property would wipe out that positioning
+              // (jumping the item to the top-left corner) every time it's applied. The
+              // shake instead lives on an inner wrapper (below) with its own, independent
+              // transform starting from identity.
+              transform: `translate(-50%, -50%) rotate(${item.rotate}deg) scaleX(${item.flipped ? -1 : 1})`,
+            }}
+            onClick={() => onTap(i)}
+            disabled={disabled}
+            aria-label={item.iconId}
+          >
+            <span className={`spot-scene-item-inner ${isWrong ? 'wrong' : ''}`.trim()}>
+              <WordIcon wordId={item.iconId} size={item.size} />
+            </span>
+            {isFound && (
+              <span
+                className="spot-found-badge"
+                style={{ transform: `rotate(${-item.rotate}deg) scaleX(${item.flipped ? -1 : 1})` }}
+              >
+                ✓
+              </span>
+            )}
+          </button>
+        )
+      })}
+    </div>
+  )
 }
 
 export function SpotDifferenceBoard({
@@ -37,13 +94,25 @@ export function SpotDifferenceBoard({
   const { t } = useI18n()
   const [foundIndexes, setFoundIndexes] = useState<Set<number>>(new Set())
   const [wrongTap, setWrongTap] = useState<WrongTap | null>(null)
+  const [wrongCount, setWrongCount] = useState(0)
 
   const total = question.differenceIndexes.length
   const found = foundIndexes.size
 
   function handleTap(panel: 'left' | 'right', index: number) {
-    if (disabled || foundIndexes.has(index)) return
+    if (disabled) return
     if (question.differenceIndexes.includes(index)) {
+      // Tapping an already-found difference again undoes it — a child who found it by
+      // accident, or wants to re-inspect it, isn't locked into a permanent mark. Once
+      // every difference is found, onAllFound flips `disabled` on the very next parent
+      // render anyway, so there's no path for this to un-complete an already-finished
+      // round.
+      if (foundIndexes.has(index)) {
+        const next = new Set(foundIndexes)
+        next.delete(index)
+        setFoundIndexes(next)
+        return
+      }
       playFoundSfx()
       const next = new Set(foundIndexes)
       next.add(index)
@@ -51,53 +120,38 @@ export function SpotDifferenceBoard({
       if (next.size === total) onAllFound()
     } else {
       setWrongTap({ panel, index })
+      setWrongCount((count) => count + 1)
       window.setTimeout(() => setWrongTap((cur) => (cur?.panel === panel && cur.index === index ? null : cur)), 350)
     }
-  }
-
-  function renderSlot(panel: 'left' | 'right', index: number) {
-    const slot = panel === 'left' ? { iconId: question.leftIconIds[index], flipped: false, scale: 1 } : question.rightSlots[index]
-    const isFound = foundIndexes.has(index)
-    const isWrong = wrongTap?.panel === panel && wrongTap.index === index
-
-    return (
-      <button
-        key={index}
-        type="button"
-        className={`spot-slot ${isFound ? 'found' : ''} ${isWrong ? 'wrong' : ''}`.trim()}
-        onClick={() => handleTap(panel, index)}
-        disabled={disabled}
-        aria-label={slot.iconId ?? 'empty'}
-      >
-        {slot.iconId ? (
-          <span
-            className="spot-slot-icon"
-            style={{ transform: `scaleX(${slot.flipped ? -1 : 1}) scale(${slot.scale})` }}
-          >
-            <WordIcon wordId={slot.iconId} size={ICON_SIZE} />
-          </span>
-        ) : (
-          <span className="spot-slot-empty" />
-        )}
-        {isFound && <span className="spot-found-badge">✓</span>}
-      </button>
-    )
   }
 
   return (
     <div className="spot-difference-board">
       <p className="subtitle">{promptText}</p>
       <TtsButton text={promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
-      <p className="spot-found-count">
-        {t('spotDifferenceFoundCount', { found: String(found), total: String(total) })}
-      </p>
+      <div className="spot-counts">
+        <p className="spot-found-count">
+          {t('spotDifferenceFoundCount', { found: String(found), total: String(total) })}
+        </p>
+        <p className="spot-wrong-count">{t('spotDifferenceWrongCount', { count: String(wrongCount) })}</p>
+      </div>
       <div className="spot-panels">
-        <div className="spot-panel" style={{ gridTemplateColumns: `repeat(${question.columns}, 1fr)` }}>
-          {question.leftIconIds.map((_, i) => renderSlot('left', i))}
-        </div>
-        <div className="spot-panel" style={{ gridTemplateColumns: `repeat(${question.columns}, 1fr)` }}>
-          {question.rightSlots.map((_, i) => renderSlot('right', i))}
-        </div>
+        <ScenePanel
+          items={question.leftItems}
+          panel="left"
+          foundIndexes={foundIndexes}
+          wrongTap={wrongTap}
+          disabled={disabled}
+          onTap={(i) => handleTap('left', i)}
+        />
+        <ScenePanel
+          items={question.rightItems}
+          panel="right"
+          foundIndexes={foundIndexes}
+          wrongTap={wrongTap}
+          disabled={disabled}
+          onTap={(i) => handleTap('right', i)}
+        />
       </div>
     </div>
   )

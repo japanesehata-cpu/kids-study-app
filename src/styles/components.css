@@ -446,11 +446,27 @@
   width: 100%;
 }
 
+.spot-counts {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 .spot-found-count {
   font-size: 18px;
   font-weight: 800;
   color: var(--color-primary-dark);
   background: var(--color-primary-soft);
+  padding: 6px 18px;
+  border-radius: 999px;
+}
+
+.spot-wrong-count {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-error);
+  background: var(--color-error-soft);
   padding: 6px 18px;
   border-radius: 999px;
 }
@@ -463,48 +479,51 @@
   width: 100%;
 }
 
-.spot-panel {
-  display: grid;
-  gap: 10px;
-  background: var(--color-bg-soft);
-  border-radius: var(--radius-md);
-  padding: 14px;
-  flex: 1 1 320px;
-  max-width: 400px;
-}
-
-.spot-slot {
+/* Two-tone background (rather than one flat gradient) so the panel reads as "a place" a
+ * child could stand in, not a color swatch — a soft upper band suggesting open space
+ * above, a warmer lower band suggesting ground, built from the app's existing warm
+ * palette rather than introducing an off-brand sky-blue. */
+.spot-scene-panel {
   position: relative;
   aspect-ratio: 1;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
+  flex: 1 1 320px;
+  max-width: 400px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    to bottom,
+    var(--color-accent-soft) 0%,
+    var(--color-accent-soft) 35%,
+    var(--color-primary-soft) 100%
+  );
   box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.spot-scene-item {
+  position: absolute;
+  border: none;
+  background: transparent;
+  padding: 0;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-}
-
-.spot-slot-icon {
-  display: flex;
-  transition: transform 0.15s ease;
-}
-
-.spot-slot-empty {
-  width: 70%;
-  height: 70%;
   border-radius: var(--radius-sm);
-  border: 3px dashed var(--color-primary-soft);
 }
 
-.spot-slot.found {
-  box-shadow: 0 0 0 4px var(--color-success) inset;
+.spot-scene-item:disabled {
   cursor: default;
 }
 
-.spot-slot.wrong {
+.spot-scene-item.found {
+  outline: 4px solid var(--color-success);
+  outline-offset: 4px;
+}
+
+/* Separate element from spot-scene-item's own transform (which centers/rotates/flips
+ * the item) so the shake keyframe's translateX doesn't wipe that positioning out. */
+.spot-scene-item-inner {
+  display: flex;
+}
+
+.spot-scene-item-inner.wrong {
   animation: spot-shake 0.35s ease;
 }
 

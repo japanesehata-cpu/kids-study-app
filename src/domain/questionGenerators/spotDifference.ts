@@ -1,4 +1,4 @@
-import type { Level, SpotDifferenceQuestion, SpotDifferenceSlot } from '../types'
+import type { Level, SpotDifferenceDiffType, SpotDifferenceItem, SpotDifferenceQuestion } from '../types'
 import { eligibleWordBank } from '../wordBank'
 import { shuffle } from '../../lib/shuffle'
 
@@ -9,29 +9,32 @@ import { shuffle } from '../../lib/shuffle'
  * eligibleWordBank(). */
 const ICON_POOL = eligibleWordBank().filter((w) => w.category !== 'color' && w.category !== 'shape')
 
-/** Grid size and difficulty per level: ★1 age 4, ★2 age 5, ★3 age 6. */
-const BOARD: Record<Level, { columns: number; slots: number; differences: number }> = {
-  1: { columns: 2, slots: 4, differences: 2 },
-  2: { columns: 3, slots: 6, differences: 3 },
-  3: { columns: 3, slots: 9, differences: 4 },
-  4: { columns: 3, slots: 9, differences: 4 },
-  5: { columns: 3, slots: 9, differences: 4 },
+/** Item count and difference count per level: ★1 age 4 through ★5 age 8. Scene-format
+ * items don't need to fill a fixed grid, so counts scale a bit more freely than the old
+ * grid version's slot counts did. */
+const BOARD: Record<Level, { items: number; differences: number }> = {
+  1: { items: 5, differences: 2 },
+  2: { items: 6, differences: 3 },
+  3: { items: 7, differences: 3 },
+  4: { items: 8, differences: 4 },
+  5: { items: 9, differences: 4 },
 }
-
-type DiffType = 'swap' | 'resize' | 'flip'
 
 /** ★1 sticks to a difference a 4yo can spot at a glance (a whole different picture). ★2
- * adds a size change; ★3 adds mirroring, the subtlest cue — never a recolor, since tinting
- * a real photo would contradict the "true to life" teaching goal for these icons. An
- * empty/removed slot was dropped entirely: it rendered as a blank dashed placeholder that
- * read as a rendering glitch rather than an intentional puzzle piece. */
-const DIFF_TYPES: Record<Level, DiffType[]> = {
+ * adds a size change. ★3+ adds mirroring and rotation, the subtlest cues — never a
+ * recolor, since tinting a real photo would contradict the "true to life" teaching goal
+ * for these icons. */
+const DIFF_TYPES: Record<Level, SpotDifferenceDiffType[]> = {
   1: ['swap'],
   2: ['swap', 'resize'],
-  3: ['swap', 'resize', 'flip'],
-  4: ['swap', 'resize', 'flip'],
-  5: ['swap', 'resize', 'flip'],
+  3: ['swap', 'resize', 'flip', 'rotate'],
+  4: ['swap', 'resize', 'flip', 'rotate'],
+  5: ['swap', 'resize', 'flip', 'rotate'],
 }
+
+const MIN_SIZE = 58
+const MAX_SIZE = 92
+const MIN_GAP_MARGIN = 10
 
 function makeId(): string {
   return `spot-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
@@ -41,47 +44,93 @@ function pickRandom<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)]
 }
 
+function randRange(min: number, max: number): number {
+  return min + Math.random() * (max - min)
+}
+
 function subSkillForLevel(level: Level): string {
   if (level >= 3) return 'spot-subtle'
   if (level === 2) return 'spot-similar'
   return 'spot-obvious'
 }
 
-function applyDifference(iconId: string, usedIds: string[], type: DiffType): SpotDifferenceSlot {
-  switch (type) {
-    case 'flip':
-      return { iconId, flipped: true, scale: 1 }
-    case 'resize':
-      return { iconId, flipped: false, scale: pickRandom([0.6, 1.45]) }
-    case 'swap': {
-      const replacement = pickRandom(ICON_POOL.filter((w) => !usedIds.includes(w.id)))
-      return { iconId: replacement.id, flipped: false, scale: 1 }
+/** Places `count` items with a fixed baseline `size` each, rejecting candidates whose
+ * center-to-center distance to any already-placed item is less than the sum of their
+ * radii plus a fixed margin — bigger icons get more berth than smaller ones, so nothing
+ * visually overlaps regardless of the size mix a round happens to roll. Bounded attempts
+ * per item, falling back to a best-effort placement if the scene is too crowded to find
+ * a clean spot (only a real risk at ★5's 9-item ceiling, and even then rare). */
+function scatterPositions(sizes: number[]): { xPct: number; yPct: number }[] {
+  const placed: { xPct: number; yPct: number; size: number }[] = []
+  for (const size of sizes) {
+    let candidate = { xPct: randRange(16, 84), yPct: randRange(18, 82) }
+    for (let attempt = 0; attempt < 80; attempt++) {
+      candidate = { xPct: randRange(16, 84), yPct: randRange(18, 82) }
+      const tooClose = placed.some((p) => {
+        // percentage-space distance approximated against a 360px-square scene — close
+        // enough to keep circles genuinely non-overlapping without plumbing the actual
+        // rendered panel size through the generator.
+        const dxPx = ((p.xPct - candidate.xPct) / 100) * 360
+        const dyPx = ((p.yPct - candidate.yPct) / 100) * 360
+        const dist = Math.hypot(dxPx, dyPx)
+        return dist < p.size / 2 + size / 2 + MIN_GAP_MARGIN
+      })
+      if (!tooClose) break
     }
+    placed.push({ ...candidate, size })
+  }
+  return placed
+}
+
+function applyDiff(item: SpotDifferenceItem, type: SpotDifferenceDiffType, usedIds: Set<string>): SpotDifferenceItem {
+  switch (type) {
+    case 'swap': {
+      const replacement = pickRandom(ICON_POOL.filter((w) => !usedIds.has(w.id)))
+      usedIds.add(replacement.id)
+      return { ...item, iconId: replacement.id }
+    }
+    case 'resize':
+      return { ...item, size: item.size * (Math.random() < 0.5 ? 0.6 : 1.5) }
+    case 'rotate':
+      return { ...item, rotate: item.rotate + (Math.random() < 0.5 ? 1 : -1) * randRange(45, 90) }
+    case 'flip':
+      return { ...item, flipped: !item.flipped }
   }
 }
 
 export function generateSpotDifferenceQuestion(level: Level): SpotDifferenceQuestion {
-  const { columns, slots, differences } = BOARD[level]
-  const chosen = shuffle(ICON_POOL).slice(0, slots)
-  const leftIconIds = chosen.map((w) => w.id)
+  const { items: itemCount, differences } = BOARD[level]
+  const words = shuffle(ICON_POOL).slice(0, itemCount)
+  const usedIds = new Set(words.map((w) => w.id))
 
-  const differenceIndexes = shuffle(Array.from({ length: slots }, (_, i) => i))
+  const sizes = words.map(() => randRange(MIN_SIZE, MAX_SIZE))
+  const positions = scatterPositions(sizes)
+
+  const leftItems: SpotDifferenceItem[] = words.map((w, i) => ({
+    iconId: w.id,
+    xPct: positions[i].xPct,
+    yPct: positions[i].yPct,
+    size: sizes[i],
+    rotate: randRange(-16, 16),
+    flipped: false,
+  }))
+
+  const differenceIndexes = shuffle(Array.from({ length: itemCount }, (_, i) => i))
     .slice(0, differences)
     .sort((a, b) => a - b)
   const diffTypePool = DIFF_TYPES[level]
 
-  const rightSlots: SpotDifferenceSlot[] = leftIconIds.map((iconId, i) => {
-    if (!differenceIndexes.includes(i)) return { iconId, flipped: false, scale: 1 }
-    return applyDifference(iconId, leftIconIds, pickRandom(diffTypePool))
+  const rightItems: SpotDifferenceItem[] = leftItems.map((item, i) => {
+    if (!differenceIndexes.includes(i)) return { ...item }
+    return applyDiff(item, pickRandom(diffTypePool), usedIds)
   })
 
   return {
     id: makeId(),
     category: 'spotDifference',
     level,
-    columns,
-    leftIconIds,
-    rightSlots,
+    leftItems,
+    rightItems,
     differenceIndexes,
     subSkill: subSkillForLevel(level),
   }

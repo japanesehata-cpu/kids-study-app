@@ -33,6 +33,7 @@ const INTRO_KEY_BY_CATEGORY: Record<Category, DictionaryKey> = {
   clock: 'introToki',
   spotDifference: 'introMitsu',
   counting: 'introKazu',
+  englishSentence: 'introHana',
 }
 
 export function HomeScreen({ streak, onSelectCategory, onOpenEnglishEntry, onOpenParentGate }: HomeScreenProps) {

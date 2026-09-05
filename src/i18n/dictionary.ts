@@ -9,9 +9,20 @@ export const dictionary = {
   homeSubtitle: { ja: 'きょうは なにをべんきょうする？', en: 'What should we learn today?' },
   categoryAddition: { ja: 'たしざん', en: 'Addition' },
   categorySubtraction: { ja: 'ひきざん', en: 'Subtraction' },
-  categoryEnglish: { ja: 'えいご', en: 'English' },
+  // "categoryEnglish" is the shared home-screen card label for the よむ/きく (word) chooser
+  // — renamed from bare "えいご" to make room for englishSentence's own "えいご リスニング"
+  // card without the two reading as the same thing.
+  categoryEnglish: { ja: 'えいご たんご', en: 'English (Words)' },
   categoryEnglishSpelling: { ja: 'えいたんご（よむ）', en: 'English (Spelling)' },
   categoryEnglishListening: { ja: 'えいたんご（きく）', en: 'English (Listening)' },
+  // en label deliberately distinct from categoryEnglishListening's ("English (Listening)")
+  // even though both mean roughly the same in Japanese — they appear side by side in
+  // ProgressScreen and would otherwise be indistinguishable in English.
+  categoryEnglishSentence: { ja: 'えいご リスニング', en: 'English (Sentences)' },
+  englishSentencePrompt: {
+    ja: 'きこえた しつもんに あう いろを タップしてね',
+    en: 'Listen to the question and tap the matching color',
+  },
   englishEntryTitle: { ja: 'よむ？きく？', en: 'Read or listen?' },
   englishEntryReadLabel: { ja: 'よむ', en: 'Read' },
   englishEntryReadDescription: { ja: 'えを みて つづりを えらぼう', en: 'Look at the picture and choose the spelling' },

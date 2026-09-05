@@ -10,6 +10,7 @@ import type {
 import { generateAdditionQuestion } from './questionGenerators/addition'
 import { generateSubtractionQuestion } from './questionGenerators/subtraction'
 import { generateEnglishSpellingQuestion, generateEnglishListeningQuestion } from './questionGenerators/englishWords'
+import { generateEnglishSentenceQuestion } from './questionGenerators/englishSentence'
 import { generateLogicQuestion } from './questionGenerators/logic'
 import { generateHiraganaQuestion } from './questionGenerators/hiragana'
 import { generateKatakanaQuestion } from './questionGenerators/katakana'
@@ -45,6 +46,7 @@ export const CATEGORY_MAX_LEVEL: Record<Category, Level> = {
   clock: 3,
   spotDifference: 3,
   counting: 3,
+  englishSentence: 3,
 }
 
 export function getCategoryMaxLevel(category: Category): Level {
@@ -69,6 +71,7 @@ export function createInitialProgress(): ProgressState {
     clock: { level: 1, recentAccuracy: [], reviewQueue: [] },
     spotDifference: { level: 1, recentAccuracy: [], reviewQueue: [] },
     counting: { level: 1, recentAccuracy: [], reviewQueue: [] },
+    englishSentence: { level: 1, recentAccuracy: [], reviewQueue: [] },
   }
 }
 
@@ -123,6 +126,7 @@ export function loadProgress(): ProgressState {
       clock: sanitizeCategoryProgress('clock', parsed.clock, initial.clock),
       spotDifference: sanitizeCategoryProgress('spotDifference', parsed.spotDifference, initial.spotDifference),
       counting: sanitizeCategoryProgress('counting', parsed.counting, initial.counting),
+      englishSentence: sanitizeCategoryProgress('englishSentence', parsed.englishSentence, initial.englishSentence),
     }
   } catch {
     return createInitialProgress()
@@ -157,6 +161,8 @@ function generateFreshQuestion(category: Category, level: Level): Question {
       return generateSpotDifferenceQuestion(level)
     case 'counting':
       return generateCountingQuestion(level)
+    case 'englishSentence':
+      return generateEnglishSentenceQuestion(level)
   }
 }
 
@@ -179,6 +185,7 @@ function questionSignature(q: Question): string {
     return `spot:${q.leftItems.map((i) => i.iconId).join(',')}:${q.differenceIndexes.join(',')}`
   }
   if (q.category === 'counting') return `counting:${q.targetWordId}:${q.count}:${q.displayIds.length}`
+  if (q.category === 'englishSentence') return `sentence:${q.sentenceId}`
   return `${q.category}:${q.operandA}:${q.operandB}`
 }
 

@@ -10,6 +10,7 @@ export type Category =
   | 'clock'
   | 'spotDifference'
   | 'counting'
+  | 'englishSentence'
 
 /** The original five categories use a 5-step scale; clock/spotDifference/counting use only
  * levels 1-3 (see CATEGORY_MAX_LEVEL in progress.ts), shown as 1-3 stars instead of 1-5. */
@@ -44,6 +45,20 @@ export interface EnglishWordQuestion {
   /** mode: hear the word and pick the picture, or see the picture and pick the word */
   mode: 'listenAndPick' | 'lookAndPick'
   choiceWordIds: string[]
+  subSkill: string
+}
+
+/** Hears a full spoken WH-question ("What color is a banana?") with no picture shown, and
+ * answers by tapping one of 4 color swatches — tests real listening comprehension of a
+ * sentence, not just single-word recognition (see EnglishWordQuestion above). */
+export interface EnglishSentenceQuestion {
+  id: string
+  category: 'englishSentence'
+  level: Level
+  sentenceId: string
+  question: string
+  correctColorId: string
+  choiceColorIds: string[]
   subSkill: string
 }
 
@@ -173,6 +188,7 @@ export type Question =
   | ClockQuestion
   | SpotDifferenceQuestion
   | CountingQuestion
+  | EnglishSentenceQuestion
 
 export interface AnswerRecord {
   questionId: string

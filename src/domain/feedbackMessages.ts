@@ -205,7 +205,10 @@ export function buildFeedbackMessage(ctx: FeedbackContext, lang: Lang): Feedback
   if (beforeText) speech.push({ text: beforeText, cacheKey: beforeCacheKey })
   if (mentionsAnswer) {
     const answerSpeechLang =
-      ctx.category === 'englishSpelling' || ctx.category === 'englishListening' || ctx.category === 'alphabet'
+      ctx.category === 'englishSpelling' ||
+      ctx.category === 'englishListening' ||
+      ctx.category === 'alphabet' ||
+      ctx.category === 'englishSentence'
         ? 'en-US'
         : undefined
     speech.push({ text: ctx.correctAnswerLabel, speechLang: answerSpeechLang, cacheKey: ctx.answerCacheKey })

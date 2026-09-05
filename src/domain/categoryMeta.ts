@@ -21,6 +21,7 @@ export const CATEGORY_META: CategoryMeta[] = [
   { category: 'clock', symbol: '🕐', labelKey: 'categoryClock' },
   { category: 'spotDifference', symbol: '🔍', labelKey: 'categorySpotDifference' },
   { category: 'counting', symbol: '🔢', labelKey: 'categoryCounting' },
+  { category: 'englishSentence', symbol: '👂', labelKey: 'categoryEnglishSentence' },
 ]
 
 export function getCategoryMeta(category: Category): CategoryMeta {

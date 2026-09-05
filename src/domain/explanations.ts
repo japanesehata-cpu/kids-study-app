@@ -144,5 +144,9 @@ export function buildExplanation(question: Question, lang: Lang, correct = true)
         ? `${label}は ぜんぶで ${question.count}こ あったよ。`
         : `${label} appeared ${question.count} times in total.`
     }
+    case 'englishSentence': {
+      const colorEntry = getWordById(question.correctColorId)
+      return lang === 'ja' ? `こたえは 「${colorEntry.translationJa}」だよ。` : `The answer is ${colorEntry.word}.`
+    }
   }
 }

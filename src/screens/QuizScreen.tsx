@@ -5,6 +5,7 @@ import type {
   Category,
   ClockQuestion,
   CountingQuestion,
+  EnglishSentenceQuestion,
   EnglishWordQuestion,
   HiraganaQuestion,
   KatakanaQuestion,
@@ -90,6 +91,10 @@ function isCounting(q: Question): q is CountingQuestion {
 
 function isEnglishWord(q: Question): q is EnglishWordQuestion {
   return q.category === 'englishSpelling' || q.category === 'englishListening'
+}
+
+function isEnglishSentence(q: Question): q is EnglishSentenceQuestion {
+  return q.category === 'englishSentence'
 }
 
 function isAlphabet(q: Question): q is AlphabetQuestion {
@@ -179,6 +184,11 @@ function computeAutoSpeech(
     // change with case regardless of question kind or which case is being tested.
     const entry = getAlphabetById(question.letterId)
     return { text: alphabetSpeechPhrase(entry), speechLang: 'en-US', cacheKey: `alphabet-letter-${question.letterId}` }
+  }
+  if (isEnglishSentence(question)) {
+    // Always English regardless of UI language, same as englishWords' listenAndPick
+    // branch below — this category has no "look and pick" mode to fall back to.
+    return { text: question.question, speechLang: 'en-US', cacheKey: `sentence-color-${question.sentenceId}` }
   }
   // englishWords
   if (question.mode === 'listenAndPick') {
@@ -282,6 +292,34 @@ function EnglishQuestionView({
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
       <p className="subtitle">{lookPrompt}</p>
       <WordIcon wordId={question.wordId} size={140} />
+    </div>
+  )
+}
+
+/** Deliberately shows no picture — the whole point of this format is that the only way to
+ * answer is to have understood the spoken English question (see the plan for this
+ * feature: an earlier draft that showed a matching picture tested mostly noun
+ * recognition instead of real listening comprehension). */
+function EnglishSentenceQuestionView({
+  question,
+  promptText,
+  voiceProfile,
+}: {
+  question: EnglishSentenceQuestion
+  promptText: string
+  voiceProfile: VoiceProfile
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+      <p className="subtitle">{promptText}</p>
+      <TtsButton
+        text={question.question}
+        lang="en-US"
+        label="listen"
+        size={96}
+        voiceProfile={voiceProfile}
+        cacheKey={`sentence-color-${question.sentenceId}`}
+      />
     </div>
   )
 }
@@ -570,6 +608,7 @@ function renderChoiceContent(question: Question, choice: Choice, lang: Lang) {
   // never rendered: spot-the-difference has no choice-grid (see SpotDifferenceBoard)
   if (isSpotDifference(question)) return null
   if (isCounting(question)) return choice
+  if (isEnglishSentence(question)) return <WordIcon wordId={choice as string} size={72} />
   return question.mode === 'listenAndPick' ? (
     <WordIcon wordId={choice as string} size={72} />
   ) : (
@@ -594,6 +633,7 @@ function computeCorrectAnswerLabel(question: Question, lang: Lang): string {
   if (isClock(question)) return formatClockKey(`${question.hour}:${question.minute}`, lang)
   if (isSpotDifference(question)) return ''
   if (isCounting(question)) return String(question.count)
+  if (isEnglishSentence(question)) return getWordById(question.correctColorId).word
   return getWordById(question.wordId).word
 }
 
@@ -650,6 +690,7 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
     // spot-the-difference answers by tapping the board itself, not a choice-grid button
     if (isSpotDifference(question)) return []
     if (isCounting(question)) return question.choices
+    if (isEnglishSentence(question)) return question.choiceColorIds
     return question.choiceWordIds
   }, [question])
 
@@ -671,6 +712,7 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
     // wrong-tap limit is hit (always incorrect)
     if (isSpotDifference(question)) return choice !== SPOT_DIFFERENCE_FAILED
     if (isCounting(question)) return choice === question.count
+    if (isEnglishSentence(question)) return choice === question.correctColorId
     return choice === question.wordId
   }
 
@@ -686,8 +728,14 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
   // The englishWords correct answer is always this question's own word, regardless of
   // which choice was picked — so its cache entry is knowable up front, unlike every other
   // category's `{answer}` segment (a number, hiragana char, etc.), which is effectively
-  // unbounded and left live/uncached.
-  const answerCacheKey = isEnglishWord(question) ? `word-en-${question.wordId}` : undefined
+  // unbounded and left live/uncached. englishSentence's answer is always one of the 16
+  // color words, which already has a `word-en-*.wav` file from the original word-bank
+  // pronunciation pass — no new audio needed for this one.
+  const answerCacheKey = isEnglishWord(question)
+    ? `word-en-${question.wordId}`
+    : isEnglishSentence(question)
+      ? `word-en-${question.correctColorId}`
+      : undefined
 
   function handleSelect(choice: Choice) {
     if (selected !== null) return
@@ -771,6 +819,11 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
           // feedback sentence above (see buildFeedbackMessage) — repeating it here too
           // would say it twice in a row, once inside the sentence and once standalone.
           speak(question.word, 'en-US', voiceProfile, `word-en-${question.wordId}`)
+        } else if (isEnglishSentence(question) && correct) {
+          // Same reasoning as englishWord above — an incorrect answer already speaks the
+          // color word via the feedback sentence's {answer} segment.
+          const colorWord = getWordById(question.correctColorId).word
+          speak(colorWord, 'en-US', voiceProfile, `word-en-${question.correctColorId}`)
         }
       })
   }
@@ -883,6 +936,12 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
             lang={lang}
             voiceProfile={voiceProfile}
             cacheKey={autoSpeech.cacheKey}
+          />
+        ) : isEnglishSentence(question) ? (
+          <EnglishSentenceQuestionView
+            question={question}
+            promptText={t('englishSentencePrompt')}
+            voiceProfile={voiceProfile}
           />
         ) : (
           <EnglishQuestionView

@@ -179,7 +179,10 @@
 .choice-button {
   min-height: var(--touch-target-min);
   border-radius: var(--radius-md);
-  border: none;
+  /* A visible (if subtle) border rather than none — a plain white color-swatch choice
+     (englishSentence's color-question format) was otherwise indistinguishable from the
+     button's own white background. */
+  border: 2px solid var(--color-bg-soft);
   background: var(--color-surface);
   box-shadow: var(--shadow-card);
   font-size: 28px;

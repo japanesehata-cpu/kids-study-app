@@ -87,6 +87,24 @@ export const characterThemes: Record<Category, CharacterTheme> = {
       kokoroVoice: 'af_heart',
     },
   },
+  // englishSentence is the same skill family (hana/af_heart) as englishSpelling/
+  // englishListening above, just a new entry point testing full-sentence listening
+  // instead of a single word.
+  englishSentence: {
+    id: 'hana',
+    colorMain: '#ffd166',
+    colorMainDark: '#e0a83a',
+    colorSub: '#fffaf0',
+    colorAccent: '#ffb08f',
+    colorAccentDark: '#e07a4f',
+    voiceProfile: {
+      pitch: 1.6,
+      rate: 1.0,
+      playbackRate: 1.32,
+      voicevoxSpeaker: { name: '雨晴はう', style: 'ノーマル' },
+      kokoroVoice: 'af_heart',
+    },
+  },
   logic: {
     id: 'koko',
     colorMain: '#7fd9c4',

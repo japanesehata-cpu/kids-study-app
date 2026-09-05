@@ -31,11 +31,18 @@ import time
 
 import torch
 from diffusers import StableDiffusionXLPipeline, DPMSolverMultistepScheduler
-from PIL import Image
+from PIL import Image, ImageDraw
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(SCRIPT_DIR)
-MODEL_PATH = os.path.expanduser("~/realvisxl-test/models/RealVisXL_V4.0_Lightning.safetensors")
+# Defaults to the Lightning (distilled, few-step) checkpoint. Override via env vars to
+# use the standard (non-distilled) RealVisXL V4.0 checkpoint instead — better overall
+# photorealism/texture quality at the cost of much slower generation (needs many more
+# steps and a normal guidance_scale; Lightning is specifically distilled to converge in
+# very few steps and doesn't render well at higher step counts).
+MODEL_PATH = os.path.expanduser(
+    os.environ.get("DIFFUSION_MODEL_PATH", "~/realvisxl-test/models/RealVisXL_V4.0_Lightning.safetensors")
+)
 OUTPUT_DIR = os.path.join(REPO_ROOT, "public", "images", "words")
 ICON_SIZE = 480
 GEN_SIZE = 768
@@ -46,7 +53,14 @@ LOCK_PATH = "/tmp/generate-word-images-local.lock"
 # continuous peak for the whole batch — same reasoning as generate-tts-cache.mjs's
 # thermal cooldown between VOICEVOX calls. Override via env var if needed.
 INFERENCE_STEPS = int(os.environ.get("DIFFUSION_STEPS", 6))
+GUIDANCE_SCALE = float(os.environ.get("DIFFUSION_GUIDANCE", 1.3))
 COOLDOWN_SECONDS = float(os.environ.get("DIFFUSION_COOLDOWN_S", 10))
+# On top of the per-image cooldown above, take a much longer break every N images so the
+# chip gets a real chance to fully cool rather than just idling briefly between bursts —
+# for a long batch at a higher step count (see the standard, non-Lightning checkpoint
+# option), the per-image gap alone isn't enough to keep it off sustained thermal load.
+BATCH_COOLDOWN_EVERY = int(os.environ.get("DIFFUSION_BATCH_COOLDOWN_EVERY", 0))
+BATCH_COOLDOWN_SECONDS = float(os.environ.get("DIFFUSION_BATCH_COOLDOWN_S", 300))
 
 
 def _pid_is_alive(pid):
@@ -294,6 +308,18 @@ def color_prompt(word):
     # not a color sample. Filling the ENTIRE frame with the color (a flat painted
     # surface, not a garment-shaped piece of fabric) makes the color itself the whole
     # subject instead of a property of some other object.
+    #
+    # SUPERSEDED — kept only as the CATEGORY_PROMPT_BUILDERS fallback so a build_prompt()
+    # call for an unrecognized color word doesn't crash; the actual "color" category
+    # images below (see CSS_HEX_COLORS / write_color_swatch) are generated as flat PIL
+    # rectangles, not via this diffusion prompt at all. QA on the Standard checkpoint
+    # found the "solid flat surface" framing was still not reliable: gold/silver got
+    # rendered with heavy brushed-metal/foil texture instead of a flat color, and most
+    # others picked up a visible directional-lighting gradient across the frame — plus
+    # QA specifically asked for hex-accurate reference colors, which a diffusion model
+    # can't guarantee at all (it approximates from training data, no exact color
+    # control). A flat PIL fill pinned to the standard CSS4 named-color hex value sidesteps
+    # every one of these at once: no texture, no gradient, and pixel-exact color.
     return f"""
 RAW photograph of a solid {word} colored flat surface filling the
 entire frame edge to edge, no visible object or shape, uniform
@@ -301,6 +327,63 @@ entire frame edge to edge, no visible object or shape, uniform
 no texture, no fabric folds, soft even studio lighting,
 natural unedited photograph
 """
+
+
+# Standard CSS4 named-color hex values — see color_prompt()'s comment for why colors
+# are generated this way instead of through the diffusion pipeline.
+CSS_HEX_COLORS = {
+    "red": "#FF0000",
+    "blue": "#0000FF",
+    "yellow": "#FFFF00",
+    "green": "#008000",
+    "purple": "#800080",
+    "pink": "#FFC0CB",
+    "brown": "#A52A2A",
+    "black": "#000000",
+    "gray": "#808080",
+    "white": "#FFFFFF",
+    "gold": "#FFD700",
+    "silver": "#C0C0C0",
+    "turquoise": "#40E0D0",
+    "beige": "#F5F5DC",
+    "navy": "#000080",
+    "maroon": "#800000",
+    "indigo": "#4B0082",
+}
+COLOR_SWATCH_BORDER = "#D9D4C8"  # soft neutral border, visible against light or dark UI
+# QA: gold/silver as a pure flat fill read as "yellow"/"gray" rather than a metallic —
+# a diagonal highlight band (the classic flat-illustration shorthand for a metallic
+# sheen) keeps the exact base hex dominant while still reading as gold/silver.
+METALLIC_COLORS = {"gold", "silver"}
+
+
+def _add_metallic_sheen(img):
+    import numpy as np
+
+    w, h = img.size
+    arr = np.asarray(img).astype(np.float32)
+    yy, xx = np.mgrid[0:h, 0:w]
+    # Diagonal position along the shine axis, normalized to roughly [-1, 1].
+    diag = (xx + yy) / (w + h) * 2 - 1
+    # A narrow bright band centered on the diagonal, softly falling off — a highlight
+    # streak, not a full-frame gradient, so the base color still reads as dominant.
+    band_center = -0.35
+    band_width = 0.28
+    highlight = np.exp(-((diag - band_center) ** 2) / (2 * band_width ** 2))
+    highlight = highlight[..., None] * 55  # max brightness boost — kept low enough that
+    # the base hex color still reads as dominant instead of washing out to near-white
+    arr = np.clip(arr + highlight, 0, 255).astype("uint8")
+    return Image.fromarray(arr)
+
+
+def write_color_swatch(word_id, out_path):
+    hex_color = CSS_HEX_COLORS[word_id]
+    img = Image.new("RGB", (ICON_SIZE, ICON_SIZE), hex_color)
+    if word_id in METALLIC_COLORS:
+        img = _add_metallic_sheen(img)
+    draw = ImageDraw.Draw(img)
+    draw.rectangle([0, 0, ICON_SIZE - 1, ICON_SIZE - 1], outline=COLOR_SWATCH_BORDER, width=3)
+    img.save(out_path)
 
 
 def vehicle_prompt(word):
@@ -485,11 +568,20 @@ natural unedited photograph, no visible faces, no logos, no readable text
 def shape_prompt(word):
     # QA: "square" rendered as a picture-framed shadow box instead of a solid block —
     # same "centered in frame" literal-word bug found and fixed in generic_object_prompt().
+    # QA sweep: square/rectangle/diamond were too similar to the "blocks" toy word —
+    # both used the same wooden-block material, and a flat block face IS a square/
+    # rectangle, so they read as the same object. Switching material to bright plastic
+    # helped rectangle, but square/diamond still came out as a 3D cube/faceted gem —
+    # "thin flat...piece" alone didn't stop 3D depth. Describing it as a flat cutout
+    # fixed the 3D problem, but the word "cardboard" pulled it toward plain undyed
+    # brown cardboard/paper, losing the color entirely — foam craft material keeps the
+    # flat-cutout framing while avoiding that specific color association.
     return f"""
-RAW product photograph of a real solid painted wooden {word} shape block,
-one placed on a plain table,
-natural wood grain visible through matte paint,
-soft diffused daylight,
+RAW product photograph of a real flat craft foam cutout shape in the
+form of a {word}, made of bright vividly colored foam, paper-thin
+with no three-dimensional depth or thickness, not cardboard, not
+brown, not unpainted, lying flat on a table viewed from directly
+above, soft diffused daylight,
 neutral studio background,
 photographed with a professional camera lens,
 natural unedited product photograph
@@ -589,13 +681,6 @@ bill clearly visible, flat wide tail, webbed feet, natural brown
 fur texture, resting on a riverbank,
 soft diffused daylight, unedited documentary nature photograph
 """,
-    "stingray": """
-RAW underwater wildlife photograph of a real stingray,
-side profile view showing its flat diamond-shaped body and long
-tail, gliding alone through clear open water, natural skin texture,
-soft diffused light through water,
-unedited documentary nature photograph
-""",
     "crocodile": """
 RAW wildlife photograph of a real crocodile's head from the side,
 long narrow V-shaped snout with a visible fourth tooth jutting up
@@ -633,11 +718,15 @@ circular bald patch on the crown of the head, long black stripe
 down the neck, soft diffused daylight,
 unedited documentary nature photograph
 """,
+    # QA sweep: read as a hedgehog. A hedgehog's spines are short and cover a small
+    # round curled-up body; spelling out that size/shape contrast (and adding it to the
+    # negative) pushes away from that reading.
     "porcupine": """
-RAW wildlife photograph of a real porcupine,
-side profile view, entire body visible, covered in long thick
-sharp quills standing out from its body, natural coloring,
-soft diffused daylight, unedited documentary nature photograph
+RAW wildlife photograph of a real porcupine, full body visible, not
+curled up, very long thick black-and-white banded quills much
+longer than the animal's head, quills far longer than a hedgehog's
+short spines, natural coloring, soft diffused daylight,
+unedited documentary nature photograph
 """,
     # QA sweep: too tight a crop on the head/neck made it indistinguishable from an emu
     # or rhea — an ostrich's most recognizable trait is its huge body on very long bare
@@ -659,21 +748,26 @@ segmented tail curving up and over its back ending in a sharp
 pointed stinger, the tail and stinger clearly visible, natural dark
 coloring, soft diffused daylight, unedited documentary nature photograph
 """,
-    # QA sweep: rendered as an ordinary fly with no glowing abdomen — the defining
-    # feature (bioluminescence) needs to be spelled out or it's indistinguishable from
-    # any other small flying insect.
+    # QA sweep: rendered as an ordinary iridescent green jewel beetle held in a hand in
+    # daylight, no glow at all — the defining feature (bioluminescence at night) needs
+    # much stronger, more literal wording, and the scene needs to structurally rule out
+    # daylight/a person entirely rather than just naming "dusk". QA specifically wants a
+    # Japanese Genji firefly (ゲンジボタル).
     "firefly": """
-RAW macro wildlife photograph of a real firefly beetle at dusk, dark
-body, wings folded, the tip of its abdomen glowing with a bright
-soft yellow-green bioluminescent light, photographed against a dark
-background, unedited documentary nature photograph
+RAW long-exposure wildlife photograph taken outdoors at night in
+near-total darkness, a real Japanese Genji firefly in flight, small
+soft-bodied dark brown beetle, its abdomen tip glowing brightly with
+vivid yellow-green bioluminescent light, the glowing light the only
+light source in the completely black night scene, no daylight, no
+hand, no person, unedited documentary nature photograph
 """,
     "squid": """
-RAW underwater wildlife photograph of a real squid,
-side profile view, long torpedo-shaped mantle with side fins,
-two long tentacles and eight arms trailing behind, natural
-translucent skin, soft diffused light through water,
-unedited documentary nature photograph
+RAW underwater wildlife photograph of a real squid, side profile
+view, long torpedo-shaped mantle with only two small triangular fins
+near the tail tip, not a large fish-like tail fin, ten distinct
+tentacles and arms with visible round suckers trailing from the
+head end, natural translucent skin, soft diffused light through
+water, unedited documentary nature photograph
 """,
     # QA sweep: still rendered with prominent visible eyes and rat-like ears no matter
     # how the prompt asked to hide them — tried "no visible eyes", "eyes hidden under
@@ -762,11 +856,19 @@ colorful painted stripes, standing upright, centered in frame,
 soft diffused daylight, neutral studio background,
 natural unedited product photograph
 """,
+    # QA sweep: same fixes as square/rectangle/diamond in shape_prompt() — flat
+    # cutout instead of a wooden block (which reads as "blocks" the toy), and dropped
+    # "centered in frame" (the literal word "frame" was rendering this as a bowl/dish —
+    # the same bug fixed in generic_object_prompt()/shape_prompt()). "cardboard cutout"
+    # itself then pulled toward plain undyed brown cardboard, losing the color — foam
+    # craft material avoids that specific association.
     "oval": """
-RAW product photograph of a real solid painted wooden oval shape
-block, a flat elongated ellipse, not a bowl or dish, centered in
-frame, natural wood grain through matte paint, soft diffused
-daylight, neutral studio background, natural unedited product photograph
+RAW product photograph of a real flat craft foam cutout shape in the
+form of an oval ellipse, made of bright vividly colored foam,
+paper-thin with no three-dimensional depth or thickness, not a bowl
+or dish, not cardboard, not brown, not unpainted, lying flat on a
+table viewed from directly above, soft diffused daylight,
+neutral studio background, natural unedited product photograph
 """,
     "lettuce": """
 RAW product photograph of a fresh head of romaine lettuce,
@@ -863,12 +965,16 @@ star shape, natural bumpy textured skin, resting on sand,
 soft diffused light through water, unedited documentary nature photograph
 """,
     # QA: shape unclear — a stingray's flat diamond body only reads clearly from directly
-    # above, not the side-profile framing every other MARINE_IDS entry uses.
+    # above, not the side-profile framing every other MARINE_IDS entry uses. QA sweep
+    # also found the "over sand... light through water" wording ambiguous enough that it
+    # got rendered beached on dry sand instead of submerged — spelled out visible water
+    # covering it explicitly.
     "stingray": """
-RAW underwater wildlife photograph of a real stingray,
-seen from directly above showing its flat diamond-shaped body and
-long thin tail clearly, gliding alone over sand, natural skin
-texture, soft diffused light through water,
+RAW underwater wildlife photograph of a real stingray, taken from
+below the water's surface looking down, fully submerged underwater
+swimming just above a sandy sea floor, its flat diamond-shaped body
+and long thin tail clearly visible, water clearly visible all around
+it, natural skin texture, soft diffused light through water,
 unedited documentary nature photograph
 """,
     "seal": """
@@ -877,11 +983,21 @@ side profile view, entire body clearly visible from head to tail,
 smooth rounded torpedo-shaped body, natural wet fur texture,
 soft diffused daylight, unedited documentary nature photograph
 """,
+    # QA: wants the Malayan tapir specifically — its signature two-tone black-and-white
+    # "saddle" pattern is the single most identifying feature. The first attempt at
+    # spelling this out ("front half black, back half white") still came out uniformly
+    # dark with no pattern at all — describing it as two blankets draped over the body
+    # (rather than just naming the two colored halves) got a clear black/white contrast
+    # on the best of 4 seeds tried, though still not the crisp saddle boundary real
+    # Malayan tapirs have — best available, not a full fix. See WORD_SEED_OVERRIDES.
     "tapir": """
-RAW wildlife photograph of a real tapir standing outdoors,
-side profile view, entire body visible, short flexible trunk-like
-snout clearly visible extending from its face, dark body, natural
-skin texture, soft diffused daylight, unedited documentary nature photograph
+RAW wildlife photograph of a real Malayan tapir standing outdoors,
+side profile view, entire body visible, the front half of the body
+painted solid black like a saddle blanket, the back half of the
+body painted solid white like a blanket draped over its rear, a
+sharp straight-line boundary between the black front and white back,
+short flexible trunk-like snout, soft diffused daylight,
+unedited documentary nature photograph
 """,
     "peacock": """
 RAW wildlife photograph of a real peacock with its tail fully
@@ -923,14 +1039,15 @@ black pepper, coarsely ground black pepper visible through clear
 glass, standing upright, centered in frame, soft diffused daylight,
 neutral studio background, natural unedited product photograph
 """,
-    # QA: wants a Japanese-style rolled omelette (tamagoyaki-adjacent), not a Western
-    # folded omelette.
+    # QA: wants a Japanese-style rolled omelette (tamagoyaki), not a Western folded
+    # omelette. Round 2's regen added a visible ham/tomato filling that isn't part of
+    # tamagoyaki — plain egg only, no filling, fixes that.
     "omelette": """
-RAW product photograph of a real Japanese-style rolled omelette,
-sliced into rounds showing swirled golden-yellow layers, on a
-plate, natural appetizing texture, soft diffused daylight,
-neutral natural colors, smooth light beige background,
-natural unedited food photograph
+RAW product photograph of a real Japanese tamagoyaki rolled omelette,
+plain egg only with no filling inside, sliced crosswise into round
+pieces showing swirled golden-yellow egg layers, on a plate, natural
+appetizing texture, soft diffused daylight, neutral natural colors,
+smooth light beige background, natural unedited food photograph
 """,
     "tea": """
 RAW product photograph of a real cup of hot green tea,
@@ -953,13 +1070,17 @@ neutral studio background, natural unedited product photograph
     # this framing + WORD_SEED_OVERRIDES below, which reliably gives a clean, correctly
     # shaped glass soda bottle with visible carbonation and no garbled embossed text — the
     # closest available, missing only the marble.
+    # QA sweep: read as plain water — the clear/colorless soda plus faint bubbles
+    # wasn't enough of a visual cue. A distinctly colored soda (a common ramune flavor)
+    # with clearly rising bubble streams reads unambiguously as a fizzy drink.
     "soda": """
 RAW product photograph of a real Japanese ramune soda bottle,
 distinctive round glass bottle with a visible glass marble trapped
 in the narrow neck, plain unlabeled glass with no engraving or
-embossed writing anywhere, clear bubbly soda visible inside with
-many visible carbonation bubbles, standing upright, soft diffused
-daylight, neutral studio background, natural unedited product photograph
+embossed writing anywhere, bright blue colored soda visible inside
+with many clearly rising carbonation bubble streams, standing
+upright, soft diffused daylight, neutral studio background,
+natural unedited product photograph
 """,
     "bean": """
 RAW product photograph of a small pile of real dried soybeans,
@@ -975,6 +1096,16 @@ joined by their stems, bright glossy red skin, natural texture,
 soft diffused daylight, neutral natural colors, shallow depth of
 field, smooth light beige background, natural unedited product photograph
 """,
+    # QA: wants a Thai mango variety specifically, whole and uncut. The studio product-
+    # shot framing had the same strong cut-open bias papaya had (still showed a bitten/
+    # split mango despite "no cuts, no bite marks") — the same fix as papaya (show it
+    # still on the tree) broke the bias, 4/4 seeds whole.
+    "mango": """
+RAW photograph of ripe Thai mangoes still hanging from a mango tree
+branch, whole intact fruit attached to the tree by its stem, smooth
+uncut golden-yellow skin, tropical green leaves in background,
+natural daylight, unedited documentary photograph
+""",
     # QA: wants a whole, uncut papaya. The default studio product-shot framing had an
     # extremely strong bias toward showing papaya cut open (14/14 seeds across three
     # studio framings — plain, market-crate pair, single-fruit-only — still split it open
@@ -987,13 +1118,13 @@ tree trunk, whole intact fruit attached to the tree by its stem,
 smooth yellow-orange skin, tropical green leaves in background,
 natural daylight, unedited documentary photograph
 """,
-    # QA: wants a Japanese sumomo plum specifically (round, red-skinned), not a Western
-    # oval purple prune-plum.
+    # QA: wants the Japanese Kiyou (貴陽) plum variety specifically — notably large,
+    # bright crimson-red skin (not the darker purple-red of a generic sumomo).
     "plum": """
-RAW product photograph of a real Japanese sumomo plum,
-round shape, smooth red skin, one whole plum centered in frame,
-natural texture, soft diffused daylight, neutral natural colors,
-shallow depth of field, smooth light beige background,
+RAW product photograph of a real large Japanese Kiyou plum,
+round shape, smooth bright crimson-red skin, one whole large plum
+centered in frame, natural texture, soft diffused daylight, neutral
+natural colors, shallow depth of field, smooth light beige background,
 natural unedited product photograph
 """,
 
@@ -1205,11 +1336,15 @@ screen showing a plain blue desktop background, soft diffused
 daylight, neutral studio background,
 natural unedited product photograph
 """,
+    # QA sweep: rendered as colored pencils (wooden, pointed graphite-style tip) instead
+    # of wax crayons — spelling out the wax-stick shape and explicitly ruling out wood/
+    # pencil features fixes the mix-up.
     "crayon": """
-RAW product photograph of a real set of many colorful crayons,
-a dozen or more crayons in different bright colors scattered
-together, natural wax texture, soft diffused daylight,
-neutral studio background, natural unedited product photograph
+RAW product photograph of a real set of many colorful wax crayons, a
+dozen or more short thick cylindrical wax sticks in different bright
+colors arranged together, smooth rounded blunt tips, no wood, not
+pencils, natural wax texture, soft diffused daylight, neutral
+studio background, natural unedited product photograph
 """,
 
     # ROUND 2 — QA sweep of the ~80 no-note flagged words. Several of these are
@@ -1253,13 +1388,6 @@ a sloped chute going down, entire structure visible, natural
 daylight, neutral natural colors, natural unedited photograph,
 no visible people, no readable signage
 """,
-    "glue": """
-RAW product photograph of a real bottle of white school glue, a
-plain squeeze bottle with a pointed cap, no readable text or logo on
-the label, a small amount of white glue visible at the tip, soft
-diffused daylight, neutral studio background, natural unedited
-product photograph
-""",
     "recorder": """
 RAW product photograph of a real wooden recorder musical instrument,
 a simple woodwind flute-like instrument with finger holes along a
@@ -1290,15 +1418,27 @@ bright solid plastic color, no readable text or logo, lying on a
 plain surface, soft diffused daylight, neutral studio background,
 natural unedited product photograph
 """,
-    # QA sweep: label kept rendering fake garbled brand text despite "no readable text".
-    # Same fix as mayonnaise/soda — describe a blank label explicitly rather than just
-    # negating text.
+    # QA: wants Japanese school stationery specifically. A liquid-glue squeeze bottle
+    # also kept rendering fake garbled brand text on its label no matter how the prompt
+    # asked for a blank one (same pattern as mayonnaise/soda). Japan's common school
+    # glue (のり) is a solid twist-up glue stick, not a liquid bottle — switching to that
+    # shape sidesteps the label problem entirely since a glue stick has no wide label
+    # surface the model wants to fill in with fake text.
     "glue": """
-RAW product photograph of a real bottle of white school glue, a
-plain squeeze bottle with a pointed cap, a blank plain white label
-with no text, logo, or writing of any kind, a small amount of white
-glue visible at the tip, soft diffused daylight, neutral studio
-background, natural unedited product photograph
+RAW product photograph of a real Japanese school glue stick, a solid
+twist-up glue stick similar to a large lip balm tube, cap removed
+and set beside it, a small amount of solid white glue visible
+extended from the tip, plain unbranded white plastic tube, soft
+diffused daylight, neutral studio background, natural unedited
+product photograph
+""",
+    # QA: wants Japanese school stationery specifically — a standard cylindrical stick
+    # of blackboard chalk, not a rustic soap-like block.
+    "chalk": """
+RAW product photograph of a few real cylindrical sticks of white
+blackboard chalk, standard thin round chalk sticks used in a
+Japanese classroom, some chalk dust scattered nearby, soft diffused
+daylight, neutral studio background, natural unedited product photograph
 """,
 
     # PLACES
@@ -1306,18 +1446,25 @@ background, natural unedited product photograph
     # "in the foreground" — dropping the wide-angle framing and saying the animals should
     # fill a big part of the frame instead got them clearly large and close on all 6
     # seeds tried (paired with WORD_SEED_OVERRIDES below).
+    # QA sweep: an extreme close-up on a single animal made this indistinguishable from
+    # a wildlife photo — lost the "zoo" context entirely (just looked like "tiger").
+    # Two or more animals plus a clearly visible fence/enclosure keeps them large while
+    # still reading as a zoo, not just an animal portrait.
     "zoo": """
-RAW documentary photograph of a real zoo enclosure, several large
-animals close to the camera and filling a big part of the frame,
-clearly recognizable, some background zoo fencing visible, natural
+RAW documentary photograph of a real zoo enclosure, two or more
+zoo animals clearly visible and reasonably large in frame, a
+zoo fence or enclosure barrier clearly visible in the shot, natural
 daylight, neutral natural colors, natural unedited photograph,
 no visible people, no readable signage
 """,
+    # QA: wants livestock emphasized more — "wide-angle scene" left them too small and
+    # distant in the field.
     "farm": """
-RAW documentary photograph of a real farm,
-farmland with visible livestock animals such as cows or sheep in
-the field, wide-angle scene, natural daylight, neutral natural
-colors, natural unedited photograph, no visible people
+RAW close-up documentary photograph of real farm livestock, several
+cows or sheep close to the camera and filling most of the frame,
+clearly recognizable, farmland visible only at the edges of the
+frame, natural daylight, neutral natural colors, natural unedited
+photograph, no visible people
 """,
     "station": """
 RAW documentary photograph of a real train station,
@@ -1331,10 +1478,13 @@ tall bookshelves densely filled with books clearly visible,
 wide-angle scene, natural daylight, neutral natural colors,
 natural unedited photograph, no visible people, no readable signage
 """,
+    # QA: wants a closer crop — the wide-angle coastal framing left the lighthouse
+    # itself too small.
     "lighthouse": """
-RAW documentary photograph of a real lighthouse at dusk,
-warm sunset lighting, coastal scene, wide-angle view,
-natural colors, natural unedited photograph,
+RAW close-up documentary photograph of a real lighthouse tower at
+dusk, the lighthouse filling most of the frame top to bottom, warm
+sunset lighting, only a narrow strip of coastline visible at the
+base, natural colors, natural unedited photograph,
 no visible people, no readable signage
 """,
     "park": """
@@ -1398,7 +1548,7 @@ WORD_NEGATIVE_OVERRIDES = {
     "stream": "wide, large river, distant riverbanks, broad open water",
     "alligator": "open mouth, visible teeth, narrow snout, pointed snout, crocodile",
     "mayonnaise": "readable text, logo, letters, brand name, garbled text",
-    "soda": "readable text, embossed logo, engraved text, brand name, cursive writing, label",
+    "soda": "readable text, embossed logo, engraved text, brand name, cursive writing, label, clear, colorless, transparent liquid, water",
     "papaya": "cut, sliced, halved, cross section, cut open, seeds visible, interior, flesh",
     "cable car": "studio background, plain background, indoor, showroom, gray backdrop, neutral background",
     "jet ski": "studio background, plain background, indoor, showroom, garage, person, rider, human, man, woman, driver",
@@ -1423,6 +1573,15 @@ WORD_NEGATIVE_OVERRIDES = {
     "ocean": "beach, shore, sand, coastline",
     "mountain": "lake, water, reflection, river, pond, ocean, sea, stream",
     "seashell": "spiral shell, conch, snail shell",
+    "squid": "fish, fish tail, large tail fin, dorsal fin, cuttlefish",
+    "firefly": "daylight, sunlight, hand, person, iridescent, green, shiny hard shell, jewel beetle",
+    "porcupine": "hedgehog, short spines, curled up, round ball shape",
+    "tapir": "uniform coloring, solid brown, solid black, solid gray, no pattern",
+    "farm": "distant, small, tiny, far away, empty field, wide empty space",
+    "lighthouse": "distant, small, tiny, wide shot, far away",
+    "crayon": "pencil, wood, wooden, sharpened point, graphite tip",
+    "mango": "cut, sliced, peeled, bite mark, bitten, exposed flesh, interior",
+    "plum": "dark purple, dark red, small",
 }
 
 
@@ -1484,13 +1643,20 @@ WORD_SEED_OVERRIDES = {
     "zoo": 42,
     "blue": 1,
     # Body-part content-safety fixes (see body_part_prompt() comment): each needed a
-    # specific seed after the framing change to reliably avoid faces/exposure.
-    "nose": 42,
+    # specific seed after the framing change to reliably avoid faces/exposure. Note:
+    # these seeds are tied to whichever checkpoint (MODEL_PATH) generated them — the
+    # same seed number produces a different image on a different checkpoint, so a seed
+    # picked for Lightning isn't guaranteed to still work if generating with the
+    # standard checkpoint instead (this happened to nose: seed 42 worked on Lightning
+    # but showed an eye instead of a nose on the standard checkpoint — 999 works on both).
+    "nose": 999,
     "hair": 42,
     "elbow": 999,
     "shoulder": 999,
     "knee": 1,
     "mole": 1,
+    "mango": 100,
+    "tapir": 1,
 }
 
 
@@ -1521,13 +1687,24 @@ def main():
     if not args.force:
         targets = [w for w in targets if not os.path.exists(os.path.join(out_dir, f"{w['id']}.png"))]
 
-    print(f"Generating {len(targets)} image(s) via local RealVisXL V4.0 Lightning...")
+    # Color words never go through the diffusion pipeline at all — see color_prompt()'s
+    # comment for why. Handle them first so a --only run made up entirely of colors
+    # never even loads the (slow, heat-generating) SDXL pipeline.
+    color_targets = [w for w in targets if w["category"] == "color"]
+    targets = [w for w in targets if w["category"] != "color"]
+    for entry in color_targets:
+        out_path = os.path.join(out_dir, f"{entry['id']}.png")
+        write_color_swatch(entry["id"], out_path)
+        print(f"done  {entry['id']} -> {out_path} (flat color swatch, no diffusion)")
+
+    print(f"Generating {len(targets)} image(s) via {os.path.basename(MODEL_PATH)} "
+          f"({INFERENCE_STEPS} steps, guidance={GUIDANCE_SCALE})...")
     if not targets:
         return
 
     with SingleInstanceLock():
         print("MPS available:", torch.backends.mps.is_available())
-        print("Loading RealVisXL V4.0 Lightning...")
+        print(f"Loading {os.path.basename(MODEL_PATH)}...")
         pipe = StableDiffusionXLPipeline.from_single_file(
             MODEL_PATH,
             torch_dtype=torch.bfloat16,
@@ -1559,7 +1736,7 @@ def main():
                     width=GEN_SIZE,
                     height=GEN_SIZE,
                     num_inference_steps=INFERENCE_STEPS,
-                    guidance_scale=1.3,
+                    guidance_scale=GUIDANCE_SCALE,
                     generator=generator,
                 ).images[0]
                 image = image.resize((ICON_SIZE, ICON_SIZE), Image.LANCZOS)
@@ -1570,7 +1747,11 @@ def main():
                 print(f"fail  {word_id}: {err}", file=sys.stderr)
 
             if i < len(targets) - 1:
-                time.sleep(COOLDOWN_SECONDS)
+                if BATCH_COOLDOWN_EVERY and (i + 1) % BATCH_COOLDOWN_EVERY == 0:
+                    print(f"  ...cooling down {BATCH_COOLDOWN_SECONDS:.0f}s after {i + 1} images...")
+                    time.sleep(BATCH_COOLDOWN_SECONDS)
+                else:
+                    time.sleep(COOLDOWN_SECONDS)
 
 
 if __name__ == "__main__":

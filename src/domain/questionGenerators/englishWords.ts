@@ -25,13 +25,39 @@ const MAX_WORD_LENGTH: Record<Level, number> = {
  * varied target from (mainly a concern for ★1's short-word pool). */
 const MIN_POOL_SIZE = 10
 
-/** Held back from quiz rotation — pronunciation still unresolved after five rounds of
- * audio-fix attempts (single-utterance, repeat-trim, long-sentence carrier, minimal
- * carrier, and an alternate voice all tried; see the word-pronunciation project memory).
+/** Held back from quiz rotation until BOTH its pronunciation and its flashcard image
+ * have been explicitly confirmed correct — either one failing is enough to exclude a
+ * word, so a bad image never shows up paired with correct audio (or vice versa).
  * Assets (image, audio file) stay on disk under public/ — only question selection skips
- * these ids, for both target and distractor draws, so a bad word never gets spoken or
- * shown as a choice. Remove an id here once its audio is fixed. */
-const EXCLUDED_WORD_IDS = new Set(['pasta', 'taco', 'turquoise', 'umbrella', 'socks', 'ostrich', 'eye'])
+ * these ids, for both target and distractor draws. Remove an id here once *both* its
+ * audio and image are confirmed.
+ *
+ * Audio-unresolved (pronunciation still wrong after five rounds of fix attempts —
+ * see the word-pronunciation project memory):
+ * pasta, taco, turquoise, umbrella, socks, ostrich, eye
+ *
+ * Image-unconfirmed (regenerated via the standard, non-Lightning RealVisXL checkpoint
+ * after the Lightning-checkpoint version was reviewed as low quality, but not yet
+ * re-confirmed by a human reviewer — see the word-image-review project memory):
+ * breeze, caterpillar, chalk, chin, crane, crayon, cucumber, desert, diamond, drizzle,
+ * elbow, farm, firefly, garden, glacier, glue, hail, hair, head, humidity, jumprope,
+ * ketchup, knee, lighthouse, mango, mayonnaise, mole, mountain, nail, omelette, oval,
+ * pentagon, platypus, plum, porcupine, recorder, rectangle, root, sand, shelf,
+ * shoulder, skating, soda, square, squid, stingray, tambourine, tapir, textbook,
+ * thunder, top, valley, volcano, wind, xylophone, yoyo, zoo
+ */
+const EXCLUDED_WORD_IDS = new Set([
+  // audio-unresolved
+  'pasta', 'taco', 'turquoise', 'umbrella', 'socks', 'ostrich', 'eye',
+  // image-unconfirmed
+  'breeze', 'caterpillar', 'chalk', 'chin', 'crane', 'crayon', 'cucumber', 'desert',
+  'diamond', 'drizzle', 'elbow', 'farm', 'firefly', 'garden', 'glacier', 'glue', 'hail',
+  'hair', 'head', 'humidity', 'jumprope', 'ketchup', 'knee', 'lighthouse', 'mango',
+  'mayonnaise', 'mole', 'mountain', 'nail', 'omelette', 'oval', 'pentagon', 'platypus',
+  'plum', 'porcupine', 'recorder', 'rectangle', 'root', 'sand', 'shelf', 'shoulder',
+  'skating', 'soda', 'square', 'squid', 'stingray', 'tambourine', 'tapir', 'textbook',
+  'thunder', 'top', 'valley', 'volcano', 'wind', 'xylophone', 'yoyo', 'zoo',
+])
 
 function eligibleWordBank(): WordEntry[] {
   return wordBank.filter((w) => !EXCLUDED_WORD_IDS.has(w.id))

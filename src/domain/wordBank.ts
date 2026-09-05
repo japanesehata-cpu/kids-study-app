@@ -309,6 +309,7 @@ export const wordBank: WordEntry[] = [
   { id: 'beige', word: 'beige', translationJa: 'ベージュ', category: 'color' },
   { id: 'navy', word: 'navy', translationJa: 'こんいろ', category: 'color' },
   { id: 'maroon', word: 'maroon', translationJa: 'えんじいろ', category: 'color' },
+  { id: 'indigo', word: 'indigo', translationJa: 'あいいろ', category: 'color' },
   // more vehicles
   { id: 'submarine', word: 'submarine', translationJa: 'せんすいかん', category: 'vehicle' },
   { id: 'rocket', word: 'rocket', translationJa: 'ロケット', category: 'vehicle' },

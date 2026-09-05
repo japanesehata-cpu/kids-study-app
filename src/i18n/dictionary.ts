@@ -67,7 +67,7 @@ export const dictionary = {
     en: 'Compare the two pictures and tap every difference you find',
   },
   spotDifferenceFoundCount: { ja: '{found} / {total} こ みつけたよ', en: 'Found {found} / {total}' },
-  spotDifferenceWrongCount: { ja: 'まちがえた かいすう：{count}', en: 'Wrong taps: {count}' },
+  spotDifferenceWrongCount: { ja: 'まちがえた かいすう：{count} / {max}', en: 'Wrong taps: {count} / {max}' },
   countingPrompt: { ja: 'いくつ あるかな？', en: 'How many are there?' },
   countingTargetHint: { ja: 'これを かぞえてね', en: 'Count these' },
 

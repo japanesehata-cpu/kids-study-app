@@ -23,7 +23,7 @@ import { getKatakanaById, katakanaSpeechPhrase } from '../domain/katakanaBank'
 import { alphabetSpeechPhrase, getAlphabetById } from '../domain/alphabetBank'
 import { formatClockKey, buildSetTimePrompt } from '../domain/questionGenerators/clock'
 import { InteractiveClock } from '../components/InteractiveClock'
-import { buildFeedbackMessage } from '../domain/feedbackMessages'
+import { buildFeedbackMessage, buildSpotDifferenceFailedFeedback } from '../domain/feedbackMessages'
 import { buildExplanation } from '../domain/explanations'
 import { speak, type SpeechLang, type VoiceProfile } from '../lib/tts'
 import { playCorrectSfx, playIncorrectSfx } from '../lib/sfx'
@@ -55,6 +55,10 @@ type Choice = number | string
 /** Sentinel passed to handleSelect once every difference on a spot-the-difference board has
  * been found — that board has no discrete "choice" buttons, so completion is always correct. */
 const SPOT_DIFFERENCE_DONE = 'spot-difference-done'
+
+/** Sentinel passed to handleSelect once a spot-the-difference board hits its wrong-tap
+ * limit before every difference was found — the only way that board can be "incorrect". */
+const SPOT_DIFFERENCE_FAILED = 'spot-difference-failed'
 
 function isArithmetic(q: Question): q is ArithmeticQuestion {
   return q.category === 'addition' || q.category === 'subtraction'
@@ -663,8 +667,9 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
     if (isKatakana(question)) return choice === question.charId
     if (isAlphabet(question)) return choice === question.answerChar
     if (isClock(question)) return choice === `${question.hour}:${question.minute}`
-    // reached only once every difference on the board has been found — always correct
-    if (isSpotDifference(question)) return true
+    // reached either once every difference is found (always correct) or once the
+    // wrong-tap limit is hit (always incorrect)
+    if (isSpotDifference(question)) return choice !== SPOT_DIFFERENCE_FAILED
     if (isCounting(question)) return choice === question.count
     return choice === question.wordId
   }
@@ -709,14 +714,19 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
     const justBrokeStreak = !correct && streak >= 3 ? streak : 0
     setStreak(newStreak)
 
-    const feedback = buildFeedbackMessage(
-      { correct, streak: newStreak, justBrokeStreak, correctAnswerLabel, answerCacheKey, category },
-      lang,
-    )
+    // Spot-the-difference's failure case has no {answer} to slot into the generic
+    // pools (it isn't a number/word/char), so it gets its own dedicated feedback text.
+    const feedback =
+      isSpotDifference(question) && choice === SPOT_DIFFERENCE_FAILED
+        ? buildSpotDifferenceFailedFeedback(lang)
+        : buildFeedbackMessage(
+            { correct, streak: newStreak, justBrokeStreak, correctAnswerLabel, answerCacheKey, category },
+            lang,
+          )
     setFeedbackText(feedback.text)
     // Shown as text only — the reasoning reads fine on the page but is skipped for
     // speech, since narrating every explanation would make each answer noticeably slower.
-    setExplanationText(buildExplanation(question, lang))
+    setExplanationText(buildExplanation(question, lang, correct))
 
     const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
     // Spoken as separate segments (see feedbackMessages.ts) so every part but the answer
@@ -862,6 +872,7 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
             voiceProfile={voiceProfile}
             cacheKey={autoSpeech.cacheKey}
             onAllFound={() => handleSelect(SPOT_DIFFERENCE_DONE)}
+            onFailed={() => handleSelect(SPOT_DIFFERENCE_FAILED)}
             disabled={selected !== null}
           />
         ) : isCounting(question) ? (

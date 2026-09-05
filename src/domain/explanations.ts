@@ -31,8 +31,10 @@ function wordLabel(id: string, lang: Lang): string {
 /** One sentence explaining *why* the correct answer is correct — shown after every
  * question regardless of whether the player got it right, so a wrong answer is followed
  * by the same reasoning that shows what's actually true, not a guess at what specifically
- * confused them. */
-export function buildExplanation(question: Question, lang: Lang): string {
+ * confused them. `correct` only matters for spotDifference, whose "explanation" is really a
+ * wrap-up of how the round went rather than a fixed fact — every other category's answer
+ * (a sum, a clock time, ...) is the same regardless of outcome, so they ignore it. */
+export function buildExplanation(question: Question, lang: Lang, correct = true): string {
   switch (question.category) {
     case 'addition': {
       const { operandA, operandB, answer } = question
@@ -127,6 +129,11 @@ export function buildExplanation(question: Question, lang: Lang): string {
     }
     case 'spotDifference': {
       const count = question.differenceIndexes.length
+      if (!correct) {
+        return lang === 'ja'
+          ? `ちがうところは ぜんぶで ${count}こ あったよ。またチャレンジしてね！`
+          : `There were ${count} differences in total. Give it another try!`
+      }
       return lang === 'ja'
         ? `ちがうところが ぜんぶで ${count}こ あったね。よく みつけられたよ！`
         : `There were ${count} differences in total — great spotting!`

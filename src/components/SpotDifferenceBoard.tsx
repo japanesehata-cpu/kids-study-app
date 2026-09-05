@@ -6,6 +6,10 @@ import { WordIcon } from './WordIcon'
 import { TtsButton } from './TtsButton'
 import type { SpeechLang, VoiceProfile } from '../lib/tts'
 
+/** Wrong taps allowed before the round ends in failure — a flat limit across every level,
+ * matching the user's ask for a consistent "3 strikes" feel rather than a per-level value. */
+const MAX_WRONG_TAPS = 3
+
 interface SpotDifferenceBoardProps {
   question: SpotDifferenceQuestion
   promptText: string
@@ -14,7 +18,9 @@ interface SpotDifferenceBoardProps {
   cacheKey?: string
   /** Called exactly once, the moment the last difference is found. */
   onAllFound: () => void
-  /** True once the round is already complete — further taps become no-ops. */
+  /** Called exactly once, the moment the wrong-tap limit is reached. */
+  onFailed: () => void
+  /** True once the round is already complete (found or failed) — further taps become no-ops. */
   disabled: boolean
 }
 
@@ -89,6 +95,7 @@ export function SpotDifferenceBoard({
   voiceProfile,
   cacheKey,
   onAllFound,
+  onFailed,
   disabled,
 }: SpotDifferenceBoardProps) {
   const { t } = useI18n()
@@ -120,7 +127,9 @@ export function SpotDifferenceBoard({
       if (next.size === total) onAllFound()
     } else {
       setWrongTap({ panel, index })
-      setWrongCount((count) => count + 1)
+      const nextWrongCount = wrongCount + 1
+      setWrongCount(nextWrongCount)
+      if (nextWrongCount >= MAX_WRONG_TAPS) onFailed()
       window.setTimeout(() => setWrongTap((cur) => (cur?.panel === panel && cur.index === index ? null : cur)), 350)
     }
   }
@@ -133,7 +142,9 @@ export function SpotDifferenceBoard({
         <p className="spot-found-count">
           {t('spotDifferenceFoundCount', { found: String(found), total: String(total) })}
         </p>
-        <p className="spot-wrong-count">{t('spotDifferenceWrongCount', { count: String(wrongCount) })}</p>
+        <p className="spot-wrong-count">
+          {t('spotDifferenceWrongCount', { count: String(wrongCount), max: String(MAX_WRONG_TAPS) })}
+        </p>
       </div>
       <div className="spot-panels">
         <ScenePanel

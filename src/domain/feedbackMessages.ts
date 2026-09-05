@@ -100,6 +100,23 @@ const CORRECT_STREAK5: Record<Lang, string[]> = {
   ],
 }
 
+// Spot-the-difference has no single "correct answer" to slot into INCORRECT_NORMAL's
+// {answer} placeholder (that pool assumes a number/word/char), so a failed round — the
+// wrong-tap limit was reached before every difference was found — gets its own pool
+// instead of an awkward blank fill-in.
+const SPOT_DIFFERENCE_FAILED: Record<Lang, string[]> = {
+  ja: [
+    'ざんねん！まちがいが おおくなっちゃった。またチャレンジしてね！',
+    'おしい！つぎは もっと じっくり くらべてみよう！',
+    'だいじょうぶ！れんしゅうすれば きっと できるようになるよ！',
+  ],
+  en: [
+    "Oh no! Too many wrong taps this time. Let's try again!",
+    'So close! Take a closer look next time!',
+    "That's okay — practice makes perfect!",
+  ],
+}
+
 const INCORRECT_NORMAL: Record<Lang, string[]> = {
   ja: [
     'おしい！こたえは {answer} だよ。つぎ いこう！',
@@ -198,6 +215,15 @@ export function buildFeedbackMessage(ctx: FeedbackContext, lang: Lang): Feedback
   return { text, speech }
 }
 
+/** Spot-the-difference's failure case (wrong-tap limit reached) — kept separate from
+ * buildFeedbackMessage since SPOT_DIFFERENCE_FAILED has no {answer} to interpolate. */
+export function buildSpotDifferenceFailedFeedback(lang: Lang): FeedbackResult {
+  const idx = pickIndex(SPOT_DIFFERENCE_FAILED[lang].length)
+  const text = SPOT_DIFFERENCE_FAILED[lang][idx]
+  const cacheKey = lang === 'ja' ? `feedback-spotDifference-failed-${idx}` : undefined
+  return { text, speech: [{ text, cacheKey }] }
+}
+
 /** One cacheable (text, cacheKey) pair reachable from buildFeedbackMessage in ja for one
  * category's voice — every template index crossed with every streak/justBrokeStreak value
  * that can actually occur, given the largest set size the level picker offers (see
@@ -250,6 +276,12 @@ export function enumerateFeedbackCacheEntries(category: Category): FeedbackCache
       if (afterText) {
         entries.push({ cacheKey: `${prefix}-incorrect-afterstreak-${justBrokeStreak}-${idx}-after`, text: afterText })
       }
+    })
+  }
+
+  if (category === 'spotDifference') {
+    SPOT_DIFFERENCE_FAILED.ja.forEach((text, idx) => {
+      entries.push({ cacheKey: `feedback-spotDifference-failed-${idx}`, text })
     })
   }
 

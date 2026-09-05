@@ -562,24 +562,28 @@ export function getWordById(id: string): WordEntry {
  * Image-unconfirmed (regenerated via the standard, non-Lightning RealVisXL checkpoint
  * after the Lightning-checkpoint version was reviewed as low quality, but not yet
  * re-confirmed by a human reviewer — see the word-image-review project memory):
- * breeze, caterpillar, chalk, chin, crane, crayon, cucumber, desert, diamond, drizzle,
- * elbow, farm, firefly, garden, glacier, glue, hail, hair, head, humidity, jumprope,
- * ketchup, knee, lighthouse, mango, mayonnaise, mole, mountain, nail, omelette, oval,
- * pentagon, platypus, plum, porcupine, recorder, rectangle, root, sand, shelf,
- * shoulder, skating, soda, square, squid, stingray, tambourine, tapir, textbook,
- * thunder, top, valley, volcano, wind, xylophone, yoyo, zoo
+ * breeze, caterpillar, chalk, chin, comet, crane, crayon, cucumber, desert, diamond,
+ * drizzle, elbow, farm, firefly, garden, glacier, glue, hail, hair, head, humidity,
+ * jumprope, ketchup, knee, lighthouse, mango, mayonnaise, mole, mountain, nail,
+ * omelette, oval, pentagon, platypus, plum, porcupine, recorder, rectangle, root,
+ * sand, shelf, shoulder, skating, soda, square, squid, stingray, tambourine, tapir,
+ * textbook, thunder, top, valley, volcano, wind, xylophone, yoyo, zoo
+ *
+ * (comet: regenerated to look visually distinct from meteor per QA — the fix reads as
+ * a bright starburst/nebula rather than a recognizable comet, rejected on review.)
  */
 export const EXCLUDED_WORD_IDS = new Set([
   // audio-unresolved
   'pasta', 'taco', 'turquoise', 'umbrella', 'socks', 'ostrich', 'eye',
   // image-unconfirmed
-  'breeze', 'caterpillar', 'chalk', 'chin', 'crane', 'crayon', 'cucumber', 'desert',
-  'diamond', 'drizzle', 'elbow', 'farm', 'firefly', 'garden', 'glacier', 'glue', 'hail',
-  'hair', 'head', 'humidity', 'jumprope', 'ketchup', 'knee', 'lighthouse', 'mango',
-  'mayonnaise', 'mole', 'mountain', 'nail', 'omelette', 'oval', 'pentagon', 'platypus',
-  'plum', 'porcupine', 'recorder', 'rectangle', 'root', 'sand', 'shelf', 'shoulder',
-  'skating', 'soda', 'square', 'squid', 'stingray', 'tambourine', 'tapir', 'textbook',
-  'thunder', 'top', 'valley', 'volcano', 'wind', 'xylophone', 'yoyo', 'zoo',
+  'breeze', 'caterpillar', 'chalk', 'chin', 'comet', 'crane', 'crayon', 'cucumber',
+  'desert', 'diamond', 'drizzle', 'elbow', 'farm', 'firefly', 'garden', 'glacier',
+  'glue', 'hail', 'hair', 'head', 'humidity', 'jumprope', 'ketchup', 'knee',
+  'lighthouse', 'mango', 'mayonnaise', 'mole', 'mountain', 'nail', 'omelette', 'oval',
+  'pentagon', 'platypus', 'plum', 'porcupine', 'recorder', 'rectangle', 'root', 'sand',
+  'shelf', 'shoulder', 'skating', 'soda', 'square', 'squid', 'stingray', 'tambourine',
+  'tapir', 'textbook', 'thunder', 'top', 'valley', 'volcano', 'wind', 'xylophone',
+  'yoyo', 'zoo',
 ])
 
 /** wordBank filtered to only words eligible for quiz use — see EXCLUDED_WORD_IDS. */

@@ -266,9 +266,15 @@ unedited aerial landscape photograph, no people, no boats
 
 SPACE_PROMPTS = {
     "planet": "a real planet in space, spherical, visible surface detail and atmosphere, floating in a starfield, black background of space",
-    "comet": "a real comet in space with a bright icy nucleus and a long glowing tail, starfield background",
+    # QA: kept getting confused with meteor as a quiz distractor pair — both rendered as
+    # a thin diagonal streak of light on a starry background, indistinguishable in a
+    # single still photo. A comet's defining feature (unlike a meteor's brief fast
+    # streak) is a bright round fuzzy head that visibly dominates the frame, with a
+    # wide soft fan-shaped tail rather than a thin line — described explicitly, with a
+    # negative against the streak look, to make the two visually distinct.
+    "comet": "a real comet in space, a large bright round fuzzy glowing head (the coma) filling much of the frame, a wide soft fan-shaped tail of glowing dust spreading out behind it, not a thin streak or line, starfield background",
     "galaxy": "a real spiral galaxy in space, glowing spiral arms of stars, black background of space",
-    "meteor": "a real meteor streaking across a dark night sky, bright glowing trail, stars visible in background",
+    "meteor": "a real meteor streaking across a dark night sky, a single thin fast bright line with no round glowing head, stars visible in background",
 }
 
 
@@ -1582,6 +1588,8 @@ WORD_NEGATIVE_OVERRIDES = {
     "crayon": "pencil, wood, wooden, sharpened point, graphite tip",
     "mango": "cut, sliced, peeled, bite mark, bitten, exposed flesh, interior",
     "plum": "dark purple, dark red, small",
+    "comet": "thin streak, thin line, meteor, shooting star",
+    "meteor": "round glowing head, fuzzy coma, comet, wide fan-shaped tail",
 }
 
 

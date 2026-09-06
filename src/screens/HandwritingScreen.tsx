@@ -196,7 +196,7 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
           <p className="hint-caption">{t('handwritingAnswerLabel')}</p>
           <HiraganaChar char={entry.char} size={96} />
           <p className="handwriting-praise-text">{praise.text}</p>
-          <button type="button" className="primary-button" onClick={handleNext}>
+          <button type="button" className="primary-button next-button" onClick={handleNext}>
             {t('nextButton')}
           </button>
         </div>

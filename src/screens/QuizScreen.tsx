@@ -981,7 +981,7 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
               mood={isCorrectChoice(selected) ? (streak >= 3 ? 'streak' : 'celebrate') : 'thinking'}
               size={120}
             />
-            <button type="button" className="primary-button" onClick={handleNext}>
+            <button type="button" className="primary-button next-button" onClick={handleNext}>
               {t('nextButton')}
             </button>
           </>

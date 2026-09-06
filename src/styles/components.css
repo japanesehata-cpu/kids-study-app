@@ -229,6 +229,22 @@
   box-shadow: none;
 }
 
+/* The post-answer "next question" button — pinned to the bottom of the viewport instead
+   of sitting in normal document flow, so it's always reachable without scrolling even
+   when the feedback/explanation/character stack above it runs long (e.g. englishSentence's
+   explanation line, which quotes the full English question). */
+.next-button {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  z-index: 50;
+}
+
+.next-button:active {
+  transform: translateX(-50%) translateY(4px);
+}
+
 .secondary-button {
   min-height: var(--touch-target-min);
   padding: 0 32px;

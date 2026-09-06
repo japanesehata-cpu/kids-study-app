@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
-# Generates public/audio/sentence-color-${id}.wav — one spoken question per
-# colorSentenceBank.ts entry ("What color is a banana?"). Unlike a bare single word
+# Generates public/audio/sentence-${pool}-${id}.wav — one spoken question per
+# colorSentenceBank.ts / animalSentenceBank.ts entry ("What color is a banana?", "What
+# animal has a pocket on its belly?"). Unlike a bare single word
 # (generate-word-audio-en-repeat-trim.py's repeat-and-trim workaround), a full sentence
 # already carries natural Kokoro prosody on a single plain synthesis call — confirmed
 # already in this session for feedback phrases — so no splicing/repeat trick is needed
 # here, just synthesize once and trim the surrounding silence.
+#
+# The `sentence-${pool}-` prefix matches questionGenerators/englishSentence.ts's
+# pool-prefixed sentenceId exactly (e.g. "color-banana", "animal-kangaroo") — see that
+# file for why (keeps ids globally unique across banks even where a bank-local id could
+# coincidentally collide, e.g. 'elephant' existing in both banks).
 #
 # voice=af_heart matches kokoro_server.py's own default (and so already matches every
 # existing word-en-*.wav file, which was generated without an explicit voice override) —
@@ -15,7 +21,7 @@
 # Usage:
 #   ~/kokoro-env/bin/python3 scripts/kokoro_server.py --port 8900   # in another terminal
 #   ~/kokoro-env/bin/python3 scripts/generate-sentence-audio-en.py
-#   ~/kokoro-env/bin/python3 scripts/generate-sentence-audio-en.py --only=banana,apple
+#   ~/kokoro-env/bin/python3 scripts/generate-sentence-audio-en.py --only=color-banana,animal-kangaroo
 #   ~/kokoro-env/bin/python3 scripts/generate-sentence-audio-en.py --force
 
 import io
@@ -37,23 +43,32 @@ VOICE = "af_heart"
 SPEED = 0.9
 PAD_S = 0.06
 
+# (module path, exported array name, pool prefix, field holding the sentence's own id)
+BANKS = [
+    ("./src/domain/colorSentenceBank.ts", "colorSentenceBank", "color"),
+    ("./src/domain/animalSentenceBank.ts", "animalSentenceBank", "animal"),
+]
 
-def load_sentence_bank():
-    """colorSentenceBank.ts is the single source of truth for content (id/question/colorId)
-    — shell out to Node to import it directly, same approach as the other generate-*-audio
-    scripts, so this can never drift out of sync with the app's own data."""
-    script = (
-        "import('./src/domain/colorSentenceBank.ts').then(m => "
-        "process.stdout.write(JSON.stringify(m.colorSentenceBank)))"
-    )
-    result = subprocess.run(
-        ["node", "--experimental-strip-types", "-e", script],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    return json.loads(result.stdout)
+
+def load_sentence_pool():
+    """colorSentenceBank.ts / animalSentenceBank.ts are the single source of truth for
+    content (id/question/...) — shell out to Node to import them directly, same approach
+    as the other generate-*-audio scripts, so this can never drift out of sync with the
+    app's own data. Returns a flat list of {sentence_id, question} with sentence_id
+    already pool-prefixed to match the app's own cache-key scheme."""
+    entries = []
+    for module_path, export_name, pool in BANKS:
+        script = f"import('{module_path}').then(m => process.stdout.write(JSON.stringify(m.{export_name})))"
+        result = subprocess.run(
+            ["node", "--experimental-strip-types", "-e", script],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        for entry in json.loads(result.stdout):
+            entries.append({"sentence_id": f"{pool}-{entry['id']}", "question": entry["question"]})
+    return entries
 
 
 def check_kokoro_running():
@@ -104,24 +119,24 @@ def main():
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    bank = load_sentence_bank()
-    targets = [e for e in bank if only is None or e["id"] in only]
+    pool = load_sentence_pool()
+    targets = [e for e in pool if only is None or e["sentence_id"] in only]
     if not force:
-        targets = [e for e in targets if not os.path.exists(os.path.join(OUTPUT_DIR, f"sentence-color-{e['id']}.wav"))]
+        targets = [e for e in targets if not os.path.exists(os.path.join(OUTPUT_DIR, f"sentence-{e['sentence_id']}.wav"))]
 
     print(f"Generating {len(targets)} sentence-question pronunciation(s) via Kokoro ({VOICE}, speed={SPEED})...")
 
     for entry in targets:
-        sentence_id, question = entry["id"], entry["question"]
+        sentence_id, question = entry["sentence_id"], entry["question"]
         try:
             audio, sr = synthesize(question)
             clip = trim_to_speech(audio, sr)
 
-            out_path = os.path.join(OUTPUT_DIR, f"sentence-color-{sentence_id}.wav")
+            out_path = os.path.join(OUTPUT_DIR, f"sentence-{sentence_id}.wav")
             sf.write(out_path, clip, sr, subtype="PCM_16")
-            print(f"done  sentence-color-{sentence_id} ({len(clip) / sr:.2f}s, '{question}') -> public/audio/sentence-color-{sentence_id}.wav")
+            print(f"done  sentence-{sentence_id} ({len(clip) / sr:.2f}s, '{question}') -> public/audio/sentence-{sentence_id}.wav")
         except Exception as err:
-            print(f"fail  sentence-color-{sentence_id}: {err}", file=sys.stderr)
+            print(f"fail  sentence-{sentence_id}: {err}", file=sys.stderr)
 
 
 if __name__ == "__main__":

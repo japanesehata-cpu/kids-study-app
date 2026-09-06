@@ -145,8 +145,13 @@ export function buildExplanation(question: Question, lang: Lang, correct = true)
         : `${label} appeared ${question.count} times in total.`
     }
     case 'englishSentence': {
-      const colorEntry = getWordById(question.correctColorId)
-      return lang === 'ja' ? `こたえは 「${colorEntry.translationJa}」だよ。` : `The answer is ${colorEntry.word}.`
+      // The question is spoken audio-only (no caption while answering, by design — see
+      // the plan for this feature), so the explanation is also where the child first sees
+      // the English sentence written out, not just hears it.
+      const answerEntry = getWordById(question.correctWordId)
+      return lang === 'ja'
+        ? `"${question.question}" こたえは 「${answerEntry.translationJa}」だよ。`
+        : `"${question.question}" The answer is ${answerEntry.word}.`
     }
   }
 }

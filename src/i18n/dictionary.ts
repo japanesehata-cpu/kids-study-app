@@ -19,9 +19,13 @@ export const dictionary = {
   // even though both mean roughly the same in Japanese — they appear side by side in
   // ProgressScreen and would otherwise be indistinguishable in English.
   categoryEnglishSentence: { ja: 'えいご リスニング', en: 'English (Sentences)' },
+  // Generic wording ("the matching picture", not "the matching color") — this category
+  // now also asks animal riddles ("What animal has a pocket on its belly?"), answered by
+  // tapping an animal photo rather than a color swatch, so the prompt can't be
+  // color-specific any more.
   englishSentencePrompt: {
-    ja: 'きこえた しつもんに あう いろを タップしてね',
-    en: 'Listen to the question and tap the matching color',
+    ja: 'きこえた しつもんに あう えを タップしてね',
+    en: 'Listen to the question and tap the matching picture',
   },
   englishEntryTitle: { ja: 'よむ？きく？', en: 'Read or listen?' },
   englishEntryReadLabel: { ja: 'よむ', en: 'Read' },

@@ -48,17 +48,20 @@ export interface EnglishWordQuestion {
   subSkill: string
 }
 
-/** Hears a full spoken WH-question ("What color is a banana?") with no picture shown, and
- * answers by tapping one of 4 color swatches — tests real listening comprehension of a
- * sentence, not just single-word recognition (see EnglishWordQuestion above). */
+/** Hears a full spoken WH-question ("What color is a banana?", "What animal has a pocket
+ * on its belly?") with no picture shown, and answers by tapping one of 4 WordIcon choices
+ * — tests real listening comprehension of a sentence, not just single-word recognition
+ * (see EnglishWordQuestion above). `sentenceId` is pool-prefixed ("color-banana",
+ * "animal-kangaroo") so it stays globally unique across content banks and doubles as the
+ * `sentence-${sentenceId}.wav` audio cache key — see questionGenerators/englishSentence.ts. */
 export interface EnglishSentenceQuestion {
   id: string
   category: 'englishSentence'
   level: Level
   sentenceId: string
   question: string
-  correctColorId: string
-  choiceColorIds: string[]
+  correctWordId: string
+  choiceWordIds: string[]
   subSkill: string
 }
 

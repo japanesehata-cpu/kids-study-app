@@ -188,7 +188,9 @@ function computeAutoSpeech(
   if (isEnglishSentence(question)) {
     // Always English regardless of UI language, same as englishWords' listenAndPick
     // branch below — this category has no "look and pick" mode to fall back to.
-    return { text: question.question, speechLang: 'en-US', cacheKey: `sentence-color-${question.sentenceId}` }
+    // sentenceId is already pool-prefixed ("color-banana", "animal-kangaroo" — see
+    // questionGenerators/englishSentence.ts), so it doubles directly as the cache key.
+    return { text: question.question, speechLang: 'en-US', cacheKey: `sentence-${question.sentenceId}` }
   }
   // englishWords
   if (question.mode === 'listenAndPick') {
@@ -318,7 +320,7 @@ function EnglishSentenceQuestionView({
         label="listen"
         size={96}
         voiceProfile={voiceProfile}
-        cacheKey={`sentence-color-${question.sentenceId}`}
+        cacheKey={`sentence-${question.sentenceId}`}
       />
     </div>
   )
@@ -633,7 +635,7 @@ function computeCorrectAnswerLabel(question: Question, lang: Lang): string {
   if (isClock(question)) return formatClockKey(`${question.hour}:${question.minute}`, lang)
   if (isSpotDifference(question)) return ''
   if (isCounting(question)) return String(question.count)
-  if (isEnglishSentence(question)) return getWordById(question.correctColorId).word
+  if (isEnglishSentence(question)) return getWordById(question.correctWordId).word
   return getWordById(question.wordId).word
 }
 
@@ -690,7 +692,7 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
     // spot-the-difference answers by tapping the board itself, not a choice-grid button
     if (isSpotDifference(question)) return []
     if (isCounting(question)) return question.choices
-    if (isEnglishSentence(question)) return question.choiceColorIds
+    if (isEnglishSentence(question)) return question.choiceWordIds
     return question.choiceWordIds
   }, [question])
 
@@ -712,7 +714,7 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
     // wrong-tap limit is hit (always incorrect)
     if (isSpotDifference(question)) return choice !== SPOT_DIFFERENCE_FAILED
     if (isCounting(question)) return choice === question.count
-    if (isEnglishSentence(question)) return choice === question.correctColorId
+    if (isEnglishSentence(question)) return choice === question.correctWordId
     return choice === question.wordId
   }
 
@@ -734,7 +736,7 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
   const answerCacheKey = isEnglishWord(question)
     ? `word-en-${question.wordId}`
     : isEnglishSentence(question)
-      ? `word-en-${question.correctColorId}`
+      ? `word-en-${question.correctWordId}`
       : undefined
 
   function handleSelect(choice: Choice) {
@@ -822,8 +824,8 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
         } else if (isEnglishSentence(question) && correct) {
           // Same reasoning as englishWord above — an incorrect answer already speaks the
           // color word via the feedback sentence's {answer} segment.
-          const colorWord = getWordById(question.correctColorId).word
-          speak(colorWord, 'en-US', voiceProfile, `word-en-${question.correctColorId}`)
+          const colorWord = getWordById(question.correctWordId).word
+          speak(colorWord, 'en-US', voiceProfile, `word-en-${question.correctWordId}`)
         }
       })
   }

@@ -1,7 +1,8 @@
 import type { EnglishSentenceQuestion, Level } from '../types'
 import { colorSentenceBank } from '../colorSentenceBank'
 import { animalSentenceBank } from '../animalSentenceBank'
-import { eligibleWordBank } from '../wordBank'
+import { miscSentenceBank } from '../miscSentenceBank'
+import { eligibleWordBank, type WordEntry } from '../wordBank'
 import { shuffle } from '../../lib/shuffle'
 
 function makeId(): string {
@@ -61,35 +62,48 @@ function pickColorDistractors(correctColorId: string, hard: boolean): string[] {
   return shuffle(otherFamilies).slice(0, 3)
 }
 
-/** Animal riddles skip the hard/easy split entirely (flat random at every level) — unlike
- * a color swatch, the riddle sentence itself is already the hard part, and wordBank has no
- * existing habitat/type tagging to group "same family" animals by. */
-function pickAnimalDistractors(correctAnimalId: string): string[] {
+/** Riddles outside the color bank skip the hard/easy split entirely (flat random at every
+ * level) — unlike a color swatch, the riddle sentence itself is already the hard part, and
+ * wordBank has no existing sub-grouping (habitat, material, ...) to build a "same family"
+ * distinction on top of for any of these categories. Shared by animal riddles and every
+ * category in miscSentenceBank.ts. */
+function pickCategoryDistractors(correctWordId: string, category: WordEntry['category']): string[] {
   const pool = eligibleWordBank()
-    .filter((w) => w.category === 'animal' && w.id !== correctAnimalId)
+    .filter((w) => w.category === category && w.id !== correctWordId)
     .map((w) => w.id)
   return shuffle(pool).slice(0, 3)
 }
 
-type PoolEntry = { pool: 'color' | 'animal'; sentenceId: string; question: string; answerWordId: string }
+type PoolEntry =
+  | { kind: 'color'; sentenceId: string; question: string; answerWordId: string }
+  | { kind: 'category'; sentenceId: string; question: string; answerWordId: string; wordCategory: WordEntry['category'] }
 
-/** sentenceId is pool-prefixed ("color-banana", "animal-kangaroo") so it stays globally
- * unique across both banks even where a bank-local id might coincidentally collide (e.g.
- * 'elephant' is both a color-bank entry and could plausibly be an animal-bank one), and so
- * it doubles directly as the `sentence-${sentenceId}.wav` audio cache key. */
+/** sentenceId is prefixed by its content bank/category ("color-banana", "animal-kangaroo",
+ * "vehicle-train") so it stays globally unique across every bank even where a bank-local id
+ * might coincidentally collide (e.g. 'elephant' is both a color-bank entry and an
+ * animal-bank one), and so it doubles directly as the `sentence-${sentenceId}.wav` audio
+ * cache key. */
 function buildPool(): PoolEntry[] {
   return [
     ...colorSentenceBank.map((e) => ({
-      pool: 'color' as const,
+      kind: 'color' as const,
       sentenceId: `color-${e.id}`,
       question: e.question,
       answerWordId: e.colorId,
     })),
     ...animalSentenceBank.map((e) => ({
-      pool: 'animal' as const,
+      kind: 'category' as const,
       sentenceId: `animal-${e.id}`,
       question: e.question,
       answerWordId: e.animalId,
+      wordCategory: 'animal' as const,
+    })),
+    ...miscSentenceBank.map((e) => ({
+      kind: 'category' as const,
+      sentenceId: `${e.category}-${e.id}`,
+      question: e.question,
+      answerWordId: e.wordId,
+      wordCategory: e.category,
     })),
   ]
 }
@@ -97,9 +111,9 @@ function buildPool(): PoolEntry[] {
 export function generateEnglishSentenceQuestion(level: Level): EnglishSentenceQuestion {
   const entry = shuffle(buildPool())[0]
   const distractors =
-    entry.pool === 'color'
+    entry.kind === 'color'
       ? pickColorDistractors(entry.answerWordId, shouldUseHardDistractors(level))
-      : pickAnimalDistractors(entry.answerWordId)
+      : pickCategoryDistractors(entry.answerWordId, entry.wordCategory)
   const choiceWordIds = shuffle([entry.answerWordId, ...distractors])
 
   return {
@@ -110,6 +124,6 @@ export function generateEnglishSentenceQuestion(level: Level): EnglishSentenceQu
     question: entry.question,
     correctWordId: entry.answerWordId,
     choiceWordIds,
-    subSkill: `sentence-${entry.pool}`,
+    subSkill: entry.kind === 'color' ? 'sentence-color' : `sentence-${entry.wordCategory}`,
   }
 }

@@ -43,21 +43,25 @@ VOICE = "af_heart"
 SPEED = 0.9
 PAD_S = 0.06
 
-# (module path, exported array name, pool prefix, field holding the sentence's own id)
+# (module path, exported array name, fixed pool prefix or None to use each entry's own
+# "category" field instead — miscSentenceBank.ts covers many categories in one file, so its
+# prefix varies per entry rather than being fixed for the whole file).
 BANKS = [
     ("./src/domain/colorSentenceBank.ts", "colorSentenceBank", "color"),
     ("./src/domain/animalSentenceBank.ts", "animalSentenceBank", "animal"),
+    ("./src/domain/miscSentenceBank.ts", "miscSentenceBank", None),
 ]
 
 
 def load_sentence_pool():
-    """colorSentenceBank.ts / animalSentenceBank.ts are the single source of truth for
-    content (id/question/...) — shell out to Node to import them directly, same approach
-    as the other generate-*-audio scripts, so this can never drift out of sync with the
-    app's own data. Returns a flat list of {sentence_id, question} with sentence_id
-    already pool-prefixed to match the app's own cache-key scheme."""
+    """colorSentenceBank.ts / animalSentenceBank.ts / miscSentenceBank.ts are the single
+    source of truth for content (id/question/...) — shell out to Node to import them
+    directly, same approach as the other generate-*-audio scripts, so this can never drift
+    out of sync with the app's own data. Returns a flat list of {sentence_id, question}
+    with sentence_id already prefixed to match the app's own cache-key scheme
+    (questionGenerators/englishSentence.ts's buildPool)."""
     entries = []
-    for module_path, export_name, pool in BANKS:
+    for module_path, export_name, fixed_pool in BANKS:
         script = f"import('{module_path}').then(m => process.stdout.write(JSON.stringify(m.{export_name})))"
         result = subprocess.run(
             ["node", "--experimental-strip-types", "-e", script],
@@ -67,7 +71,8 @@ def load_sentence_pool():
             check=True,
         )
         for entry in json.loads(result.stdout):
-            entries.append({"sentence_id": f"{pool}-{entry['id']}", "question": entry["question"]})
+            prefix = fixed_pool if fixed_pool is not None else entry["category"]
+            entries.append({"sentence_id": f"{prefix}-{entry['id']}", "question": entry["question"]})
     return entries
 
 

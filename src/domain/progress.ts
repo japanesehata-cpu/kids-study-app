@@ -86,6 +86,13 @@ function isCompatibleQuestion(q: Question): boolean {
   if (q.category === 'spotDifference') {
     return Array.isArray(q.leftItems) && Array.isArray(q.rightItems) && Array.isArray(q.differenceIndexes)
   }
+  if (q.category === 'englishSentence') {
+    // Guards against a stored reviewQueue entry from before correctColorId/choiceColorIds
+    // were renamed to correctWordId/choiceWordIds (see questionGenerators/
+    // englishSentence.ts) — an old-shaped entry would otherwise resurface with
+    // correctWordId undefined and crash getWordById downstream.
+    return typeof q.correctWordId === 'string' && Array.isArray(q.choiceWordIds)
+  }
   return true
 }
 

@@ -33,8 +33,16 @@ function wordLabel(id: string, lang: Lang): string {
  * by the same reasoning that shows what's actually true, not a guess at what specifically
  * confused them. `correct` only matters for spotDifference, whose "explanation" is really a
  * wrap-up of how the round went rather than a fixed fact — every other category's answer
- * (a sum, a clock time, ...) is the same regardless of outcome, so they ignore it. */
-export function buildExplanation(question: Question, lang: Lang, correct = true): string {
+ * (a sum, a clock time, ...) is the same regardless of outcome, so they ignore it.
+ * `selectedChoice` is only read by englishSpelling/englishListening's wrong-answer branch,
+ * to also name what the player actually picked (see that case) — every other category
+ * ignores it, so passing it unconditionally from the call site is harmless. */
+export function buildExplanation(
+  question: Question,
+  lang: Lang,
+  correct = true,
+  selectedChoice?: string | number,
+): string {
   switch (question.category) {
     case 'addition': {
       const { operandA, operandB, answer } = question
@@ -51,9 +59,21 @@ export function buildExplanation(question: Question, lang: Lang, correct = true)
     case 'englishSpelling':
     case 'englishListening': {
       const { word, translationJa } = question
-      return lang === 'ja'
-        ? `"${word}"は 「${translationJa}」という いみの ことばだよ。`
-        : `"${word}" is the English word for this picture.`
+      const correctText =
+        lang === 'ja'
+          ? `"${word}"は 「${translationJa}」という いみの ことばだよ。`
+          : `"${word}" is the English word for this picture.`
+      // Names what the player actually picked, not just the right answer — lookAndPick's
+      // choices are written words and listenAndPick's are pictures (see
+      // QuizScreen.tsx's renderChoiceContent), but either way a wrong choice is some OTHER
+      // wordBank entry's id, so the same wordId lookup explains it in both modes.
+      if (correct || typeof selectedChoice !== 'string') return correctText
+      const picked = getWordById(selectedChoice)
+      const wrongText =
+        lang === 'ja'
+          ? ` えらんだ "${picked.word}"は 「${picked.translationJa}」だよ。`
+          : ` You picked "${picked.word}" instead.`
+      return correctText + wrongText
     }
     case 'logic': {
       if (question.kind === 'oddOneOut') {
@@ -152,6 +172,12 @@ export function buildExplanation(question: Question, lang: Lang, correct = true)
       return lang === 'ja'
         ? `"${question.question}" こたえは 「${answerEntry.translationJa}」だよ。`
         : `"${question.question}" The answer is ${answerEntry.word}.`
+    }
+    case 'sudoku': {
+      const blankCount = question.grid.flat().filter((c) => c === null).length
+      return lang === 'ja'
+        ? `あいていた ${blankCount}マス、ぜんぶ うめられたね！`
+        : `You filled in all ${blankCount} empty squares!`
     }
   }
 }

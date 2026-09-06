@@ -50,26 +50,25 @@ export function formatClockKey(key: string, lang: Lang): string {
   return `${hour}:${String(minute).padStart(2, '0')}`
 }
 
-/** Told a target time in words, set it by dragging the clock's own hands — a harder,
- * production test of the same reading skill instead of just recognizing it among 4
- * options. Held back until ★2 (once telling the hour alone is solid) and never more
- * than half the question set, so recognition practice still comes first. */
-function shouldUseSetTime(level: Level): boolean {
-  return level >= 2 && Math.random() < 0.4
-}
+export type ClockMode = 'multipleChoice' | 'setTime'
 
 export function buildSetTimePrompt(hour: number, minute: number, lang: Lang): string {
   const timeText = formatClockKey(toKey(hour, minute), lang)
   return lang === 'ja' ? `とけいを ${timeText}に あわせてね` : `Set the clock to ${timeText}.`
 }
 
-export function generateClockQuestion(level: Level): ClockQuestion {
+/** `mode` is chosen explicitly by the player up front (see LevelSelectScreen's clock mode
+ * toggle) rather than randomized per question — "read the clock" (recognition, 4 choices)
+ * and "set the hands" (production, dragging) are two different skills/modes, not two
+ * difficulties, so mixing them within one round used to defeat the point of picking a
+ * level at all (see the level-redefinition discussion this was pulled out of). */
+export function generateClockQuestion(level: Level, mode: ClockMode = 'multipleChoice'): ClockQuestion {
   const minutes = LEVEL_MINUTES[level]
   const hour = randomInt(1, 12)
   const minute = minutes[randomInt(0, minutes.length - 1)]
   const subSkill = subSkillForMinute(minute)
 
-  if (shouldUseSetTime(level)) {
+  if (mode === 'setTime') {
     return { id: makeId(), category: 'clock', level, hour, minute, kind: 'setTime', choiceKeys: [], subSkill }
   }
 

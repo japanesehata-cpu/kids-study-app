@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { AnswerRecord, Category, Level, ProgressState, SetResult } from './domain/types'
 import { applySetResult, loadProgress, persistProgress } from './domain/progress'
+import type { ClockMode } from './domain/questionGenerators/clock'
 import { loadStreak, persistStreak, recordPlaySession, type PlayStreak } from './domain/streak'
 import { loadIntroSeen, saveIntroSeen } from './lib/storage'
 import { I18nProvider } from './i18n/I18nContext'
@@ -21,12 +22,13 @@ type Screen =
   | { name: 'englishEntry' }
   | { name: 'levelSelect'; category: Category }
   | { name: 'handwriting'; category: 'hiragana' | 'katakana' | 'alphabet' }
-  | { name: 'quiz'; category: Category; level: Level; setSize: number }
+  | { name: 'quiz'; category: Category; level: Level; setSize: number; clockMode?: ClockMode }
   | {
       name: 'result'
       category: Category
       level: Level
       setSize: number
+      clockMode?: ClockMode
       result: SetResult
       streak: PlayStreak
     }
@@ -77,7 +79,13 @@ function AppContent() {
     goHome()
   }
 
-  function handleQuizComplete(category: Category, level: Level, setSize: number, answers: AnswerRecord[]) {
+  function handleQuizComplete(
+    category: Category,
+    level: Level,
+    setSize: number,
+    answers: AnswerRecord[],
+    clockMode?: ClockMode,
+  ) {
     const { progress: nextProgress, result } = applySetResult(category, level, progress, answers)
     setProgress(nextProgress)
 
@@ -89,6 +97,7 @@ function AppContent() {
       category,
       level,
       setSize,
+      clockMode,
       result,
       streak: nextStreak,
     })
@@ -119,11 +128,16 @@ function AppContent() {
         return (
           <LevelSelectScreen
             category={screen.category}
-            onSelectLevel={(level, setSize) => navigate({ name: 'quiz', category: screen.category, level, setSize })}
+            onSelectLevel={(level, setSize, clockMode) =>
+              navigate({ name: 'quiz', category: screen.category, level, setSize, clockMode })
+            }
             onOpenHandwriting={
               screen.category === 'hiragana' || screen.category === 'katakana' || screen.category === 'alphabet'
                 ? () => navigate({ name: 'handwriting', category: screen.category as 'hiragana' | 'katakana' | 'alphabet' })
                 : undefined
+            }
+            onOpenSudoku={
+              screen.category === 'logic' ? () => navigate({ name: 'levelSelect', category: 'sudoku' }) : undefined
             }
             onBack={goBack}
             onHome={goHome}
@@ -137,8 +151,11 @@ function AppContent() {
             category={screen.category}
             level={screen.level}
             setSize={screen.setSize}
+            clockMode={screen.clockMode}
             progress={progress}
-            onComplete={(answers) => handleQuizComplete(screen.category, screen.level, screen.setSize, answers)}
+            onComplete={(answers) =>
+              handleQuizComplete(screen.category, screen.level, screen.setSize, answers, screen.clockMode)
+            }
             onExit={goBack}
             onHome={goHome}
           />
@@ -149,7 +166,13 @@ function AppContent() {
             result={screen.result}
             streak={screen.streak}
             onRetry={() =>
-              navigate({ name: 'quiz', category: screen.category, level: screen.level, setSize: screen.setSize })
+              navigate({
+                name: 'quiz',
+                category: screen.category,
+                level: screen.level,
+                setSize: screen.setSize,
+                clockMode: screen.clockMode,
+              })
             }
             onBack={goBack}
             onBackHome={goHome}

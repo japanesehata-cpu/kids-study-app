@@ -17,8 +17,10 @@ interface HomeScreenProps {
 
 // English is shown as a single combined card/portrait on the home screen (see
 // EnglishEntryScreen) rather than two — englishListening is dropped from every home-screen
-// list and englishSpelling stands in as the shared slot, relabeled below.
-const HOME_CATEGORY_META = CATEGORY_META.filter((c) => c.category !== 'englishListening')
+// list and englishSpelling stands in as the shared slot, relabeled below. sudoku is
+// likewise dropped — it's reached via a button on logic's own level-select instead (see
+// LevelSelectScreen.tsx), not its own home-screen card.
+const HOME_CATEGORY_META = CATEGORY_META.filter((c) => c.category !== 'englishListening' && c.category !== 'sudoku')
 const ALL_CATEGORIES: Category[] = HOME_CATEGORY_META.map((c) => c.category)
 
 const INTRO_KEY_BY_CATEGORY: Record<Category, DictionaryKey> = {
@@ -34,6 +36,7 @@ const INTRO_KEY_BY_CATEGORY: Record<Category, DictionaryKey> = {
   spotDifference: 'introMitsu',
   counting: 'introKazu',
   englishSentence: 'introHana',
+  sudoku: 'introKoko',
 }
 
 export function HomeScreen({ streak, onSelectCategory, onOpenEnglishEntry, onOpenParentGate }: HomeScreenProps) {

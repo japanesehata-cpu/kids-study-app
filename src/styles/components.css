@@ -232,7 +232,15 @@
 /* The post-answer "next question" button — pinned to the bottom of the viewport instead
    of sitting in normal document flow, so it's always reachable without scrolling even
    when the feedback/explanation/character stack above it runs long (e.g. englishSentence's
-   explanation line, which quotes the full English question). */
+   explanation line, which quotes the full English question, or englishWords' wrong-answer
+   explanation, which now also names the picked word — see explanations.ts). Tried
+   `position: sticky` here instead, expecting it to only dock once scrolled near the
+   bottom — it doesn't: once the whole card is taller than the viewport (routine once an
+   explanation runs to 2 lines), a bottom-anchored sticky element clamps to the docked
+   position immediately, identically to `fixed`, so it bought nothing over `fixed` and
+   added complexity. The actual overlap risk is mitigated instead by keeping
+   `.explanation-text` wide enough that a two-clause explanation stays on as few lines as
+   possible (see its own comment). */
 .next-button {
   position: fixed;
   left: 50%;
@@ -576,6 +584,76 @@
   }
 }
 
+.sudoku-board {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.sudoku-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  background: var(--color-surface);
+  padding: 14px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.sudoku-cell {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--color-bg-soft);
+  background: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: default;
+}
+
+.sudoku-cell-blank {
+  cursor: pointer;
+  border-style: dashed;
+  background: var(--color-bg-soft);
+}
+
+.sudoku-cell.selected {
+  border-color: var(--color-primary);
+  border-style: solid;
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+.sudoku-cell.wrong {
+  animation: spot-shake 0.35s ease;
+}
+
+.sudoku-palette {
+  display: flex;
+  gap: 14px;
+}
+
+.sudoku-palette-item {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.sudoku-palette-item:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 .icon-button {
   width: 56px;
   height: 56px;
@@ -613,7 +691,12 @@
   color: var(--color-text-soft);
   text-align: center;
   line-height: 1.6;
-  max-width: 480px;
+  /* Widened from 480px — englishSpelling/englishListening's wrong-answer explanation now
+   * appends a second clause naming the picked word (see explanations.ts), and the
+   * narrower width was wrapping that combined text to 3 lines, tall enough to sit
+   * directly under the fixed "next" button. Still comfortably inside .card-panel's own
+   * width. */
+  max-width: 640px;
   margin: 0;
 }
 

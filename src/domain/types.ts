@@ -11,6 +11,7 @@ export type Category =
   | 'spotDifference'
   | 'counting'
   | 'englishSentence'
+  | 'sudoku'
 
 /** The original five categories use a 5-step scale; clock/spotDifference/counting use only
  * levels 1-3 (see CATEGORY_MAX_LEVEL in progress.ts), shown as 1-3 stars instead of 1-5. */
@@ -168,6 +169,22 @@ export interface SpotDifferenceQuestion {
   subSkill: string
 }
 
+/** A 4x4 "mini sudoku" — each row and column (and, from ★3, each 2x2 block) contains each
+ * of `symbols`'s 4 colors exactly once. `grid` is the puzzle as shown (null = blank the
+ * child must fill); `solution` is the same 4x4 shape fully filled in. Generated so the
+ * blanks always have exactly one valid completion under whichever ruleset the current
+ * level actually teaches (row/column only below ★3, row/column/block from ★3) — see
+ * questionGenerators/sudoku.ts. */
+export interface SudokuQuestion {
+  id: string
+  category: 'sudoku'
+  level: Level
+  grid: (string | null)[][]
+  solution: string[][]
+  symbols: string[]
+  subSkill: string
+}
+
 export interface CountingQuestion {
   id: string
   category: 'counting'
@@ -192,6 +209,7 @@ export type Question =
   | SpotDifferenceQuestion
   | CountingQuestion
   | EnglishSentenceQuestion
+  | SudokuQuestion
 
 export interface AnswerRecord {
   questionId: string

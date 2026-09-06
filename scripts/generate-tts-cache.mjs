@@ -128,6 +128,8 @@ function buildJobs() {
     clock: 'introToki',
     spotDifference: 'introMitsu',
     counting: 'introKazu',
+    englishSentence: 'introHana',
+    sudoku: 'introKoko',
   }
   for (const { category } of CATEGORY_META) {
     const text = dictionary[introKeyByCategory[category]].ja
@@ -185,6 +187,7 @@ function buildJobs() {
     { cacheKey: 'prompt-logic-compare-min', dictKey: 'logicCompareMinPrompt', category: 'logic' },
     { cacheKey: 'prompt-clock', dictKey: 'clockPrompt', category: 'clock' },
     { cacheKey: 'prompt-spotdifference', dictKey: 'spotDifferencePrompt', category: 'spotDifference' },
+    { cacheKey: 'prompt-sudoku', dictKey: 'sudokuPrompt', category: 'sudoku' },
     { cacheKey: 'prompt-counting', dictKey: 'countingPrompt', category: 'counting' },
     { cacheKey: 'prompt-english-look', dictKey: 'lookPrompt', category: 'englishSpelling' },
   ]

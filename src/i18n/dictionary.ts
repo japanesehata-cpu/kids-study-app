@@ -36,6 +36,7 @@ export const dictionary = {
     en: 'Listen to the word and choose the picture',
   },
   categoryLogic: { ja: 'ろんり', en: 'Logic' },
+  categorySudoku: { ja: 'すうどく', en: 'Sudoku' },
   categoryHiragana: { ja: 'ひらがな', en: 'Hiragana' },
   categoryKatakana: { ja: 'カタカナ', en: 'Katakana' },
   categoryAlphabet: { ja: 'アルファベット', en: 'Alphabet' },
@@ -63,6 +64,14 @@ export const dictionary = {
   alphabetListenPrompt: { ja: 'きこえたおとのもじをえらんでね', en: 'Pick the letter you hear' },
   alphabetCaseMatchPrompt: { ja: 'おなじもじをえらんでね', en: 'Pick the matching letter' },
   handwritingButton: { ja: 'かく れんしゅう', en: 'Writing practice' },
+  sudokuButton: { ja: 'すうどく', en: 'Sudoku' },
+  sudokuPrompt: {
+    // A "、" pause after the first clause, matching spotDifferencePrompt's own two-clause
+    // phrasing just below — without it VOICEVOX reads this longer sentence as one flat,
+    // unbroken run and it comes out sounding mechanical (reported by ear, not a rule).
+    ja: 'あいている マスに、あう いろを いれてね',
+    en: 'Fill in the empty squares with the right color',
+  },
   handwritingLevelSelectTitle: { ja: 'どちらで れんしゅうする？', en: 'Choose how to practice' },
   handwritingLevel1Label: { ja: 'なぞる', en: 'Trace' },
   handwritingLevel1Description: { ja: 'うすい じを なぞって かこう', en: 'Trace over the faint character' },
@@ -77,6 +86,8 @@ export const dictionary = {
   handwritingCaseLower: { ja: 'こもじで かいてね', en: 'write it in lowercase' },
   clockPrompt: { ja: 'いま なんじ？', en: 'What time is it?' },
   clockPracticeHint: { ja: 'はりをうごかしてみよう！', en: 'Try moving the hands!' },
+  clockModeReadLabel: { ja: 'よむ', en: 'Read' },
+  clockModeSetTimeLabel: { ja: 'あわせる', en: 'Set the time' },
   spotDifferencePrompt: {
     ja: 'ふたつの えを くらべて、ちがうところを ぜんぶ タップしてね',
     en: 'Compare the two pictures and tap every difference you find',
@@ -147,6 +158,7 @@ export const dictionary = {
   subSkillLogicPattern: { ja: 'パターンのつづき', en: 'pattern sequences' },
   subSkillLogicOddOneOut: { ja: 'なかまはずれさがし', en: 'finding the odd one out' },
   subSkillLogicCompare: { ja: 'おおきさくらべ', en: 'comparing numbers' },
+  subSkillSudokuFill: { ja: 'すうどく', en: 'sudoku' },
   subSkillHiraganaVowels: { ja: 'あいうえお', en: 'the vowel row (a-i-u-e-o)' },
   subSkillHiraganaBasic: { ja: 'か行・さ行', en: 'the ka/sa rows' },
   subSkillHiraganaMid: { ja: 'た行・な行・は行', en: 'the ta/na/ha rows' },

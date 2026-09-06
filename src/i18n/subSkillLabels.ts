@@ -50,6 +50,7 @@ export const subSkillLabelKey: Record<string, DictionaryKey> = {
   'logic-pattern': 'subSkillLogicPattern',
   'logic-oddOneOut': 'subSkillLogicOddOneOut',
   'logic-compare': 'subSkillLogicCompare',
+  'sudoku-fill': 'subSkillSudokuFill',
   'hiragana-vowels': 'subSkillHiraganaVowels',
   'hiragana-basic': 'subSkillHiraganaBasic',
   'hiragana-mid': 'subSkillHiraganaMid',

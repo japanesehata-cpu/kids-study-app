@@ -33,13 +33,14 @@ const COLOR_FAMILY: Record<string, string> = {
 
 const ALL_COLOR_IDS = Object.keys(COLOR_FAMILY)
 
-/** Same curve as englishWords.ts's shouldUseHardDistractors — ★1 always easy, ★2 a coin
- * flip, ★3+ always hard. This category caps at ★3 (see CATEGORY_MAX_LEVEL), so this covers
- * its full range. */
+/** ★1 easy, ★2 hard — deliberately just 2 clean levels, not 3. Unlike englishWords.ts,
+ * this category has no other level-dependent axis (animal/misc questions are already
+ * level-independent; only a color question's distractor hardness varies), so a random
+ * middle level would only ever have been a coin flip between these same two states with
+ * nothing else to make it a distinct difficulty — see the level-redefinition discussion
+ * this was simplified from. CATEGORY_MAX_LEVEL.englishSentence is 2 to match. */
 function shouldUseHardDistractors(level: Level): boolean {
-  if (level <= 1) return false
-  if (level === 2) return Math.random() < 0.5
-  return true
+  return level > 1
 }
 
 function pickColorDistractors(correctColorId: string, hard: boolean): string[] {

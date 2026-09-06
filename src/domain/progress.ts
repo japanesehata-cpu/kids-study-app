@@ -16,29 +16,35 @@ import { generateHiraganaQuestion } from './questionGenerators/hiragana'
 import { generateKatakanaQuestion } from './questionGenerators/katakana'
 import { shuffle } from '../lib/shuffle'
 import { generateAlphabetQuestion } from './questionGenerators/alphabet'
-import { generateClockQuestion } from './questionGenerators/clock'
+import { generateClockQuestion, type ClockMode } from './questionGenerators/clock'
 import { generateSpotDifferenceQuestion } from './questionGenerators/spotDifference'
 import { generateCountingQuestion } from './questionGenerators/counting'
+import { generateSudokuQuestion } from './questionGenerators/sudoku'
 import { loadProgressJson, saveProgressJson } from '../lib/storage'
 
 export const SET_SIZE = 10
 /** Kept for the categories that still use the full 5-step scale. */
 export const MAX_LEVEL: Level = 5
 
-/** logic/englishSpelling/englishListening/alphabet/clock/spotDifference/counting are scaled
- * to 3 steps (★1-3, ages 4/5/6) instead of the original 5 — see LevelSelectScreen, which
- * reads this to size its level grid. addition/subtraction/hiragana/katakana go further:
- * addition/subtraction add ★4, a deliberately abstract (no apple visual, no word-problem
- * framing) milestone mixing a still-harder single-digit sum/minuend with a new round-tens
- * skill (20+30-style — see questionGenerators/{addition,subtraction}.ts). hiragana's ★4 is
- * a dedicated 拗音 (youon) milestone, and katakana alone adds ★5 for 外来語表記 (gairaigo) —
- * extended katakana used only for loanword sounds, with no hiragana equivalent (see
+/** logic/alphabet/clock/spotDifference/counting are scaled to 3 steps (★1-3, ages 4/5/6)
+ * instead of the original 5 — see LevelSelectScreen, which reads this to size its level
+ * grid. englishSentence is only 2 steps — see questionGenerators/englishSentence.ts's
+ * shouldUseHardDistractors comment for why a 3rd level would have had nothing left to
+ * distinguish it by. addition/subtraction/englishSpelling/englishListening/sudoku all go to
+ * 5: addition/subtraction's ★4/★5 split a still-harder single-digit sum/minuend from a new
+ * round-tens skill (20+30-style — see questionGenerators/{addition,subtraction}.ts, and the
+ * level-redefinition discussion each level must be one consistent difficulty, never a
+ * random blend); englishSpelling/englishListening's ★1-5 use the vocabulary-length bands
+ * already defined in questionGenerators/englishWords.ts; sudoku's ★4/★5 add the 2x2-block
+ * rule at two blank counts (see questionGenerators/sudoku.ts). hiragana's ★4 is a dedicated
+ * 拗音 (youon) milestone, and katakana alone adds ★5 for 外来語表記 (gairaigo) — extended
+ * katakana used only for loanword sounds, with no hiragana equivalent (see
  * questionGenerators/katakana.ts). */
 export const CATEGORY_MAX_LEVEL: Record<Category, Level> = {
-  addition: 4,
-  subtraction: 4,
-  englishSpelling: 3,
-  englishListening: 3,
+  addition: 5,
+  subtraction: 5,
+  englishSpelling: 5,
+  englishListening: 5,
   logic: 3,
   hiragana: 4,
   katakana: 5,
@@ -46,7 +52,11 @@ export const CATEGORY_MAX_LEVEL: Record<Category, Level> = {
   clock: 3,
   spotDifference: 3,
   counting: 3,
-  englishSentence: 3,
+  englishSentence: 2,
+  // Reached via a button on logic's own level-select (see LevelSelectScreen.tsx), same
+  // pattern as englishListening being reached via EnglishEntryScreen — an independent
+  // mode with its own progress, not mixed into logic's own random question mix.
+  sudoku: 5,
 }
 
 export function getCategoryMaxLevel(category: Category): Level {
@@ -72,6 +82,7 @@ export function createInitialProgress(): ProgressState {
     spotDifference: { level: 1, recentAccuracy: [], reviewQueue: [] },
     counting: { level: 1, recentAccuracy: [], reviewQueue: [] },
     englishSentence: { level: 1, recentAccuracy: [], reviewQueue: [] },
+    sudoku: { level: 1, recentAccuracy: [], reviewQueue: [] },
   }
 }
 
@@ -92,6 +103,9 @@ function isCompatibleQuestion(q: Question): boolean {
     // englishSentence.ts) — an old-shaped entry would otherwise resurface with
     // correctWordId undefined and crash getWordById downstream.
     return typeof q.correctWordId === 'string' && Array.isArray(q.choiceWordIds)
+  }
+  if (q.category === 'sudoku') {
+    return Array.isArray(q.grid) && Array.isArray(q.solution) && Array.isArray(q.symbols)
   }
   return true
 }
@@ -134,6 +148,7 @@ export function loadProgress(): ProgressState {
       spotDifference: sanitizeCategoryProgress('spotDifference', parsed.spotDifference, initial.spotDifference),
       counting: sanitizeCategoryProgress('counting', parsed.counting, initial.counting),
       englishSentence: sanitizeCategoryProgress('englishSentence', parsed.englishSentence, initial.englishSentence),
+      sudoku: sanitizeCategoryProgress('sudoku', parsed.sudoku, initial.sudoku),
     }
   } catch {
     return createInitialProgress()
@@ -144,7 +159,7 @@ export function persistProgress(progress: ProgressState): void {
   saveProgressJson(JSON.stringify(progress))
 }
 
-function generateFreshQuestion(category: Category, level: Level): Question {
+function generateFreshQuestion(category: Category, level: Level, clockMode?: ClockMode): Question {
   switch (category) {
     case 'addition':
       return generateAdditionQuestion(level)
@@ -163,13 +178,15 @@ function generateFreshQuestion(category: Category, level: Level): Question {
     case 'alphabet':
       return generateAlphabetQuestion(level)
     case 'clock':
-      return generateClockQuestion(level)
+      return generateClockQuestion(level, clockMode)
     case 'spotDifference':
       return generateSpotDifferenceQuestion(level)
     case 'counting':
       return generateCountingQuestion(level)
     case 'englishSentence':
       return generateEnglishSentenceQuestion(level)
+    case 'sudoku':
+      return generateSudokuQuestion(level)
   }
 }
 
@@ -193,6 +210,7 @@ function questionSignature(q: Question): string {
   }
   if (q.category === 'counting') return `counting:${q.targetWordId}:${q.count}:${q.displayIds.length}`
   if (q.category === 'englishSentence') return `sentence:${q.sentenceId}`
+  if (q.category === 'sudoku') return `sudoku:${q.grid.map((row) => row.map((c) => c ?? '_').join('')).join('|')}`
   return `${q.category}:${q.operandA}:${q.operandB}`
 }
 
@@ -214,6 +232,7 @@ export function generateQuestionSet(
   level: Level,
   reviewQueue: Question[],
   setSize: number = SET_SIZE,
+  clockMode?: ClockMode,
 ): Question[] {
   const reviewSlots = setSize >= 10 ? REVIEW_SLOTS : 1
   const reviewItems = reviewQueue.slice(0, reviewSlots)
@@ -223,7 +242,7 @@ export function generateQuestionSet(
   let guard = 0
   while (questions.length < setSize && guard < setSize * 20) {
     guard++
-    const candidate = generateFreshQuestion(category, level)
+    const candidate = generateFreshQuestion(category, level, clockMode)
     const signature = questionSignature(candidate)
     if (seen.has(signature)) continue
     seen.add(signature)

@@ -29,13 +29,13 @@ function pickTarget(level: Level): WordEntry {
   return shuffle(pool)[0]
 }
 
-/** ★1 always uses obviously-unrelated distractors; ★2 mixes in same-theme ones half the
- * time; ★3+ always pulls from the same theme (e.g. other fruits), which is much harder
- * to eliminate than an obviously-unrelated word. */
+/** ★1-2 always use obviously-unrelated distractors; ★3+ always pull from the same theme
+ * (e.g. other fruits), which is much harder to eliminate than an obviously-unrelated word.
+ * Deliberately not a random mix at any single level (a level is a collection of
+ * same-difficulty questions) — ★1 vs ★2 and ★3 vs ★4 vs ★5 still progress via
+ * MAX_WORD_LENGTH's vocabulary bands even though this flag is flat across each pair. */
 function shouldUseHardDistractors(level: Level): boolean {
-  if (level <= 1) return false
-  if (level === 2) return Math.random() < 0.5
-  return true
+  return level > 2
 }
 
 function pickDistractors(target: WordEntry, sameCategory: boolean, count: number): WordEntry[] {

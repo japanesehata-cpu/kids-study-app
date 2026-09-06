@@ -1,16 +1,26 @@
 import { useState } from 'react'
 import type { Category, Level } from '../domain/types'
 import { getCategoryMaxLevel } from '../domain/progress'
+import type { ClockMode } from '../domain/questionGenerators/clock'
 import { useI18n } from '../i18n/I18nContext'
 import { CharacterPortrait } from '../components/characters/CharacterPortrait'
 import { characterThemes } from '../components/characters/characterThemes'
 import { CategoryHeader } from '../components/CategoryHeader'
 import { InteractiveClock } from '../components/InteractiveClock'
 
+const CLOCK_MODE_OPTIONS: ClockMode[] = ['multipleChoice', 'setTime']
+
 interface LevelSelectScreenProps {
   category: Category
-  onSelectLevel: (level: Level, setSize: number) => void
+  /** `clockMode` is only ever passed for category === 'clock' — see the mode toggle below
+   * (an explicit, deliberate choice rather than a per-question random mix, see
+   * questionGenerators/clock.ts's ClockMode comment). */
+  onSelectLevel: (level: Level, setSize: number, clockMode?: ClockMode) => void
   onOpenHandwriting?: () => void
+  /** logic only — opens sudoku's own level-select, an independent mode/progress reached
+   * from here rather than mixed into logic's own random question mix (see the plan this
+   * was built from). */
+  onOpenSudoku?: () => void
   /** one step back — Home for most categories, EnglishEntryScreen for englishSpelling/englishListening */
   onBack: () => void
   onHome: () => void
@@ -22,12 +32,14 @@ export function LevelSelectScreen({
   category,
   onSelectLevel,
   onOpenHandwriting,
+  onOpenSudoku,
   onBack,
   onHome,
 }: LevelSelectScreenProps) {
   const { t } = useI18n()
   const theme = characterThemes[category]
   const [setSize, setSetSize] = useState<number>(5)
+  const [clockMode, setClockMode] = useState<ClockMode>('multipleChoice')
   const maxLevel = getCategoryMaxLevel(category)
   const levels = Array.from({ length: maxLevel }, (_, i) => (i + 1) as Level)
 
@@ -57,6 +69,27 @@ export function LevelSelectScreen({
         </button>
       )}
 
+      {category === 'logic' && onOpenSudoku && (
+        <button type="button" className="secondary-button" onClick={onOpenSudoku}>
+          {t('sudokuButton')}
+        </button>
+      )}
+
+      {category === 'clock' && (
+        <div className="set-size-toggle">
+          {CLOCK_MODE_OPTIONS.map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              className={`set-size-button ${clockMode === mode ? 'active' : ''}`.trim()}
+              onClick={() => setClockMode(mode)}
+            >
+              {t(mode === 'multipleChoice' ? 'clockModeReadLabel' : 'clockModeSetTimeLabel')}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="set-size-toggle">
         {SET_SIZE_OPTIONS.map((size) => (
           <button
@@ -76,7 +109,7 @@ export function LevelSelectScreen({
             key={level}
             type="button"
             className="level-button"
-            onClick={() => onSelectLevel(level, setSize)}
+            onClick={() => onSelectLevel(level, setSize, category === 'clock' ? clockMode : undefined)}
           >
             <span className="level-number">{level}</span>
             <span className="level-stars">

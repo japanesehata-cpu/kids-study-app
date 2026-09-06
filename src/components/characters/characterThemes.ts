@@ -121,6 +121,25 @@ export const characterThemes: Record<Category, CharacterTheme> = {
       kokoroVoice: 'af_nicole',
     },
   },
+  // sudoku is reached via a button on logic's own level-select (see LevelSelectScreen.tsx)
+  // rather than the home grid — same mascot/voice as logic since it's a mode within it,
+  // not a separate skill with its own character (mirrors englishListening reusing
+  // englishSpelling's hana above).
+  sudoku: {
+    id: 'koko',
+    colorMain: '#7fd9c4',
+    colorMainDark: '#4fb894',
+    colorSub: '#f2fffb',
+    colorAccent: '#c9b8f5',
+    colorAccentDark: '#9880d0',
+    voiceProfile: {
+      pitch: 1.0,
+      rate: 0.9,
+      playbackRate: 0.92,
+      voicevoxSpeaker: { name: '冥鳴ひまり', style: 'ノーマル' },
+      kokoroVoice: 'af_nicole',
+    },
+  },
   hiragana: {
     id: 'yui',
     colorMain: '#c9a4e8',
@@ -150,12 +169,14 @@ export const characterThemes: Record<Category, CharacterTheme> = {
       pitch: 1.3,
       rate: 1.1,
       playbackRate: 1.15,
-      // 'ノーマル' (normal), not '元気' (energetic) — the energetic style's exaggerated
-      // pitch/pacing came at the cost of clear articulation, confirmed by ear against the
-      // normal style using the same speaker (see the katakana voice comparison this was
-      // decided from); every other character here uses its speaker's clear/normal style
-      // too, aru's うきうき being the one deliberate exception.
-      voicevoxSpeaker: { name: '満別花丸', style: 'ノーマル' },
+      // Switched from 満別花丸/ノーマル after a reported issue: gairaigo "ディ" (di2, e.g.
+      // ディズニー) came out sounding like "リ" on that voice, even though VOICEVOX's own
+      // phoneme analysis showed the text was correctly parsed as d+i — an acoustic quirk of
+      // that model for this rare-in-Japanese consonant, not a text/spelling bug. Confirmed
+      // by ear against a 3-way comparison (満別花丸/四国めたん/ずんだもん) on the exact same
+      // phrase. Also used by spotDifference's mitsu — sharing a VOICEVOX voice across
+      // characters is fine, no conflict.
+      voicevoxSpeaker: { name: 'ずんだもん', style: 'ノーマル' },
       kokoroVoice: 'af_jessica',
     },
   },

@@ -67,6 +67,21 @@ describe('buildExplanation', () => {
     expect(ja).toContain(String(q.hour))
   })
 
+  it('englishSpelling/englishListening name the wrongly-picked word too, not just the answer', () => {
+    for (const generate of [generateEnglishSpellingQuestion, generateEnglishListeningQuestion]) {
+      const q = generate(1)
+      const wrongChoice = q.choiceWordIds.find((id) => id !== q.wordId)!
+      const correctText = buildExplanation(q, 'ja', true)
+      const wrongJa = buildExplanation(q, 'ja', false, wrongChoice)
+      const wrongEn = buildExplanation(q, 'en', false, wrongChoice)
+      // The wrong-answer explanation is a strict superset of the correct one (same lead-in,
+      // plus the extra sentence naming what was actually picked).
+      expect(wrongJa.startsWith(correctText)).toBe(true)
+      expect(wrongJa.length).toBeGreaterThan(correctText.length)
+      expect(wrongEn.length).toBeGreaterThan(buildExplanation(q, 'en', true).length)
+    }
+  })
+
   it('pattern explanation names every distinct symbol in the cycle, even a 4-5 symbol one', () => {
     for (let i = 0; i < 100; i++) {
       const q = generateLogicQuestion(3) // ★3 can produce a 3-5 symbol cycle

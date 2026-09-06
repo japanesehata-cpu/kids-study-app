@@ -15,6 +15,7 @@ import type {
   ProgressState,
   Question,
   SpotDifferenceQuestion,
+  SudokuQuestion,
 } from '../domain/types'
 import { generateQuestionSet } from '../domain/progress'
 import { generateNumericChoices } from '../lib/choices'
@@ -22,7 +23,7 @@ import { getWordById } from '../domain/wordBank'
 import { getHiraganaById, hiraganaSpeechPhrase } from '../domain/hiraganaBank'
 import { getKatakanaById, katakanaSpeechPhrase } from '../domain/katakanaBank'
 import { alphabetSpeechPhrase, getAlphabetById } from '../domain/alphabetBank'
-import { formatClockKey, buildSetTimePrompt } from '../domain/questionGenerators/clock'
+import { formatClockKey, buildSetTimePrompt, type ClockMode } from '../domain/questionGenerators/clock'
 import { InteractiveClock } from '../components/InteractiveClock'
 import { buildFeedbackMessage, buildSpotDifferenceFailedFeedback } from '../domain/feedbackMessages'
 import { buildExplanation } from '../domain/explanations'
@@ -35,6 +36,7 @@ import { WordIcon } from '../components/WordIcon'
 import { HiraganaChar } from '../components/HiraganaChar'
 import { ClockFace } from '../components/ClockFace'
 import { SpotDifferenceBoard } from '../components/SpotDifferenceBoard'
+import { SudokuBoard } from '../components/SudokuBoard'
 import { CharacterPortrait } from '../components/characters/CharacterPortrait'
 import { characterThemes } from '../components/characters/characterThemes'
 import { RewardRain } from '../components/RewardRain'
@@ -44,6 +46,8 @@ interface QuizScreenProps {
   category: Category
   level: Level
   setSize: number
+  /** category === 'clock' only — see LevelSelectScreen's mode toggle. */
+  clockMode?: ClockMode
   progress: ProgressState
   onComplete: (answers: AnswerRecord[]) => void
   /** one step back — LevelSelectScreen */
@@ -60,6 +64,11 @@ const SPOT_DIFFERENCE_DONE = 'spot-difference-done'
 /** Sentinel passed to handleSelect once a spot-the-difference board hits its wrong-tap
  * limit before every difference was found — the only way that board can be "incorrect". */
 const SPOT_DIFFERENCE_FAILED = 'spot-difference-failed'
+
+/** Sentinel passed to handleSelect once every blank cell on a sudoku board has been filled
+ * correctly — like spot-the-difference, that board has no discrete "choice" buttons, and
+ * unlimited retries mean completion is always correct. */
+const SUDOKU_DONE = 'sudoku-done'
 
 function isArithmetic(q: Question): q is ArithmeticQuestion {
   return q.category === 'addition' || q.category === 'subtraction'
@@ -87,6 +96,10 @@ function isSpotDifference(q: Question): q is SpotDifferenceQuestion {
 
 function isCounting(q: Question): q is CountingQuestion {
   return q.category === 'counting'
+}
+
+function isSudoku(q: Question): q is SudokuQuestion {
+  return q.category === 'sudoku'
 }
 
 function isEnglishWord(q: Question): q is EnglishWordQuestion {
@@ -174,6 +187,9 @@ function computeAutoSpeech(
   }
   if (isSpotDifference(question)) {
     return { text: t('spotDifferencePrompt'), speechLang, cacheKey: ja ? 'prompt-spotdifference' : undefined }
+  }
+  if (isSudoku(question)) {
+    return { text: t('sudokuPrompt'), speechLang, cacheKey: ja ? 'prompt-sudoku' : undefined }
   }
   if (isCounting(question)) {
     return { text: t('countingPrompt'), speechLang, cacheKey: ja ? 'prompt-counting' : undefined }
@@ -609,6 +625,8 @@ function renderChoiceContent(question: Question, choice: Choice, lang: Lang) {
   if (isClock(question)) return formatClockKey(choice as string, lang)
   // never rendered: spot-the-difference has no choice-grid (see SpotDifferenceBoard)
   if (isSpotDifference(question)) return null
+  // never rendered: sudoku has no choice-grid either (see SudokuBoard)
+  if (isSudoku(question)) return null
   if (isCounting(question)) return choice
   if (isEnglishSentence(question)) return <WordIcon wordId={choice as string} size={72} />
   return question.mode === 'listenAndPick' ? (
@@ -634,16 +652,34 @@ function computeCorrectAnswerLabel(question: Question, lang: Lang): string {
   if (isAlphabet(question)) return question.answerChar
   if (isClock(question)) return formatClockKey(`${question.hour}:${question.minute}`, lang)
   if (isSpotDifference(question)) return ''
+  if (isSudoku(question)) return ''
   if (isCounting(question)) return String(question.count)
   if (isEnglishSentence(question)) return getWordById(question.correctWordId).word
   return getWordById(question.wordId).word
 }
 
-export function QuizScreen({ category, level, setSize, progress, onComplete, onExit, onHome }: QuizScreenProps) {
+export function QuizScreen({
+  category,
+  level,
+  setSize,
+  clockMode,
+  progress,
+  onComplete,
+  onExit,
+  onHome,
+}: QuizScreenProps) {
   const { t, lang } = useI18n()
-  const [questions] = useState<Question[]>(() =>
-    generateQuestionSet(category, level, progress[category].reviewQueue, setSize),
-  )
+  const [questions] = useState<Question[]>(() => {
+    // A clock reviewQueue can hold items from BOTH modes (saved across different rounds) —
+    // filter to the mode chosen this round so a stray "set the hands" review item can't
+    // resurface mid-"read the clock" round, which would recreate the exact per-round mode
+    // mixing this toggle was built to remove (see LevelSelectScreen's clock mode toggle).
+    const reviewQueue =
+      category === 'clock'
+        ? progress.clock.reviewQueue.filter((q) => q.category === 'clock' && q.kind === clockMode)
+        : progress[category].reviewQueue
+    return generateQuestionSet(category, level, reviewQueue, setSize, clockMode)
+  })
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState<AnswerRecord[]>([])
   const [selected, setSelected] = useState<Choice | null>(null)
@@ -691,6 +727,8 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
     if (isClock(question)) return question.choiceKeys
     // spot-the-difference answers by tapping the board itself, not a choice-grid button
     if (isSpotDifference(question)) return []
+    // sudoku likewise answers by tapping the board (blank cell + palette), not a choice-grid
+    if (isSudoku(question)) return []
     if (isCounting(question)) return question.choices
     if (isEnglishSentence(question)) return question.choiceWordIds
     return question.choiceWordIds
@@ -713,6 +751,8 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
     // reached either once every difference is found (always correct) or once the
     // wrong-tap limit is hit (always incorrect)
     if (isSpotDifference(question)) return choice !== SPOT_DIFFERENCE_FAILED
+    // reached only once every blank is filled correctly (see SUDOKU_DONE) — always correct
+    if (isSudoku(question)) return true
     if (isCounting(question)) return choice === question.count
     if (isEnglishSentence(question)) return choice === question.correctWordId
     return choice === question.wordId
@@ -776,7 +816,7 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
     setFeedbackText(feedback.text)
     // Shown as text only — the reasoning reads fine on the page but is skipped for
     // speech, since narrating every explanation would make each answer noticeably slower.
-    setExplanationText(buildExplanation(question, lang, correct))
+    setExplanationText(buildExplanation(question, lang, correct, choice))
 
     const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
     // Spoken as separate segments (see feedbackMessages.ts) so every part but the answer
@@ -861,7 +901,9 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
 
       <div
         className={`card-panel ${
-          isSpotDifference(question) || (isLogic(question) && question.kind === 'pattern') ? 'card-panel-wide' : ''
+          isSpotDifference(question) || isSudoku(question) || (isLogic(question) && question.kind === 'pattern')
+            ? 'card-panel-wide'
+            : ''
         }`.trim()}
       >
         {isArithmetic(question) ? (
@@ -945,6 +987,14 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
             promptText={t('englishSentencePrompt')}
             voiceProfile={voiceProfile}
           />
+        ) : isSudoku(question) ? (
+          <SudokuBoard
+            key={question.id}
+            question={question}
+            promptText={t('sudokuPrompt')}
+            onComplete={() => handleSelect(SUDOKU_DONE)}
+            disabled={selected !== null}
+          />
         ) : (
           <EnglishQuestionView
             question={question}
@@ -954,7 +1004,7 @@ export function QuizScreen({ category, level, setSize, progress, onComplete, onE
           />
         )}
 
-        {!isSpotDifference(question) && !(isClock(question) && question.kind === 'setTime') && (
+        {!isSpotDifference(question) && !isSudoku(question) && !(isClock(question) && question.kind === 'setTime') && (
           <div className="choice-grid">
             {choices.map((choice) => (
               <button

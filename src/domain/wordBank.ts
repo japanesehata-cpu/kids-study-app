@@ -575,13 +575,14 @@ export function getWordById(id: string): WordEntry {
 export const EXCLUDED_WORD_IDS = new Set([
   // audio-unresolved
   'pasta', 'taco', 'turquoise', 'umbrella', 'socks', 'ostrich', 'eye',
-  // image-unconfirmed
+  // image-unconfirmed — diamond/oval/pentagon/rectangle/square reviewed and confirmed
+  // this session (regenerated as unified flat-cutout shapes; see wordBank shape entries)
   'breeze', 'caterpillar', 'chalk', 'chin', 'comet', 'crane', 'crayon', 'cucumber',
-  'desert', 'diamond', 'drizzle', 'elbow', 'farm', 'firefly', 'garden', 'glacier',
+  'desert', 'drizzle', 'elbow', 'farm', 'firefly', 'garden', 'glacier',
   'glue', 'hail', 'hair', 'head', 'humidity', 'jumprope', 'ketchup', 'knee',
-  'lighthouse', 'mango', 'mayonnaise', 'mole', 'mountain', 'nail', 'omelette', 'oval',
-  'pentagon', 'platypus', 'plum', 'porcupine', 'recorder', 'rectangle', 'root', 'sand',
-  'shelf', 'shoulder', 'skating', 'soda', 'square', 'squid', 'stingray', 'tambourine',
+  'lighthouse', 'mango', 'mayonnaise', 'mole', 'mountain', 'nail', 'omelette',
+  'platypus', 'plum', 'porcupine', 'recorder', 'root', 'sand',
+  'shelf', 'shoulder', 'skating', 'soda', 'squid', 'stingray', 'tambourine',
   'tapir', 'textbook', 'thunder', 'top', 'valley', 'volcano', 'wind', 'xylophone',
   'yoyo', 'zoo',
 ])

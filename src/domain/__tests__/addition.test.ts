@@ -62,4 +62,20 @@ describe('generateAdditionQuestion', () => {
       expect(q.subSkill).toBe('addition-tens')
     }
   })
+
+  it('Lv6 always uses a teens-plus-single-digit sum crossing into the 20s, never shows the visual, and never has a story', () => {
+    for (let i = 0; i < 200; i++) {
+      const q = generateAdditionQuestion(6)
+      expect(q.answer).toBe(q.operandA + q.operandB)
+      expect(q.showVisual).toBe(false)
+      expect(q.story).toBeUndefined()
+      expect(q.operandA).toBeGreaterThanOrEqual(14)
+      expect(q.operandA).toBeLessThanOrEqual(19)
+      expect(q.operandB).toBeGreaterThanOrEqual(1)
+      expect(q.operandB).toBeLessThanOrEqual(9)
+      expect(q.answer).toBeGreaterThanOrEqual(15)
+      expect(q.answer).toBeLessThanOrEqual(28)
+      expect(q.subSkill).toBe('addition-twenties')
+    }
+  })
 })

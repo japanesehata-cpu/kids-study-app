@@ -14,6 +14,7 @@ function makeQuestion(id: string, subSkill: string, seed: number): ArithmeticQue
   return {
     id,
     category: 'addition',
+    operator: 'addition',
     level: 1,
     operandA,
     operandB,
@@ -48,6 +49,7 @@ const ALL_CATEGORIES: Category[] = [
   'clock',
   'spotDifference',
   'counting',
+  'missingOperand',
 ]
 
 describe('generateQuestionSet', () => {

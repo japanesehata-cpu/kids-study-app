@@ -18,6 +18,9 @@ const BOARD: Record<Level, { items: number; differences: number }> = {
   3: { items: 7, differences: 3 },
   4: { items: 8, differences: 4 },
   5: { items: 9, differences: 4 },
+  // Never reached — spotDifference caps at ★3 (see CATEGORY_MAX_LEVEL). Kept only so this
+  // Record's type checks against the full Level union.
+  6: { items: 9, differences: 4 },
 }
 
 /** ★1 sticks to a difference a 4yo can spot at a glance (a whole different picture). ★2
@@ -30,6 +33,7 @@ const DIFF_TYPES: Record<Level, SpotDifferenceDiffType[]> = {
   3: ['swap', 'resize', 'flip', 'rotate'],
   4: ['swap', 'resize', 'flip', 'rotate'],
   5: ['swap', 'resize', 'flip', 'rotate'],
+  6: ['swap', 'resize', 'flip', 'rotate'],
 }
 
 const MIN_SIZE = 58

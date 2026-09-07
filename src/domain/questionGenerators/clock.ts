@@ -24,6 +24,9 @@ const LEVEL_MINUTES: Record<Level, number[]> = {
   3: [...QUARTER_MINUTES],
   4: FIVE_MINUTES,
   5: ANY_MINUTE,
+  // Never reached — clock caps at ★3 (see CATEGORY_MAX_LEVEL). Kept only so this Record's
+  // type checks against the full Level union.
+  6: ANY_MINUTE,
 }
 
 function subSkillForMinute(minute: number): string {

@@ -20,6 +20,9 @@ const LEVEL_ROWS: Record<Level, KatakanaRow[]> = {
   3: LEVEL_3_ROWS,
   4: ['youon'],
   5: ['gairaigo'],
+  // Never reached — katakana caps at ★5. Kept only so this Record's type checks against
+  // the full Level union.
+  6: ['gairaigo'],
 }
 
 function poolForLevel(level: Level): KatakanaEntry[] {

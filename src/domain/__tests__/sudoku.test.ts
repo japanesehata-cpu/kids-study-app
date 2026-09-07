@@ -27,8 +27,8 @@ function isValid(grid: string[][], checkBlocks: boolean): boolean {
 
 // Fixed per level (see BLANK_COUNT in sudoku.ts) — a level must never mix blank counts,
 // only ★4/★5 teach the 2x2-block rule.
-const BLANK_COUNT: Record<Level, number> = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 8 }
-const CHECKS_BLOCKS: Record<Level, boolean> = { 1: false, 2: false, 3: false, 4: true, 5: true }
+const BLANK_COUNT: Record<Level, number> = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 8, 6: 8 }
+const CHECKS_BLOCKS: Record<Level, boolean> = { 1: false, 2: false, 3: false, 4: true, 5: true, 6: true }
 
 describe('generateSudokuQuestion', () => {
   for (const level of [1, 2, 3, 4, 5] as const) {

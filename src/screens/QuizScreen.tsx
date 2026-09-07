@@ -20,6 +20,7 @@ import type {
 import { generateQuestionSet } from '../domain/progress'
 import { generateNumericChoices } from '../lib/choices'
 import { getWordById } from '../domain/wordBank'
+import { getCounterById } from '../domain/counterBank'
 import { getHiraganaById, hiraganaSpeechPhrase } from '../domain/hiraganaBank'
 import { getKatakanaById, katakanaSpeechPhrase } from '../domain/katakanaBank'
 import { alphabetSpeechPhrase, getAlphabetById } from '../domain/alphabetBank'
@@ -71,7 +72,7 @@ const SPOT_DIFFERENCE_FAILED = 'spot-difference-failed'
 const SUDOKU_DONE = 'sudoku-done'
 
 function isArithmetic(q: Question): q is ArithmeticQuestion {
-  return q.category === 'addition' || q.category === 'subtraction'
+  return q.category === 'addition' || q.category === 'subtraction' || q.category === 'missingOperand'
 }
 
 function isLogic(q: Question): q is LogicQuestion {
@@ -119,12 +120,24 @@ function equationSpeech(
   lang: Lang,
 ): { text: string; speechLang: SpeechLang } {
   const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
+  // missingOperand: the equation itself is shown on screen (with the blank as a box), not
+  // spoken value-by-value — a fixed instruction instead avoids needing per-value TTS cache
+  // entries for every possible blanked equation. Text matches dictionary.ts's
+  // missingOperandPrompt exactly (hardcoded, not `t(...)`, since this function has no
+  // access to the translator — but it's what the on-screen subtitle also shows, see
+  // ArithmeticQuestionView, so the manual "listen again" button and the auto-speak effect
+  // both driven by this function stay in sync with what's displayed).
+  if (q.blank) {
+    return lang === 'ja'
+      ? { text: 'しかくに あう かずを えらんでね', speechLang }
+      : { text: 'Choose the number that fills the blank', speechLang }
+  }
   if (q.story) return { text: q.story[lang], speechLang }
   if (lang === 'ja') {
-    const op = q.category === 'addition' ? 'たす' : 'ひく'
+    const op = q.operator === 'addition' ? 'たす' : 'ひく'
     return { text: `${q.operandA} ${op} ${q.operandB} は？`, speechLang }
   }
-  const op = q.category === 'addition' ? 'plus' : 'minus'
+  const op = q.operator === 'addition' ? 'plus' : 'minus'
   return { text: `${q.operandA} ${op} ${q.operandB} equals what?`, speechLang }
 }
 
@@ -149,6 +162,14 @@ function computeAutoSpeech(
 
   if (isArithmetic(question)) {
     const { text, speechLang: sl } = equationSpeech(question, lang)
+    if (question.blank) {
+      const cacheKey = ja
+        ? question.operator === 'addition'
+          ? 'prompt-addition-missing'
+          : 'prompt-subtraction-missing'
+        : undefined
+      return { text, speechLang: sl, cacheKey }
+    }
     const keyPrefix = question.story ? 'story' : 'equation'
     const cacheKey = ja ? `${keyPrefix}-${question.category}-${question.operandA}-${question.operandB}` : undefined
     return { text, speechLang: sl, cacheKey }
@@ -192,7 +213,12 @@ function computeAutoSpeech(
     return { text: t('sudokuPrompt'), speechLang, cacheKey: ja ? 'prompt-sudoku' : undefined }
   }
   if (isCounting(question)) {
-    return { text: t('countingPrompt'), speechLang, cacheKey: ja ? 'prompt-counting' : undefined }
+    const counter = getCounterById(question.counterId)
+    return {
+      text: ja ? counter.promptJa : counter.promptEn,
+      speechLang,
+      cacheKey: ja ? `prompt-counting-${question.counterId}` : undefined,
+    }
   }
   if (isAlphabet(question)) {
     // Speak the letter wrapped in its ABC-chart mnemonic (see alphabetSpeechPhrase) rather
@@ -220,23 +246,27 @@ function ArithmeticQuestionView({
   lang,
   voiceProfile,
   cacheKey,
+  missingOperandPrompt,
 }: {
   question: ArithmeticQuestion
   lang: Lang
   voiceProfile: VoiceProfile
   cacheKey?: string
+  /** Only rendered/used when question.blank is set — see the subtitle below. */
+  missingOperandPrompt: string
 }) {
   const { text, speechLang } = equationSpeech(question, lang)
-  const symbol = question.category === 'addition' ? '+' : '−'
+  const symbol = question.operator === 'addition' ? '+' : '−'
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+      {question.blank && <p className="subtitle">{missingOperandPrompt}</p>}
       {/* ★4's round-tens questions can have a 20-90 operand — rendering that many apple
           emoji would be absurd, which is exactly why ★4 sets showVisual: false (see
           questionGenerators/addition.ts). A persisted pre-★4 question's showVisual is
           always true (that field didn't exist as a meaningful toggle before ★4), so
           checking it here can't hide the visual for any older ★1-3 question. */}
-      {question.category === 'addition' && question.showVisual !== false && (
+      {question.operator === 'addition' && question.showVisual !== false && (
         <div className="addition-visual">
           <div className="addition-visual-group">
             {Array.from({ length: question.operandA }).map((_, i) => (
@@ -256,7 +286,7 @@ function ArithmeticQuestionView({
         </div>
       )}
       {/* Same reasoning as the addition block above. */}
-      {question.category === 'subtraction' && question.showVisual !== false && (
+      {question.operator === 'subtraction' && question.showVisual !== false && (
         <div className="subtraction-visual-row">
           {Array.from({ length: question.operandA }).map((_, i) => (
             <span
@@ -268,7 +298,18 @@ function ArithmeticQuestionView({
           ))}
         </div>
       )}
-      {question.story ? (
+      {question.blank ? (
+        <div className="equation-text">
+          {question.blank === 'operandA' ? (
+            <span className="equation-blank" />
+          ) : (
+            question.operandA
+          )}{' '}
+          {symbol}{' '}
+          {question.blank === 'operandB' ? <span className="equation-blank" /> : question.operandB} ={' '}
+          {question.answer}
+        </div>
+      ) : question.story ? (
         <p className="story-text">{question.story[lang]}</p>
       ) : (
         <div className="equation-text">
@@ -567,38 +608,21 @@ function ClockSetTimeView({
 function CountingQuestionView({
   question,
   promptText,
-  targetHintText,
   lang,
   voiceProfile,
   cacheKey,
 }: {
   question: CountingQuestion
   promptText: string
-  targetHintText: string
   lang: Lang
   voiceProfile: VoiceProfile
   cacheKey?: string
 }) {
   const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
-  const hasDistractors = question.displayIds.some((id) => id !== question.targetWordId)
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-      {hasDistractors && (
-        // Boxed off with its own border/background so it reads as a separate "example"
-        // callout, not a 9th item sitting just above the grid — a plain stacked icon here
-        // (same card style, near-identical size to the grid's own icons) was easy to
-        // mistake for one more thing to count, off-by-one-ing the answer.
-        <div className="counting-hint">
-          <span className="counting-hint-label">{targetHintText}</span>
-          <WordIcon wordId={question.targetWordId} size={48} />
-        </div>
-      )}
-      <div className="visual-row">
-        {question.displayIds.map((id, i) => (
-          <WordIcon key={i} wordId={id} size={40} />
-        ))}
-      </div>
+      <WordIcon wordId={question.exampleWordId} size={140} />
       <p className="subtitle">{promptText}</p>
       <TtsButton text={promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
     </div>
@@ -627,7 +651,7 @@ function renderChoiceContent(question: Question, choice: Choice, lang: Lang) {
   if (isSpotDifference(question)) return null
   // never rendered: sudoku has no choice-grid either (see SudokuBoard)
   if (isSudoku(question)) return null
-  if (isCounting(question)) return choice
+  if (isCounting(question)) return getCounterById(choice as string).kana
   if (isEnglishSentence(question)) return <WordIcon wordId={choice as string} size={72} />
   return question.mode === 'listenAndPick' ? (
     <WordIcon wordId={choice as string} size={72} />
@@ -640,7 +664,7 @@ function renderChoiceContent(question: Question, choice: Choice, lang: Lang) {
  * An if-chain rather than a nested ternary — the ternary version accreted a new level with
  * every category this session added and became genuinely error-prone to extend correctly. */
 function computeCorrectAnswerLabel(question: Question, lang: Lang): string {
-  if (isArithmetic(question)) return String(question.answer)
+  if (isArithmetic(question)) return String(question.blank ? question[question.blank] : question.answer)
   if (isLogic(question)) {
     if (question.kind === 'oddOneOut') {
       return lang === 'ja' ? getWordById(question.answer).translationJa : getWordById(question.answer).word
@@ -653,7 +677,10 @@ function computeCorrectAnswerLabel(question: Question, lang: Lang): string {
   if (isClock(question)) return formatClockKey(`${question.hour}:${question.minute}`, lang)
   if (isSpotDifference(question)) return ''
   if (isSudoku(question)) return ''
-  if (isCounting(question)) return String(question.count)
+  if (isCounting(question)) {
+    const counter = getCounterById(question.counterId)
+    return `${counter.kana}（${counter.kanji}）`
+  }
   if (isEnglishSentence(question)) return getWordById(question.correctWordId).word
   return getWordById(question.wordId).word
 }
@@ -711,14 +738,17 @@ export function QuizScreen({
 
   const choices = useMemo<Choice[]>(() => {
     if (isArithmetic(question)) {
+      // missingOperand answers with whichever operand is hidden, not the equation's own
+      // answer (see questionGenerators/missingOperand.ts's `blank` field).
+      const target = question.blank ? question[question.blank] : question.answer
       // ★4's round-tens branch (see questionGenerators/{addition,subtraction}.ts) needs a
       // much wider range than ★1-3's single-digit-operand answers, and distractors that are
       // themselves round tens (50/70/80, not 58/61) — the same "which tens place" mistake a
       // child could plausibly make, rather than an arbitrary off-by-one/two.
       const isTens = question.operandA % 10 === 0 && question.operandB % 10 === 0 && question.operandA >= 10
-      if (isTens) return generateNumericChoices(question.answer, 10, 90, 10)
-      const max = question.category === 'subtraction' ? 15 : 19
-      return generateNumericChoices(question.answer, 0, max)
+      if (isTens) return generateNumericChoices(target, 10, 90, 10)
+      const max = question.operator === 'subtraction' ? 15 : 19
+      return generateNumericChoices(target, 0, max)
     }
     if (isLogic(question)) return question.choices
     if (isHiragana(question)) return question.choiceIds
@@ -729,7 +759,7 @@ export function QuizScreen({
     if (isSpotDifference(question)) return []
     // sudoku likewise answers by tapping the board (blank cell + palette), not a choice-grid
     if (isSudoku(question)) return []
-    if (isCounting(question)) return question.choices
+    if (isCounting(question)) return question.choiceCounterIds
     if (isEnglishSentence(question)) return question.choiceWordIds
     return question.choiceWordIds
   }, [question])
@@ -742,7 +772,7 @@ export function QuizScreen({
   }, [question])
 
   function isCorrectChoice(choice: Choice): boolean {
-    if (isArithmetic(question)) return choice === question.answer
+    if (isArithmetic(question)) return choice === (question.blank ? question[question.blank] : question.answer)
     if (isLogic(question)) return choice === question.answer
     if (isHiragana(question)) return choice === question.charId
     if (isKatakana(question)) return choice === question.charId
@@ -753,7 +783,7 @@ export function QuizScreen({
     if (isSpotDifference(question)) return choice !== SPOT_DIFFERENCE_FAILED
     // reached only once every blank is filled correctly (see SUDOKU_DONE) — always correct
     if (isSudoku(question)) return true
-    if (isCounting(question)) return choice === question.count
+    if (isCounting(question)) return choice === question.counterId
     if (isEnglishSentence(question)) return choice === question.correctWordId
     return choice === question.wordId
   }
@@ -912,6 +942,7 @@ export function QuizScreen({
             lang={lang}
             voiceProfile={voiceProfile}
             cacheKey={autoSpeech.cacheKey}
+            missingOperandPrompt={t('missingOperandPrompt')}
           />
         ) : isLogic(question) ? (
           <LogicQuestionView
@@ -975,8 +1006,7 @@ export function QuizScreen({
         ) : isCounting(question) ? (
           <CountingQuestionView
             question={question}
-            promptText={t('countingPrompt')}
-            targetHintText={t('countingTargetHint')}
+            promptText={autoSpeech.text}
             lang={lang}
             voiceProfile={voiceProfile}
             cacheKey={autoSpeech.cacheKey}

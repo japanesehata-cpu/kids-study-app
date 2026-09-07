@@ -272,6 +272,18 @@
   text-align: center;
 }
 
+/* missingOperand's hidden slot — a dashed box standing in for the missing number,
+ * distinct from the plain "= ?" the regular equation view uses (see
+ * questionGenerators/missingOperand.ts and ArithmeticQuestionView in QuizScreen.tsx). */
+.equation-blank {
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  vertical-align: -0.1em;
+  border: 4px dashed var(--color-primary);
+  border-radius: var(--radius-sm);
+}
+
 .story-text {
   font-size: 26px;
   font-weight: 700;
@@ -279,32 +291,6 @@
   text-align: center;
   line-height: 1.6;
   max-width: 480px;
-}
-
-.visual-row {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
-  max-width: 420px;
-}
-
-.counting-hint {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  background: var(--color-accent-soft);
-  border: 3px dashed var(--color-accent);
-  border-radius: var(--radius-md);
-  padding: 10px 20px;
-  margin-bottom: 6px;
-}
-
-.counting-hint-label {
-  font-size: 13px;
-  color: var(--color-text-soft);
-  font-weight: 700;
 }
 
 .visual-item {
@@ -409,8 +395,10 @@
   display: grid;
   /* auto-fit wraps onto a second row instead of forcing all 5 columns into one row that
      overflows a narrow phone width — LevelSelectScreen no longer needs to compute this
-     per category, since it now adapts to whatever width it actually has. */
-  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+     per category, since it now adapts to whatever width it actually has. Widened from
+     90px to fit each level's one-line description (see .level-description) without
+     wrapping onto three lines on a typical phone width. */
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 16px;
   width: 100%;
   max-width: 640px;
@@ -446,6 +434,17 @@
   font-size: 14px;
   color: var(--color-accent);
   letter-spacing: 1px;
+}
+
+/** What each level actually tests — added so a level is never just an unexplained star
+ * count (see levelDescriptions.ts for why this mattered enough to add: several categories'
+ * levels differ by *what skill* is tested, not just raw difficulty, and the star count
+ * alone can't convey that). */
+.level-description {
+  font-size: 12px;
+  color: var(--color-text-soft);
+  text-align: center;
+  line-height: 1.3;
 }
 
 .card-panel {

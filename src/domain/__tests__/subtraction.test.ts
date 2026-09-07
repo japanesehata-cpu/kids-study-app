@@ -73,4 +73,19 @@ describe('generateSubtractionQuestion', () => {
       expect(q.subSkill).toBe('subtraction-tens')
     }
   })
+
+  it('Lv6 always uses a 20s minuend with a single-digit subtrahend, answer always a teen', () => {
+    for (let i = 0; i < 200; i++) {
+      const q = generateSubtractionQuestion(6)
+      expect(q.answer).toBe(q.operandA - q.operandB)
+      expect(q.showVisual).toBe(false)
+      expect(q.story).toBeUndefined()
+      expect(q.operandB).toBeGreaterThanOrEqual(1)
+      expect(q.operandB).toBeLessThanOrEqual(9)
+      expect(q.answer).toBeGreaterThanOrEqual(10)
+      expect(q.answer).toBeLessThanOrEqual(19)
+      expect(q.operandA).toBeGreaterThanOrEqual(11)
+      expect(q.subSkill).toBe('subtraction-twenties')
+    }
+  })
 })

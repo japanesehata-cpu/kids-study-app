@@ -23,6 +23,7 @@ export const CATEGORY_META: CategoryMeta[] = [
   { category: 'counting', symbol: '🔢', labelKey: 'categoryCounting' },
   { category: 'englishSentence', symbol: '👂', labelKey: 'categoryEnglishSentence' },
   { category: 'sudoku', symbol: '🧩', labelKey: 'categorySudoku' },
+  { category: 'missingOperand', symbol: '🔲', labelKey: 'categoryMissingOperand' },
 ]
 
 export function getCategoryMeta(category: Category): CategoryMeta {

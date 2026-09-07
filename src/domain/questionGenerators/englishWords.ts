@@ -16,6 +16,9 @@ const MAX_WORD_LENGTH: Record<Level, number> = {
   3: 8,
   4: 11,
   5: Infinity,
+  // Never reached — englishSpelling/englishListening cap at ★5. Kept only so this
+  // Record's type checks against the full Level union.
+  6: Infinity,
 }
 
 /** Falls back to the whole bank if a level's length cap leaves too few words to pick a

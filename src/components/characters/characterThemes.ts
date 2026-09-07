@@ -125,6 +125,24 @@ export const characterThemes: Record<Category, CharacterTheme> = {
   // rather than the home grid — same mascot/voice as logic since it's a mode within it,
   // not a separate skill with its own character (mirrors englishListening reusing
   // englishSpelling's hana above).
+  // Reached via a secondary button on both addition's and subtraction's level-select
+  // (see LevelSelectScreen.tsx) — arithmetic's own extension, reusing momo's theme/voice
+  // rather than introducing a new mascot, same reasoning as sudoku reusing koko's above.
+  missingOperand: {
+    id: 'momo',
+    colorMain: '#ff9bc0',
+    colorMainDark: '#e0688f',
+    colorSub: '#fff5f8',
+    colorAccent: '#ffd166',
+    colorAccentDark: '#e0a83a',
+    voiceProfile: {
+      pitch: 1.35,
+      rate: 1.05,
+      playbackRate: 1.2,
+      voicevoxSpeaker: { name: '四国めたん', style: 'ノーマル' },
+      kokoroVoice: 'af_bella',
+    },
+  },
   sudoku: {
     id: 'koko',
     colorMain: '#7fd9c4',

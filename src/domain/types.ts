@@ -12,14 +12,25 @@ export type Category =
   | 'counting'
   | 'englishSentence'
   | 'sudoku'
+  | 'missingOperand'
 
 /** The original five categories use a 5-step scale; clock/spotDifference/counting use only
- * levels 1-3 (see CATEGORY_MAX_LEVEL in progress.ts), shown as 1-3 stars instead of 1-5. */
-export type Level = 1 | 2 | 3 | 4 | 5
+ * levels 1-3 (see CATEGORY_MAX_LEVEL in progress.ts), shown as 1-3 stars instead of 1-5.
+ * addition/subtraction alone reach ★6 (a "teens crossing into the 20s" milestone — see
+ * questionGenerators/{addition,subtraction}.ts) — every other category's Record<Level, X>
+ * table still needs a (usually unused) `6` entry purely so it type-checks against this
+ * shared union, same as the pre-existing "never reached" entries below ★5. */
+export type Level = 1 | 2 | 3 | 4 | 5 | 6
 
 export interface ArithmeticQuestion {
   id: string
-  category: 'addition' | 'subtraction'
+  category: 'addition' | 'subtraction' | 'missingOperand'
+  /** The operator THIS question actually uses — always equal to `category` for plain
+   * addition/subtraction, but meaningful on its own for `missingOperand` (which mixes
+   * both operators within one category — see questionGenerators/missingOperand.ts).
+   * Every operator-dependent rendering choice (symbol, visual, speech template) should
+   * switch on this field, not on `category`. */
+  operator: 'addition' | 'subtraction'
   level: Level
   operandA: number
   operandB: number
@@ -30,6 +41,9 @@ export interface ArithmeticQuestion {
   story?: { ja: string; en: string }
   /** sub-skill tag used for the strengths/weaknesses breakdown */
   subSkill: string
+  /** Set only for missingOperand questions: which slot is hidden and must be solved for
+   * — the child answers with that operand's value instead of `answer`. */
+  blank?: 'operandA' | 'operandB'
 }
 
 export interface EnglishWordQuestion {
@@ -189,12 +203,11 @@ export interface CountingQuestion {
   id: string
   category: 'counting'
   level: Level
-  /** the wordBank id being counted */
-  targetWordId: string
-  /** the full row shown, including any distractor ids mixed in at higher levels */
-  displayIds: string[]
-  count: number
-  choices: number[]
+  /** counterBank id being tested (see counterBank.ts) */
+  counterId: string
+  /** wordBank id (or a words-image-only id) shown as the example picture */
+  exampleWordId: string
+  choiceCounterIds: string[]
   subSkill: string
 }
 

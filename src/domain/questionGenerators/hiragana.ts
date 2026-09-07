@@ -22,6 +22,9 @@ const LEVEL_ROWS: Record<Level, HiraganaRow[]> = {
   3: LEVEL_3_ROWS,
   4: ['youon'],
   5: ['youon'],
+  // Never reached — hiragana caps at ★4. Kept only so this Record's type checks against
+  // the full Level union.
+  6: ['youon'],
 }
 
 function poolForLevel(level: Level): HiraganaEntry[] {

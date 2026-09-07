@@ -77,18 +77,18 @@ export const SYMBOL_SETS: string[][] = [
   ['💗', '💛', '💚', '💙', '💜'],
 ]
 
-/** ★2 (pattern's first appearance) keeps a simple 2-symbol cycle on a short 5-symbol
- * strip. ★3-★5 each draw a strictly longer cycle (3, then 4, then 5 symbols) instead of
- * a random 3-5 for all three, so the hardest tier is reliably the hardest tier rather
- * than sometimes coinciding with ★3's easiest possible draw. */
-const PATTERN_CYCLE_LEN: Record<Level, number> = { 1: 2, 2: 2, 3: 3, 4: 4, 5: 5 }
-const PATTERN_SEQ_LEN: Record<Level, number> = { 1: 5, 2: 5, 3: 8, 4: 9, 5: 10 }
+/** Fixed, not level-indexed — ★2 is pattern's only level now (see KIND_BY_LEVEL below),
+ * so there's nothing left to escalate across. A 3-symbol cycle on an 8-long strip is
+ * enough to require actually tracking the sequence rather than guessing from the strip's
+ * shape alone. */
+const PATTERN_CYCLE_LEN = 3
+const PATTERN_SEQ_LEN = 8
 
 function generatePattern(level: Level): LogicQuestion {
   const set = pickRandom(SYMBOL_SETS)
-  const cycleLen = PATTERN_CYCLE_LEN[level]
+  const cycleLen = PATTERN_CYCLE_LEN
   const symbols = set.slice(0, cycleLen)
-  const seqLen = PATTERN_SEQ_LEN[level]
+  const seqLen = PATTERN_SEQ_LEN
 
   const sequence = Array.from({ length: seqLen }, (_, i) => symbols[i % cycleLen])
   const answer = symbols[seqLen % cycleLen]
@@ -117,13 +117,14 @@ function generatePattern(level: Level): LogicQuestion {
   }
 }
 
-// compare only ever appears at ★3+ — its own range still climbs across those levels
-// instead of coin-flipping between easy/hard regardless of which one, so ★5 reliably
-// compares bigger numbers than ★3 does.
-const COMPARE_MAX: Record<Level, number> = { 1: 10, 2: 10, 3: 10, 4: 14, 5: 18 }
+/** Fixed, not level-indexed — ★3 is compare's only level now (see KIND_BY_LEVEL below),
+ * so there's nothing left to escalate across. 14 splits the difference between the old
+ * ★3 (10, too easy to be a level on its own) and ★5 (18, harder than a first exposure to
+ * numeric comparison needs to be). */
+const COMPARE_MAX = 14
 
 function generateCompare(level: Level): LogicQuestion {
-  const max = COMPARE_MAX[level]
+  const max = COMPARE_MAX
   const numbers = new Set<number>()
   while (numbers.size < 4) numbers.add(randomInt(0, max))
   const numberList = [...numbers]
@@ -143,22 +144,30 @@ function generateCompare(level: Level): LogicQuestion {
   }
 }
 
-/** ★1: oddOneOut only. ★2: adds pattern. ★3+: adds compare, and each higher level leans
- * further toward pattern/compare (each with its own escalating internal difficulty
- * above) instead of picking uniformly among all three the way ★3-★5 used to, so the
- * overall question mix keeps getting harder too, not just the individual question types. */
-const KIND_WEIGHTS: Record<Level, LogicQuestion['kind'][]> = {
-  1: ['oddOneOut'],
-  2: ['oddOneOut', 'oddOneOut', 'pattern'],
-  3: ['oddOneOut', 'pattern', 'compare'],
-  4: ['oddOneOut', 'pattern', 'pattern', 'compare', 'compare'],
-  5: ['oddOneOut', 'pattern', 'compare', 'compare', 'compare'],
+/** One skill per level, not a random blend — a level used to mix oddOneOut/pattern/
+ * compare within itself (e.g. ★3 picked uniformly among all three), so a given ★3 round
+ * could be three entirely different reasoning skills depending on the draw, with no way
+ * to tell which from the star count alone. Same "one level, one consistent thing being
+ * tested" principle applied to addition/subtraction's ★ ladder this session — see the
+ * level-redefinition discussion. ★1 odd-one-out (spot the different category) is the
+ * most concrete/visual of the three; ★2 pattern (track a repeating sequence) adds
+ * holding a short sequence in mind; ★3 compare (biggest/smallest of 4 numbers) is the
+ * most abstract, numeric-only skill — a natural difficulty order even without needing to
+ * blend them together.
+ * Never reached — logic caps at ★3 (see CATEGORY_MAX_LEVEL). Kept only so this Record
+ * type-checks against the full Level union; ★4-★6 fall back to compare, the last real
+ * skill defined. */
+const KIND_BY_LEVEL: Record<Level, LogicQuestion['kind']> = {
+  1: 'oddOneOut',
+  2: 'pattern',
+  3: 'compare',
+  4: 'compare',
+  5: 'compare',
+  6: 'compare',
 }
 
 export function generateLogicQuestion(level: Level): LogicQuestion {
-  const kind = pickRandom(KIND_WEIGHTS[level])
-
-  switch (kind) {
+  switch (KIND_BY_LEVEL[level]) {
     case 'oddOneOut':
       return generateOddOneOut(level)
     case 'pattern':

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Category, Level } from '../domain/types'
 import { getCategoryMaxLevel } from '../domain/progress'
+import { getLevelDescriptionKey } from '../domain/levelDescriptions'
 import type { ClockMode } from '../domain/questionGenerators/clock'
 import { useI18n } from '../i18n/I18nContext'
 import { CharacterPortrait } from '../components/characters/CharacterPortrait'
@@ -21,6 +22,9 @@ interface LevelSelectScreenProps {
    * from here rather than mixed into logic's own random question mix (see the plan this
    * was built from). */
   onOpenSudoku?: () => void
+  /** addition/subtraction only — opens missingOperand's own level-select (mixes both
+   * operators, so it's reached from either screen rather than owned by one). */
+  onOpenMissingOperand?: () => void
   /** one step back — Home for most categories, EnglishEntryScreen for englishSpelling/englishListening */
   onBack: () => void
   onHome: () => void
@@ -33,6 +37,7 @@ export function LevelSelectScreen({
   onSelectLevel,
   onOpenHandwriting,
   onOpenSudoku,
+  onOpenMissingOperand,
   onBack,
   onHome,
 }: LevelSelectScreenProps) {
@@ -75,6 +80,12 @@ export function LevelSelectScreen({
         </button>
       )}
 
+      {(category === 'addition' || category === 'subtraction') && onOpenMissingOperand && (
+        <button type="button" className="secondary-button" onClick={onOpenMissingOperand}>
+          {t('missingOperandButton')}
+        </button>
+      )}
+
       {category === 'clock' && (
         <div className="set-size-toggle">
           {CLOCK_MODE_OPTIONS.map((mode) => (
@@ -104,20 +115,24 @@ export function LevelSelectScreen({
       </div>
 
       <div className="level-grid">
-        {levels.map((level) => (
-          <button
-            key={level}
-            type="button"
-            className="level-button"
-            onClick={() => onSelectLevel(level, setSize, category === 'clock' ? clockMode : undefined)}
-          >
-            <span className="level-number">{level}</span>
-            <span className="level-stars">
-              {'★'.repeat(level)}
-              {'☆'.repeat(maxLevel - level)}
-            </span>
-          </button>
-        ))}
+        {levels.map((level) => {
+          const descKey = getLevelDescriptionKey(category, level)
+          return (
+            <button
+              key={level}
+              type="button"
+              className="level-button"
+              onClick={() => onSelectLevel(level, setSize, category === 'clock' ? clockMode : undefined)}
+            >
+              <span className="level-number">{level}</span>
+              <span className="level-stars">
+                {'★'.repeat(level)}
+                {'☆'.repeat(maxLevel - level)}
+              </span>
+              {descKey && <span className="level-description">{t(descKey)}</span>}
+            </button>
+          )
+        })}
       </div>
     </div>
   )

@@ -150,6 +150,9 @@ const BLANK_COUNT: Record<Level, number> = {
   3: 3,
   4: 4,
   5: 8,
+  // Never reached — sudoku caps at ★5 (see CATEGORY_MAX_LEVEL). Kept only so this
+  // Record's type checks against the full Level union.
+  6: 8,
 }
 
 function blankCountForLevel(level: Level): number {

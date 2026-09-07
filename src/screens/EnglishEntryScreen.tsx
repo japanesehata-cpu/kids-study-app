@@ -3,7 +3,7 @@ import { CharacterPortrait } from '../components/characters/CharacterPortrait'
 import { characterThemes } from '../components/characters/characterThemes'
 
 interface EnglishEntryScreenProps {
-  onSelect: (mode: 'englishSpelling' | 'englishListening') => void
+  onSelect: (mode: 'englishSpelling' | 'englishListening' | 'englishSentence') => void
   /** one step back — from here, the same as onHome since Home is the only screen that
    * opens this one, but kept for consistency with every other screen's back button pair */
   onBack: () => void
@@ -11,9 +11,10 @@ interface EnglishEntryScreenProps {
 }
 
 /** English is presented as a single combined home-screen card (see HomeScreen) that opens
- * this よむ/きく chooser instead of two separate cards — englishSpelling and
- * englishListening remain fully separate categories underneath, each with its own
- * independent level/progress (see LevelSelectScreen), this is just the entry point. */
+ * this よむ/きく/ぶんしょう chooser instead of three separate cards — englishSpelling,
+ * englishListening, and englishSentence remain fully separate categories underneath, each
+ * with its own independent level/progress (see LevelSelectScreen), this is just the entry
+ * point. */
 export function EnglishEntryScreen({ onSelect, onBack, onHome }: EnglishEntryScreenProps) {
   const { t } = useI18n()
 
@@ -42,6 +43,10 @@ export function EnglishEntryScreen({ onSelect, onBack, onHome }: EnglishEntryScr
         <button type="button" className="level-button" onClick={() => onSelect('englishListening')}>
           <span className="level-number">{t('englishEntryListenLabel')}</span>
           <span className="hint-caption">{t('englishEntryListenDescription')}</span>
+        </button>
+        <button type="button" className="level-button" onClick={() => onSelect('englishSentence')}>
+          <span className="level-number">{t('englishEntrySentenceLabel')}</span>
+          <span className="hint-caption">{t('englishEntrySentenceDescription')}</span>
         </button>
       </div>
     </div>

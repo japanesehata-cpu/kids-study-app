@@ -1,6 +1,7 @@
 import type { Lang } from '../i18n/dictionary'
 import type { Question } from './types'
 import { getWordById, type WordEntry } from './wordBank'
+import { getCounterById } from './counterBank'
 import { getHiraganaById } from './hiraganaBank'
 import { getKatakanaById } from './katakanaBank'
 import { formatClockKey } from './questionGenerators/clock'
@@ -21,11 +22,6 @@ const CATEGORY_LABEL: Record<WordEntry['category'], Record<Lang, string>> = {
   instrument: { ja: 'がっき', en: 'instruments' },
   shape: { ja: 'かたち', en: 'shapes' },
   place: { ja: 'ばしょ', en: 'places' },
-}
-
-function wordLabel(id: string, lang: Lang): string {
-  const entry = getWordById(id)
-  return lang === 'ja' ? entry.translationJa : entry.word
 }
 
 /** One sentence explaining *why* the correct answer is correct — shown after every
@@ -55,6 +51,17 @@ export function buildExplanation(
       return lang === 'ja'
         ? `${operandA}から ${operandB}を ひくと ${answer}が のこるよ。`
         : `${operandA} minus ${operandB} leaves ${answer}.`
+    }
+    case 'missingOperand': {
+      const { operandA, operandB, answer, operator, blank } = question
+      const missingValue = blank === 'operandA' ? operandA : blank === 'operandB' ? operandB : answer
+      return lang === 'ja'
+        ? operator === 'addition'
+          ? `${operandA}と${operandB}を あわせると ${answer}。 □には ${missingValue}が はいるよ。`
+          : `${operandA}から ${operandB}を ひくと ${answer}。 □には ${missingValue}が はいるよ。`
+        : operator === 'addition'
+          ? `${operandA} plus ${operandB} equals ${answer}. The blank is ${missingValue}.`
+          : `${operandA} minus ${operandB} leaves ${answer}. The blank is ${missingValue}.`
     }
     case 'englishSpelling':
     case 'englishListening': {
@@ -159,10 +166,10 @@ export function buildExplanation(
         : `There were ${count} differences in total — great spotting!`
     }
     case 'counting': {
-      const label = wordLabel(question.targetWordId, lang)
+      const counter = getCounterById(question.counterId)
       return lang === 'ja'
-        ? `${label}は ぜんぶで ${question.count}こ あったよ。`
-        : `${label} appeared ${question.count} times in total.`
+        ? `こたえは 「${counter.kana}」（${counter.kanji}）だよ。`
+        : `The answer is "${counter.kana}" (${counter.kanji}).`
     }
     case 'englishSentence': {
       // The question is spoken audio-only (no caption while answering, by design — see

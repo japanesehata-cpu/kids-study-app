@@ -33,33 +33,16 @@ const COLOR_FAMILY: Record<string, string> = {
 
 const ALL_COLOR_IDS = Object.keys(COLOR_FAMILY)
 
-/** ★1 easy, ★2 hard — deliberately just 2 clean levels, not 3. Unlike englishWords.ts,
- * this category has no other level-dependent axis (animal/misc questions are already
- * level-independent; only a color question's distractor hardness varies), so a random
- * middle level would only ever have been a coin flip between these same two states with
- * nothing else to make it a distinct difficulty — see the level-redefinition discussion
- * this was simplified from. CATEGORY_MAX_LEVEL.englishSentence is 2 to match. */
-function shouldUseHardDistractors(level: Level): boolean {
-  return level > 1
-}
-
-function pickColorDistractors(correctColorId: string, hard: boolean): string[] {
+/** No level/difficulty split any more (this category has no ★ levels at all — see
+ * LevelSelectScreen's skip for 'englishSentence' and CATEGORY_MAX_LEVEL). Distractors
+ * always draw from OTHER color families only, never the same one — e.g. grapes' answer
+ * "purple" never appears alongside "indigo" as a choice, since a real child (and plenty of
+ * adults) can't reliably tell those apart. A same-family "hard" mode existed briefly during
+ * this session's level system but was removed: confusable-on-purpose distractors aren't a
+ * legitimate difficulty knob, just an unfair question. */
+function pickColorDistractors(correctColorId: string): string[] {
   const family = COLOR_FAMILY[correctColorId]
-  const sameFamily = ALL_COLOR_IDS.filter((c) => c !== correctColorId && COLOR_FAMILY[c] === family)
   const otherFamilies = ALL_COLOR_IDS.filter((c) => c !== correctColorId && COLOR_FAMILY[c] !== family)
-
-  if (hard) {
-    // Same-family (genuinely confusable) colors first, topped up from the rest if the
-    // family is too small to fill all 3 slots alone (e.g. brown/maroon/red only has 2
-    // other members) — always includes every real confusable option rather than an
-    // all-or-nothing "only if >=3 exist" cutoff, which used to silently skip hard mode
-    // entirely for exactly this kind of 3-member family.
-    return [...shuffle(sameFamily), ...shuffle(otherFamilies)].slice(0, 3)
-  }
-  // Easy mode only ever draws from OTHER families, so a same-family (confusable) color
-  // never appears by chance even at ★1 — this is the actual fix for the reported bug:
-  // brown's question could previously also draw maroon at "easy" purely by luck, since
-  // easy mode was unrestricted random-from-everything.
   return shuffle(otherFamilies).slice(0, 3)
 }
 
@@ -109,11 +92,15 @@ function buildPool(): PoolEntry[] {
   ]
 }
 
+/** `level` is accepted only to match every other generator's `(level: Level) => Question`
+ * shape (see generateFreshQuestion's switch in progress.ts) — this category has no ★
+ * levels (see CATEGORY_MAX_LEVEL and LevelSelectScreen), so the value is always 1 and
+ * otherwise unused. */
 export function generateEnglishSentenceQuestion(level: Level): EnglishSentenceQuestion {
   const entry = shuffle(buildPool())[0]
   const distractors =
     entry.kind === 'color'
-      ? pickColorDistractors(entry.answerWordId, shouldUseHardDistractors(level))
+      ? pickColorDistractors(entry.answerWordId)
       : pickCategoryDistractors(entry.answerWordId, entry.wordCategory)
   const choiceWordIds = shuffle([entry.answerWordId, ...distractors])
 

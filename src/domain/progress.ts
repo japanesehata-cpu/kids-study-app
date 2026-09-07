@@ -20,17 +20,19 @@ import { generateClockQuestion, type ClockMode } from './questionGenerators/cloc
 import { generateSpotDifferenceQuestion } from './questionGenerators/spotDifference'
 import { generateCountingQuestion } from './questionGenerators/counting'
 import { generateSudokuQuestion } from './questionGenerators/sudoku'
+import { generateMissingOperandQuestion } from './questionGenerators/missingOperand'
 import { loadProgressJson, saveProgressJson } from '../lib/storage'
 
 export const SET_SIZE = 10
 /** Kept for the categories that still use the full 5-step scale. */
 export const MAX_LEVEL: Level = 5
 
-/** logic/alphabet/clock/spotDifference/counting are scaled to 3 steps (★1-3, ages 4/5/6)
+/** logic/alphabet/clock/spotDifference are scaled to 3 steps (★1-3, ages 4/5/6)
  * instead of the original 5 — see LevelSelectScreen, which reads this to size its level
- * grid. englishSentence is only 2 steps — see questionGenerators/englishSentence.ts's
- * shouldUseHardDistractors comment for why a 3rd level would have had nothing left to
- * distinguish it by. addition/subtraction/englishSpelling/englishListening/sudoku all go to
+ * grid. englishSentence and counting are only 1 step (no ladder at all — each is a fixed
+ * vocabulary pool, not a difficulty progression; see the top-of-file comment in
+ * questionGenerators/englishSentence.ts and counterBank.ts). addition/subtraction/
+ * englishSpelling/englishListening/sudoku all go to
  * 5: addition/subtraction's ★4/★5 split a still-harder single-digit sum/minuend from a new
  * round-tens skill (20+30-style — see questionGenerators/{addition,subtraction}.ts, and the
  * level-redefinition discussion each level must be one consistent difficulty, never a
@@ -39,10 +41,12 @@ export const MAX_LEVEL: Level = 5
  * rule at two blank counts (see questionGenerators/sudoku.ts). hiragana's ★4 is a dedicated
  * 拗音 (youon) milestone, and katakana alone adds ★5 for 外来語表記 (gairaigo) — extended
  * katakana used only for loanword sounds, with no hiragana equivalent (see
- * questionGenerators/katakana.ts). */
+ * questionGenerators/katakana.ts). addition/subtraction alone reach ★6 — a "teens
+ * crossing into the 20s" milestone (14-19 + 1-9 for addition, mirrored for subtraction —
+ * see generateTwentiesOperands in each generator), modeled on a 1st-grade worksheet. */
 export const CATEGORY_MAX_LEVEL: Record<Category, Level> = {
-  addition: 5,
-  subtraction: 5,
+  addition: 6,
+  subtraction: 6,
   englishSpelling: 5,
   englishListening: 5,
   logic: 3,
@@ -51,12 +55,25 @@ export const CATEGORY_MAX_LEVEL: Record<Category, Level> = {
   alphabet: 3,
   clock: 3,
   spotDifference: 3,
-  counting: 3,
-  englishSentence: 2,
+  // No ★ levels at all (助数詞 redesign — see counterBank.ts/questionGenerators/
+  // counting.ts) — same "fixed vocabulary pool, not a difficulty ladder" treatment as
+  // englishSentence below. Reached directly from HomeScreen (no level-select screen in
+  // between, see App.tsx), always played at a fixed 10-question set size.
+  counting: 1,
+  // No ★ levels at all — see questionGenerators/englishSentence.ts's pickColorDistractors
+  // comment for why the old ★1/★2 split was removed outright rather than kept. Reached
+  // directly from EnglishEntryScreen's chooser (no level-select screen in between, see
+  // App.tsx), always played at a fixed 10-question set size.
+  englishSentence: 1,
   // Reached via a button on logic's own level-select (see LevelSelectScreen.tsx), same
   // pattern as englishListening being reached via EnglishEntryScreen — an independent
   // mode with its own progress, not mixed into logic's own random question mix.
   sudoku: 5,
+  // Reached via a secondary button on BOTH addition's and subtraction's level-select
+  // (it mixes both operators — see questionGenerators/missingOperand.ts) — same
+  // independent-mode pattern as sudoku above, just with two entry points into one
+  // destination instead of one.
+  missingOperand: 2,
 }
 
 export function getCategoryMaxLevel(category: Category): Level {
@@ -83,6 +100,7 @@ export function createInitialProgress(): ProgressState {
     counting: { level: 1, recentAccuracy: [], reviewQueue: [] },
     englishSentence: { level: 1, recentAccuracy: [], reviewQueue: [] },
     sudoku: { level: 1, recentAccuracy: [], reviewQueue: [] },
+    missingOperand: { level: 1, recentAccuracy: [], reviewQueue: [] },
   }
 }
 
@@ -106,6 +124,20 @@ function isCompatibleQuestion(q: Question): boolean {
   }
   if (q.category === 'sudoku') {
     return Array.isArray(q.grid) && Array.isArray(q.solution) && Array.isArray(q.symbols)
+  }
+  if (q.category === 'addition' || q.category === 'subtraction') {
+    // Guards against a stored reviewQueue entry from before the `operator` field was
+    // added to ArithmeticQuestion (see questionGenerators/missingOperand.ts) — an
+    // old-shaped entry would otherwise resurface with operator undefined and silently
+    // mis-render its symbol/visual (which now switch on `operator`, not `category`).
+    return typeof q.operator === 'string'
+  }
+  if (q.category === 'counting') {
+    // Guards against a stored reviewQueue entry from before the 助数詞 redesign replaced
+    // targetWordId/displayIds/count/choices with counterId/exampleWordId/choiceCounterIds
+    // (see questionGenerators/counting.ts) — an old-shaped entry would otherwise resurface
+    // with counterId undefined and crash getCounterById downstream.
+    return typeof q.counterId === 'string' && Array.isArray(q.choiceCounterIds)
   }
   return true
 }
@@ -149,6 +181,7 @@ export function loadProgress(): ProgressState {
       counting: sanitizeCategoryProgress('counting', parsed.counting, initial.counting),
       englishSentence: sanitizeCategoryProgress('englishSentence', parsed.englishSentence, initial.englishSentence),
       sudoku: sanitizeCategoryProgress('sudoku', parsed.sudoku, initial.sudoku),
+      missingOperand: sanitizeCategoryProgress('missingOperand', parsed.missingOperand, initial.missingOperand),
     }
   } catch {
     return createInitialProgress()
@@ -187,6 +220,8 @@ function generateFreshQuestion(category: Category, level: Level, clockMode?: Clo
       return generateEnglishSentenceQuestion(level)
     case 'sudoku':
       return generateSudokuQuestion(level)
+    case 'missingOperand':
+      return generateMissingOperandQuestion(level)
   }
 }
 
@@ -208,7 +243,7 @@ function questionSignature(q: Question): string {
   if (q.category === 'spotDifference') {
     return `spot:${q.leftItems.map((i) => i.iconId).join(',')}:${q.differenceIndexes.join(',')}`
   }
-  if (q.category === 'counting') return `counting:${q.targetWordId}:${q.count}:${q.displayIds.length}`
+  if (q.category === 'counting') return `counting:${q.counterId}`
   if (q.category === 'englishSentence') return `sentence:${q.sentenceId}`
   if (q.category === 'sudoku') return `sudoku:${q.grid.map((row) => row.map((c) => c ?? '_').join('')).join('|')}`
   return `${q.category}:${q.operandA}:${q.operandB}`

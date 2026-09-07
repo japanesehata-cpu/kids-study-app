@@ -35,6 +35,7 @@ import { fileURLToPath } from 'node:url'
 import { dictionary } from '../src/i18n/dictionary.ts'
 import { characterThemes } from '../src/components/characters/characterThemes.ts'
 import { CATEGORY_META } from '../src/domain/categoryMeta.ts'
+import { counterBank } from '../src/domain/counterBank.ts'
 import { hiraganaBank, hiraganaSpeechPhrase } from '../src/domain/hiraganaBank.ts'
 import { katakanaBank, katakanaSpeechPhrase } from '../src/domain/katakanaBank.ts'
 import { enumerateFeedbackCacheEntries } from '../src/domain/feedbackMessages.ts'
@@ -130,6 +131,7 @@ function buildJobs() {
     counting: 'introKazu',
     englishSentence: 'introHana',
     sudoku: 'introKoko',
+    missingOperand: 'introMomo',
   }
   for (const { category } of CATEGORY_META) {
     const text = dictionary[introKeyByCategory[category]].ja
@@ -188,12 +190,26 @@ function buildJobs() {
     { cacheKey: 'prompt-clock', dictKey: 'clockPrompt', category: 'clock' },
     { cacheKey: 'prompt-spotdifference', dictKey: 'spotDifferencePrompt', category: 'spotDifference' },
     { cacheKey: 'prompt-sudoku', dictKey: 'sudokuPrompt', category: 'sudoku' },
-    { cacheKey: 'prompt-counting', dictKey: 'countingPrompt', category: 'counting' },
+    { cacheKey: 'prompt-addition-missing', dictKey: 'missingOperandPrompt', category: 'addition' },
+    { cacheKey: 'prompt-subtraction-missing', dictKey: 'missingOperandPrompt', category: 'subtraction' },
     { cacheKey: 'prompt-english-look', dictKey: 'lookPrompt', category: 'englishSpelling' },
   ]
   for (const { cacheKey, dictKey, category } of fixedPrompts) {
     const { name: speakerName, style: styleName } = speakerFor(category)
     jobs.push({ cacheKey, text: dictionary[dictKey].ja, speakerName, styleName })
+  }
+
+  // 助数詞 redesign — each counterBank entry carries its own full hand-authored sentence
+  // (not a shared dictKey template, since the item name differs per entry), so it's
+  // enumerated straight from the bank itself rather than through fixedPrompts above.
+  const { name: countingSpeakerName, style: countingStyleName } = speakerFor('counting')
+  for (const counter of counterBank) {
+    jobs.push({
+      cacheKey: `prompt-counting-${counter.id}`,
+      text: counter.promptJa,
+      speakerName: countingSpeakerName,
+      styleName: countingStyleName,
+    })
   }
 
   // Every addition equation the generator can actually say, in both its plain and
@@ -233,6 +249,20 @@ function buildJobs() {
     for (let tb = 1; tb <= 9; tb++) {
       const a = ta * 10
       const b = tb * 10
+      jobs.push({
+        cacheKey: `equation-addition-${a}-${b}`,
+        text: `${a} たす ${b} は？`,
+        speakerName: additionSpeakerName,
+        styleName: additionStyleName,
+      })
+    }
+  }
+
+  // ★6's "teens crossing into the 20s" branch (generateTwentiesOperands in
+  // questionGenerators/addition.ts) — a=14-19, b=1-9, never has a story variant (deliberately
+  // abstract, same as ★4/★5).
+  for (let a = 14; a <= 19; a++) {
+    for (let b = 1; b <= 9; b++) {
       jobs.push({
         cacheKey: `equation-addition-${a}-${b}`,
         text: `${a} たす ${b} は？`,
@@ -284,6 +314,25 @@ function buildJobs() {
       if (tb >= ta) continue
       const a = ta * 10
       const b = tb * 10
+      jobs.push({
+        cacheKey: `equation-subtraction-${a}-${b}`,
+        text: `${a} ひく ${b} は？`,
+        speakerName: subtractionSpeakerName,
+        styleName: subtractionStyleName,
+      })
+    }
+  }
+
+  // ★6's "20s minus a single digit, answer in the teens" branch
+  // (generateTwentiesOperands in questionGenerators/subtraction.ts) — picks the answer
+  // (10-19) and subtrahend (1-9) first, so iterating those two directly (rather than
+  // minuend × subtrahend) naturally only ever produces pairs the generator can actually
+  // make, instead of needing to filter out invalid combinations. Skips minuends the
+  // ★1-4 loop above already covers (a ≤ 18) to avoid a duplicate cacheKey/synthesis call.
+  for (let answer = 10; answer <= 19; answer++) {
+    for (let b = 1; b <= 9; b++) {
+      const a = answer + b
+      if (a <= 18) continue
       jobs.push({
         cacheKey: `equation-subtraction-${a}-${b}`,
         text: `${a} ひく ${b} は？`,

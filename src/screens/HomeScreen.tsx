@@ -12,15 +12,27 @@ interface HomeScreenProps {
   streak: PlayStreak
   onSelectCategory: (category: Category) => void
   onOpenEnglishEntry: () => void
+  onOpenMojiEntry: () => void
   onOpenParentGate: () => void
 }
 
 // English is shown as a single combined card/portrait on the home screen (see
-// EnglishEntryScreen) rather than two — englishListening is dropped from every home-screen
-// list and englishSpelling stands in as the shared slot, relabeled below. sudoku is
-// likewise dropped — it's reached via a button on logic's own level-select instead (see
+// EnglishEntryScreen) rather than three — englishListening and englishSentence are dropped
+// from every home-screen list and englishSpelling stands in as the shared slot, relabeled
+// below. Likewise ひらがな/カタカナ/アルファベット collapse to one "もじ" card (see
+// MojiEntryScreen) — katakana/alphabet are dropped and hiragana stands in as the shared
+// slot, relabeled the same way. sudoku and missingOperand are also dropped — each is
+// reached via a button on another category's own level-select instead (see
 // LevelSelectScreen.tsx), not its own home-screen card.
-const HOME_CATEGORY_META = CATEGORY_META.filter((c) => c.category !== 'englishListening' && c.category !== 'sudoku')
+const HOME_CATEGORY_META = CATEGORY_META.filter(
+  (c) =>
+    c.category !== 'englishListening' &&
+    c.category !== 'englishSentence' &&
+    c.category !== 'katakana' &&
+    c.category !== 'alphabet' &&
+    c.category !== 'sudoku' &&
+    c.category !== 'missingOperand',
+)
 const ALL_CATEGORIES: Category[] = HOME_CATEGORY_META.map((c) => c.category)
 
 const INTRO_KEY_BY_CATEGORY: Record<Category, DictionaryKey> = {
@@ -37,9 +49,16 @@ const INTRO_KEY_BY_CATEGORY: Record<Category, DictionaryKey> = {
   counting: 'introKazu',
   englishSentence: 'introHana',
   sudoku: 'introKoko',
+  missingOperand: 'introMomo',
 }
 
-export function HomeScreen({ streak, onSelectCategory, onOpenEnglishEntry, onOpenParentGate }: HomeScreenProps) {
+export function HomeScreen({
+  streak,
+  onSelectCategory,
+  onOpenEnglishEntry,
+  onOpenMojiEntry,
+  onOpenParentGate,
+}: HomeScreenProps) {
   const { t, lang } = useI18n()
 
   function handleIntroduce(category: Category) {
@@ -93,11 +112,19 @@ export function HomeScreen({ streak, onSelectCategory, onOpenEnglishEntry, onOpe
             key={category}
             type="button"
             className="category-card"
-            onClick={() => (category === 'englishSpelling' ? onOpenEnglishEntry() : onSelectCategory(category))}
+            onClick={() =>
+              category === 'englishSpelling'
+                ? onOpenEnglishEntry()
+                : category === 'hiragana'
+                  ? onOpenMojiEntry()
+                  : onSelectCategory(category)
+            }
           >
             <span className="category-symbol">{symbol}</span>
             <CharacterPortrait theme={characterThemes[category]} mood="happy" size={92} />
-            <span>{t(category === 'englishSpelling' ? 'categoryEnglish' : labelKey)}</span>
+            <span>
+              {t(category === 'englishSpelling' ? 'categoryEnglish' : category === 'hiragana' ? 'categoryMoji' : labelKey)}
+            </span>
           </button>
         ))}
       </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { AnswerRecord, Category, Level, ProgressState, SetResult } from './domain/types'
-import { applySetResult, loadProgress, persistProgress } from './domain/progress'
+import { applySetResult, loadProgress, persistProgress, SET_SIZE } from './domain/progress'
 import type { ClockMode } from './domain/questionGenerators/clock'
 import { loadStreak, persistStreak, recordPlaySession, type PlayStreak } from './domain/streak'
 import { loadIntroSeen, saveIntroSeen } from './lib/storage'
@@ -9,6 +9,7 @@ import { IntroScreen } from './screens/IntroScreen'
 import { HomeScreen } from './screens/HomeScreen'
 import { LevelSelectScreen } from './screens/LevelSelectScreen'
 import { EnglishEntryScreen } from './screens/EnglishEntryScreen'
+import { MojiEntryScreen } from './screens/MojiEntryScreen'
 import { HandwritingScreen } from './screens/HandwritingScreen'
 import { QuizScreen } from './screens/QuizScreen'
 import { ResultScreen } from './screens/ResultScreen'
@@ -20,6 +21,7 @@ type Screen =
   | { name: 'intro' }
   | { name: 'home' }
   | { name: 'englishEntry' }
+  | { name: 'mojiEntry' }
   | { name: 'levelSelect'; category: Category }
   | { name: 'handwriting'; category: 'hiragana' | 'katakana' | 'alphabet' }
   | { name: 'quiz'; category: Category; level: Level; setSize: number; clockMode?: ClockMode }
@@ -111,14 +113,36 @@ function AppContent() {
         return (
           <HomeScreen
             streak={streak}
-            onSelectCategory={(category) => navigate({ name: 'levelSelect', category })}
+            onSelectCategory={(category) =>
+              // counting has no ★ levels at all (助数詞 redesign — see CATEGORY_MAX_LEVEL) —
+              // skip straight to a fixed-size round, same treatment as englishSentence below.
+              category === 'counting'
+                ? navigate({ name: 'quiz', category, level: 1, setSize: SET_SIZE })
+                : navigate({ name: 'levelSelect', category })
+            }
             onOpenEnglishEntry={() => navigate({ name: 'englishEntry' })}
+            onOpenMojiEntry={() => navigate({ name: 'mojiEntry' })}
             onOpenParentGate={() => navigate({ name: 'parentGate' })}
           />
         )
       case 'englishEntry':
         return (
           <EnglishEntryScreen
+            onSelect={(category) =>
+              // englishSentence has no ★ levels at all (see CATEGORY_MAX_LEVEL) — skip
+              // straight to a fixed-size round instead of a level-select screen that would
+              // only ever show a single, pointless "★1" button.
+              category === 'englishSentence'
+                ? navigate({ name: 'quiz', category, level: 1, setSize: SET_SIZE })
+                : navigate({ name: 'levelSelect', category })
+            }
+            onBack={goBack}
+            onHome={goHome}
+          />
+        )
+      case 'mojiEntry':
+        return (
+          <MojiEntryScreen
             onSelect={(category) => navigate({ name: 'levelSelect', category })}
             onBack={goBack}
             onHome={goHome}
@@ -138,6 +162,11 @@ function AppContent() {
             }
             onOpenSudoku={
               screen.category === 'logic' ? () => navigate({ name: 'levelSelect', category: 'sudoku' }) : undefined
+            }
+            onOpenMissingOperand={
+              screen.category === 'addition' || screen.category === 'subtraction'
+                ? () => navigate({ name: 'levelSelect', category: 'missingOperand' })
+                : undefined
             }
             onBack={goBack}
             onHome={goHome}

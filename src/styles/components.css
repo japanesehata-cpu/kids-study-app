@@ -590,21 +590,30 @@
   gap: 20px;
 }
 
+/** One continuous board, not 4 separate boxes — cells sit edge-to-edge (no `gap`) with a
+ * thin line between every cell and a thicker one at the 2x2 block boundary, the classic
+ * sudoku look (an earlier attempt used a `gap`-separated grid of floating rounded cards,
+ * which read as 4 disconnected mini-puzzles rather than one board — see the design-option
+ * comparison this was picked from). Each cell only ever sets its own right/bottom border
+ * (see SudokuBoard.tsx) so a shared edge between two cells is drawn once, not doubled;
+ * `overflow: hidden` clips the flush cells to this container's own rounded corners. */
 .sudoku-grid {
+  --sudoku-line-soft: color-mix(in srgb, var(--color-text) 25%, transparent);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
   background: var(--color-surface);
-  padding: 14px;
+  border: 3px solid var(--color-text);
   border-radius: var(--radius-md);
+  overflow: hidden;
   box-shadow: var(--shadow-card);
 }
 
 .sudoku-cell {
   width: 64px;
   height: 64px;
-  border-radius: var(--radius-sm);
-  border: 2px solid var(--color-bg-soft);
+  border-style: solid;
+  border-left: none;
+  border-top: none;
   background: var(--color-surface);
   display: flex;
   align-items: center;
@@ -615,14 +624,11 @@
 
 .sudoku-cell-blank {
   cursor: pointer;
-  border-style: dashed;
   background: var(--color-bg-soft);
 }
 
 .sudoku-cell.selected {
-  border-color: var(--color-primary);
-  border-style: solid;
-  box-shadow: 0 0 0 3px var(--color-primary-soft);
+  box-shadow: inset 0 0 0 3px var(--color-primary), 0 0 0 3px var(--color-primary-soft);
 }
 
 .sudoku-cell.wrong {
@@ -835,5 +841,19 @@
   .choice-grid {
     max-width: 760px;
     gap: 28px;
+  }
+
+  /* .sudoku-cell/.sudoku-palette-item have a fixed size (unlike .choice-button, which
+     just grows with its padding) — without a matching bump here, the 1.6x-scaled
+     WordIcon above overflows its fixed-size box and paints over the cell borders that
+     mark the 2x2 blocks (see .sudoku-grid's comment for why those borders matter). */
+  .sudoku-cell {
+    width: 96px;
+    height: 96px;
+  }
+
+  .sudoku-palette-item {
+    width: 84px;
+    height: 84px;
   }
 }

@@ -26,10 +26,6 @@ export function SudokuBoard({ question, promptText, onComplete, disabled }: Sudo
   const [selected, setSelected] = useState<{ row: number; col: number } | null>(null)
   const [wrongGuess, setWrongGuess] = useState<WrongGuess | null>(null)
 
-  // 2x2 block borders are only drawn from ★3 — see questionGenerators/sudoku.ts for why
-  // the block-uniqueness rule itself only applies from that level too.
-  const showBlockBorders = question.level >= 3
-
   function selectCell(row: number, col: number) {
     if (disabled || question.grid[row][col] !== null || filled[cellKey(row, col)]) return
     setSelected({ row, col })
@@ -63,25 +59,25 @@ export function SudokuBoard({ question, promptText, onComplete, disabled }: Sudo
             const isBlank = cell === null && !filled[key]
             const isSelected = selected?.row === r && selected?.col === c
             const isWrong = wrongGuess?.row === r && wrongGuess?.col === c
-            // 2x2 block grouping hint (★3 only) — extra margin between the two 2-column/
-            // 2-row bands widens the gap there specifically. A thicker border was tried
-            // first and turned out invisible: cells sit in a `gap`-separated CSS grid, not
-            // touching each other, so a differently-thick border on a floating, rounded
-            // card reads as nothing at all — only actual extra space between the bands
-            // shows up. Computed here rather than via nth-child CSS since a 4x4 grid's
-            // block boundaries don't map to a clean nth-child formula.
-            const blockStyle = showBlockBorders
-              ? {
-                  marginRight: c === 1 ? 10 : undefined,
-                  marginBottom: r === 1 ? 10 : undefined,
-                }
-              : undefined
+            // One continuous board, not 4 separate boxes — a thin line divides every
+            // cell from its neighbor, and a thicker one marks the 2x2 block boundary
+            // specifically (after column 1, after row 1), the classic sudoku look.
+            // Only right/bottom borders are ever set (never left/top), so adjacent
+            // cells' shared edge is drawn exactly once, not doubled.
+            const blockRight = c === 1
+            const blockBottom = r === 1
+            const gridStyle = {
+              borderRightWidth: c === 3 ? 0 : blockRight ? 2 : 1,
+              borderRightColor: blockRight ? 'var(--color-text)' : 'var(--sudoku-line-soft)',
+              borderBottomWidth: r === 3 ? 0 : blockBottom ? 2 : 1,
+              borderBottomColor: blockBottom ? 'var(--color-text)' : 'var(--sudoku-line-soft)',
+            }
             return (
               <button
                 key={key}
                 type="button"
                 className={`sudoku-cell ${isBlank ? 'sudoku-cell-blank' : ''} ${isSelected ? 'selected' : ''} ${isWrong ? 'wrong' : ''}`.trim()}
-                style={blockStyle}
+                style={gridStyle}
                 onClick={() => selectCell(r, c)}
                 disabled={disabled || !isBlank}
                 aria-label={colorId ?? 'blank'}

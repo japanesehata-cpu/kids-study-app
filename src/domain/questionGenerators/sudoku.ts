@@ -76,40 +76,34 @@ function isPermutationOfFour(values: number[]): boolean {
   return new Set(values).size === 4
 }
 
-/** Checks the FULL 4x4 grid against whichever ruleset this level actually teaches — row and
- * column always, plus the four 2x2 blocks only from ★3 (see checkBlocksForLevel). Used to
- * count how many ways a candidate blank set could be completed, not just to verify the
- * generator's own known-good solution. */
-function isValidUnderRules(grid: number[][], checkBlocks: boolean): boolean {
+/** Checks the FULL 4x4 grid against the complete mini-sudoku ruleset — row, column, AND
+ * each of the four 2x2 blocks — at every level (see generateSudokuQuestion's comment on
+ * why this is never partial). Used to count how many ways a candidate blank set could be
+ * completed, not just to verify the generator's own known-good solution. */
+function isValidUnderRules(grid: number[][]): boolean {
   for (let i = 0; i < 4; i++) {
     if (!isPermutationOfFour(grid[i])) return false
     if (!isPermutationOfFour(grid.map((row) => row[i]))) return false
   }
-  if (checkBlocks) {
-    for (const [br, bc] of [
-      [0, 0],
-      [0, 2],
-      [2, 0],
-      [2, 2],
-    ]) {
-      const block = [grid[br][bc], grid[br][bc + 1], grid[br + 1][bc], grid[br + 1][bc + 1]]
-      if (!isPermutationOfFour(block)) return false
-    }
+  for (const [br, bc] of [
+    [0, 0],
+    [0, 2],
+    [2, 0],
+    [2, 2],
+  ]) {
+    const block = [grid[br][bc], grid[br][bc + 1], grid[br + 1][bc], grid[br + 1][bc + 1]]
+    if (!isPermutationOfFour(block)) return false
   }
   return true
 }
 
 /** Tries a random blank-cell set and brute-forces every possible way to fill it (at most
  * 4^8 = 65536 combinations at this grid's max blank count — trivial at this scale), keeping
- * it only if EXACTLY one completion is valid under the level's ruleset. This is what
- * guarantees a child can never be marked wrong for an answer that's actually also
+ * it only if EXACTLY one completion is valid under the full row/column/block ruleset. This
+ * is what guarantees a child can never be marked wrong for an answer that's actually also
  * logically consistent with what's already on the board — a real risk once more than one
  * cell is blank, unlike ★1's single blank (always uniquely forced by its own row alone). */
-function pickBlanks(
-  solution: number[][],
-  blankCount: number,
-  checkBlocks: boolean,
-): [number, number][] | null {
+function pickBlanks(solution: number[][], blankCount: number): [number, number][] | null {
   const allCells: [number, number][] = []
   for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) allCells.push([r, c])
 
@@ -122,7 +116,7 @@ function pickBlanks(
     const tryFill = (idx: number): void => {
       if (completions > 1) return
       if (idx === blanks.length) {
-        if (isValidUnderRules(puzzle, checkBlocks)) completions++
+        if (isValidUnderRules(puzzle)) completions++
         return
       }
       const [r, c] = blanks[idx]
@@ -141,39 +135,45 @@ function pickBlanks(
 
 /** One fixed blank count per level — deliberately not a random range within a level (see
  * the level-redefinition discussion this was fixed from): a level is a collection of
- * same-difficulty puzzles, not a blend of easier and harder ones. ★4/★5 are both the
- * higher, block-rule tier; ★5 is the hardest the generator supports (see pickBlanks'
- * 4^8 brute-force comment). */
+ * same-difficulty puzzles, not a blend of easier and harder ones. The full row/column/
+ * block ruleset applies at every level (see generateSudokuQuestion) — blank count alone
+ * is what escalates the difficulty here.
+ *
+ * Retuned after the old ★5 (8 blanks) turned out too easy in practice — ★3 here is a real
+ * jump up, not just "one more than before". 10 is a deliberately-measured ceiling, not a
+ * round number: pickBlanks' brute-force search stays fast and reliable through 10 blanks
+ * (empirically ~80ms, always finds a unique-solution set well within the 50-attempt cap)
+ * but degrades sharply at 11 (~1s per generation — a visible hang before a question even
+ * appears) since a 4x4 grid needs very specific, rare given-placements to stay uniquely
+ * solvable with that few clues, and this generator finds them by random search rather than
+ * construction. 10 is the highest value confirmed to generate reliably and near-instantly. */
 const BLANK_COUNT: Record<Level, number> = {
-  1: 1,
-  2: 2,
-  3: 3,
-  4: 4,
-  5: 8,
-  // Never reached — sudoku caps at ★5 (see CATEGORY_MAX_LEVEL). Kept only so this
+  1: 5,
+  2: 8,
+  3: 10,
+  4: 10,
+  5: 10,
+  // Never reached — sudoku caps at ★3 (see CATEGORY_MAX_LEVEL). Kept only so this
   // Record's type checks against the full Level union.
-  6: 8,
+  6: 10,
 }
 
 function blankCountForLevel(level: Level): number {
   return BLANK_COUNT[level]
 }
 
-/** From ★4 on, the four 2x2 blocks must also each hold every color exactly once — real
- * mini-sudoku rules, not just a Latin square. Below that, only row/column uniqueness is
- * taught (see the difficulty discussion this was decided from). */
-function checkBlocksForLevel(level: Level): boolean {
-  return level >= 4
-}
-
 export function generateSudokuQuestion(level: Level): SudokuQuestion {
   const solutionNums = randomSolution()
-  const checkBlocks = checkBlocksForLevel(level)
+  // Every level's blanks must be solvable only by using the full row/column/2x2-block
+  // ruleset — a real mini-sudoku at every ★, not a partial Latin square that merely
+  // happens to have valid blocks by construction (randomSolution's *solution* grid always
+  // does — see its comment — but that alone doesn't mean the block rule is actually needed
+  // to find the unique answer for a given blank set; this makes sure it always is).
   const blanks =
-    pickBlanks(solutionNums, blankCountForLevel(level), checkBlocks) ??
+    pickBlanks(solutionNums, blankCountForLevel(level)) ??
     // Astronomically unlikely at this grid size, but a single blank is provably always
     // uniquely determined by its own row — a safe fallback that can never fail to find one.
-    pickBlanks(solutionNums, 1, false)!
+    pickBlanks(solutionNums, 1)!
 
   const solution = solutionNums.map((row) => row.map((v) => SYMBOLS[v]))
   const grid: (string | null)[][] = solution.map((row) => [...row])

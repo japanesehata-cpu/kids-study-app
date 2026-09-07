@@ -82,8 +82,6 @@ export const LEVEL_DESCRIPTION_KEY: Partial<Record<Category, Partial<Record<Leve
     1: 'levelDescSudoku1',
     2: 'levelDescSudoku2',
     3: 'levelDescSudoku3',
-    4: 'levelDescSudoku4',
-    5: 'levelDescSudoku5',
   },
   missingOperand: {
     1: 'levelDescMissingOperand1',

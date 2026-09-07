@@ -67,8 +67,12 @@ export const CATEGORY_MAX_LEVEL: Record<Category, Level> = {
   englishSentence: 1,
   // Reached via a button on logic's own level-select (see LevelSelectScreen.tsx), same
   // pattern as englishListening being reached via EnglishEntryScreen — an independent
-  // mode with its own progress, not mixed into logic's own random question mix.
-  sudoku: 5,
+  // mode with its own progress, not mixed into logic's own random question mix. Only 3
+  // steps (not 5) — see BLANK_COUNT in questionGenerators/sudoku.ts for why: blank count
+  // 1-4-8 gave levels 1-3 with barely any headroom (the old ★5 at 8 blanks was reported
+  // too easy), and 10 blanks is the highest the brute-force generator can still produce
+  // near-instantly, so there's no room for a meaningfully-distinct 4th or 5th step above it.
+  sudoku: 3,
   // Reached via a secondary button on BOTH addition's and subtraction's level-select
   // (it mixes both operators — see questionGenerators/missingOperand.ts) — same
   // independent-mode pattern as sudoku above, just with two entry points into one

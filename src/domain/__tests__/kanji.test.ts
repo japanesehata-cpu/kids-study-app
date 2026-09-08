@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { generateKanjiQuestion } from '../questionGenerators/kanji'
 import { getKanjiById, kanjiBank } from '../kanjiBank'
+import { kanjiStrokePaths } from '../kanjiStrokes'
 
 // Cumulative row counts per level (see LEVEL_ROWS in questionGenerators/kanji.ts).
 const LEVEL_ROW_COUNTS: Record<number, number> = {
@@ -17,6 +18,24 @@ describe('kanjiBank', () => {
     expect(kanjiBank).toHaveLength(80)
     expect(new Set(kanjiBank.map((k) => k.char)).size).toBe(80)
     expect(new Set(kanjiBank.map((k) => k.id)).size).toBe(80)
+  })
+
+  it('なぞる (trace) fields are set together, never partially', () => {
+    for (const k of kanjiBank) {
+      const traceFieldsSet = [k.traceImageId, k.meaningJa, k.meaningEn].filter((v) => v !== undefined).length
+      expect(traceFieldsSet === 0 || traceFieldsSet === 3, `${k.char} (${k.id}) has some but not all trace fields set`).toBe(
+        true,
+      )
+    }
+  })
+
+  it('every kanjiBank entry with traceImageId set also has stroke data, and vice versa', () => {
+    const bankTraceChars = new Set(kanjiBank.filter((k) => k.traceImageId).map((k) => k.char))
+    const strokeChars = new Set(Object.keys(kanjiStrokePaths))
+    expect(bankTraceChars).toEqual(strokeChars)
+    for (const strokes of Object.values(kanjiStrokePaths)) {
+      expect(strokes.length).toBeGreaterThan(0)
+    }
   })
 })
 

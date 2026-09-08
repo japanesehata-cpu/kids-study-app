@@ -10,6 +10,8 @@ import { HomeScreen } from './screens/HomeScreen'
 import { LevelSelectScreen } from './screens/LevelSelectScreen'
 import { EnglishEntryScreen } from './screens/EnglishEntryScreen'
 import { MojiEntryScreen } from './screens/MojiEntryScreen'
+import { KanjiEntryScreen } from './screens/KanjiEntryScreen'
+import { KanjiTraceScreen } from './screens/KanjiTraceScreen'
 import { HandwritingScreen } from './screens/HandwritingScreen'
 import { QuizScreen } from './screens/QuizScreen'
 import { ResultScreen } from './screens/ResultScreen'
@@ -22,6 +24,8 @@ type Screen =
   | { name: 'home' }
   | { name: 'englishEntry' }
   | { name: 'mojiEntry' }
+  | { name: 'kanjiEntry' }
+  | { name: 'kanjiTrace' }
   | { name: 'levelSelect'; category: Category }
   | { name: 'handwriting'; category: 'hiragana' | 'katakana' | 'alphabet' }
   | { name: 'quiz'; category: Category; level: Level; setSize: number; clockMode?: ClockMode }
@@ -122,6 +126,7 @@ function AppContent() {
             }
             onOpenEnglishEntry={() => navigate({ name: 'englishEntry' })}
             onOpenMojiEntry={() => navigate({ name: 'mojiEntry' })}
+            onOpenKanjiEntry={() => navigate({ name: 'kanjiEntry' })}
             onOpenParentGate={() => navigate({ name: 'parentGate' })}
           />
         )
@@ -148,6 +153,18 @@ function AppContent() {
             onHome={goHome}
           />
         )
+      case 'kanjiEntry':
+        return (
+          <KanjiEntryScreen
+            onSelect={(mode) =>
+              mode === 'trace' ? navigate({ name: 'kanjiTrace' }) : navigate({ name: 'levelSelect', category: 'kanji' })
+            }
+            onBack={goBack}
+            onHome={goHome}
+          />
+        )
+      case 'kanjiTrace':
+        return <KanjiTraceScreen onBack={goBack} onHome={goHome} />
       case 'levelSelect':
         return (
           <LevelSelectScreen

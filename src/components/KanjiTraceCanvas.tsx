@@ -1,0 +1,162 @@
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { isStrokeTraced, type Point } from '../lib/strokeMatch'
+
+interface KanjiTraceCanvasProps {
+  char: string
+  /** Ordered SVG path "d" strings, viewBox "0 0 109 109" — see kanjiStrokes.ts. */
+  strokes: string[]
+  size?: number
+  restartLabel: string
+  onComplete: () => void
+}
+
+const DEFAULT_SIZE = 280
+const VIEWBOX = 109
+// How many strokes were traced correctly across all of this render, used only to key the
+// mistake-flash timeout so a rapid retry doesn't get its flash cut short by an earlier one.
+const MISTAKE_FLASH_MS = 400
+const SAMPLE_COUNT = 20
+
+/** Converts a pointer event's screen coordinates into the SVG's own 0-109 viewBox user
+ * space, so drawn points land in the exact same coordinate system as kanjiStrokes.ts's
+ * stroke paths (and therefore as the points getPointAtLength() below produces) — this is
+ * what makes the component correct at any rendered `size`, not just DEFAULT_SIZE. */
+function toSvgPoint(svg: SVGSVGElement, clientX: number, clientY: number): Point {
+  const ctm = svg.getScreenCTM()
+  if (!ctm) return { x: 0, y: 0 }
+  const pt = svg.createSVGPoint()
+  pt.x = clientX
+  pt.y = clientY
+  const transformed = pt.matrixTransform(ctm.inverse())
+  return { x: transformed.x, y: transformed.y }
+}
+
+function sampleStroke(pathEl: SVGPathElement): Point[] {
+  const length = pathEl.getTotalLength()
+  return Array.from({ length: SAMPLE_COUNT + 1 }, (_, i) => {
+    const p = pathEl.getPointAtLength((length * i) / SAMPLE_COUNT)
+    return { x: p.x, y: p.y }
+  })
+}
+
+export function KanjiTraceCanvas({ char, strokes, size = DEFAULT_SIZE, restartLabel, onComplete }: KanjiTraceCanvasProps) {
+  const svgRef = useRef<SVGSVGElement>(null)
+  const guidePathRefs = useRef<(SVGPathElement | null)[]>([])
+  const drawingRef = useRef(false)
+  // The in-progress gesture's points live in a ref, not state — handlePointerUp reads
+  // them synchronously to validate and (on the last stroke) call onComplete(), which sets
+  // state on the *parent* KanjiTraceScreen. Doing that from inside a setState updater
+  // function (the first version of this component did) trips React's "Cannot update a
+  // component while rendering a different component" warning/inconsistency, since the
+  // updater runs during this component's own render-commit cycle — a ref read in a plain
+  // event-handler body avoids that entirely. `drawnPoints` state exists only to drive the
+  // live ink polyline's render.
+  const pointsRef = useRef<Point[]>([])
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [drawnPoints, setDrawnPoints] = useState<Point[]>([])
+  const [mistake, setMistake] = useState(false)
+
+  // A new character resets all progress — same reasoning as HandwritingCanvas keying its
+  // canvases by `${level}-${entry.id}` in HandwritingScreen, just done via effect here
+  // since this component (unlike a <canvas>) has real React state to reset.
+  useEffect(() => {
+    pointsRef.current = []
+    setCurrentIndex(0)
+    setDrawnPoints([])
+    setMistake(false)
+  }, [char])
+
+  function handleRestart() {
+    pointsRef.current = []
+    setCurrentIndex(0)
+    setDrawnPoints([])
+    setMistake(false)
+  }
+
+  function handlePointerDown(e: ReactPointerEvent<SVGSVGElement>) {
+    if (currentIndex >= strokes.length) return
+    e.preventDefault()
+    const svg = svgRef.current
+    if (!svg) return
+    svg.setPointerCapture(e.pointerId)
+    drawingRef.current = true
+    pointsRef.current = [toSvgPoint(svg, e.clientX, e.clientY)]
+    setDrawnPoints(pointsRef.current)
+  }
+
+  function handlePointerMove(e: ReactPointerEvent<SVGSVGElement>) {
+    if (!drawingRef.current) return
+    e.preventDefault()
+    const svg = svgRef.current
+    if (!svg) return
+    pointsRef.current = [...pointsRef.current, toSvgPoint(svg, e.clientX, e.clientY)]
+    setDrawnPoints(pointsRef.current)
+  }
+
+  function handlePointerUp() {
+    if (!drawingRef.current) return
+    drawingRef.current = false
+    const drawn = pointsRef.current
+    pointsRef.current = []
+    setDrawnPoints([])
+
+    const guidePath = guidePathRefs.current[currentIndex]
+    if (!guidePath) return
+
+    const target = sampleStroke(guidePath)
+    if (isStrokeTraced(target, drawn)) {
+      const next = currentIndex + 1
+      setCurrentIndex(next)
+      if (next >= strokes.length) onComplete()
+    } else {
+      setMistake(true)
+      setTimeout(() => setMistake(false), MISTAKE_FLASH_MS)
+    }
+  }
+
+  const inkPointsAttr = drawnPoints.map((p) => `${p.x},${p.y}`).join(' ')
+
+  return (
+    <div className="handwriting-board">
+      <div
+        className={`kanji-trace-canvas-stack${mistake ? ' kanji-trace-canvas-stack--mistake' : ''}`}
+        style={{ width: size, height: size }}
+      >
+        <svg
+          ref={svgRef}
+          viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`}
+          className="kanji-trace-svg"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerLeave={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+        >
+          <rect x={0} y={0} width={VIEWBOX} height={VIEWBOX} fill="transparent" />
+          {strokes.map((d, i) => (
+            <path
+              key={i}
+              ref={(el) => {
+                guidePathRefs.current[i] = el
+              }}
+              d={d}
+              className={
+                i < currentIndex
+                  ? 'kanji-trace-stroke kanji-trace-stroke--done'
+                  : i === currentIndex
+                    ? 'kanji-trace-stroke kanji-trace-stroke--current'
+                    : 'kanji-trace-stroke kanji-trace-stroke--pending'
+              }
+            />
+          ))}
+          {drawnPoints.length > 0 && <polyline points={inkPointsAttr} className="kanji-trace-ink" />}
+        </svg>
+      </div>
+      <div className="handwriting-controls">
+        <button type="button" className="secondary-button" onClick={handleRestart}>
+          {restartLabel}
+        </button>
+      </div>
+    </div>
+  )
+}

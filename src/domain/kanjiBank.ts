@@ -29,6 +29,21 @@ export interface KanjiEntry {
    * mnemonic word is what actually keeps the *spoken* prompt unambiguous, not just
    * pronunciation quality. */
   mnemonic: string
+  /** Set only for kanji in the なぞる (trace-to-write) practice pool — see
+   * KanjiTraceScreen, which filters kanjiBank down to entries where this AND
+   * kanjiStrokePaths[char] are both present. A wordBank id (WordIcon only needs the id
+   * string to resolve images/words/{id}.png, no wordBank entry required — same
+   * convention as counterBank.ts's exampleWordId). Omitted for kanji whose meaning isn't
+   * easily pictured (most directions/sizes/verbs/abstract concepts) — not every kanji
+   * needs to support this mode. */
+  traceImageId?: string
+  /** Short meaning gloss shown on the trace mode's reveal step, alongside traceImageId's
+   * image — set together with traceImageId, never alone. This is the character's own
+   * meaning (e.g. 木 → "tree"), distinct from `mnemonic` above, which is a reading-based
+   * word chosen for TTS disambiguation and often unrelated to the meaning (木's mnemonic
+   * is もくようび/Thursday). */
+  meaningJa?: string
+  meaningEn?: string
 }
 
 export const kanjiBank: KanjiEntry[] = [
@@ -46,15 +61,15 @@ export const kanjiBank: KanjiEntry[] = [
   // nature (days of the week use their 曜日 on'yomi — the one context where all 7 are
   // taught together with zero reading collisions, unlike their everyday kun'yomi
   // readings which overlap heavily, e.g. 日/火 both read ひ)
-  { id: 'k11', char: '日', reading: 'にち', row: 'nature', mnemonic: 'にちようび' },
-  { id: 'k12', char: '月', reading: 'げつ', row: 'nature', mnemonic: 'げつようび' },
+  { id: 'k11', char: '日', reading: 'にち', row: 'nature', mnemonic: 'にちようび', traceImageId: 'sun', meaningJa: 'たいよう', meaningEn: 'sun' },
+  { id: 'k12', char: '月', reading: 'げつ', row: 'nature', mnemonic: 'げつようび', traceImageId: 'moon', meaningJa: 'つき', meaningEn: 'moon' },
   { id: 'k13', char: '火', reading: 'か', row: 'nature', mnemonic: 'かようび' },
-  { id: 'k14', char: '水', reading: 'すい', row: 'nature', mnemonic: 'すいようび' },
-  { id: 'k15', char: '木', reading: 'もく', row: 'nature', mnemonic: 'もくようび' },
-  { id: 'k16', char: '金', reading: 'きん', row: 'nature', mnemonic: 'きんようび' },
+  { id: 'k14', char: '水', reading: 'すい', row: 'nature', mnemonic: 'すいようび', traceImageId: 'water', meaningJa: 'みず', meaningEn: 'water' },
+  { id: 'k15', char: '木', reading: 'もく', row: 'nature', mnemonic: 'もくようび', traceImageId: 'tree', meaningJa: 'き', meaningEn: 'tree' },
+  { id: 'k16', char: '金', reading: 'きん', row: 'nature', mnemonic: 'きんようび', traceImageId: 'gold', meaningJa: 'きんいろ', meaningEn: 'gold' },
   { id: 'k17', char: '土', reading: 'ど', row: 'nature', mnemonic: 'どようび' },
   { id: 'k18', char: '空', reading: 'そら', row: 'nature', mnemonic: 'そらまめ' },
-  { id: 'k19', char: '雨', reading: 'あめ', row: 'nature', mnemonic: 'あめだま' },
+  { id: 'k19', char: '雨', reading: 'あめ', row: 'nature', mnemonic: 'あめだま', traceImageId: 'rain', meaningJa: 'あめ', meaningEn: 'rain' },
   { id: 'k20', char: '天', reading: 'てん', row: 'nature', mnemonic: 'てんき' },
   // people
   { id: 'k21', char: '人', reading: 'ひと', row: 'people', mnemonic: 'ひとで' },
@@ -90,18 +105,18 @@ export const kanjiBank: KanjiEntry[] = [
   { id: 'k49', char: '左', reading: 'ひだり', row: 'colorSize', mnemonic: 'ひだりて' },
   { id: 'k50', char: '右', reading: 'みぎ', row: 'colorSize', mnemonic: 'みぎて' },
   // animals & nature
-  { id: 'k51', char: '犬', reading: 'いぬ', row: 'animals', mnemonic: 'いぬごや' },
-  { id: 'k52', char: '貝', reading: 'かい', row: 'animals', mnemonic: 'かいがら' },
+  { id: 'k51', char: '犬', reading: 'いぬ', row: 'animals', mnemonic: 'いぬごや', traceImageId: 'dog', meaningJa: 'いぬ', meaningEn: 'dog' },
+  { id: 'k52', char: '貝', reading: 'かい', row: 'animals', mnemonic: 'かいがら', traceImageId: 'seashell', meaningJa: 'かいがら', meaningEn: 'seashell' },
   { id: 'k53', char: '虫', reading: 'むし', row: 'animals', mnemonic: 'むしめがね' },
-  { id: 'k54', char: '石', reading: 'いし', row: 'animals', mnemonic: 'いしころ' },
-  { id: 'k55', char: '花', reading: 'はな', row: 'animals', mnemonic: 'はなび' },
-  { id: 'k56', char: '草', reading: 'くさ', row: 'animals', mnemonic: 'くさばな' },
+  { id: 'k54', char: '石', reading: 'いし', row: 'animals', mnemonic: 'いしころ', traceImageId: 'rock', meaningJa: 'いし', meaningEn: 'rock' },
+  { id: 'k55', char: '花', reading: 'はな', row: 'animals', mnemonic: 'はなび', traceImageId: 'flower', meaningJa: 'はな', meaningEn: 'flower' },
+  { id: 'k56', char: '草', reading: 'くさ', row: 'animals', mnemonic: 'くさばな', traceImageId: 'grass', meaningJa: 'くさ', meaningEn: 'grass' },
   { id: 'k57', char: '竹', reading: 'たけ', row: 'animals', mnemonic: 'たけのこ' },
-  { id: 'k58', char: '森', reading: 'もり', row: 'animals', mnemonic: 'もりのくま' },
+  { id: 'k58', char: '森', reading: 'もり', row: 'animals', mnemonic: 'もりのくま', traceImageId: 'forest', meaningJa: 'もり', meaningEn: 'forest' },
   { id: 'k59', char: '林', reading: 'はやし', row: 'animals', mnemonic: 'はやしのなか' },
-  { id: 'k60', char: '山', reading: 'やま', row: 'animals', mnemonic: 'やまのぼり' },
+  { id: 'k60', char: '山', reading: 'やま', row: 'animals', mnemonic: 'やまのぼり', traceImageId: 'mountain', meaningJa: 'やま', meaningEn: 'mountain' },
   // places & daily life
-  { id: 'k61', char: '川', reading: 'かわ', row: 'places', mnemonic: 'かわぎし' },
+  { id: 'k61', char: '川', reading: 'かわ', row: 'places', mnemonic: 'かわぎし', traceImageId: 'river', meaningJa: 'かわ', meaningEn: 'river' },
   { id: 'k62', char: '田', reading: 'た', row: 'places', mnemonic: 'たまご' },
   { id: 'k63', char: '町', reading: 'まち', row: 'places', mnemonic: 'まちあわせ' },
   { id: 'k64', char: '村', reading: 'むら', row: 'places', mnemonic: 'むらまつり' },
@@ -109,7 +124,7 @@ export const kanjiBank: KanjiEntry[] = [
   { id: 'k66', char: '千', reading: 'せん', row: 'places', mnemonic: 'せんえん' },
   { id: 'k67', char: '百', reading: 'ひゃく', row: 'places', mnemonic: 'ひゃくえん' },
   { id: 'k68', char: '玉', reading: 'たま', row: 'places', mnemonic: 'たまねぎ' },
-  { id: 'k69', char: '車', reading: 'くるま', row: 'places', mnemonic: 'くるまいす' },
+  { id: 'k69', char: '車', reading: 'くるま', row: 'places', mnemonic: 'くるまいす', traceImageId: 'car', meaningJa: 'くるま', meaningEn: 'car' },
   { id: 'k70', char: '糸', reading: 'いと', row: 'places', mnemonic: 'いとまき' },
   // study & time
   { id: 'k71', char: '気', reading: 'き', row: 'study', mnemonic: 'きりん' },
@@ -120,7 +135,7 @@ export const kanjiBank: KanjiEntry[] = [
   { id: 'k76', char: '早', reading: 'はやい', row: 'study', mnemonic: 'はやいでんしゃ' },
   { id: 'k77', char: '年', reading: 'ねん', row: 'study', mnemonic: 'ねんがじょう' },
   { id: 'k78', char: '文', reading: 'ぶん', row: 'study', mnemonic: 'ぶんぼうぐ' },
-  { id: 'k79', char: '本', reading: 'ほん', row: 'study', mnemonic: 'ほんだな' },
+  { id: 'k79', char: '本', reading: 'ほん', row: 'study', mnemonic: 'ほんだな', traceImageId: 'book', meaningJa: 'ほん', meaningEn: 'book' },
   { id: 'k80', char: '力', reading: 'ちから', row: 'study', mnemonic: 'ちからもち' },
 ]
 

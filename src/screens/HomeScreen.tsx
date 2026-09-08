@@ -13,6 +13,7 @@ interface HomeScreenProps {
   onSelectCategory: (category: Category) => void
   onOpenEnglishEntry: () => void
   onOpenMojiEntry: () => void
+  onOpenKanjiEntry: () => void
   onOpenParentGate: () => void
 }
 
@@ -63,6 +64,7 @@ export function HomeScreen({
   onSelectCategory,
   onOpenEnglishEntry,
   onOpenMojiEntry,
+  onOpenKanjiEntry,
   onOpenParentGate,
 }: HomeScreenProps) {
   const { t, lang } = useI18n()
@@ -123,7 +125,9 @@ export function HomeScreen({
                 ? onOpenEnglishEntry()
                 : category === 'hiragana'
                   ? onOpenMojiEntry()
-                  : onSelectCategory(category)
+                  : category === 'kanji'
+                    ? onOpenKanjiEntry()
+                    : onSelectCategory(category)
             }
           >
             <span className="category-symbol">{symbol}</span>

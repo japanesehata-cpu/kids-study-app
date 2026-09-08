@@ -830,6 +830,72 @@
   color: var(--color-text);
 }
 
+/* かんじ なぞる (stroke-order trace) — see KanjiTraceCanvas. Reuses .handwriting-board/
+ * .handwriting-controls for the outer layout so both trace modes feel like one family,
+ * but the drawing surface itself is an SVG of vector strokes, not a raster <canvas>. */
+.kanji-trace-canvas-stack {
+  position: relative;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  transition: box-shadow 0.15s ease;
+}
+
+.kanji-trace-canvas-stack--mistake {
+  box-shadow:
+    0 0 0 4px #ff6b6b,
+    var(--shadow-card);
+}
+
+.kanji-trace-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* Same reasoning as .handwriting-canvas — without this, a touch-drag is free to be
+     read as a page scroll before our own pointer handlers claim it. */
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.kanji-trace-stroke {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 7;
+}
+
+.kanji-trace-stroke--pending {
+  stroke: var(--color-text);
+  opacity: 0.22;
+}
+
+.kanji-trace-stroke--current {
+  stroke: var(--color-primary-dark);
+  stroke-dasharray: 4 5;
+  opacity: 0.85;
+}
+
+.kanji-trace-stroke--done {
+  stroke: var(--color-primary-dark);
+  opacity: 1;
+}
+
+.kanji-trace-ink {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kanji-trace-credit {
+  font-size: 11px;
+  color: var(--color-text-soft);
+  text-align: center;
+  margin-top: 8px;
+}
+
 /* WordIcon renders its `size` prop as a CSS variable (see WordIcon.tsx) rather than a
  * literal pixel attribute so it can scale up on wider screens — a PC browser window has
  * far more room than the phone/tablet viewport this app was originally sized for, and a

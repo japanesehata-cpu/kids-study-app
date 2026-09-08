@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { generateHiraganaQuestion } from '../questionGenerators/hiragana'
-import { getHiraganaById } from '../hiraganaBank'
+import { getHiraganaById, hiraganaBank } from '../hiraganaBank'
+import { kanaStrokePaths } from '../kanaStrokes'
 
 const LEVEL_ROW_COUNTS: Record<number, number> = {
   1: 3,
@@ -9,6 +10,29 @@ const LEVEL_ROW_COUNTS: Record<number, number> = {
   4: 15,
   5: 15,
 }
+
+describe('hiraganaBank なぞる (trace) fields', () => {
+  it('exampleSentence fields are set together, never partially', () => {
+    for (const h of hiraganaBank) {
+      const set = [h.exampleSentenceJa, h.exampleSentenceEn].filter((v) => v !== undefined).length
+      expect(set === 0 || set === 2, `${h.char} (${h.id}) has one but not both example sentence fields`).toBe(true)
+    }
+  })
+
+  it('exactly the 46 清音 (seion) entries have example sentences', () => {
+    expect(hiraganaBank.filter((h) => h.exampleSentenceJa).length).toBe(46)
+  })
+
+  it('every entry with an example sentence has stroke data, and no other entry does', () => {
+    for (const h of hiraganaBank) {
+      if (h.exampleSentenceJa) {
+        expect(kanaStrokePaths[h.char]?.length, `${h.char} (${h.id}) missing stroke data`).toBeGreaterThan(0)
+      } else {
+        expect(kanaStrokePaths[h.char], `${h.char} (${h.id}) has stroke data but no example sentence`).toBeUndefined()
+      }
+    }
+  })
+})
 
 describe('generateHiraganaQuestion', () => {
   for (const level of [1, 2, 3, 4, 5] as const) {

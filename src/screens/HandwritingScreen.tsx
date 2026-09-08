@@ -6,6 +6,7 @@ import { pickHandwritingPraise } from '../domain/handwritingPraise'
 import { useI18n } from '../i18n/I18nContext'
 import { CategoryHeader } from '../components/CategoryHeader'
 import { HandwritingCanvas } from '../components/HandwritingCanvas'
+import { KanaTraceScreen } from './KanaTraceScreen'
 import { HiraganaChar } from '../components/HiraganaChar'
 import { TtsButton } from '../components/TtsButton'
 import { characterThemes } from '../components/characters/characterThemes'
@@ -148,6 +149,17 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
         </div>
       </div>
     )
+  }
+
+  // Level 1 ("なぞる") for hiragana/katakana specifically delegates to the shared
+  // KanjiTraceCanvas-based stroke-order flow (see KanaTraceScreen's own top comment) —
+  // alphabet's level 1 and every category's level 2 ("きいてかく", which shows no guide
+  // at all and so has no stroke-order guidance to give) keep using the whole-glyph
+  // HandwritingCanvas flow below entirely unchanged. KanaTraceScreen is a fully
+  // self-contained screen (its own top-bar/CategoryHeader), so this returns it directly
+  // rather than nesting it inside this component's own JSX below.
+  if (level === 1 && (category === 'hiragana' || category === 'katakana')) {
+    return <KanaTraceScreen category={category} onBack={() => setLevel(null)} onHome={onHome} />
   }
 
   return (

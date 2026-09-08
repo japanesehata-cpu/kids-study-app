@@ -111,12 +111,12 @@ export function KanjiTraceScreen({ onBack, onHome }: KanjiTraceScreenProps) {
 
       {phase === 'tracing' && (
         <>
-          <p className="subtitle">{t('kanjiTracePrompt')}</p>
+          <p className="subtitle">{t('tracePrompt')}</p>
           <KanjiTraceCanvas
             key={entry.id}
             char={entry.char}
             strokes={kanjiStrokePaths[entry.char]}
-            restartLabel={t('kanjiTraceRestartButton')}
+            restartLabel={t('traceRestartButton')}
             onComplete={handleComplete}
           />
         </>
@@ -143,7 +143,7 @@ export function KanjiTraceScreen({ onBack, onHome }: KanjiTraceScreenProps) {
       {phase === 'review' && (
         <div className="handwriting-praise">
           <p className="hint-caption">
-            {t('kanjiReviewProgress', { current: String(index + 1), total: String(order.length) })}
+            {t('reviewProgress', { current: String(index + 1), total: String(order.length) })}
           </p>
           <WordIcon wordId={entry.traceImageId!} size={140} />
           <p className="kanji-review-sentence">{lang === 'ja' ? entry.exampleSentenceJa : entry.exampleSentenceEn}</p>
@@ -155,12 +155,12 @@ export function KanjiTraceScreen({ onBack, onHome }: KanjiTraceScreenProps) {
             cacheKey={`kanji-review-${entry.id}`}
           />
           <button type="button" className="primary-button next-button" onClick={handleReviewNext}>
-            {isLastInDeck ? t('kanjiReviewDoneButton') : t('nextButton')}
+            {isLastInDeck ? t('reviewDoneButton') : t('nextButton')}
           </button>
         </div>
       )}
 
-      <p className="kanji-trace-credit">{t('kanjiTraceCredit')}</p>
+      <p className="kanji-trace-credit">{t('traceStrokeCredit')}</p>
     </div>
   )
 }

@@ -167,6 +167,30 @@ function buildJobs() {
     })
   }
 
+  // ひらがな/カタカナ なぞる's review pass (see KanaTraceScreen) — mirrors the
+  // かんじ-review loop below exactly: one hand-authored example sentence per 清音 (seion)
+  // entry, in that category's own voice. Only entries with exampleSentenceJa set (the 46
+  // seion kana, see hiraganaBank.ts/katakanaBank.ts's row field) participate — dakuten/
+  // handakuten/youon/gairaigo entries don't have this mode yet.
+  for (const entry of hiraganaBank) {
+    if (!entry.exampleSentenceJa) continue
+    jobs.push({
+      cacheKey: `hiragana-review-${entry.id}`,
+      text: entry.exampleSentenceJa,
+      speakerName: hiraganaSpeakerName,
+      styleName: hiraganaStyleName,
+    })
+  }
+  for (const entry of katakanaBank) {
+    if (!entry.exampleSentenceJa) continue
+    jobs.push({
+      cacheKey: `katakana-review-${entry.id}`,
+      text: entry.exampleSentenceJa,
+      speakerName: katakanaSpeakerName,
+      styleName: katakanaStyleName,
+    })
+  }
+
   // Every grade-1 kanji reading phrase (80 total), in kanji's own voice (currently reused
   // from yui/hiragana — see characterThemes.ts's comment on why).
   const { name: kanjiSpeakerName, style: kanjiStyleName } = characterThemes.kanji.voiceProfile.voicevoxSpeaker

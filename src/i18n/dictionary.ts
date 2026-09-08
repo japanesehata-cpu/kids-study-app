@@ -142,15 +142,19 @@ export const dictionary = {
   kanjiEntryQuizDescription: { ja: 'きこえたよみかたの かんじを えらぼう', en: 'Listen and pick the matching kanji' },
   kanjiEntryTraceLabel: { ja: 'なぞって かく', en: 'Trace & write' },
   kanjiEntryTraceDescription: { ja: 'かんじを なぞって、いみも おぼえよう', en: 'Trace the kanji and learn what it means' },
-  kanjiTracePrompt: { ja: 'なぞって かいてみよう', en: 'Trace each stroke in order' },
-  kanjiTraceRestartButton: { ja: 'はじめから', en: 'Start over' },
+  // Shared by both KanjiTraceScreen and KanaTraceScreen (ひらがな/カタカナ なぞる —
+  // see HandwritingScreen.tsx) — every trace-based practice screen uses KanjiVG stroke
+  // data and the same trace→review flow, so these 5 keys are named neutrally rather than
+  // duplicated per category.
+  tracePrompt: { ja: 'なぞって かいてみよう', en: 'Trace each stroke in order' },
+  traceRestartButton: { ja: 'はじめから', en: 'Start over' },
   kanjiTraceMeaningLabel: { ja: 'この かんじの いみは…', en: 'This kanji means...' },
-  kanjiTraceCredit: {
+  traceStrokeCredit: {
     ja: '筆順データ: KanjiVG (CC BY-SA 3.0)',
     en: 'Stroke data: KanjiVG (CC BY-SA 3.0)',
   },
-  kanjiReviewProgress: { ja: 'ふくしゅう {current}/{total}', en: 'Review {current}/{total}' },
-  kanjiReviewDoneButton: { ja: 'おわり', en: 'Done' },
+  reviewProgress: { ja: 'ふくしゅう {current}/{total}', en: 'Review {current}/{total}' },
+  reviewDoneButton: { ja: 'おわり', en: 'Done' },
   moneySinglePrompt: { ja: 'これは なんえんかな？', en: 'How much is this?' },
   moneyComboPrompt: { ja: 'ぜんぶで なんえんかな？', en: 'How much is it all together?' },
   alphabetListenPrompt: { ja: 'きこえたおとのもじをえらんでね', en: 'Pick the letter you hear' },

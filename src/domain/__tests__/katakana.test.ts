@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { generateKatakanaQuestion } from '../questionGenerators/katakana'
-import { getKatakanaById } from '../katakanaBank'
+import { getKatakanaById, katakanaBank } from '../katakanaBank'
+import { kanaStrokePaths } from '../kanaStrokes'
 
 const LEVEL_ROW_COUNTS: Record<number, number> = {
   1: 3,
@@ -9,6 +10,29 @@ const LEVEL_ROW_COUNTS: Record<number, number> = {
   4: 15,
   5: 15,
 }
+
+describe('katakanaBank なぞる (trace) fields', () => {
+  it('exampleSentence fields are set together, never partially', () => {
+    for (const k of katakanaBank) {
+      const set = [k.exampleSentenceJa, k.exampleSentenceEn].filter((v) => v !== undefined).length
+      expect(set === 0 || set === 2, `${k.char} (${k.id}) has one but not both example sentence fields`).toBe(true)
+    }
+  })
+
+  it('exactly the 46 清音 (seion) entries have example sentences', () => {
+    expect(katakanaBank.filter((k) => k.exampleSentenceJa).length).toBe(46)
+  })
+
+  it('every entry with an example sentence has stroke data, and no other entry does', () => {
+    for (const k of katakanaBank) {
+      if (k.exampleSentenceJa) {
+        expect(kanaStrokePaths[k.char]?.length, `${k.char} (${k.id}) missing stroke data`).toBeGreaterThan(0)
+      } else {
+        expect(kanaStrokePaths[k.char], `${k.char} (${k.id}) has stroke data but no example sentence`).toBeUndefined()
+      }
+    }
+  })
+})
 
 describe('generateKatakanaQuestion', () => {
   for (const level of [1, 2, 3, 4, 5] as const) {

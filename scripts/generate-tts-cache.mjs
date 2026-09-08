@@ -179,6 +179,20 @@ function buildJobs() {
     })
   }
 
+  // かんじ なぞる's review pass (see KanjiTraceScreen) — one hand-authored example
+  // sentence per trace-eligible kanji, read aloud in the same kanji voice as the reading
+  // phrases above. Only the subset with exampleSentenceJa set (see kanjiBank.ts's
+  // traceImageId comment) needs this — most of the 80 kanji don't participate.
+  for (const entry of kanjiBank) {
+    if (!entry.exampleSentenceJa) continue
+    jobs.push({
+      cacheKey: `kanji-review-${entry.id}`,
+      text: entry.exampleSentenceJa,
+      speakerName: kanjiSpeakerName,
+      styleName: kanjiStyleName,
+    })
+  }
+
   // Handwriting practice's praise lines (see HandwritingScreen.tsx) — no-count free
   // practice, so this is the only feedback that mode ever speaks. Spoken in whichever
   // category's own voice is currently practicing (see handwritingPraise.ts's

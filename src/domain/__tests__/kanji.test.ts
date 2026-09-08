@@ -22,8 +22,14 @@ describe('kanjiBank', () => {
 
   it('なぞる (trace) fields are set together, never partially', () => {
     for (const k of kanjiBank) {
-      const traceFieldsSet = [k.traceImageId, k.meaningJa, k.meaningEn].filter((v) => v !== undefined).length
-      expect(traceFieldsSet === 0 || traceFieldsSet === 3, `${k.char} (${k.id}) has some but not all trace fields set`).toBe(
+      const traceFieldsSet = [
+        k.traceImageId,
+        k.meaningJa,
+        k.meaningEn,
+        k.exampleSentenceJa,
+        k.exampleSentenceEn,
+      ].filter((v) => v !== undefined).length
+      expect(traceFieldsSet === 0 || traceFieldsSet === 5, `${k.char} (${k.id}) has some but not all trace fields set`).toBe(
         true,
       )
     }

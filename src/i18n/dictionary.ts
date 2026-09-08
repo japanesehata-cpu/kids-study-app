@@ -149,6 +149,8 @@ export const dictionary = {
     ja: '筆順データ: KanjiVG (CC BY-SA 3.0)',
     en: 'Stroke data: KanjiVG (CC BY-SA 3.0)',
   },
+  kanjiReviewProgress: { ja: 'ふくしゅう {current}/{total}', en: 'Review {current}/{total}' },
+  kanjiReviewDoneButton: { ja: 'おわり', en: 'Done' },
   moneySinglePrompt: { ja: 'これは なんえんかな？', en: 'How much is this?' },
   moneyComboPrompt: { ja: 'ぜんぶで なんえんかな？', en: 'How much is it all together?' },
   alphabetListenPrompt: { ja: 'きこえたおとのもじをえらんでね', en: 'Pick the letter you hear' },

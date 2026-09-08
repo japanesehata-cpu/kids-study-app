@@ -50,6 +50,7 @@ const ALL_CATEGORIES: Category[] = [
   'clock',
   'spotDifference',
   'counting',
+  'money',
   'missingOperandAddition',
   'missingOperandSubtraction',
 ]

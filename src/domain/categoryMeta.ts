@@ -22,6 +22,7 @@ export const CATEGORY_META: CategoryMeta[] = [
   { category: 'clock', symbol: '🕐', labelKey: 'categoryClock' },
   { category: 'spotDifference', symbol: '🔍', labelKey: 'categorySpotDifference' },
   { category: 'counting', symbol: '🔢', labelKey: 'categoryCounting' },
+  { category: 'money', symbol: '💰', labelKey: 'categoryMoney' },
   { category: 'englishSentence', symbol: '👂', labelKey: 'categoryEnglishSentence' },
   { category: 'sudoku', symbol: '🧩', labelKey: 'categorySudoku' },
   { category: 'missingOperandAddition', symbol: '➕', labelKey: 'categoryMissingOperandAddition' },

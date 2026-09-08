@@ -5,6 +5,7 @@ import type {
   Category,
   ClockQuestion,
   CountingQuestion,
+  MoneyQuestion,
   EnglishSentenceQuestion,
   EnglishWordQuestion,
   HiraganaQuestion,
@@ -108,6 +109,10 @@ function isSpotDifference(q: Question): q is SpotDifferenceQuestion {
 
 function isCounting(q: Question): q is CountingQuestion {
   return q.category === 'counting'
+}
+
+function isMoney(q: Question): q is MoneyQuestion {
+  return q.category === 'money'
 }
 
 function isSudoku(q: Question): q is SudokuQuestion {
@@ -236,6 +241,14 @@ function computeAutoSpeech(
       text: ja ? counter.promptJa : counter.promptEn,
       speechLang,
       cacheKey: ja ? `prompt-counting-${question.counterId}` : undefined,
+    }
+  }
+  if (isMoney(question)) {
+    const single = question.coinIds.length === 1
+    return {
+      text: t(single ? 'moneySinglePrompt' : 'moneyComboPrompt'),
+      speechLang,
+      cacheKey: ja ? (single ? 'prompt-money-single' : 'prompt-money-combo') : undefined,
     }
   }
   if (isAlphabet(question)) {
@@ -671,6 +684,34 @@ function CountingQuestionView({
   )
 }
 
+function MoneyQuestionView({
+  question,
+  promptText,
+  lang,
+  voiceProfile,
+  cacheKey,
+}: {
+  question: MoneyQuestion
+  promptText: string
+  lang: Lang
+  voiceProfile: VoiceProfile
+  cacheKey?: string
+}) {
+  const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+        {question.coinIds.map((coinId, i) => (
+          <WordIcon key={i} wordId={coinId} size={100} />
+        ))}
+      </div>
+      <p className="subtitle">{promptText}</p>
+      <TtsButton text={promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
+    </div>
+  )
+}
+
 function renderChoiceContent(question: Question, choice: Choice, lang: Lang) {
   if (isArithmetic(question)) return choice
   if (isLogic(question)) {
@@ -697,6 +738,7 @@ function renderChoiceContent(question: Question, choice: Choice, lang: Lang) {
   // never rendered: sudoku has no choice-grid either (see SudokuBoard)
   if (isSudoku(question)) return null
   if (isCounting(question)) return getCounterById(choice as string).kana
+  if (isMoney(question)) return `${choice}えん`
   if (isEnglishSentence(question)) return <WordIcon wordId={choice as string} size={72} />
   return question.mode === 'listenAndPick' ? (
     <WordIcon wordId={choice as string} size={72} />
@@ -727,6 +769,7 @@ function computeCorrectAnswerLabel(question: Question, lang: Lang): string {
     const counter = getCounterById(question.counterId)
     return `${counter.kana}（${counter.kanji}）`
   }
+  if (isMoney(question)) return `${question.answer}えん`
   if (isEnglishSentence(question)) return getWordById(question.correctWordId).word
   return getWordById(question.wordId).word
 }
@@ -807,6 +850,7 @@ export function QuizScreen({
     // sudoku likewise answers by tapping the board (blank cell + palette), not a choice-grid
     if (isSudoku(question)) return []
     if (isCounting(question)) return question.choiceCounterIds
+    if (isMoney(question)) return question.choices
     if (isEnglishSentence(question)) return question.choiceWordIds
     return question.choiceWordIds
   }, [question])
@@ -832,6 +876,7 @@ export function QuizScreen({
     // reached only once every blank is filled correctly (see SUDOKU_DONE) — always correct
     if (isSudoku(question)) return true
     if (isCounting(question)) return choice === question.counterId
+    if (isMoney(question)) return choice === question.answer
     if (isEnglishSentence(question)) return choice === question.correctWordId
     return choice === question.wordId
   }
@@ -1057,6 +1102,14 @@ export function QuizScreen({
           />
         ) : isCounting(question) ? (
           <CountingQuestionView
+            question={question}
+            promptText={autoSpeech.text}
+            lang={lang}
+            voiceProfile={voiceProfile}
+            cacheKey={autoSpeech.cacheKey}
+          />
+        ) : isMoney(question) ? (
+          <MoneyQuestionView
             question={question}
             promptText={autoSpeech.text}
             lang={lang}

@@ -71,6 +71,13 @@ export const LEVEL_DESCRIPTION_KEY: Partial<Record<Category, Partial<Record<Leve
     5: 'levelDescKanji5',
     6: 'levelDescKanji6',
   },
+  money: {
+    1: 'levelDescMoney1',
+    2: 'levelDescMoney2',
+    3: 'levelDescMoney3',
+    4: 'levelDescMoney4',
+    5: 'levelDescMoney5',
+  },
   alphabet: {
     1: 'levelDescAlphabet1',
     2: 'levelDescAlphabet2',

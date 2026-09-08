@@ -305,4 +305,22 @@ export const characterThemes: Record<Category, CharacterTheme> = {
       kokoroVoice: 'am_michael',
     },
   },
+  // Reuses kazu's theme/voice rather than a dedicated mascot — counting coins is the same
+  // "count real things" spirit kazu already represents, and this sidesteps the same
+  // GEMINI_API_KEY portrait-generation blocker noted on kanji's theme below.
+  money: {
+    id: 'kazu',
+    colorMain: '#ff8659',
+    colorMainDark: '#e0603a',
+    colorSub: '#fff3ec',
+    colorAccent: '#ffe066',
+    colorAccentDark: '#e0c23f',
+    voiceProfile: {
+      pitch: 1.05,
+      rate: 1.0,
+      playbackRate: 1.0,
+      voicevoxSpeaker: { name: 'もち子さん', style: 'ノーマル' },
+      kokoroVoice: 'am_michael',
+    },
+  },
 }

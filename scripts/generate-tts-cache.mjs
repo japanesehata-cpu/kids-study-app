@@ -131,6 +131,7 @@ function buildJobs() {
     clock: 'introToki',
     spotDifference: 'introMitsu',
     counting: 'introKazu',
+    money: 'introKazu',
     englishSentence: 'introHana',
     sudoku: 'introKoko',
     missingOperandAddition: 'introMomo',
@@ -208,6 +209,8 @@ function buildJobs() {
     { cacheKey: 'prompt-addition-missing', dictKey: 'missingOperandPrompt', category: 'addition' },
     { cacheKey: 'prompt-subtraction-missing', dictKey: 'missingOperandPrompt', category: 'subtraction' },
     { cacheKey: 'prompt-english-look', dictKey: 'lookPrompt', category: 'englishSpelling' },
+    { cacheKey: 'prompt-money-single', dictKey: 'moneySinglePrompt', category: 'money' },
+    { cacheKey: 'prompt-money-combo', dictKey: 'moneyComboPrompt', category: 'money' },
   ]
   for (const { cacheKey, dictKey, category } of fixedPrompts) {
     const { name: speakerName, style: styleName } = speakerFor(category)

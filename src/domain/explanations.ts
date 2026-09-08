@@ -2,6 +2,7 @@ import type { Lang } from '../i18n/dictionary'
 import type { Question } from './types'
 import { getWordById, type WordEntry } from './wordBank'
 import { getCounterById } from './counterBank'
+import { getCoinById } from './moneyBank'
 import { getHiraganaById } from './hiraganaBank'
 import { getKatakanaById } from './katakanaBank'
 import { getKanjiById } from './kanjiBank'
@@ -179,6 +180,16 @@ export function buildExplanation(
       return lang === 'ja'
         ? `こたえは 「${counter.kana}」（${counter.kanji}）だよ。`
         : `The answer is "${counter.kana}" (${counter.kanji}).`
+    }
+    case 'money': {
+      const { coinIds, answer } = question
+      if (coinIds.length === 1) {
+        return lang === 'ja' ? `これは ${answer}えんだよ。` : `This is ${answer} yen.`
+      }
+      const values = coinIds.map((id) => getCoinById(id).value)
+      return lang === 'ja'
+        ? `${values.join('えんと ')}えんを あわせると ${answer}えんに なるよ。`
+        : `${values.join(' yen plus ')} yen adds up to ${answer} yen.`
     }
     case 'englishSentence': {
       // The question is spoken audio-only (no caption while answering, by design — see

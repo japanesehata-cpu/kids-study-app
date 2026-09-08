@@ -20,6 +20,7 @@ import { generateAlphabetQuestion } from './questionGenerators/alphabet'
 import { generateClockQuestion, type ClockMode } from './questionGenerators/clock'
 import { generateSpotDifferenceQuestion } from './questionGenerators/spotDifference'
 import { generateCountingQuestion } from './questionGenerators/counting'
+import { generateMoneyQuestion } from './questionGenerators/money'
 import { generateSudokuQuestion } from './questionGenerators/sudoku'
 import { generateMissingOperandQuestion } from './questionGenerators/missingOperand'
 import { loadProgressJson, saveProgressJson } from '../lib/storage'
@@ -64,6 +65,11 @@ export const CATEGORY_MAX_LEVEL: Record<Category, Level> = {
   // englishSentence below. Reached directly from HomeScreen (no level-select screen in
   // between, see App.tsx), always played at a fixed 10-question set size.
   counting: 1,
+  // Real ★ ladder (unlike counting/englishSentence above): ★1-2 are single-coin
+  // recognition (small coins, then the full set), ★3-5 add coin combinations to total up
+  // (2 coins without 500円, then 2 coins with it, then 3 coins) — see
+  // questionGenerators/money.ts's poolForLevel/coinCountForLevel.
+  money: 5,
   // No ★ levels at all — see questionGenerators/englishSentence.ts's pickColorDistractors
   // comment for why the old ★1/★2 split was removed outright rather than kept. Reached
   // directly from EnglishEntryScreen's chooser (no level-select screen in between, see
@@ -108,6 +114,7 @@ export function createInitialProgress(): ProgressState {
     clock: { level: 1, recentAccuracy: [], reviewQueue: [] },
     spotDifference: { level: 1, recentAccuracy: [], reviewQueue: [] },
     counting: { level: 1, recentAccuracy: [], reviewQueue: [] },
+    money: { level: 1, recentAccuracy: [], reviewQueue: [] },
     englishSentence: { level: 1, recentAccuracy: [], reviewQueue: [] },
     sudoku: { level: 1, recentAccuracy: [], reviewQueue: [] },
     missingOperandAddition: { level: 1, recentAccuracy: [], reviewQueue: [] },
@@ -191,6 +198,7 @@ export function loadProgress(): ProgressState {
       clock: sanitizeCategoryProgress('clock', parsed.clock, initial.clock),
       spotDifference: sanitizeCategoryProgress('spotDifference', parsed.spotDifference, initial.spotDifference),
       counting: sanitizeCategoryProgress('counting', parsed.counting, initial.counting),
+      money: sanitizeCategoryProgress('money', parsed.money, initial.money),
       englishSentence: sanitizeCategoryProgress('englishSentence', parsed.englishSentence, initial.englishSentence),
       sudoku: sanitizeCategoryProgress('sudoku', parsed.sudoku, initial.sudoku),
       missingOperandAddition: sanitizeCategoryProgress(
@@ -239,6 +247,8 @@ function generateFreshQuestion(category: Category, level: Level, clockMode?: Clo
       return generateSpotDifferenceQuestion(level)
     case 'counting':
       return generateCountingQuestion(level)
+    case 'money':
+      return generateMoneyQuestion(level)
     case 'englishSentence':
       return generateEnglishSentenceQuestion(level)
     case 'sudoku':
@@ -270,6 +280,16 @@ function questionSignature(q: Question): string {
     return `spot:${q.leftItems.map((i) => i.iconId).join(',')}:${q.differenceIndexes.join(',')}`
   }
   if (q.category === 'counting') return `counting:${q.counterId}`
+  if (q.category === 'money') {
+    // ★1/★2 (single-coin recognition) only have 3/6 possible distinct questions — far
+    // fewer than SET_SIZE — so repeats within one round are unavoidable and fine (a
+    // flashcard drill through a small deck is expected to cycle). Using `id` (always
+    // unique) here means "never a duplicate" for those, letting generateQuestionSet fill
+    // the round by generating fresh draws instead of stalling out at 3/6 questions and
+    // returning a short set. ★3-5 (2-3 coin combinations) have plenty of distinct sums to
+    // draw from, so those still dedupe by the actual coins shown, for real variety.
+    return q.coinIds.length === 1 ? `money:${q.id}` : `money:${q.coinIds.slice().sort().join(',')}`
+  }
   if (q.category === 'englishSentence') return `sentence:${q.sentenceId}`
   if (q.category === 'sudoku') return `sudoku:${q.grid.map((row) => row.map((c) => c ?? '_').join('')).join('|')}`
   return `${q.category}:${q.operandA}:${q.operandB}`

@@ -11,6 +11,7 @@ export type Category =
   | 'clock'
   | 'spotDifference'
   | 'counting'
+  | 'money'
   | 'englishSentence'
   | 'sudoku'
   | 'missingOperandAddition'
@@ -226,6 +227,17 @@ export interface CountingQuestion {
   subSkill: string
 }
 
+export interface MoneyQuestion {
+  id: string
+  category: 'money'
+  level: Level
+  /** words-image ids of the coin(s) shown, e.g. ['yen10', 'yen5'] — see moneyBank.ts */
+  coinIds: string[]
+  answer: number
+  choices: number[]
+  subSkill: string
+}
+
 export type Question =
   | ArithmeticQuestion
   | EnglishWordQuestion
@@ -237,6 +249,7 @@ export type Question =
   | ClockQuestion
   | SpotDifferenceQuestion
   | CountingQuestion
+  | MoneyQuestion
   | EnglishSentenceQuestion
   | SudokuQuestion
 

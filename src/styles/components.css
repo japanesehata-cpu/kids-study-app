@@ -880,10 +880,12 @@
 
 /* Field report: on a real phone this read as "already traced" before the child touched
  * anything, because it shared --done's pink and a fine dash pattern that visually merges
- * into a solid line at small sizes. Now a different color entirely (the ink/accent
- * yellow, matching .kanji-trace-ink so "this color is what you're about to draw" reads
- * consistently) plus a marching-ants animation — unmistakably a "start here" cue, not
- * completed ink. prefers-reduced-motion gets the same visual without the motion. */
+ * into a solid line at small sizes. Now a different color entirely (accent yellow) plus a
+ * marching-ants animation — unmistakably a "start here" cue, not completed ink.
+ * .kanji-trace-ink (the live in-progress line under the child's finger) is pink like
+ * --done instead of matching this yellow guide, so what they're actively drawing already
+ * looks like the finished stroke color, not like a second guide line.
+ * prefers-reduced-motion gets the same visual without the motion. */
 .kanji-trace-stroke--current {
   stroke: var(--color-accent);
   stroke-dasharray: 5 6;
@@ -910,7 +912,7 @@
 
 .kanji-trace-ink {
   fill: none;
-  stroke: var(--color-accent);
+  stroke: var(--color-primary-dark);
   stroke-width: 6;
   stroke-linecap: round;
   stroke-linejoin: round;

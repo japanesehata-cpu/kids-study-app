@@ -876,6 +876,18 @@ or dish, not cardboard, not brown, not unpainted, lying flat on a
 table viewed from directly above, soft diffused daylight,
 neutral studio background, natural unedited product photograph
 """,
+    # QA (counting-feature review): the generic_object_prompt() default rendered as two
+    # plates stacked together, not one — wrong even for plate's own word-matching use
+    # (the word is singular "plate"), and specifically broken for the かぞえる counting
+    # feature, which tiles this image N times to depict a count (see
+    # CountingQuestionView) — a stack of 2 repeated N times visually reads as 2N plates.
+    "plate": """
+RAW product photograph of a real single ceramic plate,
+exactly one plate, empty, nothing underneath it and nothing stacked
+on it, viewed from a slight three-quarter angle showing its round
+shape, natural ceramic texture, soft diffused daylight,
+neutral studio background, natural unedited product photograph
+""",
     "lettuce": """
 RAW product photograph of a fresh head of romaine lettuce,
 long upright pale green leaves, whole head standing upright,

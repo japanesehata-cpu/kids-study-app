@@ -852,6 +852,14 @@
   display: block;
   width: 100%;
   height: 100%;
+  /* Purely visual — see KanjiTraceCanvas's comment on why touch/pointer handling moved
+   * off the SVG entirely and onto .kanji-trace-overlay below. */
+  pointer-events: none;
+}
+
+.kanji-trace-overlay {
+  position: absolute;
+  inset: 0;
   /* Same reasoning as .handwriting-canvas — without this, a touch-drag is free to be
      read as a page scroll before our own pointer handlers claim it. */
   touch-action: none;

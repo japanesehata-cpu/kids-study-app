@@ -41,6 +41,17 @@ function sampleStroke(pathEl: SVGPathElement): Point[] {
 
 export function KanjiTraceCanvas({ char, strokes, size = DEFAULT_SIZE, restartLabel, onComplete }: KanjiTraceCanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null)
+  // All pointer/touch handling lives on this plain <div> overlay, not the SVG itself — a
+  // field report showed the SVG never responding to real touch input even after guarding
+  // setPointerCapture. SVG elements have historically inconsistent touch-action and
+  // pointer-capture support across mobile browsers (Safari in particular); a <div> is the
+  // same element type HandwritingCanvas's own touch handling already relies on
+  // successfully in production (there via a <canvas>, functionally identical here), so
+  // this sidesteps the SVG-specific quirk entirely rather than guessing at it further.
+  // The SVG stays purely visual (pointer-events: none, see CSS) — its geometry APIs
+  // (getScreenCTM, getPointAtLength) still work fine on an element that isn't receiving
+  // pointer events itself.
+  const overlayRef = useRef<HTMLDivElement>(null)
   const guidePathRefs = useRef<(SVGPathElement | null)[]>([])
   const drawingRef = useRef(false)
   // The in-progress gesture's points live in a ref, not state — handlePointerUp reads
@@ -73,30 +84,25 @@ export function KanjiTraceCanvas({ char, strokes, size = DEFAULT_SIZE, restartLa
     setMistake(false)
   }
 
-  function handlePointerDown(e: ReactPointerEvent<SVGSVGElement>) {
+  function handlePointerDown(e: ReactPointerEvent<HTMLDivElement>) {
     if (currentIndex >= strokes.length) return
     e.preventDefault()
     const svg = svgRef.current
-    if (!svg) return
-    // Real touch hardware (confirmed via a field report — a mobile browser left the whole
-    // canvas unresponsive) can throw here (SVG pointer-capture support is far less
-    // consistent across mobile browsers than on <canvas>, unlike HandwritingCanvas's own
-    // uncaught setPointerCapture call, which is on a <canvas> element). An uncaught throw
-    // aborted the rest of this handler, so drawingRef never became true and every
-    // subsequent move/up was a no-op — capture is a nice-to-have (keeps tracking the
-    // gesture if a finger drifts outside the SVG's bounds), not required for the drawing
-    // state below to start.
+    const overlay = overlayRef.current
+    if (!svg || !overlay) return
     try {
-      svg.setPointerCapture(e.pointerId)
+      overlay.setPointerCapture(e.pointerId)
     } catch {
-      // ignore — see comment above
+      // Capture is a nice-to-have (keeps tracking the gesture if a finger drifts outside
+      // the overlay's bounds) — not required for the drawing state below to start, so a
+      // capture failure shouldn't block the gesture.
     }
     drawingRef.current = true
     pointsRef.current = [toSvgPoint(svg, e.clientX, e.clientY)]
     setDrawnPoints(pointsRef.current)
   }
 
-  function handlePointerMove(e: ReactPointerEvent<SVGSVGElement>) {
+  function handlePointerMove(e: ReactPointerEvent<HTMLDivElement>) {
     if (!drawingRef.current) return
     e.preventDefault()
     const svg = svgRef.current
@@ -134,17 +140,7 @@ export function KanjiTraceCanvas({ char, strokes, size = DEFAULT_SIZE, restartLa
         className={`kanji-trace-canvas-stack${mistake ? ' kanji-trace-canvas-stack--mistake' : ''}`}
         style={{ width: size, height: size }}
       >
-        <svg
-          ref={svgRef}
-          viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`}
-          className="kanji-trace-svg"
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerLeave={handlePointerUp}
-          onPointerCancel={handlePointerUp}
-        >
-          <rect x={0} y={0} width={VIEWBOX} height={VIEWBOX} fill="transparent" />
+        <svg ref={svgRef} viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`} className="kanji-trace-svg">
           {strokes.map((d, i) => (
             <path
               key={i}
@@ -163,6 +159,15 @@ export function KanjiTraceCanvas({ char, strokes, size = DEFAULT_SIZE, restartLa
           ))}
           {drawnPoints.length > 0 && <polyline points={inkPointsAttr} className="kanji-trace-ink" />}
         </svg>
+        <div
+          ref={overlayRef}
+          className="kanji-trace-overlay"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerLeave={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+        />
       </div>
       <div className="handwriting-controls">
         <button type="button" className="secondary-button" onClick={handleRestart}>

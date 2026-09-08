@@ -39,9 +39,14 @@ export const counterBank: CounterEntry[] = [
     id: 'nin',
     kana: 'にん',
     kanji: '人',
-    exampleWordId: 'family',
-    promptJa: 'これは かぞくが 4にん います。ひとを かぞえる ときは、なんと いうかな？',
-    promptEn: 'This family has 4 people. What counter word do you use to count people?',
+    // A generic faceless silhouette, not a photo — see
+    // scripts/generate-person-icon.py's comment for why. Repeated N times (see
+    // CountingQuestionView) so it doubles as the actual counted group in the picture,
+    // unlike the old single "family of 4" illustration this replaced (that photo showed
+    // a fixed scene, not a group that could be shown at any count).
+    exampleWordId: 'person',
+    promptJa: 'ひとを かぞえる ときは、なんと いうかな？',
+    promptEn: 'What counter word do you use to count people?',
   },
   {
     id: 'ko',

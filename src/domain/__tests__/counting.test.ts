@@ -32,4 +32,15 @@ describe('generateCountingQuestion', () => {
     }
     expect(seen.size).toBe(counterBank.length)
   })
+
+  it('count is always between 2 and 5 (an actual group, not a single specimen)', () => {
+    const seenCounts = new Set<number>()
+    for (let i = 0; i < 200; i++) {
+      const q = generateCountingQuestion(1)
+      expect(q.count).toBeGreaterThanOrEqual(2)
+      expect(q.count).toBeLessThanOrEqual(5)
+      seenCounts.add(q.count)
+    }
+    expect(seenCounts).toEqual(new Set([2, 3, 4, 5]))
+  })
 })

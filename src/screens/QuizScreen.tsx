@@ -677,7 +677,14 @@ function CountingQuestionView({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-      <WordIcon wordId={question.exampleWordId} size={140} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <span className="count-badge">{question.count}</span>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center', maxWidth: 240 }}>
+          {Array.from({ length: question.count }, (_, i) => (
+            <WordIcon key={i} wordId={question.exampleWordId} size={56} />
+          ))}
+        </div>
+      </div>
       <p className="subtitle">{promptText}</p>
       <TtsButton text={promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
     </div>

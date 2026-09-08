@@ -223,6 +223,9 @@ export interface CountingQuestion {
   counterId: string
   /** wordBank id (or a words-image-only id) shown as the example picture */
   exampleWordId: string
+  /** How many copies of exampleWordId are shown — the actual group being counted, not
+   * just a single example (see CountingQuestionView in QuizScreen.tsx). */
+  count: number
   choiceCounterIds: string[]
   subSkill: string
 }

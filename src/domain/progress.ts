@@ -154,8 +154,10 @@ function isCompatibleQuestion(q: Question): boolean {
     // Guards against a stored reviewQueue entry from before the 助数詞 redesign replaced
     // targetWordId/displayIds/count/choices with counterId/exampleWordId/choiceCounterIds
     // (see questionGenerators/counting.ts) — an old-shaped entry would otherwise resurface
-    // with counterId undefined and crash getCounterById downstream.
-    return typeof q.counterId === 'string' && Array.isArray(q.choiceCounterIds)
+    // with counterId undefined and crash getCounterById downstream. Also guards against an
+    // entry from before `count` (how many copies to show) was added — an old entry would
+    // resurface with count undefined and break CountingQuestionView's Array.from.
+    return typeof q.counterId === 'string' && Array.isArray(q.choiceCounterIds) && typeof q.count === 'number'
   }
   return true
 }

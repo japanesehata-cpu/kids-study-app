@@ -17,13 +17,15 @@ export const CATEGORY_META: CategoryMeta[] = [
   { category: 'logic', symbol: '?', labelKey: 'categoryLogic' },
   { category: 'hiragana', symbol: 'あ', labelKey: 'categoryHiragana' },
   { category: 'katakana', symbol: 'ア', labelKey: 'categoryKatakana' },
+  { category: 'kanji', symbol: '字', labelKey: 'categoryKanji' },
   { category: 'alphabet', symbol: 'Ab', labelKey: 'categoryAlphabet' },
   { category: 'clock', symbol: '🕐', labelKey: 'categoryClock' },
   { category: 'spotDifference', symbol: '🔍', labelKey: 'categorySpotDifference' },
   { category: 'counting', symbol: '🔢', labelKey: 'categoryCounting' },
   { category: 'englishSentence', symbol: '👂', labelKey: 'categoryEnglishSentence' },
   { category: 'sudoku', symbol: '🧩', labelKey: 'categorySudoku' },
-  { category: 'missingOperand', symbol: '🔲', labelKey: 'categoryMissingOperand' },
+  { category: 'missingOperandAddition', symbol: '➕', labelKey: 'categoryMissingOperandAddition' },
+  { category: 'missingOperandSubtraction', symbol: '➖', labelKey: 'categoryMissingOperandSubtraction' },
 ]
 
 export function getCategoryMeta(category: Category): CategoryMeta {

@@ -14,6 +14,7 @@ import { generateEnglishSentenceQuestion } from './questionGenerators/englishSen
 import { generateLogicQuestion } from './questionGenerators/logic'
 import { generateHiraganaQuestion } from './questionGenerators/hiragana'
 import { generateKatakanaQuestion } from './questionGenerators/katakana'
+import { generateKanjiQuestion } from './questionGenerators/kanji'
 import { shuffle } from '../lib/shuffle'
 import { generateAlphabetQuestion } from './questionGenerators/alphabet'
 import { generateClockQuestion, type ClockMode } from './questionGenerators/clock'
@@ -52,6 +53,9 @@ export const CATEGORY_MAX_LEVEL: Record<Category, Level> = {
   logic: 3,
   hiragana: 4,
   katakana: 5,
+  // Full 6 steps — each ★ cumulatively unlocks one more theme (or two merged themes) of
+  // the 80 grade-1 kyōiku kanji, see kanjiBank.ts/questionGenerators/kanji.ts's LEVEL_ROWS.
+  kanji: 6,
   alphabet: 3,
   clock: 3,
   spotDifference: 3,
@@ -73,11 +77,12 @@ export const CATEGORY_MAX_LEVEL: Record<Category, Level> = {
   // too easy), and 10 blanks is the highest the brute-force generator can still produce
   // near-instantly, so there's no room for a meaningfully-distinct 4th or 5th step above it.
   sudoku: 3,
-  // Reached via a secondary button on BOTH addition's and subtraction's level-select
-  // (it mixes both operators — see questionGenerators/missingOperand.ts) — same
-  // independent-mode pattern as sudoku above, just with two entry points into one
-  // destination instead of one.
-  missingOperand: 2,
+  // Reached via a secondary button on addition's/subtraction's own level-select — same
+  // independent-mode pattern as sudoku above, but two separate destinations (one per
+  // operator) rather than one shared destination, so a round is never a mix of both
+  // operators (see questionGenerators/missingOperand.ts).
+  missingOperandAddition: 2,
+  missingOperandSubtraction: 2,
 }
 
 export function getCategoryMaxLevel(category: Category): Level {
@@ -98,13 +103,15 @@ export function createInitialProgress(): ProgressState {
     logic: { level: 1, recentAccuracy: [], reviewQueue: [] },
     hiragana: { level: 1, recentAccuracy: [], reviewQueue: [] },
     katakana: { level: 1, recentAccuracy: [], reviewQueue: [] },
+    kanji: { level: 1, recentAccuracy: [], reviewQueue: [] },
     alphabet: { level: 1, recentAccuracy: [], reviewQueue: [] },
     clock: { level: 1, recentAccuracy: [], reviewQueue: [] },
     spotDifference: { level: 1, recentAccuracy: [], reviewQueue: [] },
     counting: { level: 1, recentAccuracy: [], reviewQueue: [] },
     englishSentence: { level: 1, recentAccuracy: [], reviewQueue: [] },
     sudoku: { level: 1, recentAccuracy: [], reviewQueue: [] },
-    missingOperand: { level: 1, recentAccuracy: [], reviewQueue: [] },
+    missingOperandAddition: { level: 1, recentAccuracy: [], reviewQueue: [] },
+    missingOperandSubtraction: { level: 1, recentAccuracy: [], reviewQueue: [] },
   }
 }
 
@@ -179,13 +186,23 @@ export function loadProgress(): ProgressState {
       logic: sanitizeCategoryProgress('logic', parsed.logic, initial.logic),
       hiragana: sanitizeCategoryProgress('hiragana', parsed.hiragana, initial.hiragana),
       katakana: sanitizeCategoryProgress('katakana', parsed.katakana, initial.katakana),
+      kanji: sanitizeCategoryProgress('kanji', parsed.kanji, initial.kanji),
       alphabet: sanitizeCategoryProgress('alphabet', parsed.alphabet, initial.alphabet),
       clock: sanitizeCategoryProgress('clock', parsed.clock, initial.clock),
       spotDifference: sanitizeCategoryProgress('spotDifference', parsed.spotDifference, initial.spotDifference),
       counting: sanitizeCategoryProgress('counting', parsed.counting, initial.counting),
       englishSentence: sanitizeCategoryProgress('englishSentence', parsed.englishSentence, initial.englishSentence),
       sudoku: sanitizeCategoryProgress('sudoku', parsed.sudoku, initial.sudoku),
-      missingOperand: sanitizeCategoryProgress('missingOperand', parsed.missingOperand, initial.missingOperand),
+      missingOperandAddition: sanitizeCategoryProgress(
+        'missingOperandAddition',
+        parsed.missingOperandAddition,
+        initial.missingOperandAddition,
+      ),
+      missingOperandSubtraction: sanitizeCategoryProgress(
+        'missingOperandSubtraction',
+        parsed.missingOperandSubtraction,
+        initial.missingOperandSubtraction,
+      ),
     }
   } catch {
     return createInitialProgress()
@@ -212,6 +229,8 @@ function generateFreshQuestion(category: Category, level: Level, clockMode?: Clo
       return generateHiraganaQuestion(level)
     case 'katakana':
       return generateKatakanaQuestion(level)
+    case 'kanji':
+      return generateKanjiQuestion(level)
     case 'alphabet':
       return generateAlphabetQuestion(level)
     case 'clock':
@@ -224,8 +243,10 @@ function generateFreshQuestion(category: Category, level: Level, clockMode?: Clo
       return generateEnglishSentenceQuestion(level)
     case 'sudoku':
       return generateSudokuQuestion(level)
-    case 'missingOperand':
-      return generateMissingOperandQuestion(level)
+    case 'missingOperandAddition':
+      return generateMissingOperandQuestion(level, 'addition')
+    case 'missingOperandSubtraction':
+      return generateMissingOperandQuestion(level, 'subtraction')
   }
 }
 
@@ -242,6 +263,7 @@ function questionSignature(q: Question): string {
   if (q.category === 'logic') return `logic:${q.kind}:${[...q.choices].sort().join(',')}`
   if (q.category === 'hiragana') return `hiragana:${q.charId}`
   if (q.category === 'katakana') return `katakana:${q.charId}`
+  if (q.category === 'kanji') return `kanji:${q.charId}`
   if (q.category === 'alphabet') return `alphabet:${q.letterId}:${q.kind}:${q.answerChar}`
   if (q.category === 'clock') return `clock:${q.hour}:${q.minute}`
   if (q.category === 'spotDifference') {

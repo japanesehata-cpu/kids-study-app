@@ -4,6 +4,7 @@ import { getWordById, type WordEntry } from './wordBank'
 import { getCounterById } from './counterBank'
 import { getHiraganaById } from './hiraganaBank'
 import { getKatakanaById } from './katakanaBank'
+import { getKanjiById } from './kanjiBank'
 import { formatClockKey } from './questionGenerators/clock'
 
 const CATEGORY_LABEL: Record<WordEntry['category'], Record<Lang, string>> = {
@@ -52,7 +53,8 @@ export function buildExplanation(
         ? `${operandA}から ${operandB}を ひくと ${answer}が のこるよ。`
         : `${operandA} minus ${operandB} leaves ${answer}.`
     }
-    case 'missingOperand': {
+    case 'missingOperandAddition':
+    case 'missingOperandSubtraction': {
       const { operandA, operandB, answer, operator, blank } = question
       const missingValue = blank === 'operandA' ? operandA : blank === 'operandB' ? operandB : answer
       return lang === 'ja'
@@ -134,6 +136,13 @@ export function buildExplanation(
       return lang === 'ja'
         ? `「${char}」は 「${mnemonic}」の 「${char}」だよ。`
         : `"${char}" is the character you hear at the start of "${mnemonic}."`
+    }
+    case 'kanji': {
+      const { char, charId } = question
+      const { reading, mnemonic } = getKanjiById(charId)
+      return lang === 'ja'
+        ? `「${char}」は 「${reading}」と よむよ。「${mnemonic}」の 「${reading}」だよ。`
+        : `"${char}" is read "${reading}," as in "${mnemonic}."`
     }
     case 'alphabet': {
       if (question.kind === 'caseMatch') {

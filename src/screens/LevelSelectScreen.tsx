@@ -22,8 +22,9 @@ interface LevelSelectScreenProps {
    * from here rather than mixed into logic's own random question mix (see the plan this
    * was built from). */
   onOpenSudoku?: () => void
-  /** addition/subtraction only — opens missingOperand's own level-select (mixes both
-   * operators, so it's reached from either screen rather than owned by one). */
+  /** addition/subtraction only — opens that operator's own missingOperandAddition/
+   * missingOperandSubtraction level-select (App.tsx picks the right destination per
+   * screen.category; a round never mixes both operators). */
   onOpenMissingOperand?: () => void
   /** one step back — Home for most categories, EnglishEntryScreen for englishSpelling/englishListening */
   onBack: () => void

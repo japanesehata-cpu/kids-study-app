@@ -97,6 +97,11 @@ const CHARACTERS = [
     detail:
       'themed in bright pastel orange-red and sunny yellow, with round bear-cub-like ears, holding tiny colorful counting beads, and a number-block-shaped gem accessory on its head',
   },
+  {
+    id: 'fumi',
+    detail:
+      'a cute panda character themed in deep pastel vermillion red and soft cream-white, with round panda ears and panda eye patches, holding a small round red hanko seal stamp, and a tiny scroll-shaped gem accessory on its head',
+  },
 ]
 
 const BASE_PROMPT = `Create a polished 3D animated fantasy mascot character.

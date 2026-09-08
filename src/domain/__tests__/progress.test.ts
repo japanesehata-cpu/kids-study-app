@@ -45,11 +45,13 @@ const ALL_CATEGORIES: Category[] = [
   'logic',
   'hiragana',
   'katakana',
+  'kanji',
   'alphabet',
   'clock',
   'spotDifference',
   'counting',
-  'missingOperand',
+  'missingOperandAddition',
+  'missingOperandSubtraction',
 ]
 
 describe('generateQuestionSet', () => {

@@ -38,6 +38,7 @@ import { CATEGORY_META } from '../src/domain/categoryMeta.ts'
 import { counterBank } from '../src/domain/counterBank.ts'
 import { hiraganaBank, hiraganaSpeechPhrase } from '../src/domain/hiraganaBank.ts'
 import { katakanaBank, katakanaSpeechPhrase } from '../src/domain/katakanaBank.ts'
+import { kanjiBank, kanjiSpeechPhrase } from '../src/domain/kanjiBank.ts'
 import { enumerateFeedbackCacheEntries } from '../src/domain/feedbackMessages.ts'
 import { HANDWRITING_PRAISE_JA } from '../src/domain/handwritingPraise.ts'
 import { buildAdditionStory, buildSubtractionStory } from '../src/domain/questionGenerators/wordProblems.ts'
@@ -125,13 +126,15 @@ function buildJobs() {
     logic: 'introKoko',
     hiragana: 'introYui',
     katakana: 'introPeko',
+    kanji: 'introYui',
     alphabet: 'introAru',
     clock: 'introToki',
     spotDifference: 'introMitsu',
     counting: 'introKazu',
     englishSentence: 'introHana',
     sudoku: 'introKoko',
-    missingOperand: 'introMomo',
+    missingOperandAddition: 'introMomo',
+    missingOperandSubtraction: 'introSora',
   }
   for (const { category } of CATEGORY_META) {
     const text = dictionary[introKeyByCategory[category]].ja
@@ -160,6 +163,18 @@ function buildJobs() {
       text: katakanaSpeechPhrase(entry),
       speakerName: katakanaSpeakerName,
       styleName: katakanaStyleName,
+    })
+  }
+
+  // Every grade-1 kanji reading phrase (80 total), in kanji's own voice (currently reused
+  // from yui/hiragana — see characterThemes.ts's comment on why).
+  const { name: kanjiSpeakerName, style: kanjiStyleName } = characterThemes.kanji.voiceProfile.voicevoxSpeaker
+  for (const entry of kanjiBank) {
+    jobs.push({
+      cacheKey: `kanji-${entry.id}`,
+      text: kanjiSpeechPhrase(entry),
+      speakerName: kanjiSpeakerName,
+      styleName: kanjiStyleName,
     })
   }
 

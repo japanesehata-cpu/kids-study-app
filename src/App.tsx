@@ -164,9 +164,11 @@ function AppContent() {
               screen.category === 'logic' ? () => navigate({ name: 'levelSelect', category: 'sudoku' }) : undefined
             }
             onOpenMissingOperand={
-              screen.category === 'addition' || screen.category === 'subtraction'
-                ? () => navigate({ name: 'levelSelect', category: 'missingOperand' })
-                : undefined
+              screen.category === 'addition'
+                ? () => navigate({ name: 'levelSelect', category: 'missingOperandAddition' })
+                : screen.category === 'subtraction'
+                  ? () => navigate({ name: 'levelSelect', category: 'missingOperandSubtraction' })
+                  : undefined
             }
             onBack={goBack}
             onHome={goHome}

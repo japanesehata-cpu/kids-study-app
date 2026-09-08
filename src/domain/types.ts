@@ -6,13 +6,15 @@ export type Category =
   | 'logic'
   | 'hiragana'
   | 'katakana'
+  | 'kanji'
   | 'alphabet'
   | 'clock'
   | 'spotDifference'
   | 'counting'
   | 'englishSentence'
   | 'sudoku'
-  | 'missingOperand'
+  | 'missingOperandAddition'
+  | 'missingOperandSubtraction'
 
 /** The original five categories use a 5-step scale; clock/spotDifference/counting use only
  * levels 1-3 (see CATEGORY_MAX_LEVEL in progress.ts), shown as 1-3 stars instead of 1-5.
@@ -24,12 +26,14 @@ export type Level = 1 | 2 | 3 | 4 | 5 | 6
 
 export interface ArithmeticQuestion {
   id: string
-  category: 'addition' | 'subtraction' | 'missingOperand'
-  /** The operator THIS question actually uses — always equal to `category` for plain
-   * addition/subtraction, but meaningful on its own for `missingOperand` (which mixes
-   * both operators within one category — see questionGenerators/missingOperand.ts).
-   * Every operator-dependent rendering choice (symbol, visual, speech template) should
-   * switch on this field, not on `category`. */
+  category: 'addition' | 'subtraction' | 'missingOperandAddition' | 'missingOperandSubtraction'
+  /** The operator THIS question actually uses — always derivable from `category` (a
+   * missingOperandAddition question is always 'addition', etc. — split into its own
+   * category per operator specifically so this never mixes, see
+   * questionGenerators/missingOperand.ts). Kept as its own field anyway, rather than
+   * switching on `category` everywhere: every operator-dependent rendering choice
+   * (symbol, visual, speech template) already reads this field, from when
+   * missingOperand was a single mixed category. */
   operator: 'addition' | 'subtraction'
   level: Level
   operandA: number
@@ -41,8 +45,9 @@ export interface ArithmeticQuestion {
   story?: { ja: string; en: string }
   /** sub-skill tag used for the strengths/weaknesses breakdown */
   subSkill: string
-  /** Set only for missingOperand questions: which slot is hidden and must be solved for
-   * — the child answers with that operand's value instead of `answer`. */
+  /** Set only for missingOperandAddition/missingOperandSubtraction questions: which slot
+   * is hidden and must be solved for — the child answers with that operand's value
+   * instead of `answer`. */
   blank?: 'operandA' | 'operandB'
 }
 
@@ -98,6 +103,16 @@ export interface LogicQuestion {
 export interface HiraganaQuestion {
   id: string
   category: 'hiragana'
+  level: Level
+  charId: string
+  char: string
+  choiceIds: string[]
+  subSkill: string
+}
+
+export interface KanjiQuestion {
+  id: string
+  category: 'kanji'
   level: Level
   charId: string
   char: string
@@ -217,6 +232,7 @@ export type Question =
   | LogicQuestion
   | HiraganaQuestion
   | KatakanaQuestion
+  | KanjiQuestion
   | AlphabetQuestion
   | ClockQuestion
   | SpotDifferenceQuestion

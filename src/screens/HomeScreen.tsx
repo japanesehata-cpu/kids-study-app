@@ -21,9 +21,9 @@ interface HomeScreenProps {
 // from every home-screen list and englishSpelling stands in as the shared slot, relabeled
 // below. Likewise ひらがな/カタカナ/アルファベット collapse to one "もじ" card (see
 // MojiEntryScreen) — katakana/alphabet are dropped and hiragana stands in as the shared
-// slot, relabeled the same way. sudoku and missingOperand are also dropped — each is
-// reached via a button on another category's own level-select instead (see
-// LevelSelectScreen.tsx), not its own home-screen card.
+// slot, relabeled the same way. sudoku and missingOperandAddition/missingOperandSubtraction
+// are also dropped — each is reached via a button on another category's own level-select
+// instead (see LevelSelectScreen.tsx), not its own home-screen card.
 const HOME_CATEGORY_META = CATEGORY_META.filter(
   (c) =>
     c.category !== 'englishListening' &&
@@ -31,7 +31,8 @@ const HOME_CATEGORY_META = CATEGORY_META.filter(
     c.category !== 'katakana' &&
     c.category !== 'alphabet' &&
     c.category !== 'sudoku' &&
-    c.category !== 'missingOperand',
+    c.category !== 'missingOperandAddition' &&
+    c.category !== 'missingOperandSubtraction',
 )
 const ALL_CATEGORIES: Category[] = HOME_CATEGORY_META.map((c) => c.category)
 
@@ -43,13 +44,17 @@ const INTRO_KEY_BY_CATEGORY: Record<Category, DictionaryKey> = {
   logic: 'introKoko',
   hiragana: 'introYui',
   katakana: 'introPeko',
+  // Stand-in for kanji's not-yet-generated "fumi" mascot (see characterThemes.ts) — reuses
+  // yui's own intro line/voice, same reuse as everywhere else in this map.
+  kanji: 'introYui',
   alphabet: 'introAru',
   clock: 'introToki',
   spotDifference: 'introMitsu',
   counting: 'introKazu',
   englishSentence: 'introHana',
   sudoku: 'introKoko',
-  missingOperand: 'introMomo',
+  missingOperandAddition: 'introMomo',
+  missingOperandSubtraction: 'introSora',
 }
 
 export function HomeScreen({

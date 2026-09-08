@@ -63,6 +63,14 @@ export const LEVEL_DESCRIPTION_KEY: Partial<Record<Category, Partial<Record<Leve
     4: 'levelDescKatakana4',
     5: 'levelDescKatakana5',
   },
+  kanji: {
+    1: 'levelDescKanji1',
+    2: 'levelDescKanji2',
+    3: 'levelDescKanji3',
+    4: 'levelDescKanji4',
+    5: 'levelDescKanji5',
+    6: 'levelDescKanji6',
+  },
   alphabet: {
     1: 'levelDescAlphabet1',
     2: 'levelDescAlphabet2',
@@ -83,7 +91,11 @@ export const LEVEL_DESCRIPTION_KEY: Partial<Record<Category, Partial<Record<Leve
     2: 'levelDescSudoku2',
     3: 'levelDescSudoku3',
   },
-  missingOperand: {
+  missingOperandAddition: {
+    1: 'levelDescMissingOperand1',
+    2: 'levelDescMissingOperand2',
+  },
+  missingOperandSubtraction: {
     1: 'levelDescMissingOperand1',
     2: 'levelDescMissingOperand2',
   },

@@ -125,10 +125,10 @@ export const characterThemes: Record<Category, CharacterTheme> = {
   // rather than the home grid — same mascot/voice as logic since it's a mode within it,
   // not a separate skill with its own character (mirrors englishListening reusing
   // englishSpelling's hana above).
-  // Reached via a secondary button on both addition's and subtraction's level-select
-  // (see LevelSelectScreen.tsx) — arithmetic's own extension, reusing momo's theme/voice
+  // Reached via a secondary button on addition's own level-select (see
+  // LevelSelectScreen.tsx) — arithmetic's own extension, reusing momo's theme/voice
   // rather than introducing a new mascot, same reasoning as sudoku reusing koko's above.
-  missingOperand: {
+  missingOperandAddition: {
     id: 'momo',
     colorMain: '#ff9bc0',
     colorMainDark: '#e0688f',
@@ -141,6 +141,26 @@ export const characterThemes: Record<Category, CharacterTheme> = {
       playbackRate: 1.2,
       voicevoxSpeaker: { name: '四国めたん', style: 'ノーマル' },
       kokoroVoice: 'af_bella',
+    },
+  },
+  // Reached via a secondary button on subtraction's own level-select — the same
+  // extension as missingOperandAddition above, but on subtraction's side, so it reuses
+  // sora's theme/voice instead of momo's (previously both entry points shared momo's
+  // theme, back when this was one mixed-operator category — see the split that
+  // introduced missingOperandAddition/missingOperandSubtraction).
+  missingOperandSubtraction: {
+    id: 'sora',
+    colorMain: '#7fb8f5',
+    colorMainDark: '#4f8ad0',
+    colorSub: '#f0f7ff',
+    colorAccent: '#e8eefc',
+    colorAccentDark: '#b8c8e0',
+    voiceProfile: {
+      pitch: 0.88,
+      rate: 0.88,
+      playbackRate: 0.82,
+      voicevoxSpeaker: { name: '東北きりたん', style: 'ノーマル' },
+      kokoroVoice: 'af_sky',
     },
   },
   sudoku: {
@@ -166,6 +186,27 @@ export const characterThemes: Record<Category, CharacterTheme> = {
     colorAccent: '#ff8f7a',
     colorAccentDark: '#e0604a',
     // warm and encouraging, slightly slower — a patient calligraphy-brush spirit
+    voiceProfile: {
+      pitch: 1.15,
+      rate: 0.92,
+      playbackRate: 1.06,
+      voicevoxSpeaker: { name: '春日部つむぎ', style: 'ノーマル' },
+      kokoroVoice: 'bf_emma',
+    },
+  },
+  // Reuses yui's theme/voice rather than a dedicated mascot — a "fumi" panda character
+  // was drafted (see generate-character-portraits.mjs's CHARACTERS list) but portrait
+  // generation is blocked on an expired/invalid GEMINI_API_KEY (401 from the API); swap
+  // this to its own theme once that's regenerated. yui is the closest thematic fit in the
+  // meantime (both are character-literacy categories), same reasoning as sudoku reusing
+  // koko's theme above.
+  kanji: {
+    id: 'yui',
+    colorMain: '#c9a4e8',
+    colorMainDark: '#9a72c0',
+    colorSub: '#faf5ff',
+    colorAccent: '#ff8f7a',
+    colorAccentDark: '#e0604a',
     voiceProfile: {
       pitch: 1.15,
       rate: 0.92,

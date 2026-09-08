@@ -43,15 +43,23 @@ function generateTens(operator: 'addition' | 'subtraction'): { a: number; b: num
   return { a: tensA * 10, b: tensB * 10 }
 }
 
-export function generateMissingOperandQuestion(level: Level): ArithmeticQuestion {
-  const operator: 'addition' | 'subtraction' = Math.random() < 0.5 ? 'addition' : 'subtraction'
+/** `operator` is fixed by which category this is (missingOperandAddition vs
+ * missingOperandSubtraction — see App.tsx's two entry points, one per operator), not
+ * randomized — a level-redefinition-style split so a round is never a mix of both
+ * operators, matching addition/subtraction's own "one consistent skill per level"
+ * principle. `blank` (which slot is hidden) stays a coin flip: that's still content
+ * variety, not difficulty, same as alphabet's upper/lower prompt-direction flip. */
+export function generateMissingOperandQuestion(
+  level: Level,
+  operator: 'addition' | 'subtraction',
+): ArithmeticQuestion {
   const { a, b } = level >= 2 ? generateTens(operator) : generateBasic(operator)
   const answer = operator === 'addition' ? a + b : a - b
   const blank = pickBlank()
 
   return {
     id: makeId(),
-    category: 'missingOperand',
+    category: operator === 'addition' ? 'missingOperandAddition' : 'missingOperandSubtraction',
     operator,
     level,
     operandA: a,

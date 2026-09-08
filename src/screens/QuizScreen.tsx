@@ -9,6 +9,7 @@ import type {
   EnglishWordQuestion,
   HiraganaQuestion,
   KatakanaQuestion,
+  KanjiQuestion,
   AlphabetQuestion,
   Level,
   LogicQuestion,
@@ -23,6 +24,7 @@ import { getWordById } from '../domain/wordBank'
 import { getCounterById } from '../domain/counterBank'
 import { getHiraganaById, hiraganaSpeechPhrase } from '../domain/hiraganaBank'
 import { getKatakanaById, katakanaSpeechPhrase } from '../domain/katakanaBank'
+import { getKanjiById, kanjiSpeechPhrase } from '../domain/kanjiBank'
 import { alphabetSpeechPhrase, getAlphabetById } from '../domain/alphabetBank'
 import { formatClockKey, buildSetTimePrompt, type ClockMode } from '../domain/questionGenerators/clock'
 import { InteractiveClock } from '../components/InteractiveClock'
@@ -72,7 +74,12 @@ const SPOT_DIFFERENCE_FAILED = 'spot-difference-failed'
 const SUDOKU_DONE = 'sudoku-done'
 
 function isArithmetic(q: Question): q is ArithmeticQuestion {
-  return q.category === 'addition' || q.category === 'subtraction' || q.category === 'missingOperand'
+  return (
+    q.category === 'addition' ||
+    q.category === 'subtraction' ||
+    q.category === 'missingOperandAddition' ||
+    q.category === 'missingOperandSubtraction'
+  )
 }
 
 function isLogic(q: Question): q is LogicQuestion {
@@ -85,6 +92,10 @@ function isHiragana(q: Question): q is HiraganaQuestion {
 
 function isKatakana(q: Question): q is KatakanaQuestion {
   return q.category === 'katakana'
+}
+
+function isKanji(q: Question): q is KanjiQuestion {
+  return q.category === 'kanji'
 }
 
 function isClock(q: Question): q is ClockQuestion {
@@ -198,6 +209,13 @@ function computeAutoSpeech(
       text: katakanaSpeechPhrase(getKatakanaById(question.charId)),
       speechLang: 'ja-JP',
       cacheKey: `katakana-${question.charId}`,
+    }
+  }
+  if (isKanji(question)) {
+    return {
+      text: kanjiSpeechPhrase(getKanjiById(question.charId)),
+      speechLang: 'ja-JP',
+      cacheKey: `kanji-${question.charId}`,
     }
   }
   if (isClock(question)) {
@@ -431,6 +449,30 @@ function KatakanaQuestionView({
   )
 }
 
+function KanjiQuestionView({
+  question,
+  listenPrompt,
+  voiceProfile,
+}: {
+  question: KanjiQuestion
+  listenPrompt: string
+  voiceProfile: VoiceProfile
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+      <p className="subtitle">{listenPrompt}</p>
+      <TtsButton
+        text={kanjiSpeechPhrase(getKanjiById(question.charId))}
+        lang="ja-JP"
+        label="listen"
+        size={96}
+        voiceProfile={voiceProfile}
+        cacheKey={`kanji-${question.charId}`}
+      />
+    </div>
+  )
+}
+
 function AlphabetQuestionView({
   question,
   listenPrompt,
@@ -641,6 +683,9 @@ function renderChoiceContent(question: Question, choice: Choice, lang: Lang) {
   if (isKatakana(question)) {
     return <HiraganaChar char={getKatakanaById(choice as string).char} size={72} />
   }
+  if (isKanji(question)) {
+    return <HiraganaChar char={getKanjiById(choice as string).char} size={72} />
+  }
   if (isAlphabet(question)) {
     // choiceIds are the literal character strings ('A', 'a', ...) here, not bank ids — the
     // upper/lower distinction lives in which string it is, so no lookup is needed.
@@ -673,6 +718,7 @@ function computeCorrectAnswerLabel(question: Question, lang: Lang): string {
   }
   if (isHiragana(question)) return question.char
   if (isKatakana(question)) return question.char
+  if (isKanji(question)) return question.char
   if (isAlphabet(question)) return question.answerChar
   if (isClock(question)) return formatClockKey(`${question.hour}:${question.minute}`, lang)
   if (isSpotDifference(question)) return ''
@@ -753,6 +799,7 @@ export function QuizScreen({
     if (isLogic(question)) return question.choices
     if (isHiragana(question)) return question.choiceIds
     if (isKatakana(question)) return question.choiceIds
+    if (isKanji(question)) return question.choiceIds
     if (isAlphabet(question)) return question.choiceIds
     if (isClock(question)) return question.choiceKeys
     // spot-the-difference answers by tapping the board itself, not a choice-grid button
@@ -776,6 +823,7 @@ export function QuizScreen({
     if (isLogic(question)) return choice === question.answer
     if (isHiragana(question)) return choice === question.charId
     if (isKatakana(question)) return choice === question.charId
+    if (isKanji(question)) return choice === question.charId
     if (isAlphabet(question)) return choice === question.answerChar
     if (isClock(question)) return choice === `${question.hour}:${question.minute}`
     // reached either once every difference is found (always correct) or once the
@@ -882,6 +930,8 @@ export function QuizScreen({
             voiceProfile,
             `katakana-${question.charId}`,
           )
+        } else if (isKanji(question)) {
+          speak(kanjiSpeechPhrase(getKanjiById(question.charId)), 'ja-JP', voiceProfile, `kanji-${question.charId}`)
         } else if (isAlphabet(question)) {
           // See computeAutoSpeech's isAlphabet branch for why this speaks the mnemonic phrase.
           const entry = getAlphabetById(question.letterId)
@@ -964,6 +1014,8 @@ export function QuizScreen({
             listenPrompt={t('katakanaListenPrompt')}
             voiceProfile={voiceProfile}
           />
+        ) : isKanji(question) ? (
+          <KanjiQuestionView question={question} listenPrompt={t('kanjiListenPrompt')} voiceProfile={voiceProfile} />
         ) : isAlphabet(question) ? (
           <AlphabetQuestionView
             question={question}

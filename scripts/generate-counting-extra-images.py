@@ -16,12 +16,12 @@ Currently generates:
     footwear, so this is a deliberate simplification favoring the redesign's actual goal —
     a kid can visually verify the count badge against what's on screen — over literal
     real-world unit accuracy.)
-  - birthdaycake.png (さい/sai's exampleWordId) — replaces the existing image, which had
-    3 lit candles baked into a single cake. Tiling that N times showed N cakes but 3N
-    candles, the most visually salient countable-looking thing on screen, inviting a
-    child to count candles instead of cakes and land on the wrong number. Regenerated
-    with exactly 1 candle so each tiled copy contributes exactly one of anything
-    countable, consistent with the fix above and with every other entry in the bank.
+
+Previously also generated birthdaycake.png for さい/sai, tiled as "N cakes" (originally
+3 candles per cake, later trimmed to 1). さい was dropped from counterBank.ts entirely
+instead — see that file's top comment for why a tiled-object image can't really represent
+"counting age" the way it can for every physical-object counter — so that target was
+removed here rather than kept dead in the TARGETS dict below.
 
 Usage:
     cd scripts && /Users/hirokihata/realvisxl-test/.venv/bin/python3 generate-counting-extra-images.py
@@ -66,17 +66,6 @@ natural fabric and rubber texture, soft diffused daylight,
 neutral studio background, natural unedited product photograph
 """,
         "negative": f"{NEGATIVE_PROMPT},\ntwo shoes, pair of shoes, matching shoe",
-    },
-    "birthdaycake": {
-        "seed": 1,
-        "prompt": """
-RAW product photograph of a real birthday cake with white frosting
-and colorful sprinkles on a cake stand, exactly one lit candle
-standing upright in the center of the cake, only a single candle,
-natural appetizing texture, soft diffused daylight,
-neutral studio background, natural unedited food photograph
-""",
-        "negative": f"{NEGATIVE_PROMPT},\nmultiple candles, two candles, three candles, several candles",
     },
 }
 

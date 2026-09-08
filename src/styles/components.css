@@ -870,10 +870,29 @@
   opacity: 0.22;
 }
 
+/* Field report: on a real phone this read as "already traced" before the child touched
+ * anything, because it shared --done's pink and a fine dash pattern that visually merges
+ * into a solid line at small sizes. Now a different color entirely (the ink/accent
+ * yellow, matching .kanji-trace-ink so "this color is what you're about to draw" reads
+ * consistently) plus a marching-ants animation — unmistakably a "start here" cue, not
+ * completed ink. prefers-reduced-motion gets the same visual without the motion. */
 .kanji-trace-stroke--current {
-  stroke: var(--color-primary-dark);
-  stroke-dasharray: 4 5;
-  opacity: 0.85;
+  stroke: var(--color-accent);
+  stroke-dasharray: 5 6;
+  opacity: 0.95;
+  animation: kanji-trace-current-march 0.9s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kanji-trace-stroke--current {
+    animation: none;
+  }
+}
+
+@keyframes kanji-trace-current-march {
+  to {
+    stroke-dashoffset: -22;
+  }
 }
 
 .kanji-trace-stroke--done {

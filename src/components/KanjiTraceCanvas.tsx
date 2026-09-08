@@ -78,7 +78,19 @@ export function KanjiTraceCanvas({ char, strokes, size = DEFAULT_SIZE, restartLa
     e.preventDefault()
     const svg = svgRef.current
     if (!svg) return
-    svg.setPointerCapture(e.pointerId)
+    // Real touch hardware (confirmed via a field report — a mobile browser left the whole
+    // canvas unresponsive) can throw here (SVG pointer-capture support is far less
+    // consistent across mobile browsers than on <canvas>, unlike HandwritingCanvas's own
+    // uncaught setPointerCapture call, which is on a <canvas> element). An uncaught throw
+    // aborted the rest of this handler, so drawingRef never became true and every
+    // subsequent move/up was a no-op — capture is a nice-to-have (keeps tracking the
+    // gesture if a finger drifts outside the SVG's bounds), not required for the drawing
+    // state below to start.
+    try {
+      svg.setPointerCapture(e.pointerId)
+    } catch {
+      // ignore — see comment above
+    }
     drawingRef.current = true
     pointsRef.current = [toSvgPoint(svg, e.clientX, e.clientY)]
     setDrawnPoints(pointsRef.current)

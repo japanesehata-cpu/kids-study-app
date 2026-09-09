@@ -1,6 +1,24 @@
 import { describe, expect, it } from 'vitest'
 import { generateAlphabetQuestion } from '../questionGenerators/alphabet'
-import { getAlphabetById } from '../alphabetBank'
+import { alphabetBank, getAlphabetById } from '../alphabetBank'
+import { alphabetStrokePaths } from '../alphabetStrokes'
+
+describe('alphabetBank なぞる (trace) fields', () => {
+  it('every entry has an exampleSentenceEn', () => {
+    expect(alphabetBank.filter((a) => a.exampleSentenceEn).length).toBe(26)
+  })
+
+  it('every upper and lower glyph of every entry has stroke data', () => {
+    for (const a of alphabetBank) {
+      expect(alphabetStrokePaths[a.upper]?.length, `${a.upper} (${a.id}) missing stroke data`).toBeGreaterThan(0)
+      expect(alphabetStrokePaths[a.lower]?.length, `${a.lower} (${a.id}) missing stroke data`).toBeGreaterThan(0)
+    }
+  })
+
+  it('alphabetStrokes has exactly 52 glyphs (26 upper + 26 lower)', () => {
+    expect(Object.keys(alphabetStrokePaths).length).toBe(52)
+  })
+})
 
 describe('generateAlphabetQuestion', () => {
   it('★1 is always uppercase letter-name: hear the letter, pick the uppercase form', () => {

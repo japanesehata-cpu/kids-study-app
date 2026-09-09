@@ -7,35 +7,40 @@ export interface AlphabetEntry {
    * isolated single letter name poorly/ambiguously in isolation, so speech always wraps
    * it in this short phrase instead (see alphabetSpeechPhrase). */
   mnemonic: string
+  /** A short English sentence built around `mnemonic`, read aloud during the review pass
+   * after all 52 trace glyphs are done (see AlphabetTraceScreen) — the same role
+   * exampleSentenceJa/En play for かんじ/ひらがな/カタカナ. English only: alphabet practice
+   * is inherently English content, so there's no Japanese counterpart to pair it with. */
+  exampleSentenceEn: string
 }
 
 export const alphabetBank: AlphabetEntry[] = [
-  { id: 'a', upper: 'A', lower: 'a', mnemonic: 'Apple' },
-  { id: 'b', upper: 'B', lower: 'b', mnemonic: 'Ball' },
-  { id: 'c', upper: 'C', lower: 'c', mnemonic: 'Cat' },
-  { id: 'd', upper: 'D', lower: 'd', mnemonic: 'Dog' },
-  { id: 'e', upper: 'E', lower: 'e', mnemonic: 'Elephant' },
-  { id: 'f', upper: 'F', lower: 'f', mnemonic: 'Fish' },
-  { id: 'g', upper: 'G', lower: 'g', mnemonic: 'Grape' },
-  { id: 'h', upper: 'H', lower: 'h', mnemonic: 'Hat' },
-  { id: 'i', upper: 'I', lower: 'i', mnemonic: 'Ice' },
-  { id: 'j', upper: 'J', lower: 'j', mnemonic: 'Juice' },
-  { id: 'k', upper: 'K', lower: 'k', mnemonic: 'Kite' },
-  { id: 'l', upper: 'L', lower: 'l', mnemonic: 'Lion' },
-  { id: 'm', upper: 'M', lower: 'm', mnemonic: 'Monkey' },
-  { id: 'n', upper: 'N', lower: 'n', mnemonic: 'Nose' },
-  { id: 'o', upper: 'O', lower: 'o', mnemonic: 'Orange' },
-  { id: 'p', upper: 'P', lower: 'p', mnemonic: 'Pig' },
-  { id: 'q', upper: 'Q', lower: 'q', mnemonic: 'Queen' },
-  { id: 'r', upper: 'R', lower: 'r', mnemonic: 'Rabbit' },
-  { id: 's', upper: 'S', lower: 's', mnemonic: 'Sun' },
-  { id: 't', upper: 'T', lower: 't', mnemonic: 'Tiger' },
-  { id: 'u', upper: 'U', lower: 'u', mnemonic: 'Umbrella' },
-  { id: 'v', upper: 'V', lower: 'v', mnemonic: 'Violin' },
-  { id: 'w', upper: 'W', lower: 'w', mnemonic: 'Watermelon' },
-  { id: 'x', upper: 'X', lower: 'x', mnemonic: 'Xylophone' },
-  { id: 'y', upper: 'Y', lower: 'y', mnemonic: 'Yak' },
-  { id: 'z', upper: 'Z', lower: 'z', mnemonic: 'Zebra' },
+  { id: 'a', upper: 'A', lower: 'a', mnemonic: 'Apple', exampleSentenceEn: 'I ate a red apple.' },
+  { id: 'b', upper: 'B', lower: 'b', mnemonic: 'Ball', exampleSentenceEn: 'Throw me the ball.' },
+  { id: 'c', upper: 'C', lower: 'c', mnemonic: 'Cat', exampleSentenceEn: 'The cat is sleeping.' },
+  { id: 'd', upper: 'D', lower: 'd', mnemonic: 'Dog', exampleSentenceEn: 'My dog can run fast.' },
+  { id: 'e', upper: 'E', lower: 'e', mnemonic: 'Elephant', exampleSentenceEn: 'The elephant is very big.' },
+  { id: 'f', upper: 'F', lower: 'f', mnemonic: 'Fish', exampleSentenceEn: 'The fish swims in the water.' },
+  { id: 'g', upper: 'G', lower: 'g', mnemonic: 'Grape', exampleSentenceEn: 'I like to eat grapes.' },
+  { id: 'h', upper: 'H', lower: 'h', mnemonic: 'Hat', exampleSentenceEn: 'She wears a blue hat.' },
+  { id: 'i', upper: 'I', lower: 'i', mnemonic: 'Ice', exampleSentenceEn: 'The ice is cold.' },
+  { id: 'j', upper: 'J', lower: 'j', mnemonic: 'Juice', exampleSentenceEn: 'I drink orange juice.' },
+  { id: 'k', upper: 'K', lower: 'k', mnemonic: 'Kite', exampleSentenceEn: 'We fly a kite in the park.' },
+  { id: 'l', upper: 'L', lower: 'l', mnemonic: 'Lion', exampleSentenceEn: 'The lion is the king of the jungle.' },
+  { id: 'm', upper: 'M', lower: 'm', mnemonic: 'Monkey', exampleSentenceEn: 'The monkey climbs the tree.' },
+  { id: 'n', upper: 'N', lower: 'n', mnemonic: 'Nose', exampleSentenceEn: 'Point to your nose.' },
+  { id: 'o', upper: 'O', lower: 'o', mnemonic: 'Orange', exampleSentenceEn: 'The orange is sweet.' },
+  { id: 'p', upper: 'P', lower: 'p', mnemonic: 'Pig', exampleSentenceEn: 'The pig lives on the farm.' },
+  { id: 'q', upper: 'Q', lower: 'q', mnemonic: 'Queen', exampleSentenceEn: 'The queen wears a crown.' },
+  { id: 'r', upper: 'R', lower: 'r', mnemonic: 'Rabbit', exampleSentenceEn: 'The rabbit hops in the grass.' },
+  { id: 's', upper: 'S', lower: 's', mnemonic: 'Sun', exampleSentenceEn: 'The sun is bright today.' },
+  { id: 't', upper: 'T', lower: 't', mnemonic: 'Tiger', exampleSentenceEn: 'The tiger has orange stripes.' },
+  { id: 'u', upper: 'U', lower: 'u', mnemonic: 'Umbrella', exampleSentenceEn: 'Bring your umbrella when it rains.' },
+  { id: 'v', upper: 'V', lower: 'v', mnemonic: 'Violin', exampleSentenceEn: 'She plays the violin.' },
+  { id: 'w', upper: 'W', lower: 'w', mnemonic: 'Watermelon', exampleSentenceEn: 'The watermelon is juicy.' },
+  { id: 'x', upper: 'X', lower: 'x', mnemonic: 'Xylophone', exampleSentenceEn: 'He plays the xylophone.' },
+  { id: 'y', upper: 'Y', lower: 'y', mnemonic: 'Yak', exampleSentenceEn: 'The yak lives on the mountain.' },
+  { id: 'z', upper: 'Z', lower: 'z', mnemonic: 'Zebra', exampleSentenceEn: 'The zebra has black and white stripes.' },
 ]
 
 export function getAlphabetById(id: string): AlphabetEntry {

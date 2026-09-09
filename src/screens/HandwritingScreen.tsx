@@ -7,6 +7,7 @@ import { useI18n } from '../i18n/I18nContext'
 import { CategoryHeader } from '../components/CategoryHeader'
 import { HandwritingCanvas } from '../components/HandwritingCanvas'
 import { KanaTraceScreen } from './KanaTraceScreen'
+import { AlphabetTraceScreen } from './AlphabetTraceScreen'
 import { HiraganaChar } from '../components/HiraganaChar'
 import { TtsButton } from '../components/TtsButton'
 import { characterThemes } from '../components/characters/characterThemes'
@@ -158,6 +159,10 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
   // HandwritingCanvas flow below entirely unchanged. KanaTraceScreen is a fully
   // self-contained screen (its own top-bar/CategoryHeader), so this returns it directly
   // rather than nesting it inside this component's own JSX below.
+  if (level === 1 && category === 'alphabet') {
+    return <AlphabetTraceScreen onBack={() => setLevel(null)} onHome={onHome} />
+  }
+
   if (level === 1 && (category === 'hiragana' || category === 'katakana')) {
     return <KanaTraceScreen category={category} onBack={() => setLevel(null)} onHome={onHome} />
   }

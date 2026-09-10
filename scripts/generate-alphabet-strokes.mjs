@@ -49,6 +49,14 @@ function arc(cx, cy, rx, ry, startDeg, endDeg, sweep) {
   return `M${r(sx)},${r(sy)} A${r(rx)},${r(ry)} 0 ${largeArc},${sweep} ${r(ex)},${r(ey)}`
 }
 
+// Chains several line()/arc() outputs into ONE continuous stroke — drops every part's leading
+// "M x,y" after the first, since it should already match the previous part's end point. Used
+// for letters real handwriting draws as a single fluid motion (e.g. U: down, curve under, up)
+// rather than as separate lifted-pen strokes.
+function combine(...parts) {
+  return parts.map((p, i) => (i === 0 ? p : p.replace(/^M[-\d.]+,[-\d.]+\s*/, ''))).join(' ')
+}
+
 // A full circle, as one continuous path (two chained semicircle arcs — a single SVG "A" command
 // can't span 360 degrees since start===end is degenerate). sweep=1 (default) draws it clockwise
 // from startDeg — used for b/p, whose bowl starts at the stem and curves right-then-down first.
@@ -126,14 +134,18 @@ upperStrokes['R'] = [
   line(32, 52.5, 78, BASE),
 ]
 
-upperStrokes['S'] = [`M76,26 A16,13 0 1,0 34,42 A18,15 0 1,1 78,80 A16,13 0 1,1 34,79`]
+// Two ~190° arcs with opposite curvature (top curves over-the-top, bottom curves
+// under-the-bottom), chained into one stroke — an earlier hand-typed single path here used
+// two ~280° arcs, which is closer to a full circle than a half, and rendered as a
+// spiral/pretzel instead of a flowing S (confirmed visually, not just in theory).
+upperStrokes['S'] = [combine(arc(58, 34, 19, 17, 350, 165, 0), arc(50, 72, 20, 17, 345, 160, 1))]
 
 upperStrokes['T'] = [line(28, CAP_TOP, 82, CAP_TOP), line(MID, CAP_TOP, MID, BASE)]
 
-// Third stroke used to run bottom-to-top (82,65 -> 82,CAP_TOP) — same backwards-pull bug as
-// M/N/m/n/r above, just easy to miss here since it's the LAST stroke, not the first. Reversed
-// so it's a fresh top-to-bottom pull down to meet the bowl, like every other plain vertical.
-upperStrokes['U'] = [line(28, CAP_TOP, 28, 65), arc(55, 65, 27, 25, 180, 0, 0), line(82, CAP_TOP, 82, 65)]
+// One continuous stroke (down, curve under, up) instead of 3 separately-lifted strokes — U is
+// normally written as a single fluid motion, and per feedback the 3-piece version visibly
+// looked like it had been "cut into pieces" rather than traced as one letter.
+upperStrokes['U'] = [combine(line(28, CAP_TOP, 28, 65), arc(55, 65, 27, 25, 180, 0, 0), line(82, 65, 82, CAP_TOP))]
 
 upperStrokes['V'] = [line(28, CAP_TOP, MID, BASE), line(MID, BASE, 82, CAP_TOP)]
 
@@ -198,11 +210,14 @@ lowerStrokes['q'] = [fullCircle(54, 66, 22, 24, 320, 0), line(80, 42, 80, 108)]
 
 lowerStrokes['r'] = [line(32, 42, 32, BASE), arc(32, 55, 20, 16, 270, 10, 1)]
 
-lowerStrokes['s'] = [`M68,50 A11,9 0 1,0 40,58 A13,11 0 1,1 68,82 A11,9 0 1,1 38,80`]
+// Same two-opposite-arcs construction as uppercase S, scaled to x-height.
+lowerStrokes['s'] = [combine(arc(56, 53, 12, 11, 350, 165, 0), arc(51, 76, 13, 11, 345, 160, 1))]
 
 lowerStrokes['t'] = [line(48, 22, 48, 82), arc(58, 82, 10, 8, 180, 90, 0), line(32, 46, 66, 46)]
 
-lowerStrokes['u'] = [line(32, 42, 32, 74), arc(53, 74, 21, 16, 180, 0, 0), line(74, 42, 74, BASE)]
+// One continuous stroke (down, curve under, up), matching uppercase U's fix — the third segment
+// now starts exactly at the arc's own end point (74,74) instead of independently at (74,42).
+lowerStrokes['u'] = [combine(line(32, 42, 32, 74), arc(53, 74, 21, 16, 180, 0, 0), line(74, 74, 74, 42))]
 
 lowerStrokes['v'] = [line(30, 42, MID, BASE), line(MID, BASE, 80, 42)]
 

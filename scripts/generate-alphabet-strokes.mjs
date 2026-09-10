@@ -50,12 +50,17 @@ function arc(cx, cy, rx, ry, startDeg, endDeg, sweep) {
 }
 
 // A full circle, as one continuous path (two chained semicircle arcs — a single SVG "A" command
-// can't span 360 degrees since start===end is degenerate).
-function fullCircle(cx, cy, rx, ry, startDeg = 270) {
-  const midDeg = startDeg + 180
+// can't span 360 degrees since start===end is degenerate). sweep=1 (default) draws it clockwise
+// from startDeg — used for b/p, whose bowl starts at the stem and curves right-then-down first.
+// sweep=0 draws it counterclockwise — used for the "magic c" family (a/d/g/o/q/O/Q), which all
+// start at the same ~2-o'clock point c itself starts from and sweep left, matching how a real c
+// motion closes into a full loop instead of stopping partway.
+function fullCircle(cx, cy, rx, ry, startDeg = 270, sweep = 1) {
+  const dir = sweep ? 1 : -1
+  const midDeg = startDeg + dir * 180
   const [sx, sy] = arcPoint(cx, cy, rx, ry, startDeg)
   const [mx, my] = arcPoint(cx, cy, rx, ry, midDeg)
-  return `M${r(sx)},${r(sy)} A${r(rx)},${r(ry)} 0 0,1 ${r(mx)},${r(my)} A${r(rx)},${r(ry)} 0 0,1 ${r(sx)},${r(sy)}`
+  return `M${r(sx)},${r(sy)} A${r(rx)},${r(ry)} 0 0,${sweep} ${r(mx)},${r(my)} A${r(rx)},${r(ry)} 0 0,${sweep} ${r(sx)},${r(sy)}`
 }
 
 const upperStrokes = {}
@@ -85,9 +90,8 @@ upperStrokes['E'] = [
 upperStrokes['F'] = [line(32, CAP_TOP, 32, BASE), line(32, CAP_TOP, 78, CAP_TOP), line(32, 52.5, 68, 52.5)]
 
 upperStrokes['G'] = [
-  arc(MID, 52.5, 27, 37.5, 340, 60, 0),
-  line(68.5, 84.98, 68.5, 62),
-  line(68.5, 62, 50, 62),
+  arc(MID, 52.5, 27, 37.5, 340, 20, 0),
+  line(80.37, 65.33, 52, 65.33),
 ]
 
 upperStrokes['H'] = [line(30, CAP_TOP, 30, BASE), line(80, CAP_TOP, 80, BASE), line(30, 52.5, 80, 52.5)]
@@ -100,15 +104,21 @@ upperStrokes['K'] = [line(30, CAP_TOP, 30, BASE), line(78, CAP_TOP, 30, 55), lin
 
 upperStrokes['L'] = [line(32, CAP_TOP, 32, BASE), line(32, BASE, 78, BASE)]
 
-upperStrokes['M'] = [line(28, BASE, 28, CAP_TOP), line(28, CAP_TOP, 55, 60), line(55, 60, 82, CAP_TOP), line(82, CAP_TOP, 82, BASE)]
+// Every straight vertical/diagonal below starts at its top end and is drawn downward — the
+// universal "pull down, never push up" rule taught for manuscript strokes — except where a
+// zigzag (M/N/V/W's inner diagonals) makes an upward segment unavoidable within one continuous
+// stroke; those are called out inline. An earlier version of this file had M's and N's first
+// (plain, non-zigzag) vertical drawn bottom-to-top, which is exactly the kind of thing that
+// looks visibly backwards when the trace guide animates it — fixed here.
+upperStrokes['M'] = [line(28, CAP_TOP, 28, BASE), line(28, CAP_TOP, 55, 60), line(55, 60, 82, CAP_TOP), line(82, CAP_TOP, 82, BASE)]
 
-upperStrokes['N'] = [line(28, BASE, 28, CAP_TOP), line(28, CAP_TOP, 82, BASE), line(82, BASE, 82, CAP_TOP)]
+upperStrokes['N'] = [line(28, CAP_TOP, 28, BASE), line(28, CAP_TOP, 82, BASE), line(82, CAP_TOP, 82, BASE)]
 
-upperStrokes['O'] = [fullCircle(MID, 52.5, 28, 37.5)]
+upperStrokes['O'] = [fullCircle(MID, 52.5, 28, 37.5, 320, 0)]
 
 upperStrokes['P'] = [line(32, CAP_TOP, 32, BASE), arc(32, 33.75, 24, 18.75, 270, 450, 1)]
 
-upperStrokes['Q'] = [fullCircle(MID, 52.5, 28, 37.5), line(66, 78, 82, 96)]
+upperStrokes['Q'] = [fullCircle(MID, 52.5, 28, 37.5, 320, 0), line(66, 78, 82, 96)]
 
 upperStrokes['R'] = [
   line(32, CAP_TOP, 32, BASE),
@@ -120,7 +130,10 @@ upperStrokes['S'] = [`M76,26 A16,13 0 1,0 34,42 A18,15 0 1,1 78,80 A16,13 0 1,1 
 
 upperStrokes['T'] = [line(28, CAP_TOP, 82, CAP_TOP), line(MID, CAP_TOP, MID, BASE)]
 
-upperStrokes['U'] = [line(28, CAP_TOP, 28, 65), arc(55, 65, 27, 25, 180, 0, 0), line(82, 65, 82, CAP_TOP)]
+// Third stroke used to run bottom-to-top (82,65 -> 82,CAP_TOP) — same backwards-pull bug as
+// M/N/m/n/r above, just easy to miss here since it's the LAST stroke, not the first. Reversed
+// so it's a fresh top-to-bottom pull down to meet the bowl, like every other plain vertical.
+upperStrokes['U'] = [line(28, CAP_TOP, 28, 65), arc(55, 65, 27, 25, 180, 0, 0), line(82, CAP_TOP, 82, 65)]
 
 upperStrokes['V'] = [line(28, CAP_TOP, MID, BASE), line(MID, BASE, 82, CAP_TOP)]
 
@@ -141,19 +154,19 @@ upperStrokes['Z'] = [line(28, CAP_TOP, 82, CAP_TOP), line(82, CAP_TOP, 28, BASE)
 // x-height letters live between XH_TOP (42) and BASE (90); ascenders (b,d,f,h,k,l,t) reach up
 // to CAP_TOP (15); descenders (g,j,p,q,y) reach down to DESC (108).
 
-lowerStrokes['a'] = [fullCircle(58, 66, 20, 24), line(78, 66, 78, BASE)]
+lowerStrokes['a'] = [fullCircle(58, 66, 20, 24, 320, 0), line(78, 66, 78, BASE)]
 
 lowerStrokes['b'] = [line(30, CAP_TOP, 30, BASE), fullCircle(56, 66, 22, 24, 180)]
 
 lowerStrokes['c'] = [arc(MID, 66, 20, 24, 320, 40, 0)]
 
-lowerStrokes['d'] = [fullCircle(54, 66, 22, 24), line(80, CAP_TOP, 80, BASE)]
+lowerStrokes['d'] = [fullCircle(54, 66, 22, 24, 320, 0), line(80, CAP_TOP, 80, BASE)]
 
 lowerStrokes['e'] = [line(35, 68, 75, 68), arc(55, 68, 20, 22, 0, 340, 0)]
 
 lowerStrokes['f'] = [arc(70, 24, 12, 9, 200, 360, 1), line(58, 15, 58, BASE), line(42, 55, 74, 55)]
 
-lowerStrokes['g'] = [fullCircle(56, 66, 22, 24), line(78, 66, 78, 98), arc(64, 98, 14, 8, 0, 150, 1)]
+lowerStrokes['g'] = [fullCircle(56, 66, 22, 24, 320, 0), line(78, 66, 78, 98), arc(64, 98, 14, 8, 0, 150, 1)]
 
 lowerStrokes['h'] = [line(30, CAP_TOP, 30, BASE), arc(30, 60, 22, 18, 270, 30, 1), line(74, 48, 74, BASE)]
 
@@ -165,23 +178,25 @@ lowerStrokes['k'] = [line(30, CAP_TOP, 30, BASE), line(72, 42, 30, 68), line(30,
 
 lowerStrokes['l'] = [line(MID, CAP_TOP, MID, BASE)]
 
+// m/n's first vertical previously ran bottom-to-top (same backwards-stroke bug as M/N above) —
+// fixed to top-to-bottom here.
 lowerStrokes['m'] = [
-  line(24, BASE, 24, 42),
+  line(24, 42, 24, BASE),
   arc(24, 55, 15, 13, 270, 30, 1),
   line(54, 42, 54, BASE),
   arc(54, 55, 15, 13, 270, 30, 1),
   line(84, 42, 84, BASE),
 ]
 
-lowerStrokes['n'] = [line(30, BASE, 30, 42), arc(30, 55, 22, 18, 270, 30, 1), line(74, 48, 74, BASE)]
+lowerStrokes['n'] = [line(30, 42, 30, BASE), arc(30, 55, 22, 18, 270, 30, 1), line(74, 48, 74, BASE)]
 
-lowerStrokes['o'] = [fullCircle(MID, 66, 22, 24)]
+lowerStrokes['o'] = [fullCircle(MID, 66, 22, 24, 320, 0)]
 
 lowerStrokes['p'] = [line(30, 42, 30, 108), fullCircle(56, 66, 22, 24, 180)]
 
-lowerStrokes['q'] = [fullCircle(54, 66, 22, 24), line(80, 42, 80, 108)]
+lowerStrokes['q'] = [fullCircle(54, 66, 22, 24, 320, 0), line(80, 42, 80, 108)]
 
-lowerStrokes['r'] = [line(32, BASE, 32, 42), arc(32, 55, 20, 16, 270, 10, 1)]
+lowerStrokes['r'] = [line(32, 42, 32, BASE), arc(32, 55, 20, 16, 270, 10, 1)]
 
 lowerStrokes['s'] = [`M68,50 A11,9 0 1,0 40,58 A13,11 0 1,1 68,82 A11,9 0 1,1 38,80`]
 

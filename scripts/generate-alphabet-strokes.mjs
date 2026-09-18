@@ -78,11 +78,9 @@ const lowerStrokes = {}
 
 upperStrokes['A'] = [line(MID, CAP_TOP, 30, BASE), line(MID, CAP_TOP, 80, BASE), line(39, 62, 71, 62)]
 
-upperStrokes['B'] = [
-  line(32, CAP_TOP, 32, BASE),
-  arc(32, 33.75, 22, 18.75, 270, 450, 1),
-  arc(32, 71.25, 24, 18.75, 270, 450, 1),
-]
+// The two bumps end/start at the exact same point (32,52.5) — a real B draws them as one
+// continuous double-loop after the stem, not two separately-lifted arcs.
+upperStrokes['B'] = [line(32, CAP_TOP, 32, BASE), combine(arc(32, 33.75, 22, 18.75, 270, 450, 1), arc(32, 71.25, 24, 18.75, 270, 450, 1))]
 
 upperStrokes['C'] = [arc(MID, 52.5, 27, 37.5, 320, 40, 0)]
 
@@ -97,20 +95,24 @@ upperStrokes['E'] = [
 
 upperStrokes['F'] = [line(32, CAP_TOP, 32, BASE), line(32, CAP_TOP, 78, CAP_TOP), line(32, 52.5, 68, 52.5)]
 
-upperStrokes['G'] = [
-  arc(MID, 52.5, 27, 37.5, 340, 20, 0),
-  line(80.37, 65.33, 52, 65.33),
-]
+// The arc's end point and the chin bar's start point are the same (80.37,65.33) — one
+// continuous stroke (curve flowing straight into the bar) instead of a separate lift.
+upperStrokes['G'] = [combine(arc(MID, 52.5, 27, 37.5, 340, 20, 0), line(80.37, 65.33, 52, 65.33))]
 
 upperStrokes['H'] = [line(30, CAP_TOP, 30, BASE), line(80, CAP_TOP, 80, BASE), line(30, 52.5, 80, 52.5)]
 
 upperStrokes['I'] = [line(MID, CAP_TOP, MID, BASE)]
 
-upperStrokes['J'] = [line(70, CAP_TOP, 70, 72), arc(55, 72, 15, 18, 0, 130, 1)]
+// Down then curling left, as one continuous stroke — the line's end and the arc's start are
+// the same point (70,72).
+upperStrokes['J'] = [combine(line(70, CAP_TOP, 70, 72), arc(55, 72, 15, 18, 0, 130, 1))]
 
-upperStrokes['K'] = [line(30, CAP_TOP, 30, BASE), line(78, CAP_TOP, 30, 55), line(30, 55, 78, BASE)]
+// The "arm" and "leg" diagonals meet at the same point (30,55) — one continuous zigzag stroke
+// after the stem, the same way V/W's inner diagonals are.
+upperStrokes['K'] = [line(30, CAP_TOP, 30, BASE), combine(line(78, CAP_TOP, 30, 55), line(30, 55, 78, BASE))]
 
-upperStrokes['L'] = [line(32, CAP_TOP, 32, BASE), line(32, BASE, 78, BASE)]
+// Down then across, as one continuous stroke — the two lines already met at (32,BASE).
+upperStrokes['L'] = [combine(line(32, CAP_TOP, 32, BASE), line(32, BASE, 78, BASE))]
 
 // Every straight vertical/diagonal below starts at its top end and is drawn downward — the
 // universal "pull down, never push up" rule taught for manuscript strokes — except where a
@@ -118,7 +120,10 @@ upperStrokes['L'] = [line(32, CAP_TOP, 32, BASE), line(32, BASE, 78, BASE)]
 // stroke; those are called out inline. An earlier version of this file had M's and N's first
 // (plain, non-zigzag) vertical drawn bottom-to-top, which is exactly the kind of thing that
 // looks visibly backwards when the trace guide animates it — fixed here.
-upperStrokes['M'] = [line(28, CAP_TOP, 28, BASE), line(28, CAP_TOP, 55, 60), line(55, 60, 82, CAP_TOP), line(82, CAP_TOP, 82, BASE)]
+// Stem alone, then the two diagonals + closing vertical as one continuous zigzag — all three
+// segments already met end-to-end (28,15)->(55,60)->(82,15)->(82,BASE), so there's no reason
+// to force 3 separate lifts for what's naturally a single motion once the stem is down.
+upperStrokes['M'] = [line(28, CAP_TOP, 28, BASE), combine(line(28, CAP_TOP, 55, 60), line(55, 60, 82, CAP_TOP), line(82, CAP_TOP, 82, BASE))]
 
 upperStrokes['N'] = [line(28, CAP_TOP, 28, BASE), line(28, CAP_TOP, 82, BASE), line(82, CAP_TOP, 82, BASE)]
 
@@ -128,11 +133,9 @@ upperStrokes['P'] = [line(32, CAP_TOP, 32, BASE), arc(32, 33.75, 24, 18.75, 270,
 
 upperStrokes['Q'] = [fullCircle(MID, 52.5, 28, 37.5, 320, 0), line(66, 78, 82, 96)]
 
-upperStrokes['R'] = [
-  line(32, CAP_TOP, 32, BASE),
-  arc(32, 33.75, 24, 18.75, 270, 450, 1),
-  line(32, 52.5, 78, BASE),
-]
+// The bump's end and the leg's start are the same point (32,52.5) — one continuous stroke
+// (loop curving down into the kicked-out leg) after the stem.
+upperStrokes['R'] = [line(32, CAP_TOP, 32, BASE), combine(arc(32, 33.75, 24, 18.75, 270, 450, 1), line(32, 52.5, 78, BASE))]
 
 // Two ~190° arcs with opposite curvature (top curves over-the-top, bottom curves
 // under-the-bottom), chained into one stroke — an earlier hand-typed single path here used
@@ -147,20 +150,26 @@ upperStrokes['T'] = [line(28, CAP_TOP, 82, CAP_TOP), line(MID, CAP_TOP, MID, BAS
 // looked like it had been "cut into pieces" rather than traced as one letter.
 upperStrokes['U'] = [combine(line(28, CAP_TOP, 28, 65), arc(55, 65, 27, 25, 180, 0, 0), line(82, 65, 82, CAP_TOP))]
 
-upperStrokes['V'] = [line(28, CAP_TOP, MID, BASE), line(MID, BASE, 82, CAP_TOP)]
+// Down-up in one continuous motion, not two separately-lifted diagonals.
+upperStrokes['V'] = [combine(line(28, CAP_TOP, MID, BASE), line(MID, BASE, 82, CAP_TOP))]
 
+// W as two continuous "V" strokes (down-up, down-up) rather than 4 separate lifts — all 4
+// segments happened to already meet end-to-end, but 4 lifts for one letter doesn't match how
+// W is actually written.
 upperStrokes['W'] = [
-  line(24, CAP_TOP, 38, BASE),
-  line(38, BASE, 55, 45),
-  line(55, 45, 72, BASE),
-  line(72, BASE, 86, CAP_TOP),
+  combine(line(24, CAP_TOP, 38, BASE), line(38, BASE, 55, 45)),
+  combine(line(55, 45, 72, BASE), line(72, BASE, 86, CAP_TOP)),
 ]
 
 upperStrokes['X'] = [line(28, CAP_TOP, 82, BASE), line(82, CAP_TOP, 28, BASE)]
 
-upperStrokes['Y'] = [line(28, CAP_TOP, MID, 52), line(82, CAP_TOP, MID, 52), line(MID, 52, MID, BASE)]
+// Second diagonal flows straight into the stem (both meet at (55,52)) — one continuous stroke
+// after the first diagonal.
+upperStrokes['Y'] = [line(28, CAP_TOP, MID, 52), combine(line(82, CAP_TOP, MID, 52), line(MID, 52, MID, BASE))]
 
-upperStrokes['Z'] = [line(28, CAP_TOP, 82, CAP_TOP), line(82, CAP_TOP, 28, BASE), line(28, BASE, 82, BASE)]
+// All 3 segments meet end-to-end (top bar -> diagonal -> bottom bar) — Z is normally one
+// continuous zigzag stroke, not 3 separate lifts.
+upperStrokes['Z'] = [combine(line(28, CAP_TOP, 82, CAP_TOP), line(82, CAP_TOP, 28, BASE), line(28, BASE, 82, BASE))]
 
 // ---------- LOWERCASE ----------
 // x-height letters live between XH_TOP (42) and BASE (90); ascenders (b,d,f,h,k,l,t) reach up
@@ -174,33 +183,43 @@ lowerStrokes['c'] = [arc(MID, 66, 20, 24, 320, 40, 0)]
 
 lowerStrokes['d'] = [fullCircle(54, 66, 22, 24, 320, 0), line(80, CAP_TOP, 80, BASE)]
 
-lowerStrokes['e'] = [line(35, 68, 75, 68), arc(55, 68, 20, 22, 0, 340, 0)]
+// Crossbar flowing straight into the loop (they meet at (75,68)) — one continuous stroke,
+// matching how e is normally written (right, then curl up and around). The loop's end angle
+// was 340, but with sweep=0 (counterclockwise) that's only a 20°-long arc — the short way, not
+// the near-full loop intended; confirmed by rendering (it drew almost nothing). endDeg=20
+// gives the intended 340°-long sweep, stopping just short of a full circle.
+lowerStrokes['e'] = [combine(line(35, 68, 75, 68), arc(55, 68, 20, 22, 0, 20, 0))]
 
 lowerStrokes['f'] = [arc(70, 24, 12, 9, 200, 360, 1), line(58, 15, 58, BASE), line(42, 55, 74, 55)]
 
 lowerStrokes['g'] = [fullCircle(56, 66, 22, 24, 320, 0), line(78, 66, 78, 98), arc(64, 98, 14, 8, 0, 150, 1)]
 
-lowerStrokes['h'] = [line(30, CAP_TOP, 30, BASE), arc(30, 60, 22, 18, 270, 30, 1), line(74, 48, 74, BASE)]
+// Arch + second leg as one continuous stroke (symmetric semicircle from the stem's x-height
+// point to the leg's x-height point) — the arch used to end mid-air at (49.05,69) while the
+// leg independently started at (74,48), a ~33-unit gap between them.
+lowerStrokes['h'] = [line(30, CAP_TOP, 30, BASE), combine(arc(52, 42, 22, 18, 180, 0, 1), line(74, 42, 74, BASE))]
 
 lowerStrokes['i'] = [line(MID, 42, MID, BASE), line(MID, 30, MID, 30)]
 
 lowerStrokes['j'] = [line(64, 42, 64, 98), arc(64, 98, 16, 10, 0, 140, 1), line(64, 30, 64, 30)]
 
-lowerStrokes['k'] = [line(30, CAP_TOP, 30, BASE), line(72, 42, 30, 68), line(30, 68, 72, BASE)]
+// Arm+leg meet at the same point (30,68) — one continuous zigzag stroke, matching uppercase K.
+lowerStrokes['k'] = [line(30, CAP_TOP, 30, BASE), combine(line(72, 42, 30, 68), line(30, 68, 72, BASE))]
 
 lowerStrokes['l'] = [line(MID, CAP_TOP, MID, BASE)]
 
-// m/n's first vertical previously ran bottom-to-top (same backwards-stroke bug as M/N above) —
-// fixed to top-to-bottom here.
+// m is two "n" shapes sharing a leg — each arch is a symmetric semicircle between its two
+// legs' x-height points, and (like h) each arch+following-leg is one continuous stroke. The
+// old version had each arch ending mid-air ~26 units from where the next leg actually started.
+// The first vertical previously ran bottom-to-top too (same backwards-stroke bug as M/N above).
 lowerStrokes['m'] = [
   line(24, 42, 24, BASE),
-  arc(24, 55, 15, 13, 270, 30, 1),
-  line(54, 42, 54, BASE),
-  arc(54, 55, 15, 13, 270, 30, 1),
-  line(84, 42, 84, BASE),
+  combine(arc(39, 42, 15, 13, 180, 0, 1), line(54, 42, 54, BASE)),
+  combine(arc(69, 42, 15, 13, 180, 0, 1), line(84, 42, 84, BASE)),
 ]
 
-lowerStrokes['n'] = [line(30, 42, 30, BASE), arc(30, 55, 22, 18, 270, 30, 1), line(74, 48, 74, BASE)]
+// Same arch+leg construction as h, just without the ascender (n's first leg is x-height only).
+lowerStrokes['n'] = [line(30, 42, 30, BASE), combine(arc(52, 42, 22, 18, 180, 0, 1), line(74, 42, 74, BASE))]
 
 lowerStrokes['o'] = [fullCircle(MID, 66, 22, 24, 320, 0)]
 
@@ -213,26 +232,25 @@ lowerStrokes['r'] = [line(32, 42, 32, BASE), arc(32, 55, 20, 16, 270, 10, 1)]
 // Same two-opposite-arcs construction as uppercase S, scaled to x-height.
 lowerStrokes['s'] = [combine(arc(56, 53, 12, 11, 350, 165, 0), arc(51, 76, 13, 11, 345, 160, 1))]
 
-lowerStrokes['t'] = [line(48, 22, 48, 82), arc(58, 82, 10, 8, 180, 90, 0), line(32, 46, 66, 46)]
+// Stem + hook as one continuous stroke (they meet exactly at (48,82)), crossbar separate.
+lowerStrokes['t'] = [combine(line(48, 22, 48, 82), arc(58, 82, 10, 8, 180, 90, 0)), line(32, 46, 66, 46)]
 
 // One continuous stroke (down, curve under, up), matching uppercase U's fix — the third segment
 // now starts exactly at the arc's own end point (74,74) instead of independently at (74,42).
 lowerStrokes['u'] = [combine(line(32, 42, 32, 74), arc(53, 74, 21, 16, 180, 0, 0), line(74, 74, 74, 42))]
 
-lowerStrokes['v'] = [line(30, 42, MID, BASE), line(MID, BASE, 80, 42)]
+lowerStrokes['v'] = [combine(line(30, 42, MID, BASE), line(MID, BASE, 80, 42))]
 
 lowerStrokes['w'] = [
-  line(24, 42, 36, BASE),
-  line(36, BASE, 55, 58),
-  line(55, 58, 74, BASE),
-  line(74, BASE, 86, 42),
+  combine(line(24, 42, 36, BASE), line(36, BASE, 55, 58)),
+  combine(line(55, 58, 74, BASE), line(74, BASE, 86, 42)),
 ]
 
 lowerStrokes['x'] = [line(30, 42, 80, BASE), line(80, 42, 30, BASE)]
 
 lowerStrokes['y'] = [line(30, 42, 55, 90), line(80, 42, 40, 108)]
 
-lowerStrokes['z'] = [line(32, 44, 78, 44), line(78, 44, 32, BASE), line(32, BASE, 78, BASE)]
+lowerStrokes['z'] = [combine(line(32, 44, 78, 44), line(78, 44, 32, BASE), line(32, BASE, 78, BASE))]
 
 const all = { ...upperStrokes, ...lowerStrokes }
 

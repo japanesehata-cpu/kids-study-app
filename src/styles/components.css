@@ -1,10 +1,15 @@
 .screen {
+  /* dvh (not vh) so mobile browser chrome showing/hiding doesn't leave a sliver that
+     forces a scroll; padding/gap scale with viewport HEIGHT (clamp, not a fixed
+     breakpoint) so short phone/tablet viewports shrink toward fitting everything
+     without a scroll, while a tall viewport still gets the original spacious values. */
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px;
-  gap: 24px;
+  padding: clamp(10px, 2vh, 24px) clamp(12px, 4vw, 24px);
+  gap: clamp(8px, 1.5vh, 22px);
 }
 
 .top-bar {
@@ -45,16 +50,52 @@
 }
 
 .app-title {
-  font-size: 30px;
+  font-size: clamp(18px, 3.2vh, 30px);
   font-weight: 800;
   color: var(--color-primary-dark);
   margin: 0;
 }
 
 .subtitle {
-  font-size: 22px;
+  font-size: clamp(14px, 2.4vh, 22px);
   color: var(--color-text-soft);
   font-weight: 700;
+}
+
+/* CharacterPortrait's `size` prop sets --portrait-max (its usual/largest size); the actual
+   rendered size scales down on short viewports (28vh) so the mascot doesn't by itself push
+   the rest of a screen below the fold on a phone or tablet. */
+.character-portrait {
+  /* No explicit height: aspect-ratio derives it from whichever constraint actually binds
+     width (the 12vh preferred size, or max-width when a card is narrower than that — a
+     narrow card in a 4-column phone grid can be narrower than 12vh computes; without
+     max-width the portrait overflowed the card's rounded edges sideways instead of
+     shrinking to fit it, and a plain height clamp wouldn't have followed that shrink). */
+  width: clamp(56px, 12vh, var(--portrait-max));
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+/* Home's row of 10 mascots: a single horizontally-scrolling strip instead of wrapping onto
+   3-4 rows on a phone-width screen, which used to push the actual category cards below the
+   fold. One row costs a fixed, small amount of vertical space no matter how narrow the
+   viewport is; scroll snapping makes the swipe feel intentional rather than accidental. */
+.character-showcase {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  width: 100%;
+  max-width: 960px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  padding-bottom: 4px;
+  justify-content: safe center;
+}
+
+.character-showcase > * {
+  flex: none;
+  scroll-snap-align: start;
 }
 
 .streak-badge {
@@ -91,8 +132,11 @@
   /* auto-fit lets this settle at however many columns actually fit — 2 on a phone, up
      to 8 in one row on a wide desktop — instead of a fixed flex min-width that forces
      every card onto its own row once the viewport is narrower than two of them. */
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 20px;
+  /* Lowered from 130px so a phone-width screen settles at 3 columns instead of 2 — with 10
+     cards that's 4 rows instead of 5, a meaningful chunk of Home's total height on exactly
+     the short/narrow viewports where that height is the whole problem. */
+  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+  gap: clamp(8px, 2vh, 20px);
   width: 100%;
   max-width: 960px;
 }
@@ -127,16 +171,19 @@
   background: var(--color-surface);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
-  padding: 20px 12px;
-  min-height: 180px;
+  /* Home shows 10 of these at once (5 rows on a 2-column phone width), so this card's own
+     height is the single biggest lever for fitting the whole grid on one phone screen
+     without a scroll — scales down hard on short viewports, not just a little. */
+  padding: clamp(6px, 1.6vh, 20px) 10px;
+  min-height: clamp(80px, 12vh, 180px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
   border: none;
   cursor: pointer;
-  font-size: 24px;
+  font-size: clamp(13px, 2vh, 24px);
   font-weight: 800;
   color: var(--color-text);
   transition: transform 0.1s ease;
@@ -388,11 +435,19 @@
   background: var(--color-surface);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
-  padding: 20px 28px 24px;
+  padding: clamp(10px, 2vh, 20px) clamp(14px, 4vw, 28px) clamp(12px, 2.2vh, 24px);
+}
+
+/* The `size` prop still sets the SVG's width/height attributes (220 by default) — this CSS
+   rule outranks those presentation attributes, and viewBox scales the clock face itself
+   proportionally, so shrinking here never distorts or clips the drawing. */
+.interactive-clock svg {
+  width: clamp(88px, 13vh, 220px);
+  height: clamp(88px, 13vh, 220px);
 }
 
 .digital-clock {
-  font-size: 34px;
+  font-size: clamp(22px, 4vh, 34px);
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   color: var(--color-text);
@@ -417,7 +472,7 @@
      90px to fit each level's one-line description (see .level-description) without
      wrapping onto three lines on a typical phone width. */
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 16px;
+  gap: clamp(8px, 2vh, 16px);
   width: 100%;
   max-width: 640px;
 }
@@ -430,7 +485,7 @@
   background: var(--color-surface);
   box-shadow: var(--shadow-card);
   cursor: pointer;
-  padding: 18px 8px 14px;
+  padding: clamp(10px, 2.2vh, 18px) 8px clamp(8px, 1.8vh, 14px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -469,13 +524,13 @@
   background: var(--color-surface);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
-  padding: 32px;
+  padding: clamp(14px, 2.4vh, 32px);
   width: 100%;
   max-width: 600px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: clamp(8px, 1.6vh, 20px);
 }
 
 .card-panel-wide {

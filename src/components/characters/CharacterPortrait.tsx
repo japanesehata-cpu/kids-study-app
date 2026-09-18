@@ -52,14 +52,15 @@ export function CharacterPortrait({ theme, mood = 'happy', size = 220 }: Charact
   const duration = mood === 'streak' ? 0.5 : mood === 'celebrate' ? 0.6 : mood === 'thinking' ? 1.6 : 2.4
 
   return (
-    <div style={{ position: 'relative', width: size, height: size, display: 'inline-block' }}>
+    <div
+      className="character-portrait"
+      style={{ position: 'relative', display: 'inline-block', ['--portrait-max' as string]: `${size}px` }}
+    >
       <Sparkles active={mood === 'celebrate' || mood === 'streak'} />
       <motion.img
         src={`${import.meta.env.BASE_URL}images/characters/${theme.id}.png`}
         alt={theme.id}
-        width={size}
-        height={size}
-        style={{ width: size, height: size, objectFit: 'contain' }}
+        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
         animate={animate}
         transition={{ duration, repeat: Infinity, ease: 'easeInOut' }}
       />

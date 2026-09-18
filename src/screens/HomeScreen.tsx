@@ -96,7 +96,7 @@ export function HomeScreen({
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, flexWrap: 'wrap', justifyContent: 'center' }}>
+      <div className="character-showcase">
         {ALL_CATEGORIES.map((category) => (
           <button
             key={category}

@@ -17,16 +17,11 @@ interface LevelSelectScreenProps {
    * (an explicit, deliberate choice rather than a per-question random mix, see
    * questionGenerators/clock.ts's ClockMode comment). */
   onSelectLevel: (level: Level, setSize: number, clockMode?: ClockMode) => void
-  onOpenHandwriting?: () => void
-  /** logic only — opens sudoku's own level-select, an independent mode/progress reached
-   * from here rather than mixed into logic's own random question mix (see the plan this
-   * was built from). */
-  onOpenSudoku?: () => void
-  /** addition/subtraction only — opens that operator's own missingOperandAddition/
-   * missingOperandSubtraction level-select (App.tsx picks the right destination per
-   * screen.category; a round never mixes both operators). */
-  onOpenMissingOperand?: () => void
-  /** one step back — Home for most categories, EnglishEntryScreen for englishSpelling/englishListening */
+  /** one step back — Home for most categories, an Entry chooser (English/Kanji/Moji/
+   * Addition/Subtraction/Logic) for subjects that have more than one practice mode — see
+   * each Entry screen's own comment. This screen is now a pure level picker: every
+   * subject's other modes (なぞる/きいてかく, すうどく, □のけいさん) are chosen one step
+   * earlier, at that Entry screen, rather than via a secondary button bolted on here. */
   onBack: () => void
   onHome: () => void
 }
@@ -36,9 +31,6 @@ const SET_SIZE_OPTIONS = [5, 10] as const
 export function LevelSelectScreen({
   category,
   onSelectLevel,
-  onOpenHandwriting,
-  onOpenSudoku,
-  onOpenMissingOperand,
   onBack,
   onHome,
 }: LevelSelectScreenProps) {
@@ -68,24 +60,6 @@ export function LevelSelectScreen({
       {category === 'clock' && <InteractiveClock size={220} />}
 
       <p className="subtitle">{t('levelSelectTitle')}</p>
-
-      {(category === 'hiragana' || category === 'katakana' || category === 'alphabet') && onOpenHandwriting && (
-        <button type="button" className="secondary-button" onClick={onOpenHandwriting}>
-          {t('handwritingButton')}
-        </button>
-      )}
-
-      {category === 'logic' && onOpenSudoku && (
-        <button type="button" className="secondary-button" onClick={onOpenSudoku}>
-          {t('sudokuButton')}
-        </button>
-      )}
-
-      {(category === 'addition' || category === 'subtraction') && onOpenMissingOperand && (
-        <button type="button" className="secondary-button" onClick={onOpenMissingOperand}>
-          {t('missingOperandButton')}
-        </button>
-      )}
 
       {category === 'clock' && (
         <div className="set-size-toggle">

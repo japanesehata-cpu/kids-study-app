@@ -6,8 +6,6 @@ import { pickHandwritingPraise } from '../domain/handwritingPraise'
 import { useI18n } from '../i18n/I18nContext'
 import { CategoryHeader } from '../components/CategoryHeader'
 import { HandwritingCanvas } from '../components/HandwritingCanvas'
-import { KanaTraceScreen } from './KanaTraceScreen'
-import { AlphabetTraceScreen } from './AlphabetTraceScreen'
 import { HiraganaChar } from '../components/HiraganaChar'
 import { TtsButton } from '../components/TtsButton'
 import { characterThemes } from '../components/characters/characterThemes'
@@ -19,12 +17,12 @@ type HandwritingCategory = 'hiragana' | 'katakana' | 'alphabet'
 
 interface HandwritingScreenProps {
   category: HandwritingCategory
-  /** one step back — the screen this was opened from (LevelSelectScreen) */
+  /** one step back — MojiModeEntryScreen, since that's the only screen that opens this one
+   * now (see that screen's own comment: きいてかく is reached directly, not through an
+   * internal なぞる/きいてかく chooser here anymore — this screen is level-2-only). */
   onBack: () => void
   onHome: () => void
 }
-
-type HandwritingLevel = 1 | 2
 
 /** Alphabet practice has no mnemonic/row — just a glyph to write — since case doesn't
  * change a letter's name (unlike hiragana/katakana, where every glyph is spoken via its
@@ -43,8 +41,8 @@ interface AlphabetWritableEntry {
 /** Upper and lower case are both practiced, as two separate glyphs to draw — not a single
  * "A/a" entry — the same way hiragana/katakana practice one glyph at a time. `case` is kept
  * as its own field (rather than derived from `char`'s letter case, which would break for
- * letters with no case distinction in appearance) so level 2 can tell the child which case
- * to write — the spoken letter name alone ("A") can't distinguish "A" from "a". */
+ * letters with no case distinction in appearance) so this screen can tell the child which
+ * case to write — the spoken letter name alone ("A") can't distinguish "A" from "a". */
 const ALPHABET_HANDWRITING_BANK: AlphabetWritableEntry[] = alphabetBank.flatMap((a) => [
   { id: `${a.id}-upper`, char: a.upper, case: 'upper' as const, letterId: a.id },
   { id: `${a.id}-lower`, char: a.lower, case: 'lower' as const, letterId: a.id },
@@ -69,11 +67,15 @@ function speechInfoFor(category: HandwritingCategory, entry: WritableEntry): { p
   return { phrase: alphabetSpeechPhrase(getAlphabetById((entry as AlphabetWritableEntry).letterId)), lang: 'en-US' }
 }
 
+/** きいて かく (listen & write) practice — shows no visual guide at all, the child hears
+ * the reading/name and writes the glyph from memory. This is now always level-2: なぞる
+ * (stroke-order trace) is reached directly from MojiModeEntryScreen via KanaTraceScreen/
+ * AlphabetTraceScreen instead of through this component (see that screen's own comment for
+ * why the two used to be bundled here behind an internal chooser and no longer are). */
 export function HandwritingScreen({ category, onBack, onHome }: HandwritingScreenProps) {
   const { t, lang } = useI18n()
-  const [level, setLevel] = useState<HandwritingLevel | null>(null)
   const [index, setIndex] = useState(0)
-  const [order, setOrder] = useState<WritableEntry[]>(() => shuffle(BANK_BY_CATEGORY[category]))
+  const [order] = useState<WritableEntry[]>(() => shuffle(BANK_BY_CATEGORY[category]))
   const [praise, setPraise] = useState<{ stars: number; text: string } | null>(null)
   const entry = order[index % order.length]
   const voiceProfile = characterThemes[category].voiceProfile
@@ -87,10 +89,10 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
   const { phrase: speechPhrase, lang: speechLang } = speechInfoFor(category, entry)
 
   useEffect(() => {
-    if (level !== 2 || praise) return
+    if (praise) return
     speak(speechPhrase, speechLang, voiceProfile, cacheKey)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [level, entry.id, praise])
+  }, [entry.id, praise])
 
   function handleDone(stars: number) {
     playCorrectSfx()
@@ -105,73 +107,11 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
     setIndex((i) => (i + 1) % order.length)
   }
 
-  function handleSelectLevel(lvl: HandwritingLevel) {
-    setOrder(shuffle(BANK_BY_CATEGORY[category]))
-    setIndex(0)
-    setLevel(lvl)
-  }
-
-  function handleBack() {
-    if (level === null) {
-      onBack()
-      return
-    }
-    setLevel(null)
-    setPraise(null)
-    setIndex(0)
-  }
-
-  if (level === null) {
-    return (
-      <div className="screen">
-        <div className="top-bar">
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button type="button" className="secondary-button" onClick={onBack}>
-              {t('backButton')}
-            </button>
-            <button type="button" className="secondary-button" onClick={onHome}>
-              {t('backHomeButton')}
-            </button>
-          </div>
-          <CategoryHeader category={category} />
-        </div>
-        <p className="subtitle">{t('handwritingLevelSelectTitle')}</p>
-        <div className="level-grid">
-          <button type="button" className="level-button" onClick={() => handleSelectLevel(1)}>
-            <span className="level-number">{t('handwritingLevel1Label')}</span>
-            <span className="level-stars">★☆</span>
-            <span className="hint-caption">{t('handwritingLevel1Description')}</span>
-          </button>
-          <button type="button" className="level-button" onClick={() => handleSelectLevel(2)}>
-            <span className="level-number">{t('handwritingLevel2Label')}</span>
-            <span className="level-stars">★★</span>
-            <span className="hint-caption">{t('handwritingLevel2Description')}</span>
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  // Level 1 ("なぞる") for hiragana/katakana specifically delegates to the shared
-  // KanjiTraceCanvas-based stroke-order flow (see KanaTraceScreen's own top comment) —
-  // alphabet's level 1 and every category's level 2 ("きいてかく", which shows no guide
-  // at all and so has no stroke-order guidance to give) keep using the whole-glyph
-  // HandwritingCanvas flow below entirely unchanged. KanaTraceScreen is a fully
-  // self-contained screen (its own top-bar/CategoryHeader), so this returns it directly
-  // rather than nesting it inside this component's own JSX below.
-  if (level === 1 && category === 'alphabet') {
-    return <AlphabetTraceScreen onBack={() => setLevel(null)} onHome={onHome} />
-  }
-
-  if (level === 1 && (category === 'hiragana' || category === 'katakana')) {
-    return <KanaTraceScreen category={category} onBack={() => setLevel(null)} onHome={onHome} />
-  }
-
   return (
     <div className="screen">
       <div className="top-bar">
         <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" className="secondary-button" onClick={handleBack}>
+          <button type="button" className="secondary-button" onClick={onBack}>
             {t('backButton')}
           </button>
           <button type="button" className="secondary-button" onClick={onHome}>
@@ -181,9 +121,9 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
         <CategoryHeader category={category} />
       </div>
 
-      <p className="subtitle">{t(level === 1 ? 'handwritingTracePrompt' : 'handwritingListenWritePrompt')}</p>
+      <p className="subtitle">{t('handwritingListenWritePrompt')}</p>
 
-      {level === 2 && !praise && (
+      {!praise && (
         <>
           {category === 'alphabet' && (
             <span className={`handwriting-case-badge handwriting-case-badge--${(entry as AlphabetWritableEntry).case}`}>
@@ -207,9 +147,8 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
             {'★'.repeat(praise.stars)}
             {'☆'.repeat(3 - praise.stars)}
           </div>
-          {/* The answer check — level 1 already showed this faintly the whole time, but
-              level 2 (listen & write) never shows the glyph at all until now, so this is
-              the child's first chance to compare what they wrote against the real thing. */}
+          {/* きいてかく never shows the glyph at all until now, so this is the child's
+              first chance to compare what they wrote against the real thing. */}
           <p className="hint-caption">{t('handwritingAnswerLabel')}</p>
           <HiraganaChar char={entry.char} size={96} />
           <p className="handwriting-praise-text">{praise.text}</p>
@@ -219,9 +158,9 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
         </div>
       ) : (
         <HandwritingCanvas
-          key={`${level}-${entry.id}`}
+          key={entry.id}
           char={entry.char}
-          showGuide={level === 1}
+          showGuide={false}
           doneLabel={t('handwritingDoneButton')}
           clearLabel={t('handwritingClearButton')}
           onDone={handleDone}

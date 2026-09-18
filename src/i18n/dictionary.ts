@@ -164,10 +164,22 @@ export const dictionary = {
   moneyComboPrompt: { ja: 'ぜんぶで なんえんかな？', en: 'How much is it all together?' },
   alphabetListenPrompt: { ja: 'きこえたおとのもじをえらんでね', en: 'Pick the letter you hear' },
   alphabetCaseMatchPrompt: { ja: 'おなじもじをえらんでね', en: 'Pick the matching letter' },
-  handwritingButton: { ja: 'かく れんしゅう', en: 'Writing practice' },
   sudokuButton: { ja: 'すうどく', en: 'Sudoku' },
   missingOperandButton: { ja: '□の けいさん', en: 'Missing Number' },
   missingOperandPrompt: { ja: 'しかくに あう かずを えらんでね', en: 'Choose the number that fills the blank' },
+  // Shared title for every subject's mode-chooser (AdditionEntryScreen, SubtractionEntryScreen,
+  // LogicEntryScreen, MojiModeEntryScreen) — same generic phrasing as kanjiEntryTitle/
+  // handwritingLevelSelectTitle, kept as its own key rather than reusing those so each
+  // screen's copy can drift independently later without cross-screen surprises.
+  modeEntryTitle: { ja: 'どちらで れんしゅうする？', en: 'Choose how to practice' },
+  additionEntryPracticeDescription: { ja: 'たしざんの もんだいに ちょうせんしよう', en: 'Practice addition problems' },
+  additionEntryMissingDescription: { ja: '□に はいる かずを かんがえよう', en: 'Figure out the missing number' },
+  subtractionEntryPracticeDescription: { ja: 'ひきざんの もんだいに ちょうせんしよう', en: 'Practice subtraction problems' },
+  subtractionEntryMissingDescription: { ja: '□に はいる かずを かんがえよう', en: 'Figure out the missing number' },
+  logicEntryPracticeDescription: { ja: 'あたまを つかう もんだいに ちょうせんしよう', en: 'Try some brain-teaser problems' },
+  logicEntrySudokuDescription: { ja: 'すうじの パズルに ちょうせんしよう', en: 'Try a number puzzle' },
+  mojiModePracticeLabel: { ja: 'れんしゅう', en: 'Practice' },
+  mojiModePracticeDescription: { ja: 'よみを きいて もじを えらぼう', en: 'Listen and choose the matching character' },
   sudokuPrompt: {
     // A "、" pause after the first clause, matching spotDifferencePrompt's own two-clause
     // phrasing just below — without it VOICEVOX reads this longer sentence as one flat,
@@ -175,12 +187,10 @@ export const dictionary = {
     ja: 'あいている マスに、あう いろを いれてね',
     en: 'Fill in the empty squares with the right color',
   },
-  handwritingLevelSelectTitle: { ja: 'どちらで れんしゅうする？', en: 'Choose how to practice' },
   handwritingLevel1Label: { ja: 'なぞる', en: 'Trace' },
   handwritingLevel1Description: { ja: 'うすい じを なぞって かこう', en: 'Trace over the faint character' },
   handwritingLevel2Label: { ja: 'きいて かく', en: 'Listen & write' },
   handwritingLevel2Description: { ja: 'きこえた じを おもいだして かこう', en: 'Write the character you hear' },
-  handwritingTracePrompt: { ja: 'うすいじを なぞってみよう', en: 'Trace the faint character' },
   handwritingListenWritePrompt: { ja: 'きこえたじを かいてみよう', en: 'Listen, then write the character' },
   handwritingDoneButton: { ja: 'できた！', en: 'Done!' },
   handwritingAnswerLabel: { ja: 'こたえは これ！', en: 'The answer is:' },

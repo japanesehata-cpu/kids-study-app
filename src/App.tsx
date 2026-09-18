@@ -10,10 +10,16 @@ import { HomeScreen } from './screens/HomeScreen'
 import { LevelSelectScreen } from './screens/LevelSelectScreen'
 import { EnglishEntryScreen } from './screens/EnglishEntryScreen'
 import { MojiEntryScreen } from './screens/MojiEntryScreen'
+import { MojiModeEntryScreen } from './screens/MojiModeEntryScreen'
 import { KanjiEntryScreen } from './screens/KanjiEntryScreen'
 import { KanjiTraceScreen } from './screens/KanjiTraceScreen'
 import { WordTraceScreen } from './screens/WordTraceScreen'
+import { AdditionEntryScreen } from './screens/AdditionEntryScreen'
+import { SubtractionEntryScreen } from './screens/SubtractionEntryScreen'
+import { LogicEntryScreen } from './screens/LogicEntryScreen'
 import { HandwritingScreen } from './screens/HandwritingScreen'
+import { KanaTraceScreen } from './screens/KanaTraceScreen'
+import { AlphabetTraceScreen } from './screens/AlphabetTraceScreen'
 import { QuizScreen } from './screens/QuizScreen'
 import { ResultScreen } from './screens/ResultScreen'
 import { ParentGate } from './screens/ParentGate'
@@ -25,11 +31,16 @@ type Screen =
   | { name: 'home' }
   | { name: 'englishEntry' }
   | { name: 'mojiEntry' }
+  | { name: 'mojiModeEntry'; script: 'hiragana' | 'katakana' | 'alphabet' }
   | { name: 'kanjiEntry' }
   | { name: 'kanjiTrace' }
   | { name: 'wordTrace' }
+  | { name: 'additionEntry' }
+  | { name: 'subtractionEntry' }
+  | { name: 'logicEntry' }
   | { name: 'levelSelect'; category: Category }
   | { name: 'handwriting'; category: 'hiragana' | 'katakana' | 'alphabet' }
+  | { name: 'handwritingTrace'; category: 'hiragana' | 'katakana' | 'alphabet' }
   | { name: 'quiz'; category: Category; level: Level; setSize: number; clockMode?: ClockMode }
   | {
       name: 'result'
@@ -119,13 +130,25 @@ function AppContent() {
         return (
           <HomeScreen
             streak={streak}
-            onSelectCategory={(category) =>
+            onSelectCategory={(category) => {
               // counting has no ★ levels at all (助数詞 redesign — see CATEGORY_MAX_LEVEL) —
-              // skip straight to a fixed-size round, same treatment as englishSentence below.
-              category === 'counting'
-                ? navigate({ name: 'quiz', category, level: 1, setSize: SET_SIZE })
-                : navigate({ name: 'levelSelect', category })
-            }
+              // skip straight to a fixed-size round, same treatment as englishSentence
+              // elsewhere. addition/subtraction/logic each have a second mode
+              // (□のけいさん / すうどく) — see {Addition,Subtraction,Logic}EntryScreen for
+              // why those get their own flat chooser step now instead of a button bolted
+              // onto LevelSelectScreen.
+              if (category === 'counting') {
+                navigate({ name: 'quiz', category, level: 1, setSize: SET_SIZE })
+              } else if (category === 'addition') {
+                navigate({ name: 'additionEntry' })
+              } else if (category === 'subtraction') {
+                navigate({ name: 'subtractionEntry' })
+              } else if (category === 'logic') {
+                navigate({ name: 'logicEntry' })
+              } else {
+                navigate({ name: 'levelSelect', category })
+              }
+            }}
             onOpenEnglishEntry={() => navigate({ name: 'englishEntry' })}
             onOpenMojiEntry={() => navigate({ name: 'mojiEntry' })}
             onOpenKanjiEntry={() => navigate({ name: 'kanjiEntry' })}
@@ -156,7 +179,22 @@ function AppContent() {
       case 'mojiEntry':
         return (
           <MojiEntryScreen
-            onSelect={(category) => navigate({ name: 'levelSelect', category })}
+            onSelect={(script) => navigate({ name: 'mojiModeEntry', script })}
+            onBack={goBack}
+            onHome={goHome}
+          />
+        )
+      case 'mojiModeEntry':
+        return (
+          <MojiModeEntryScreen
+            script={screen.script}
+            onSelect={(mode) =>
+              mode === 'practice'
+                ? navigate({ name: 'levelSelect', category: screen.script })
+                : mode === 'trace'
+                  ? navigate({ name: 'handwritingTrace', category: screen.script })
+                  : navigate({ name: 'handwriting', category: screen.script })
+            }
             onBack={goBack}
             onHome={goHome}
           />
@@ -175,6 +213,37 @@ function AppContent() {
         return <KanjiTraceScreen onBack={goBack} onHome={goHome} />
       case 'wordTrace':
         return <WordTraceScreen onBack={goBack} onHome={goHome} />
+      case 'additionEntry':
+        return (
+          <AdditionEntryScreen
+            onSelect={(mode) =>
+              navigate({ name: 'levelSelect', category: mode === 'practice' ? 'addition' : 'missingOperandAddition' })
+            }
+            onBack={goBack}
+            onHome={goHome}
+          />
+        )
+      case 'subtractionEntry':
+        return (
+          <SubtractionEntryScreen
+            onSelect={(mode) =>
+              navigate({
+                name: 'levelSelect',
+                category: mode === 'practice' ? 'subtraction' : 'missingOperandSubtraction',
+              })
+            }
+            onBack={goBack}
+            onHome={goHome}
+          />
+        )
+      case 'logicEntry':
+        return (
+          <LogicEntryScreen
+            onSelect={(mode) => navigate({ name: 'levelSelect', category: mode === 'practice' ? 'logic' : 'sudoku' })}
+            onBack={goBack}
+            onHome={goHome}
+          />
+        )
       case 'levelSelect':
         return (
           <LevelSelectScreen
@@ -182,27 +251,18 @@ function AppContent() {
             onSelectLevel={(level, setSize, clockMode) =>
               navigate({ name: 'quiz', category: screen.category, level, setSize, clockMode })
             }
-            onOpenHandwriting={
-              screen.category === 'hiragana' || screen.category === 'katakana' || screen.category === 'alphabet'
-                ? () => navigate({ name: 'handwriting', category: screen.category as 'hiragana' | 'katakana' | 'alphabet' })
-                : undefined
-            }
-            onOpenSudoku={
-              screen.category === 'logic' ? () => navigate({ name: 'levelSelect', category: 'sudoku' }) : undefined
-            }
-            onOpenMissingOperand={
-              screen.category === 'addition'
-                ? () => navigate({ name: 'levelSelect', category: 'missingOperandAddition' })
-                : screen.category === 'subtraction'
-                  ? () => navigate({ name: 'levelSelect', category: 'missingOperandSubtraction' })
-                  : undefined
-            }
             onBack={goBack}
             onHome={goHome}
           />
         )
       case 'handwriting':
         return <HandwritingScreen category={screen.category} onBack={goBack} onHome={goHome} />
+      case 'handwritingTrace':
+        return screen.category === 'alphabet' ? (
+          <AlphabetTraceScreen onBack={goBack} onHome={goHome} />
+        ) : (
+          <KanaTraceScreen category={screen.category} onBack={goBack} onHome={goHome} />
+        )
       case 'quiz':
         return (
           <QuizScreen

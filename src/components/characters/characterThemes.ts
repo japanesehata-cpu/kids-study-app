@@ -194,19 +194,21 @@ export const characterThemes: Record<Category, CharacterTheme> = {
       kokoroVoice: 'bf_emma',
     },
   },
-  // Reuses yui's theme/voice rather than a dedicated mascot — a "fumi" panda character
-  // was drafted (see generate-character-portraits.mjs's CHARACTERS list) but portrait
-  // generation is blocked on an expired/invalid GEMINI_API_KEY (401 from the API); swap
-  // this to its own theme once that's regenerated. yui is the closest thematic fit in the
-  // meantime (both are character-literacy categories), same reasoning as sudoku reusing
-  // koko's theme above.
+  // A "fumi" panda character is drafted (see generate-character-portraits.mjs's
+  // CHARACTERS list) but portrait generation is blocked on an expired/invalid
+  // GEMINI_API_KEY (401 from the API, still failing as of the last retry) — swap this to
+  // 'fumi' once that's regenerated. In the meantime this reuses aru's (alphabet's) art
+  // instead of hiragana's yui: alphabet has no card of its own on the Home grid (it's
+  // reached via もじ, not directly), so its portrait was otherwise sitting unused — that
+  // makes it a genuinely distinct-looking placeholder rather than the previous yui reuse,
+  // which put two identical faces (もじ/かんじ) side by side on Home.
   kanji: {
-    id: 'yui',
-    colorMain: '#c9a4e8',
-    colorMainDark: '#9a72c0',
-    colorSub: '#faf5ff',
-    colorAccent: '#ff8f7a',
-    colorAccentDark: '#e0604a',
+    id: 'aru',
+    colorMain: '#f4a259',
+    colorMainDark: '#d1793a',
+    colorSub: '#fff6ec',
+    colorAccent: '#6ec6ff',
+    colorAccentDark: '#3f9bd9',
     voiceProfile: {
       pitch: 1.15,
       rate: 0.92,
@@ -305,16 +307,20 @@ export const characterThemes: Record<Category, CharacterTheme> = {
       kokoroVoice: 'am_michael',
     },
   },
-  // Reuses kazu's theme/voice rather than a dedicated mascot — counting coins is the same
-  // "count real things" spirit kazu already represents, and this sidesteps the same
-  // GEMINI_API_KEY portrait-generation blocker noted on kanji's theme below.
+  // A dedicated "money" mascot was never drafted, and new portrait generation is blocked
+  // on the same expired/invalid GEMINI_API_KEY noted on kanji's theme above (still 401 as
+  // of the last retry). This used to reuse kazu's (counting's) art directly, which put two
+  // identical faces (かぞえる/おかね) side by side on Home; it now reuses peko's
+  // (katakana's) art instead — katakana has no card of its own on the Home grid (it's
+  // reached via もじ, not directly), so its portrait was otherwise sitting unused. Swap
+  // this to a dedicated mascot once portrait generation is unblocked.
   money: {
-    id: 'kazu',
-    colorMain: '#ff8659',
-    colorMainDark: '#e0603a',
-    colorSub: '#fff3ec',
-    colorAccent: '#ffe066',
-    colorAccentDark: '#e0c23f',
+    id: 'peko',
+    colorMain: '#2ec4b6',
+    colorMainDark: '#1f948a',
+    colorSub: '#eafffb',
+    colorAccent: '#ff9f4a',
+    colorAccentDark: '#d97a2a',
     voiceProfile: {
       pitch: 1.05,
       rate: 1.0,

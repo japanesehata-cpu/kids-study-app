@@ -102,6 +102,11 @@ const CHARACTERS = [
     detail:
       'a cute panda character themed in deep pastel vermillion red and soft cream-white, with round panda ears and panda eye patches, holding a small round red hanko seal stamp, and a tiny scroll-shaped gem accessory on its head',
   },
+  {
+    id: 'chiro',
+    detail:
+      'a cute squirrel character themed in warm pastel golden-brown and cream, with round squirrel ears and a big fluffy striped tail, holding a small round coin purse, and a tiny gold-coin-shaped gem accessory on its head',
+  },
 ]
 
 const BASE_PROMPT = `Create a polished 3D animated fantasy mascot character.

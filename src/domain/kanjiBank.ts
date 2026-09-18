@@ -198,7 +198,7 @@ export const kanjiBank: KanjiEntry[] = [
     row: 'animals',
     mnemonic: 'かいがら',
     traceImageId: 'seashell',
-    meaningJa: 'かいがら',
+    meaningJa: 'かい',
     meaningEn: 'seashell',
     exampleSentenceJa: 'うみで 貝を ひろいました。',
     exampleSentenceEn: 'I picked up a shell at the sea.',

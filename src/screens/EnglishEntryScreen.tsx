@@ -3,7 +3,7 @@ import { CharacterPortrait } from '../components/characters/CharacterPortrait'
 import { characterThemes } from '../components/characters/characterThemes'
 
 interface EnglishEntryScreenProps {
-  onSelect: (mode: 'englishSpelling' | 'englishListening' | 'englishSentence') => void
+  onSelect: (mode: 'englishSpelling' | 'englishListening' | 'englishSentence' | 'wordTrace') => void
   /** one step back — from here, the same as onHome since Home is the only screen that
    * opens this one, but kept for consistency with every other screen's back button pair */
   onBack: () => void
@@ -47,6 +47,10 @@ export function EnglishEntryScreen({ onSelect, onBack, onHome }: EnglishEntryScr
         <button type="button" className="level-button" onClick={() => onSelect('englishSentence')}>
           <span className="level-number">{t('englishEntrySentenceLabel')}</span>
           <span className="hint-caption">{t('englishEntrySentenceDescription')}</span>
+        </button>
+        <button type="button" className="level-button" onClick={() => onSelect('wordTrace')}>
+          <span className="level-number">{t('englishEntryWordLabel')}</span>
+          <span className="hint-caption">{t('englishEntryWordDescription')}</span>
         </button>
       </div>
     </div>

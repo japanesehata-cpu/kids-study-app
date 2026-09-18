@@ -933,6 +933,32 @@
   max-width: 320px;
 }
 
+/* えいご「たんご」なぞる (WordTraceScreen) — the target word shown above the per-letter
+ * KanjiTraceCanvas, so the child can see both the picture and the whole word while tracing
+ * one letter at a time. Each letter's color tracks the same done/current/pending states
+ * KanjiTraceCanvas already uses for individual strokes, so the two stay visually in sync. */
+.word-trace-progress {
+  display: flex;
+  gap: 4px;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.word-trace-letter--done {
+  color: var(--color-primary-dark);
+}
+
+.word-trace-letter--current {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+.word-trace-letter--pending {
+  color: var(--color-text-soft);
+  opacity: 0.4;
+}
+
 /* WordIcon renders its `size` prop as a CSS variable (see WordIcon.tsx) rather than a
  * literal pixel attribute so it can scale up on wider screens — a PC browser window has
  * far more room than the phone/tablet viewport this app was originally sized for, and a

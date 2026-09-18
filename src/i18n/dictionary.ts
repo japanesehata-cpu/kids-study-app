@@ -40,6 +40,11 @@ export const dictionary = {
     ja: 'きこえた しつもんに こたえよう',
     en: 'Answer the questions you hear',
   },
+  englishEntryWordLabel: { ja: 'たんご', en: 'Words' },
+  englishEntryWordDescription: {
+    ja: 'がぞうを みて、たんごを なぞろう',
+    en: 'Look at the picture and trace the word',
+  },
   categoryLogic: { ja: 'ろんり', en: 'Logic' },
   categorySudoku: { ja: 'すうどく', en: 'Sudoku' },
   categoryMissingOperandAddition: { ja: 'たしざん □の けいさん', en: 'Missing Number (Addition)' },

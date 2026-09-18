@@ -12,6 +12,7 @@ import { EnglishEntryScreen } from './screens/EnglishEntryScreen'
 import { MojiEntryScreen } from './screens/MojiEntryScreen'
 import { KanjiEntryScreen } from './screens/KanjiEntryScreen'
 import { KanjiTraceScreen } from './screens/KanjiTraceScreen'
+import { WordTraceScreen } from './screens/WordTraceScreen'
 import { HandwritingScreen } from './screens/HandwritingScreen'
 import { QuizScreen } from './screens/QuizScreen'
 import { ResultScreen } from './screens/ResultScreen'
@@ -26,6 +27,7 @@ type Screen =
   | { name: 'mojiEntry' }
   | { name: 'kanjiEntry' }
   | { name: 'kanjiTrace' }
+  | { name: 'wordTrace' }
   | { name: 'levelSelect'; category: Category }
   | { name: 'handwriting'; category: 'hiragana' | 'katakana' | 'alphabet' }
   | { name: 'quiz'; category: Category; level: Level; setSize: number; clockMode?: ClockMode }
@@ -133,14 +135,20 @@ function AppContent() {
       case 'englishEntry':
         return (
           <EnglishEntryScreen
-            onSelect={(category) =>
+            onSelect={(category) => {
               // englishSentence has no ★ levels at all (see CATEGORY_MAX_LEVEL) — skip
               // straight to a fixed-size round instead of a level-select screen that would
               // only ever show a single, pointless "★1" button.
-              category === 'englishSentence'
-                ? navigate({ name: 'quiz', category, level: 1, setSize: SET_SIZE })
-                : navigate({ name: 'levelSelect', category })
-            }
+              if (category === 'englishSentence') {
+                navigate({ name: 'quiz', category, level: 1, setSize: SET_SIZE })
+              } else if (category === 'wordTrace') {
+                // Unscored practice activity, not a Category — same direct-navigation
+                // treatment as kanjiEntry's 'trace' option (see KanjiTraceScreen).
+                navigate({ name: 'wordTrace' })
+              } else {
+                navigate({ name: 'levelSelect', category })
+              }
+            }}
             onBack={goBack}
             onHome={goHome}
           />
@@ -165,6 +173,8 @@ function AppContent() {
         )
       case 'kanjiTrace':
         return <KanjiTraceScreen onBack={goBack} onHome={goHome} />
+      case 'wordTrace':
+        return <WordTraceScreen onBack={goBack} onHome={goHome} />
       case 'levelSelect':
         return (
           <LevelSelectScreen

@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState, type UIEvent } from 'react'
 import type { Category } from '../domain/types'
 import type { DictionaryKey } from '../i18n/dictionary'
 import type { PlayStreak } from '../domain/streak'
@@ -68,6 +69,19 @@ export function HomeScreen({
   onOpenParentGate,
 }: HomeScreenProps) {
   const { t, lang } = useI18n()
+  const [atEnd, setAtEnd] = useState(false)
+  const showcaseRef = useRef<HTMLDivElement>(null)
+
+  // Hides the "swipe for more" fade once there's nothing left to scroll to — both once the
+  // player actually scrolls all the way there, and up front if every portrait already fits
+  // without scrolling (a wide desktop window).
+  function updateAtEnd(el: HTMLDivElement) {
+    setAtEnd(el.scrollWidth - el.scrollLeft - el.clientWidth < 4)
+  }
+
+  useEffect(() => {
+    if (showcaseRef.current) updateAtEnd(showcaseRef.current)
+  }, [])
 
   function handleIntroduce(category: Category) {
     const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
@@ -96,18 +110,24 @@ export function HomeScreen({
         </div>
       </div>
 
-      <div className="character-showcase">
-        {ALL_CATEGORIES.map((category) => (
-          <button
-            key={category}
-            type="button"
-            className="character-intro-button"
-            aria-label={t('introduceCharacterHint')}
-            onClick={() => handleIntroduce(category)}
-          >
-            <CharacterPortrait theme={characterThemes[category]} mood="happy" size={110} />
-          </button>
-        ))}
+      <div className={`character-showcase-wrap ${atEnd ? 'at-end' : ''}`.trim()}>
+        <div
+          className="character-showcase"
+          ref={showcaseRef}
+          onScroll={(e: UIEvent<HTMLDivElement>) => updateAtEnd(e.currentTarget)}
+        >
+          {ALL_CATEGORIES.map((category) => (
+            <button
+              key={category}
+              type="button"
+              className="character-intro-button"
+              aria-label={t('introduceCharacterHint')}
+              onClick={() => handleIntroduce(category)}
+            >
+              <CharacterPortrait theme={characterThemes[category]} mood="happy" size={110} />
+            </button>
+          ))}
+        </div>
       </div>
 
       <p className="hint-caption">{t('introduceCharacterHint')}</p>
@@ -130,9 +150,14 @@ export function HomeScreen({
                     : onSelectCategory(category)
             }
           >
-            <span className="category-symbol">{symbol}</span>
+            <span
+              className="category-symbol"
+              style={{ background: characterThemes[category].colorMain, color: characterThemes[category].colorMainDark }}
+            >
+              {symbol}
+            </span>
             <CharacterPortrait theme={characterThemes[category]} mood="happy" size={92} />
-            <span>
+            <span className="category-label">
               {t(category === 'englishSpelling' ? 'categoryEnglish' : category === 'hiragana' ? 'categoryMoji' : labelKey)}
             </span>
           </button>

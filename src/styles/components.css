@@ -80,12 +80,38 @@
    3-4 rows on a phone-width screen, which used to push the actual category cards below the
    fold. One row costs a fixed, small amount of vertical space no matter how narrow the
    viewport is; scroll snapping makes the swipe feel intentional rather than accidental. */
+.character-showcase-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+}
+
+/* A soft right-edge fade hangs over the scroll area (not inside it, so it stays put instead
+   of scrolling away) as a "there's more, swipe" cue — a young child is less likely than an
+   adult to guess a plain row of portraits is horizontally scrollable on their own. Fades
+   toward color-bg-soft, close enough to the actual page gradient at this point on the page
+   for a soft edge like this. Hidden once there's nothing left to scroll to. */
+.character-showcase-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 4px;
+  width: 36px;
+  background: linear-gradient(to right, transparent, var(--color-bg-soft));
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.character-showcase-wrap.at-end::after {
+  opacity: 0;
+}
+
 .character-showcase {
   display: flex;
   align-items: flex-end;
   gap: 4px;
   width: 100%;
-  max-width: 960px;
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x proximity;
@@ -191,6 +217,16 @@
 
 .category-card:active {
   transform: translateY(4px) scale(0.98);
+}
+
+/* Some labels (たしざん/ひきざん) didn't quite fit the card width in one line at the
+   inherited font-size and wrapped with a single orphaned character stranded on its own
+   line (たしざ / ん). A slightly smaller max size gives short labels more room to fit on
+   one line; text-wrap: balance means a label that still needs two lines splits them
+   evenly instead of leaving one character behind. */
+.category-label {
+  font-size: clamp(12px, 1.7vh, 20px);
+  text-wrap: balance;
 }
 
 .category-symbol {

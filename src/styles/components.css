@@ -194,22 +194,23 @@
 }
 
 .category-symbol {
-  position: absolute;
-  top: 16px;
-  left: 20px;
-  /* Both this and the character portrait below it are positioned with z-index:auto, so
-     paint order falls back to DOM order — the portrait (painted later) was covering part
-     of a wider 3-letter badge like "abc" now that narrower mobile cards bring them close
-     enough to overlap. */
-  z-index: 1;
-  font-size: 16px;
+  /* A real flex-flow child (not position:absolute) that hugs the card's top-left corner via
+     align-self, instead of floating at a fixed pixel offset on top of whatever's under it.
+     The card's own size (and the character portrait's) now scales down hard on short
+     viewports (see .category-card/.character-portrait), and a fixed 16/20px offset no
+     longer left enough room at the smaller sizes — the badge started overlapping the
+     portrait beneath it. Being a normal flow child reserves its own space above the
+     portrait instead, so there's no overlap at any size. Also scales down its own
+     min-width/height/font-size in step with the card, so it doesn't dominate a tiny card. */
+  align-self: flex-start;
+  font-size: clamp(11px, 1.8vh, 16px);
   font-weight: 800;
   color: var(--color-primary-dark);
   background: var(--color-primary-soft);
   border-radius: 999px;
-  min-width: 32px;
-  height: 32px;
-  padding: 0 8px;
+  min-width: clamp(22px, 5vh, 32px);
+  height: clamp(22px, 5vh, 32px);
+  padding: 0 clamp(5px, 1.4vh, 8px);
   display: flex;
   align-items: center;
   justify-content: center;

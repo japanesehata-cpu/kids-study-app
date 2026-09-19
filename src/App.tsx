@@ -3,9 +3,7 @@ import type { AnswerRecord, Category, Level, ProgressState, SetResult } from './
 import { applySetResult, loadProgress, persistProgress, SET_SIZE } from './domain/progress'
 import type { ClockMode } from './domain/questionGenerators/clock'
 import { loadStreak, persistStreak, recordPlaySession, type PlayStreak } from './domain/streak'
-import { loadIntroSeen, saveIntroSeen } from './lib/storage'
 import { I18nProvider } from './i18n/I18nContext'
-import { IntroScreen } from './screens/IntroScreen'
 import { HomeScreen } from './screens/HomeScreen'
 import { LevelSelectScreen } from './screens/LevelSelectScreen'
 import { EnglishEntryScreen } from './screens/EnglishEntryScreen'
@@ -27,7 +25,6 @@ import { ProgressScreen } from './screens/ProgressScreen'
 import { SparkleBackground } from './components/SparkleBackground'
 
 type Screen =
-  | { name: 'intro' }
   | { name: 'home' }
   | { name: 'englishEntry' }
   | { name: 'mojiEntry' }
@@ -57,7 +54,7 @@ type Screen =
 function AppContent() {
   const [progress, setProgress] = useState<ProgressState>(() => loadProgress())
   const [streak, setStreak] = useState<PlayStreak>(() => loadStreak())
-  const [screen, setScreen] = useState<Screen>(() => (loadIntroSeen() ? { name: 'home' } : { name: 'intro' }))
+  const [screen, setScreen] = useState<Screen>({ name: 'home' })
   // Every screen below Home keeps a "もどる" (back one step) button alongside "ホームへ" (go
   // straight home) — this stack is what makes "one step back" actually mean the screen the
   // player came from, not always Home, e.g. Quiz -> LevelSelect, or LevelSelect ->
@@ -93,11 +90,6 @@ function AppContent() {
     setScreen({ name: 'home' })
   }
 
-  function handleDismissIntro() {
-    saveIntroSeen()
-    goHome()
-  }
-
   function handleQuizComplete(
     category: Category,
     level: Level,
@@ -124,8 +116,6 @@ function AppContent() {
 
   function renderScreen() {
     switch (screen.name) {
-      case 'intro':
-        return <IntroScreen onDone={handleDismissIntro} />
       case 'home':
         return (
           <HomeScreen

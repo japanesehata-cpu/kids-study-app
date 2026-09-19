@@ -2,10 +2,6 @@ export type Lang = 'ja' | 'en'
 
 export const dictionary = {
   appTitle: { ja: 'まなびフレンズ', en: 'Manabi Friends' },
-  introGreeting: {
-    ja: 'はじめまして！いっしょに あそぼうね！',
-    en: "Hi there! Let's play together!",
-  },
   homeSubtitle: { ja: 'きょうは なにをべんきょうする？', en: 'What should we learn today?' },
   categoryAddition: { ja: 'たしざん', en: 'Addition' },
   categorySubtraction: { ja: 'ひきざん', en: 'Subtraction' },

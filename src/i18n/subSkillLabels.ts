@@ -86,4 +86,10 @@ export const subSkillLabelKey: Record<string, DictionaryKey> = {
   'spot-similar': 'subSkillSpotSimilar',
   'spot-subtle': 'subSkillSpotSubtle',
   'counter-word': 'subSkillCounterWord',
+  'shapes-basic': 'subSkillShapesBasic',
+  'shapes-name': 'subSkillShapesName',
+  'shapes-sides': 'subSkillShapesSides',
+  'shapes-solid': 'subSkillShapesSolid',
+  'shapes-formal': 'subSkillShapesFormal',
+  'shapes-classify': 'subSkillShapesClassify',
 }

@@ -16,6 +16,7 @@ export type Category =
   | 'sudoku'
   | 'missingOperandAddition'
   | 'missingOperandSubtraction'
+  | 'shapes'
 
 /** The original five categories use a 5-step scale; clock/spotDifference/counting use only
  * levels 1-3 (see CATEGORY_MAX_LEVEL in progress.ts), shown as 1-3 stars instead of 1-5.
@@ -241,6 +242,45 @@ export interface MoneyQuestion {
   subSkill: string
 }
 
+export type ShapeId =
+  | 'circle'
+  | 'triangle'
+  | 'rightTriangle'
+  | 'square'
+  | 'rectangle'
+  | 'rhombus'
+  | 'star'
+  | 'heart'
+  | 'sphere'
+  | 'cube'
+  | 'cylinder'
+  | 'cone'
+
+/** One skill per level (see questionGenerators/shapes.ts's KIND_BY_LEVEL), the same
+ * "one level, one consistent thing being tested" principle as LogicQuestion above:
+ * 'pickShape' (★1 easy, ★6 hard) — the PROMPT names a shape and the 4 choices are
+ * themselves rendered shapes (production direction); 'pickName' (★2/★4 casual, ★5
+ * formal) — ONE shape is rendered as the stimulus and the 4 choices are name labels
+ * (recognition direction); 'countSides' (★3) — ONE shape is rendered and the 4 choices
+ * are numbers. */
+export interface ShapeQuestion {
+  id: string
+  category: 'shapes'
+  level: Level
+  kind: 'pickShape' | 'pickName' | 'countSides'
+  /** pickName/countSides only: the one shape rendered as the stimulus (see ShapeIcon).
+   * Unset for pickShape. */
+  shapeId?: ShapeId
+  /** pickName only, ★5: pick the formal geometry-class name (三角形/四角形/円/ほしがた)
+   * instead of the casual per-shape name used at ★2/★4. */
+  nameStyle?: 'casual' | 'formal'
+  /** pickShape/pickName: ShapeId strings, or (★5 formal) one of the 4 fixed formal
+   * category tokens. countSides: number strings. */
+  choices: string[]
+  answer: string
+  subSkill: string
+}
+
 export type Question =
   | ArithmeticQuestion
   | EnglishWordQuestion
@@ -255,6 +295,7 @@ export type Question =
   | MoneyQuestion
   | EnglishSentenceQuestion
   | SudokuQuestion
+  | ShapeQuestion
 
 export interface AnswerRecord {
   questionId: string

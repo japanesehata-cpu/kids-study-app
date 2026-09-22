@@ -1,5 +1,5 @@
 import type { Lang } from '../i18n/dictionary'
-import type { Question } from './types'
+import type { Question, ShapeId } from './types'
 import { getWordById, type WordEntry } from './wordBank'
 import { getCounterById } from './counterBank'
 import { getCoinById } from './moneyBank'
@@ -24,6 +24,34 @@ const CATEGORY_LABEL: Record<WordEntry['category'], Record<Lang, string>> = {
   instrument: { ja: 'がっき', en: 'instruments' },
   shape: { ja: 'かたち', en: 'shapes' },
   place: { ja: 'ばしょ', en: 'places' },
+}
+
+/** Casual per-shape names (shapes ★1/★2/★4's `pickShape`/`pickName` answers) — kept as
+ * this file's own self-contained table (matching CATEGORY_LABEL above) rather than
+ * importing from i18n/dictionary.ts's shapeNameXxx keys, since every other explanation in
+ * this file is a hardcoded ja/en pair, not a t() lookup. */
+const SHAPE_CASUAL_LABEL: Record<ShapeId, Record<Lang, string>> = {
+  circle: { ja: 'まる', en: 'circle' },
+  triangle: { ja: 'さんかく', en: 'triangle' },
+  rightTriangle: { ja: 'ちょっかくさんかく', en: 'right triangle' },
+  square: { ja: 'せいほうけい', en: 'square' },
+  rectangle: { ja: 'ながしかく', en: 'rectangle' },
+  rhombus: { ja: 'ひしがた', en: 'rhombus' },
+  star: { ja: 'ほし', en: 'star' },
+  heart: { ja: 'ハート', en: 'heart' },
+  sphere: { ja: 'ボールのかたち', en: 'ball shape' },
+  cube: { ja: 'はこのかたち', en: 'box shape' },
+  cylinder: { ja: 'つつのかたち', en: 'tube shape' },
+  cone: { ja: 'とんがりぼうしのかたち', en: 'cone shape' },
+}
+
+/** ★5's formal-vocabulary names — keyed by the same FormalCategory tokens
+ * questionGenerators/shapes.ts's FORMAL_CATEGORY produces as `answer`. */
+const SHAPE_FORMAL_LABEL: Record<string, Record<Lang, string>> = {
+  triangleFormal: { ja: 'さんかくけい', en: 'triangle' },
+  quadrilateralFormal: { ja: 'しかくけい', en: 'quadrilateral' },
+  circleFormal: { ja: 'えん', en: 'circle' },
+  starFormal: { ja: 'ほしがた', en: 'star shape' },
 }
 
 /** One sentence explaining *why* the correct answer is correct — shown after every
@@ -205,6 +233,17 @@ export function buildExplanation(
       return lang === 'ja'
         ? `あいていた ${blankCount}マス、ぜんぶ うめられたね！`
         : `You filled in all ${blankCount} empty squares!`
+    }
+    case 'shapes': {
+      if (question.kind === 'countSides') {
+        const name = SHAPE_CASUAL_LABEL[question.shapeId as ShapeId][lang]
+        return lang === 'ja' ? `「${name}」の へんは ${question.answer}ぼんだよ。` : `A ${name} has ${question.answer} sides.`
+      }
+      const name =
+        question.nameStyle === 'formal'
+          ? SHAPE_FORMAL_LABEL[question.answer][lang]
+          : SHAPE_CASUAL_LABEL[question.answer as ShapeId][lang]
+      return lang === 'ja' ? `これは 「${name}」だよ。` : `This is a ${name}.`
     }
   }
 }

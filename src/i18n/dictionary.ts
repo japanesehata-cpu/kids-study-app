@@ -77,6 +77,7 @@ export const dictionary = {
   categorySpotDifference: { ja: 'まちがいさがし', en: 'Spot the Difference' },
   categoryCounting: { ja: 'かぞえる', en: 'Counter Words' },
   categoryMoney: { ja: 'おかね', en: 'Money' },
+  categoryShapes: { ja: 'ずけい', en: 'Shapes' },
   startButton: { ja: 'はじめる', en: 'Start' },
 
   levelSelectTitle: { ja: 'どのレベルにする？', en: 'Pick a level!' },
@@ -123,6 +124,12 @@ export const dictionary = {
   levelDescMoney3: { ja: '2まいの ごうけい（500円なし）', en: '2 coins added up (no 500 yen)' },
   levelDescMoney4: { ja: '2まいの ごうけい（ぜんぶの こうか）', en: '2 coins added up (any denomination)' },
   levelDescMoney5: { ja: '3まいの ごうけい', en: '3 coins added up' },
+  levelDescShapes1: { ja: 'まる・さんかく・しかく・ほし', en: 'Circle, triangle, square, star' },
+  levelDescShapes2: { ja: 'かたちの なまえ（7しゅるい）', en: 'Shape names (7 kinds)' },
+  levelDescShapes3: { ja: 'へんの かずを かぞえよう', en: 'Count the sides' },
+  levelDescShapes4: { ja: 'ボール・はこ・つつの かたち', en: 'Ball, box & tube shapes' },
+  levelDescShapes5: { ja: '三角形・四角形・円', en: 'Triangles, quadrilaterals & circles' },
+  levelDescShapes6: { ja: 'せいほうけい・ながしかく・ひしがたの みわけ', en: 'Square vs. rectangle vs. rhombus' },
   levelDescAlphabet1: { ja: 'おおもじを おぼえよう', en: 'Uppercase letters' },
   levelDescAlphabet2: { ja: 'こもじを おぼえよう', en: 'Lowercase letters' },
   levelDescAlphabet3: { ja: 'おおもじ⇔こもじ を つなげよう', en: 'Match uppercase to lowercase' },
@@ -174,6 +181,30 @@ export const dictionary = {
   reviewDoneButton: { ja: 'おわり', en: 'Done' },
   moneySinglePrompt: { ja: 'これは なんえんかな？', en: 'How much is this?' },
   moneyComboPrompt: { ja: 'ぜんぶで なんえんかな？', en: 'How much is it all together?' },
+  // shapes' 3 prompts, one per kind (see domain/questionGenerators/shapes.ts's KIND_BY_LEVEL):
+  // 'pickShape' names a shape and the choices are shapes (production direction), 'pickName'/
+  // 'countSides' show one shape and ask about it (recognition direction).
+  shapePickPrompt: { ja: '「{shape}」は どれ？', en: 'Which one is "{shape}"?' },
+  shapeNamePrompt: { ja: 'これは なに？', en: 'What shape is this?' },
+  shapeCountSidesPrompt: { ja: 'へんは なんぼん？', en: 'How many sides does it have?' },
+  shapeNameCircle: { ja: 'まる', en: 'circle' },
+  shapeNameTriangle: { ja: 'さんかく', en: 'triangle' },
+  shapeNameRightTriangle: { ja: 'ちょっかくさんかく', en: 'right triangle' },
+  shapeNameSquare: { ja: 'せいほうけい', en: 'square' },
+  shapeNameRectangle: { ja: 'ながしかく', en: 'rectangle' },
+  shapeNameRhombus: { ja: 'ひしがた', en: 'rhombus' },
+  shapeNameStar: { ja: 'ほし', en: 'star' },
+  shapeNameHeart: { ja: 'ハート', en: 'heart' },
+  shapeNameSphere: { ja: 'ボールのかたち', en: 'ball shape' },
+  shapeNameCube: { ja: 'はこのかたち', en: 'box shape' },
+  shapeNameCylinder: { ja: 'つつのかたち', en: 'tube shape' },
+  shapeNameCone: { ja: 'とんがりぼうしのかたち', en: 'cone shape' },
+  // ★5's formal-vocabulary answers (see FORMAL_CATEGORY in shapes.ts) — a fixed set of 4,
+  // always shown together as the choice grid.
+  shapeFormalTriangleFormal: { ja: 'さんかくけい', en: 'triangle' },
+  shapeFormalQuadrilateralFormal: { ja: 'しかくけい', en: 'quadrilateral' },
+  shapeFormalCircleFormal: { ja: 'えん', en: 'circle' },
+  shapeFormalStarFormal: { ja: 'ほしがた', en: 'star shape' },
   alphabetListenPrompt: { ja: 'きこえたおとのもじをえらんでね', en: 'Pick the letter you hear' },
   alphabetCaseMatchPrompt: { ja: 'おなじもじをえらんでね', en: 'Pick the matching letter' },
   sudokuButton: { ja: 'すうどく', en: 'Sudoku' },
@@ -317,6 +348,12 @@ export const dictionary = {
   subSkillSpotSimilar: { ja: 'なかまの なかの ちがい', en: 'differences within a group' },
   subSkillSpotSubtle: { ja: 'いろの ちがい', en: 'subtle color differences' },
   subSkillCounterWord: { ja: 'じょすうし', en: 'counter words' },
+  subSkillShapesBasic: { ja: 'きほんの かたち', en: 'basic shapes' },
+  subSkillShapesName: { ja: 'かたちの なまえ', en: 'shape names' },
+  subSkillShapesSides: { ja: 'へんの かず', en: 'counting sides' },
+  subSkillShapesSolid: { ja: 'りったいの かたち', en: 'solid shapes' },
+  subSkillShapesFormal: { ja: 'さんかくけい・しかくけい', en: 'triangles and quadrilaterals' },
+  subSkillShapesClassify: { ja: 'にた かたちの みわけ', en: 'telling similar shapes apart' },
 
   settingsLabel: { ja: 'おうちのひとへ', en: 'For parents' },
   parentGateTitle: { ja: 'おうちのひと専用', en: 'Parent access' },
@@ -371,6 +408,10 @@ export const dictionary = {
   introAru: {
     ja: 'ぼくは アル！ アルファベットの ブロックあそびが だいすきな アルパカだよ！ おおもじと こもじ、いっしょに おぼえようね！',
     en: "I'm Aru! I'm an alpaca who loves playing with ABC blocks. Let's learn uppercase and lowercase letters together!",
+  },
+  introKaku: {
+    ja: 'ぼくは かく！ かたちあわせが だいすきな はりねずみだよ！ まるや さんかく、しかく、いっしょに みつけようね！',
+    en: "I'm Kaku! I'm a hedgehog who loves shape-sorting games. Let's find circles, triangles, and squares together!",
   },
 } as const
 

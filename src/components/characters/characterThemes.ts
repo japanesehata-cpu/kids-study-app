@@ -329,4 +329,25 @@ export const characterThemes: Record<Category, CharacterTheme> = {
       kokoroVoice: 'am_michael',
     },
   },
+  // A brand-new mascot, drafted here (id 'kaku', see generate-character-portraits.mjs)
+  // but not yet illustrated — GEMINI_API_KEY is still the same expired/invalid key noted
+  // on kanji's/money's themes above. public/images/characters/kaku.png is a lightweight
+  // placeholder icon (plain geometric shapes, not a full character portrait) generated
+  // locally so CharacterPortrait's <img> doesn't break; swap it for the real Gemini
+  // portrait once that key is restored.
+  shapes: {
+    id: 'kaku',
+    colorMain: '#7c83e8',
+    colorMainDark: '#5a61c4',
+    colorSub: '#f1f2ff',
+    colorAccent: '#ffb84d',
+    colorAccentDark: '#e0983a',
+    voiceProfile: {
+      pitch: 1.1,
+      rate: 1.0,
+      playbackRate: 1.0,
+      voicevoxSpeaker: { name: '波音リツ', style: 'ノーマル' },
+      kokoroVoice: 'af_nova',
+    },
+  },
 }

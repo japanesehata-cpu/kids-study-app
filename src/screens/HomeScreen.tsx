@@ -58,6 +58,7 @@ const INTRO_KEY_BY_CATEGORY: Record<Category, DictionaryKey> = {
   sudoku: 'introKoko',
   missingOperandAddition: 'introMomo',
   missingOperandSubtraction: 'introSora',
+  shapes: 'introKaku',
 }
 
 export function HomeScreen({

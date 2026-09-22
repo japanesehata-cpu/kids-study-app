@@ -106,6 +106,14 @@ export const LEVEL_DESCRIPTION_KEY: Partial<Record<Category, Partial<Record<Leve
     1: 'levelDescMissingOperand1',
     2: 'levelDescMissingOperand2',
   },
+  shapes: {
+    1: 'levelDescShapes1',
+    2: 'levelDescShapes2',
+    3: 'levelDescShapes3',
+    4: 'levelDescShapes4',
+    5: 'levelDescShapes5',
+    6: 'levelDescShapes6',
+  },
 }
 
 export function getLevelDescriptionKey(category: Category, level: Level): DictionaryKey | undefined {

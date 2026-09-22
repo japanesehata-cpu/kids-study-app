@@ -18,6 +18,8 @@ import type {
   Question,
   SpotDifferenceQuestion,
   SudokuQuestion,
+  ShapeQuestion,
+  ShapeId,
 } from '../domain/types'
 import { generateQuestionSet } from '../domain/progress'
 import { generateNumericChoices } from '../lib/choices'
@@ -34,11 +36,12 @@ import { buildExplanation } from '../domain/explanations'
 import { speak, type SpeechLang, type VoiceProfile } from '../lib/tts'
 import { playCorrectSfx, playIncorrectSfx } from '../lib/sfx'
 import { useI18n } from '../i18n/I18nContext'
-import type { Lang, DictionaryKey } from '../i18n/dictionary'
+import { dictionary, type Lang, type DictionaryKey } from '../i18n/dictionary'
 import { TtsButton } from '../components/TtsButton'
 import { WordIcon } from '../components/WordIcon'
 import { HiraganaChar } from '../components/HiraganaChar'
 import { ClockFace } from '../components/ClockFace'
+import { ShapeIcon } from '../components/ShapeIcon'
 import { SpotDifferenceBoard } from '../components/SpotDifferenceBoard'
 import { SudokuBoard } from '../components/SudokuBoard'
 import { CharacterPortrait } from '../components/characters/CharacterPortrait'
@@ -129,6 +132,32 @@ function isEnglishSentence(q: Question): q is EnglishSentenceQuestion {
 
 function isAlphabet(q: Question): q is AlphabetQuestion {
   return q.category === 'alphabet'
+}
+
+function isShapes(q: Question): q is ShapeQuestion {
+  return q.category === 'shapes'
+}
+
+// Keyed by ShapeId for casual names (★2/★4), or by the FormalCategory tokens
+// questionGenerators/shapes.ts's FORMAL_CATEGORY produces for ★5 — both are plain
+// strings, so one Record covers both without a union type.
+const SHAPE_NAME_KEY: Record<string, DictionaryKey> = {
+  circle: 'shapeNameCircle',
+  triangle: 'shapeNameTriangle',
+  rightTriangle: 'shapeNameRightTriangle',
+  square: 'shapeNameSquare',
+  rectangle: 'shapeNameRectangle',
+  rhombus: 'shapeNameRhombus',
+  star: 'shapeNameStar',
+  heart: 'shapeNameHeart',
+  sphere: 'shapeNameSphere',
+  cube: 'shapeNameCube',
+  cylinder: 'shapeNameCylinder',
+  cone: 'shapeNameCone',
+  triangleFormal: 'shapeFormalTriangleFormal',
+  quadrilateralFormal: 'shapeFormalQuadrilateralFormal',
+  circleFormal: 'shapeFormalCircleFormal',
+  starFormal: 'shapeFormalStarFormal',
 }
 
 function equationSpeech(
@@ -250,6 +279,16 @@ function computeAutoSpeech(
       speechLang,
       cacheKey: ja ? (single ? 'prompt-money-single' : 'prompt-money-combo') : undefined,
     }
+  }
+  if (isShapes(question)) {
+    const cacheKey = ja
+      ? question.kind === 'pickShape'
+        ? `prompt-shapes-pick-${question.answer}`
+        : question.kind === 'countSides'
+          ? 'prompt-shapes-sides'
+          : `prompt-shapes-name-${question.nameStyle}`
+      : undefined
+    return { text: shapesPromptText(question, t), speechLang, cacheKey }
   }
   if (isAlphabet(question)) {
     // Speak the letter wrapped in its ABC-chart mnemonic (see alphabetSpeechPhrase) rather
@@ -541,6 +580,20 @@ function logicPromptKey(question: LogicQuestion): DictionaryKey {
   return question.compareGoal === 'max' ? 'logicCompareMaxPrompt' : 'logicCompareMinPrompt'
 }
 
+/** pickShape (★1/★6) needs the prompted shape's own name interpolated in — pickName/
+ * countSides ask a fixed question about the shape already shown as the stimulus, so
+ * those are plain dictionary lookups (see logicPromptKey above for the same pattern). */
+function shapesPromptText(
+  question: ShapeQuestion,
+  t: (key: DictionaryKey, vars?: Record<string, string | number>) => string,
+): string {
+  if (question.kind === 'pickShape') {
+    return t('shapePickPrompt', { shape: t(SHAPE_NAME_KEY[question.answer]) })
+  }
+  if (question.kind === 'countSides') return t('shapeCountSidesPrompt')
+  return t('shapeNamePrompt')
+}
+
 function LogicQuestionView({
   question,
   promptText,
@@ -719,6 +772,33 @@ function MoneyQuestionView({
   )
 }
 
+/** pickShape (★1/★6): the prompt itself names the target shape, and the 4 choices are the
+ * rendered shapes — no big stimulus icon here. pickName/countSides (★2-★5): one shape is
+ * rendered as the stimulus and the prompt asks a fixed question about it. */
+function ShapeQuestionView({
+  question,
+  promptText,
+  lang,
+  voiceProfile,
+  cacheKey,
+}: {
+  question: ShapeQuestion
+  promptText: string
+  lang: Lang
+  voiceProfile: VoiceProfile
+  cacheKey?: string
+}) {
+  const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+      {question.kind !== 'pickShape' && <ShapeIcon shape={question.shapeId as ShapeId} size={140} />}
+      <p className="subtitle">{promptText}</p>
+      <TtsButton text={promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
+    </div>
+  )
+}
+
 function renderChoiceContent(question: Question, choice: Choice, lang: Lang) {
   if (isArithmetic(question)) return choice
   if (isLogic(question)) {
@@ -746,6 +826,15 @@ function renderChoiceContent(question: Question, choice: Choice, lang: Lang) {
   if (isSudoku(question)) return null
   if (isCounting(question)) return getCounterById(choice as string).kana
   if (isMoney(question)) return `${choice}えん`
+  if (isShapes(question)) {
+    // pickShape (★1/★6): the prompt names a shape, so the choices themselves ARE the
+    // shapes (production direction). pickName (★2/★4/★5)/countSides (★3): the choices
+    // are name/number LABELS about the one shape already shown as the stimulus
+    // (recognition direction) — see ShapeQuestionView.
+    if (question.kind === 'pickShape') return <ShapeIcon shape={choice as ShapeId} size={72} />
+    if (question.kind === 'countSides') return <span style={{ fontSize: 40 }}>{choice}</span>
+    return dictionary[SHAPE_NAME_KEY[choice as string]][lang]
+  }
   if (isEnglishSentence(question)) return <WordIcon wordId={choice as string} size={72} />
   return question.mode === 'listenAndPick' ? (
     <WordIcon wordId={choice as string} size={72} />
@@ -777,6 +866,10 @@ function computeCorrectAnswerLabel(question: Question, lang: Lang): string {
     return `${counter.kana}（${counter.kanji}）`
   }
   if (isMoney(question)) return `${question.answer}えん`
+  if (isShapes(question)) {
+    if (question.kind === 'countSides') return question.answer
+    return dictionary[SHAPE_NAME_KEY[question.answer]][lang]
+  }
   if (isEnglishSentence(question)) return getWordById(question.correctWordId).word
   return getWordById(question.wordId).word
 }
@@ -858,6 +951,7 @@ export function QuizScreen({
     if (isSudoku(question)) return []
     if (isCounting(question)) return question.choiceCounterIds
     if (isMoney(question)) return question.choices
+    if (isShapes(question)) return question.choices
     if (isEnglishSentence(question)) return question.choiceWordIds
     return question.choiceWordIds
   }, [question])
@@ -884,6 +978,7 @@ export function QuizScreen({
     if (isSudoku(question)) return true
     if (isCounting(question)) return choice === question.counterId
     if (isMoney(question)) return choice === question.answer
+    if (isShapes(question)) return choice === question.answer
     if (isEnglishSentence(question)) return choice === question.correctWordId
     return choice === question.wordId
   }
@@ -1117,6 +1212,14 @@ export function QuizScreen({
           />
         ) : isMoney(question) ? (
           <MoneyQuestionView
+            question={question}
+            promptText={autoSpeech.text}
+            lang={lang}
+            voiceProfile={voiceProfile}
+            cacheKey={autoSpeech.cacheKey}
+          />
+        ) : isShapes(question) ? (
+          <ShapeQuestionView
             question={question}
             promptText={autoSpeech.text}
             lang={lang}

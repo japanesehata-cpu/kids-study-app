@@ -107,6 +107,11 @@ const CHARACTERS = [
     detail:
       'a cute squirrel character themed in warm pastel golden-brown and cream, with round squirrel ears and a big fluffy striped tail, holding a small round coin purse, and a tiny gold-coin-shaped gem accessory on its head',
   },
+  {
+    id: 'kaku',
+    detail:
+      'a cute hedgehog character themed in bright pastel periwinkle blue-violet and warm cream, with small round hedgehog ears and soft rounded spikes, holding a wooden shape-sorter block toy (a cube with a star-shaped hole and a matching star block), and a triangle-shaped gem accessory on its head',
+  },
 ]
 
 const BASE_PROMPT = `Create a polished 3D animated fantasy mascot character.

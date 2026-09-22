@@ -27,6 +27,7 @@ export const CATEGORY_META: CategoryMeta[] = [
   { category: 'sudoku', symbol: '🧩', labelKey: 'categorySudoku' },
   { category: 'missingOperandAddition', symbol: '➕', labelKey: 'categoryMissingOperandAddition' },
   { category: 'missingOperandSubtraction', symbol: '➖', labelKey: 'categoryMissingOperandSubtraction' },
+  { category: 'shapes', symbol: '🔺', labelKey: 'categoryShapes' },
 ]
 
 export function getCategoryMeta(category: Category): CategoryMeta {

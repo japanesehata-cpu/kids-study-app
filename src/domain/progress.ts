@@ -23,6 +23,7 @@ import { generateCountingQuestion } from './questionGenerators/counting'
 import { generateMoneyQuestion } from './questionGenerators/money'
 import { generateSudokuQuestion } from './questionGenerators/sudoku'
 import { generateMissingOperandQuestion } from './questionGenerators/missingOperand'
+import { generateShapesQuestion } from './questionGenerators/shapes'
 import { loadProgressJson, saveProgressJson } from '../lib/storage'
 
 export const SET_SIZE = 10
@@ -89,6 +90,11 @@ export const CATEGORY_MAX_LEVEL: Record<Category, Level> = {
   // operators (see questionGenerators/missingOperand.ts).
   missingOperandAddition: 2,
   missingOperandSubtraction: 2,
+  // Full 6 steps, reaching real 小学2年生 content at ★6 (正方形/長方形/直角三角形の
+  // 見分け) — see questionGenerators/shapes.ts's KIND_BY_LEVEL for the one-skill-per-level
+  // breakdown (★1 easy name→shape, ★2 casual shape→name, ★3 count sides, ★4 solid
+  // shapes, ★5 formal vocabulary, ★6 hard name→shape over confusable quadrilaterals).
+  shapes: 6,
 }
 
 export function getCategoryMaxLevel(category: Category): Level {
@@ -119,6 +125,7 @@ export function createInitialProgress(): ProgressState {
     sudoku: { level: 1, recentAccuracy: [], reviewQueue: [] },
     missingOperandAddition: { level: 1, recentAccuracy: [], reviewQueue: [] },
     missingOperandSubtraction: { level: 1, recentAccuracy: [], reviewQueue: [] },
+    shapes: { level: 1, recentAccuracy: [], reviewQueue: [] },
   }
 }
 
@@ -213,6 +220,7 @@ export function loadProgress(): ProgressState {
         parsed.missingOperandSubtraction,
         initial.missingOperandSubtraction,
       ),
+      shapes: sanitizeCategoryProgress('shapes', parsed.shapes, initial.shapes),
     }
   } catch {
     return createInitialProgress()
@@ -259,6 +267,8 @@ function generateFreshQuestion(category: Category, level: Level, clockMode?: Clo
       return generateMissingOperandQuestion(level, 'addition')
     case 'missingOperandSubtraction':
       return generateMissingOperandQuestion(level, 'subtraction')
+    case 'shapes':
+      return generateShapesQuestion(level)
   }
 }
 
@@ -294,6 +304,12 @@ function questionSignature(q: Question): string {
   }
   if (q.category === 'englishSentence') return `sentence:${q.sentenceId}`
   if (q.category === 'sudoku') return `sudoku:${q.grid.map((row) => row.map((c) => c ?? '_').join('')).join('|')}`
+  if (q.category === 'shapes') {
+    // pickName/countSides: shapeId is the real distinguishing factor (the choices/answer
+    // just reflect it). pickShape (shapeId unset): the prompted answer is — same small,
+    // unavoidably-repeating-deck tolerance as money's single-coin ★1/★2, see above.
+    return `shapes:${q.kind}:${q.shapeId ?? q.answer}`
+  }
   return `${q.category}:${q.operandA}:${q.operandB}`
 }
 

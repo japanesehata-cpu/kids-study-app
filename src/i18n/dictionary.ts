@@ -15,7 +15,7 @@ export const dictionary = {
     en: 'You’re great at "{subSkill}" in {category}! 🌟',
   },
   homeFeedbackPerfectScore: {
-    ja: 'まえかいの {category}で ぜんもん せいかい！すごい！✨',
+    ja: 'ぜんかいの {category}で ぜんもん せいかい！すごい！✨',
     en: 'You got a perfect score in {category} last time! ✨',
   },
   homeFeedbackGeneric: { ja: 'きょうも いっしょに がんばろうね！', en: 'Let’s do our best together today!' },

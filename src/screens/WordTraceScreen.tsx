@@ -51,8 +51,8 @@ export function WordTraceScreen({ onBack, onHome }: WordTraceScreenProps) {
   const wentBackRef = useRef(false)
 
   function handleLetterComplete() {
+    playCorrectSfx()
     if (isLastLetterOfWord) {
-      playCorrectSfx()
       setPhase('reveal')
     } else {
       setLetterIndex((i) => Math.min(i + 1, letters.length - 1))
@@ -110,6 +110,9 @@ export function WordTraceScreen({ onBack, onHome }: WordTraceScreenProps) {
 
       {phase === 'tracing' && (
         <>
+          <p className="hint-caption">
+            {t('reviewProgress', { current: String(wordIndex + 1), total: String(wordOrder.length) })}
+          </p>
           <WordIcon wordId={entry.id} size={90} />
           <p className="word-trace-progress">
             {letters.map((letter, i) => (

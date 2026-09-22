@@ -79,17 +79,24 @@ const lowerStrokes = {}
 upperStrokes['A'] = [line(MID, CAP_TOP, 30, BASE), line(MID, CAP_TOP, 80, BASE), line(39, 62, 71, 62)]
 
 // The two bumps end/start at the exact same point (32,52.5) — a real B draws them as one
-// continuous double-loop after the stem, not two separately-lifted arcs.
-upperStrokes['B'] = [line(32, CAP_TOP, 32, BASE), combine(arc(32, 33.75, 22, 18.75, 270, 450, 1), arc(32, 71.25, 24, 18.75, 270, 450, 1))]
+// continuous double-loop after the stem, not two separately-lifted arcs. HIL review: "too
+// thin" — widened both bowls' rx (22/24 -> 27/29) so they read as proper full bumps instead
+// of a narrow sliver hugging the stem.
+upperStrokes['B'] = [line(32, CAP_TOP, 32, BASE), combine(arc(32, 33.75, 27, 18.75, 270, 450, 1), arc(32, 71.25, 29, 18.75, 270, 450, 1))]
 
 upperStrokes['C'] = [arc(MID, 52.5, 27, 37.5, 320, 40, 0)]
 
-upperStrokes['D'] = [line(32, CAP_TOP, 32, BASE), arc(32, 52.5, 30, 37.5, 270, 90, 1)]
+// HIL review: "too thin" — widened the bowl's rx (30 -> 36) so D reads as a proper full-width
+// loop instead of a narrow sliver next to the stem.
+upperStrokes['D'] = [line(32, CAP_TOP, 32, BASE), arc(32, 52.5, 36, 37.5, 270, 90, 1)]
 
+// HIL review: the middle bar was noticeably shorter than a real E's (68 vs the top/bottom
+// bars' 78) — lengthened to 75, still slightly short of the outer bars as real E's usually
+// are, but no longer looking cut off.
 upperStrokes['E'] = [
   line(32, CAP_TOP, 32, BASE),
   line(32, CAP_TOP, 78, CAP_TOP),
-  line(32, 52.5, 68, 52.5),
+  line(32, 52.5, 75, 52.5),
   line(32, BASE, 78, BASE),
 ]
 
@@ -101,11 +108,13 @@ upperStrokes['G'] = [combine(arc(MID, 52.5, 27, 37.5, 340, 20, 0), line(80.37, 6
 
 upperStrokes['H'] = [line(30, CAP_TOP, 30, BASE), line(80, CAP_TOP, 80, BASE), line(30, 52.5, 80, 52.5)]
 
-upperStrokes['I'] = [line(MID, CAP_TOP, MID, BASE)]
+// HIL review: "no top/bottom serif bars" — I was a bare vertical stroke, easy to confuse with
+// lowercase l or the digit 1. Added the top and bottom crossbars a print "I" is taught with.
+upperStrokes['I'] = [line(40, CAP_TOP, 70, CAP_TOP), line(MID, CAP_TOP, MID, BASE), line(40, BASE, 70, BASE)]
 
-// Down then curling left, as one continuous stroke — the line's end and the arc's start are
-// the same point (70,72).
-upperStrokes['J'] = [combine(line(70, CAP_TOP, 70, 72), arc(55, 72, 15, 18, 0, 130, 1))]
+// HIL review: "no top bar" — added the serif bar centered on the stem, as its own stroke
+// before the (unchanged) stem+hook continuous motion.
+upperStrokes['J'] = [line(55, CAP_TOP, 85, CAP_TOP), combine(line(70, CAP_TOP, 70, 72), arc(55, 72, 15, 18, 0, 130, 1))]
 
 // The "arm" and "leg" diagonals meet at the same point (30,55) — one continuous zigzag stroke
 // after the stem, the same way V/W's inner diagonals are.
@@ -121,27 +130,36 @@ upperStrokes['L'] = [combine(line(32, CAP_TOP, 32, BASE), line(32, BASE, 78, BAS
 // (plain, non-zigzag) vertical drawn bottom-to-top, which is exactly the kind of thing that
 // looks visibly backwards when the trace guide animates it — fixed here.
 // Stem alone, then the two diagonals + closing vertical as one continuous zigzag — all three
-// segments already met end-to-end (28,15)->(55,60)->(82,15)->(82,BASE), so there's no reason
-// to force 3 separate lifts for what's naturally a single motion once the stem is down.
-upperStrokes['M'] = [line(28, CAP_TOP, 28, BASE), combine(line(28, CAP_TOP, 55, 60), line(55, 60, 82, CAP_TOP), line(82, CAP_TOP, 82, BASE))]
+// segments already met end-to-end, so there's no reason to force 3 separate lifts for what's
+// naturally a single motion once the stem is down. HIL review: "the V dips too short" — the
+// middle vertex used to stop at y60 (well above the midline); dropped to y72, much closer to
+// baseline, so the V reads clearly instead of looking clipped.
+upperStrokes['M'] = [line(28, CAP_TOP, 28, BASE), combine(line(28, CAP_TOP, 55, 72), line(55, 72, 82, CAP_TOP), line(82, CAP_TOP, 82, BASE))]
 
 upperStrokes['N'] = [line(28, CAP_TOP, 28, BASE), line(28, CAP_TOP, 82, BASE), line(82, CAP_TOP, 82, BASE)]
 
 upperStrokes['O'] = [fullCircle(MID, 52.5, 28, 37.5, 320, 0)]
 
-upperStrokes['P'] = [line(32, CAP_TOP, 32, BASE), arc(32, 33.75, 24, 18.75, 270, 450, 1)]
+// HIL review: "too thin" — widened the bowl's rx (24 -> 28), same fix as B/D's bowls.
+upperStrokes['P'] = [line(32, CAP_TOP, 32, BASE), arc(32, 33.75, 28, 18.75, 270, 450, 1)]
 
 upperStrokes['Q'] = [fullCircle(MID, 52.5, 28, 37.5, 320, 0), line(66, 78, 82, 96)]
 
 // The bump's end and the leg's start are the same point (32,52.5) — one continuous stroke
-// (loop curving down into the kicked-out leg) after the stem.
-upperStrokes['R'] = [line(32, CAP_TOP, 32, BASE), combine(arc(32, 33.75, 24, 18.75, 270, 450, 1), line(32, 52.5, 78, BASE))]
+// (loop curving down into the kicked-out leg) after the stem. HIL review: "head too thin" —
+// same bowl-widening fix as B/D/P (rx 24 -> 28).
+upperStrokes['R'] = [line(32, CAP_TOP, 32, BASE), combine(arc(32, 33.75, 28, 18.75, 270, 450, 1), line(32, 52.5, 78, BASE))]
 
-// Two ~190° arcs with opposite curvature (top curves over-the-top, bottom curves
-// under-the-bottom), chained into one stroke — an earlier hand-typed single path here used
-// two ~280° arcs, which is closer to a full circle than a half, and rendered as a
-// spiral/pretzel instead of a flowing S (confirmed visually, not just in theory).
-upperStrokes['S'] = [combine(arc(58, 34, 19, 17, 350, 165, 0), arc(50, 72, 20, 17, 345, 160, 1))]
+// HIL review: "fundamentally wrong" — the previous two-~190°-arc version (kept as a comment
+// below for context) still rendered as a lopsided hook-and-tail instead of a symmetric S,
+// confirmed by a large-scale render, not just guessed from the path text. Replaced with two
+// same-size circles (radius 20) stacked top/bottom, each traced for the same ~180° sweep in
+// opposite rotation directions (top: decreasing/ccw, bottom: increasing/cw) — this is the
+// "two mirrored bowls" construction a print S is actually taught as, and it was the one
+// candidate (out of several tried side by side) that actually read as a clean S rather than
+// a spiral, a hook, or a double-parenthesis.
+// Previous attempt: combine(arc(58, 34, 19, 17, 350, 165, 0), arc(50, 72, 20, 17, 345, 160, 1))
+upperStrokes['S'] = [combine(arc(52, 35, 20, 20, 300, 120, 0), arc(52, 70, 20, 20, 300, 120, 1))]
 
 upperStrokes['T'] = [line(28, CAP_TOP, 82, CAP_TOP), line(MID, CAP_TOP, MID, BASE)]
 
@@ -153,12 +171,15 @@ upperStrokes['U'] = [combine(line(28, CAP_TOP, 28, 65), arc(55, 65, 27, 25, 180,
 // Down-up in one continuous motion, not two separately-lifted diagonals.
 upperStrokes['V'] = [combine(line(28, CAP_TOP, MID, BASE), line(MID, BASE, 82, CAP_TOP))]
 
-// W as two continuous "V" strokes (down-up, down-up) rather than 4 separate lifts — all 4
-// segments happened to already meet end-to-end, but 4 lifts for one letter doesn't match how
-// W is actually written.
+// HIL review: "should be 4 strokes; the center peak is too short" — reverted from the
+// combined 2-stroke version back to 4 separate lifts (down, up, down, up), and raised the
+// center vertex from y45 to y35 so the middle peak actually reads as a peak instead of
+// stopping around the letter's own midline.
 upperStrokes['W'] = [
-  combine(line(24, CAP_TOP, 38, BASE), line(38, BASE, 55, 45)),
-  combine(line(55, 45, 72, BASE), line(72, BASE, 86, CAP_TOP)),
+  line(24, CAP_TOP, 38, BASE),
+  line(38, BASE, 55, 35),
+  line(55, 35, 72, BASE),
+  line(72, BASE, 86, CAP_TOP),
 ]
 
 upperStrokes['X'] = [line(28, CAP_TOP, 82, BASE), line(82, CAP_TOP, 28, BASE)]

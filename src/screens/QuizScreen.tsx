@@ -30,8 +30,9 @@ import { getKatakanaById, katakanaSpeechPhrase } from '../domain/katakanaBank'
 import { getKanjiById, kanjiSpeechPhrase } from '../domain/kanjiBank'
 import { alphabetSpeechPhrase, getAlphabetById } from '../domain/alphabetBank'
 import { formatClockKey, buildSetTimePrompt, type ClockMode } from '../domain/questionGenerators/clock'
+import type { SudokuMode } from '../domain/questionGenerators/sudoku'
 import { InteractiveClock } from '../components/InteractiveClock'
-import { buildFeedbackMessage, buildSpotDifferenceFailedFeedback } from '../domain/feedbackMessages'
+import { buildFeedbackMessage, buildSpotDifferenceFailedFeedback, buildSudokuFailedFeedback } from '../domain/feedbackMessages'
 import { buildExplanation } from '../domain/explanations'
 import { speak, type SpeechLang, type VoiceProfile } from '../lib/tts'
 import { playCorrectSfx, playIncorrectSfx } from '../lib/sfx'
@@ -55,6 +56,8 @@ interface QuizScreenProps {
   setSize: number
   /** category === 'clock' only — see LevelSelectScreen's mode toggle. */
   clockMode?: ClockMode
+  /** category === 'sudoku' only — see LevelSelectScreen's mode toggle. */
+  sudokuMode?: SudokuMode
   progress: ProgressState
   onComplete: (answers: AnswerRecord[]) => void
   /** one step back — LevelSelectScreen */
@@ -73,9 +76,14 @@ const SPOT_DIFFERENCE_DONE = 'spot-difference-done'
 const SPOT_DIFFERENCE_FAILED = 'spot-difference-failed'
 
 /** Sentinel passed to handleSelect once every blank cell on a sudoku board has been filled
- * correctly — like spot-the-difference, that board has no discrete "choice" buttons, and
- * unlimited retries mean completion is always correct. */
+ * correctly — like spot-the-difference, that board has no discrete "choice" buttons. */
 const SUDOKU_DONE = 'sudoku-done'
+
+/** Sentinel passed to handleSelect once a sudoku board hits its wrong-guess limit before
+ * every blank was filled — mirrors SPOT_DIFFERENCE_FAILED exactly (see SudokuBoard.tsx's
+ * MAX_WRONG_GUESSES): without this, nothing stopped a child from just cycling through
+ * every palette option on a cell for free until one happened to be right. */
+const SUDOKU_FAILED = 'sudoku-failed'
 
 function isArithmetic(q: Question): q is ArithmeticQuestion {
   return (
@@ -262,7 +270,12 @@ function computeAutoSpeech(
     return { text: t('spotDifferencePrompt'), speechLang, cacheKey: ja ? 'prompt-spotdifference' : undefined }
   }
   if (isSudoku(question)) {
-    return { text: t('sudokuPrompt'), speechLang, cacheKey: ja ? 'prompt-sudoku' : undefined }
+    const isClassic = question.mode === 'classic'
+    return {
+      text: t(isClassic ? 'sudokuPromptClassic' : 'sudokuPrompt'),
+      speechLang,
+      cacheKey: ja ? (isClassic ? 'prompt-sudoku-classic' : 'prompt-sudoku') : undefined,
+    }
   }
   if (isCounting(question)) {
     const counter = getCounterById(question.counterId)
@@ -879,6 +892,7 @@ export function QuizScreen({
   level,
   setSize,
   clockMode,
+  sudokuMode,
   progress,
   onComplete,
   onExit,
@@ -886,15 +900,19 @@ export function QuizScreen({
 }: QuizScreenProps) {
   const { t, lang } = useI18n()
   const [questions] = useState<Question[]>(() => {
-    // A clock reviewQueue can hold items from BOTH modes (saved across different rounds) —
-    // filter to the mode chosen this round so a stray "set the hands" review item can't
-    // resurface mid-"read the clock" round, which would recreate the exact per-round mode
-    // mixing this toggle was built to remove (see LevelSelectScreen's clock mode toggle).
+    // A clock/sudoku reviewQueue can hold items from BOTH modes (saved across different
+    // rounds) — filter to the mode chosen this round so a stray review item from the other
+    // mode can't resurface mid-round, which would recreate the exact per-round mode mixing
+    // these toggles were built to remove (see LevelSelectScreen's mode toggles). A mini
+    // sudoku item resurfacing during classic play would be structurally wrong to even
+    // render (16 cells vs 81), not just an unwanted mix.
     const reviewQueue =
       category === 'clock'
         ? progress.clock.reviewQueue.filter((q) => q.category === 'clock' && q.kind === clockMode)
-        : progress[category].reviewQueue
-    return generateQuestionSet(category, level, reviewQueue, setSize, clockMode)
+        : category === 'sudoku'
+          ? progress.sudoku.reviewQueue.filter((q) => q.category === 'sudoku' && q.mode === sudokuMode)
+          : progress[category].reviewQueue
+    return generateQuestionSet(category, level, reviewQueue, setSize, clockMode, sudokuMode)
   })
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState<AnswerRecord[]>([])
@@ -974,8 +992,9 @@ export function QuizScreen({
     // reached either once every difference is found (always correct) or once the
     // wrong-tap limit is hit (always incorrect)
     if (isSpotDifference(question)) return choice !== SPOT_DIFFERENCE_FAILED
-    // reached only once every blank is filled correctly (see SUDOKU_DONE) — always correct
-    if (isSudoku(question)) return true
+    // reached either once every blank is filled correctly (SUDOKU_DONE) or once the
+    // wrong-guess limit is hit (SUDOKU_FAILED)
+    if (isSudoku(question)) return choice !== SUDOKU_FAILED
     if (isCounting(question)) return choice === question.counterId
     if (isMoney(question)) return choice === question.answer
     if (isShapes(question)) return choice === question.answer
@@ -1029,15 +1048,18 @@ export function QuizScreen({
     const justBrokeStreak = !correct && streak >= 3 ? streak : 0
     setStreak(newStreak)
 
-    // Spot-the-difference's failure case has no {answer} to slot into the generic
-    // pools (it isn't a number/word/char), so it gets its own dedicated feedback text.
+    // Spot-the-difference's and sudoku's failure cases have no {answer} to slot into the
+    // generic pools (neither is a number/word/char), so each gets its own dedicated
+    // feedback text.
     const feedback =
       isSpotDifference(question) && choice === SPOT_DIFFERENCE_FAILED
         ? buildSpotDifferenceFailedFeedback(lang)
-        : buildFeedbackMessage(
-            { correct, streak: newStreak, justBrokeStreak, correctAnswerLabel, answerCacheKey, category },
-            lang,
-          )
+        : isSudoku(question) && choice === SUDOKU_FAILED
+          ? buildSudokuFailedFeedback(lang)
+          : buildFeedbackMessage(
+              { correct, streak: newStreak, justBrokeStreak, correctAnswerLabel, answerCacheKey, category },
+              lang,
+            )
     setFeedbackText(feedback.text)
     // Shown as text only — the reasoning reads fine on the page but is skipped for
     // speech, since narrating every explanation would make each answer noticeably slower.
@@ -1236,8 +1258,9 @@ export function QuizScreen({
           <SudokuBoard
             key={question.id}
             question={question}
-            promptText={t('sudokuPrompt')}
+            promptText={t(question.mode === 'classic' ? 'sudokuPromptClassic' : 'sudokuPrompt')}
             onComplete={() => handleSelect(SUDOKU_DONE)}
+            onFailed={() => handleSelect(SUDOKU_FAILED)}
             disabled={selected !== null}
           />
         ) : (

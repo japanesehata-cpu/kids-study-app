@@ -21,7 +21,7 @@ import { generateClockQuestion, type ClockMode } from './questionGenerators/cloc
 import { generateSpotDifferenceQuestion } from './questionGenerators/spotDifference'
 import { generateCountingQuestion } from './questionGenerators/counting'
 import { generateMoneyQuestion } from './questionGenerators/money'
-import { generateSudokuQuestion } from './questionGenerators/sudoku'
+import { generateSudokuQuestion, type SudokuMode } from './questionGenerators/sudoku'
 import { generateMissingOperandQuestion } from './questionGenerators/missingOperand'
 import { generateShapesQuestion } from './questionGenerators/shapes'
 import { loadProgressJson, saveProgressJson } from '../lib/storage'
@@ -148,7 +148,12 @@ function isCompatibleQuestion(q: Question): boolean {
     return typeof q.correctWordId === 'string' && Array.isArray(q.choiceWordIds)
   }
   if (q.category === 'sudoku') {
-    return Array.isArray(q.grid) && Array.isArray(q.solution) && Array.isArray(q.symbols)
+    // Also guards against a stored reviewQueue entry from before `mode` was added (see
+    // questionGenerators/sudoku.ts's SudokuMode) — an old-shaped entry would otherwise
+    // resurface with mode undefined and be impossible to size/render correctly.
+    return (
+      Array.isArray(q.grid) && Array.isArray(q.solution) && Array.isArray(q.symbols) && typeof q.mode === 'string'
+    )
   }
   if (q.category === 'addition' || q.category === 'subtraction') {
     // Guards against a stored reviewQueue entry from before the `operator` field was
@@ -231,7 +236,12 @@ export function persistProgress(progress: ProgressState): void {
   saveProgressJson(JSON.stringify(progress))
 }
 
-function generateFreshQuestion(category: Category, level: Level, clockMode?: ClockMode): Question {
+function generateFreshQuestion(
+  category: Category,
+  level: Level,
+  clockMode?: ClockMode,
+  sudokuMode?: SudokuMode,
+): Question {
   switch (category) {
     case 'addition':
       return generateAdditionQuestion(level)
@@ -262,7 +272,7 @@ function generateFreshQuestion(category: Category, level: Level, clockMode?: Clo
     case 'englishSentence':
       return generateEnglishSentenceQuestion(level)
     case 'sudoku':
-      return generateSudokuQuestion(level)
+      return generateSudokuQuestion(level, sudokuMode)
     case 'missingOperandAddition':
       return generateMissingOperandQuestion(level, 'addition')
     case 'missingOperandSubtraction':
@@ -332,6 +342,7 @@ export function generateQuestionSet(
   reviewQueue: Question[],
   setSize: number = SET_SIZE,
   clockMode?: ClockMode,
+  sudokuMode?: SudokuMode,
 ): Question[] {
   const reviewSlots = setSize >= 10 ? REVIEW_SLOTS : 1
   const reviewItems = reviewQueue.slice(0, reviewSlots)
@@ -341,7 +352,7 @@ export function generateQuestionSet(
   let guard = 0
   while (questions.length < setSize && guard < setSize * 20) {
     guard++
-    const candidate = generateFreshQuestion(category, level, clockMode)
+    const candidate = generateFreshQuestion(category, level, clockMode, sudokuMode)
     const signature = questionSignature(candidate)
     if (seen.has(signature)) continue
     seen.add(signature)

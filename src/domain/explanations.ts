@@ -230,6 +230,11 @@ export function buildExplanation(
     }
     case 'sudoku': {
       const blankCount = question.grid.flat().filter((c) => c === null).length
+      if (!correct) {
+        return lang === 'ja'
+          ? `あいていた ${blankCount}マス あったよ。またチャレンジしてね！`
+          : `There were ${blankCount} empty squares. Give it another try!`
+      }
       return lang === 'ja'
         ? `あいていた ${blankCount}マス、ぜんぶ うめられたね！`
         : `You filled in all ${blankCount} empty squares!`

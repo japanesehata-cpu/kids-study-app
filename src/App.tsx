@@ -3,6 +3,7 @@ import type { AnswerRecord, Category, Level, ProgressState, SetResult } from './
 import { applySetResult, loadProgress, persistProgress, SET_SIZE } from './domain/progress'
 import { saveLastQuizFeedback } from './domain/homeFeedback'
 import type { ClockMode } from './domain/questionGenerators/clock'
+import type { SudokuMode } from './domain/questionGenerators/sudoku'
 import { I18nProvider } from './i18n/I18nContext'
 import { HomeScreen } from './screens/HomeScreen'
 import { LevelSelectScreen } from './screens/LevelSelectScreen'
@@ -38,13 +39,14 @@ type Screen =
   | { name: 'levelSelect'; category: Category }
   | { name: 'handwriting'; category: 'hiragana' | 'katakana' | 'alphabet' }
   | { name: 'handwritingTrace'; category: 'hiragana' | 'katakana' | 'alphabet' }
-  | { name: 'quiz'; category: Category; level: Level; setSize: number; clockMode?: ClockMode }
+  | { name: 'quiz'; category: Category; level: Level; setSize: number; clockMode?: ClockMode; sudokuMode?: SudokuMode }
   | {
       name: 'result'
       category: Category
       level: Level
       setSize: number
       clockMode?: ClockMode
+      sudokuMode?: SudokuMode
       result: SetResult
     }
   | { name: 'parentGate' }
@@ -90,6 +92,7 @@ function AppContent() {
     setSize: number,
     answers: AnswerRecord[],
     clockMode?: ClockMode,
+    sudokuMode?: SudokuMode,
   ) {
     const { progress: nextProgress, result } = applySetResult(category, level, progress, answers)
     setProgress(nextProgress)
@@ -108,6 +111,7 @@ function AppContent() {
       level,
       setSize,
       clockMode,
+      sudokuMode,
       result,
     })
   }
@@ -235,8 +239,8 @@ function AppContent() {
         return (
           <LevelSelectScreen
             category={screen.category}
-            onSelectLevel={(level, setSize, clockMode) =>
-              navigate({ name: 'quiz', category: screen.category, level, setSize, clockMode })
+            onSelectLevel={(level, setSize, clockMode, sudokuMode) =>
+              navigate({ name: 'quiz', category: screen.category, level, setSize, clockMode, sudokuMode })
             }
             onBack={goBack}
             onHome={goHome}
@@ -257,9 +261,17 @@ function AppContent() {
             level={screen.level}
             setSize={screen.setSize}
             clockMode={screen.clockMode}
+            sudokuMode={screen.sudokuMode}
             progress={progress}
             onComplete={(answers) =>
-              handleQuizComplete(screen.category, screen.level, screen.setSize, answers, screen.clockMode)
+              handleQuizComplete(
+                screen.category,
+                screen.level,
+                screen.setSize,
+                answers,
+                screen.clockMode,
+                screen.sudokuMode,
+              )
             }
             onExit={goBack}
             onHome={goHome}
@@ -276,6 +288,7 @@ function AppContent() {
                 level: screen.level,
                 setSize: screen.setSize,
                 clockMode: screen.clockMode,
+                sudokuMode: screen.sudokuMode,
               })
             }
             onBack={goBack}

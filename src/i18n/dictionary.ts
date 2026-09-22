@@ -142,6 +142,9 @@ export const dictionary = {
   levelDescSudoku1: { ja: 'あな 5つ', en: '5 blanks' },
   levelDescSudoku2: { ja: 'あな 8つ', en: '8 blanks' },
   levelDescSudoku3: { ja: 'あな 10こ', en: '10 blanks' },
+  levelDescSudokuClassic1: { ja: 'あな 43こ（かんたん）', en: '43 blanks (easy)' },
+  levelDescSudokuClassic2: { ja: 'あな 49こ（ふつう）', en: '49 blanks (medium)' },
+  levelDescSudokuClassic3: { ja: 'あな 55こ（むずかしい）', en: '55 blanks (hard)' },
   levelDescMissingOperand1: { ja: 'こたえが 8〜20', en: 'Answers from 8 to 20' },
   levelDescMissingOperand2: { ja: '10の まとまり（20〜100）', en: 'Round tens (20 to 100)' },
 
@@ -230,6 +233,15 @@ export const dictionary = {
     ja: 'あいている マスに、あう いろを いれてね',
     en: 'Fill in the empty squares with the right color',
   },
+  // Classic (9x9, digits) needs its own prompt — sudokuPrompt above says "いろ" (color),
+  // which is mini-only vocabulary (see SudokuQuestion's mode field).
+  sudokuPromptClassic: {
+    ja: 'あいている マスに、あう すうじを いれてね',
+    en: 'Fill in the empty squares with the right number',
+  },
+  sudokuModeMiniLabel: { ja: 'ミニ（4×4）', en: 'Mini (4×4)' },
+  sudokuModeClassicLabel: { ja: 'ほんかく（9×9）', en: 'Classic (9×9)' },
+  sudokuWrongCount: { ja: 'まちがえた かいすう：{count} / {max}', en: 'Wrong guesses: {count} / {max}' },
   handwritingLevel1Label: { ja: 'なぞる', en: 'Trace' },
   handwritingLevel1Description: { ja: 'うすい じを なぞって かこう', en: 'Trace over the faint character' },
   handwritingLevel2Label: { ja: 'きいて かく', en: 'Listen & write' },

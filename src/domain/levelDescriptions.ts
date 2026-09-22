@@ -119,3 +119,19 @@ export const LEVEL_DESCRIPTION_KEY: Partial<Record<Category, Partial<Record<Leve
 export function getLevelDescriptionKey(category: Category, level: Level): DictionaryKey | undefined {
   return LEVEL_DESCRIPTION_KEY[category]?.[level]
 }
+
+/** すうどく's own ★1-★3 mean something entirely different by hint count depending on mode
+ * (mini: 16-cell grid, classic: 81-cell grid — see questionGenerators/sudoku.ts's
+ * SudokuMode) despite sharing one CATEGORY_MAX_LEVEL ladder, the same way clock's two
+ * modes share one ladder with mode-agnostic descriptions (see levelDescClock1-3) — sudoku's
+ * descriptions can't be mode-agnostic the same way (an exact hint count IS the description
+ * here), so classic gets its own small lookup instead of a LEVEL_DESCRIPTION_KEY entry. */
+const SUDOKU_CLASSIC_LEVEL_DESCRIPTION_KEY: Partial<Record<Level, DictionaryKey>> = {
+  1: 'levelDescSudokuClassic1',
+  2: 'levelDescSudokuClassic2',
+  3: 'levelDescSudokuClassic3',
+}
+
+export function getSudokuClassicLevelDescriptionKey(level: Level): DictionaryKey | undefined {
+  return SUDOKU_CLASSIC_LEVEL_DESCRIPTION_KEY[level]
+}

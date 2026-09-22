@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { generateSudokuQuestion } from '../questionGenerators/sudoku'
+import { countClassicSolutions, generateSudokuQuestion } from '../questionGenerators/sudoku'
 import type { Level } from '../types'
 
 function isPermutationOfFour(values: string[]): boolean {
@@ -74,5 +74,55 @@ describe('generateSudokuQuestion', () => {
         expect(matchesRecorded).toBe(true)
       }
     }, 15000)
+  }
+})
+
+// Classic (9x9) hint counts by level — see CLASSIC_GIVENS in sudoku.ts.
+const CLASSIC_GIVENS: Record<Level, number> = { 1: 38, 2: 32, 3: 26, 4: 26, 5: 26, 6: 26 }
+
+function isPermutationOfNine(values: string[]): boolean {
+  return new Set(values).size === 9
+}
+
+function isValidClassic(grid: string[][]): boolean {
+  for (let i = 0; i < 9; i++) {
+    if (!isPermutationOfNine(grid[i])) return false
+    if (!isPermutationOfNine(grid.map((row) => row[i]))) return false
+  }
+  for (let br = 0; br < 9; br += 3) {
+    for (let bc = 0; bc < 9; bc += 3) {
+      const block: string[] = []
+      for (let dr = 0; dr < 3; dr++) for (let dc = 0; dc < 3; dc++) block.push(grid[br + dr][bc + dc])
+      if (!isPermutationOfNine(block)) return false
+    }
+  }
+  return true
+}
+
+describe("generateSudokuQuestion('classic')", () => {
+  for (const level of [1, 2, 3] as const) {
+    it(`★${level} has ${CLASSIC_GIVENS[level]}±a-few givens, digit symbols, and exactly one solution`, () => {
+      for (let i = 0; i < 15; i++) {
+        const q = generateSudokuQuestion(level, 'classic')
+        expect(q.mode).toBe('classic')
+        expect(q.symbols).toEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9'])
+        expect(isValidClassic(q.solution)).toBe(true)
+
+        const givenCount = q.grid.flat().filter((c) => c !== null).length
+        // digHoles may stop a little short of the target if the puzzle can't be dug
+        // further while staying uniquely solvable — see its own comment — so this allows
+        // a small margin above the target rather than an exact match.
+        expect(givenCount).toBeGreaterThanOrEqual(CLASSIC_GIVENS[level])
+        expect(givenCount).toBeLessThanOrEqual(CLASSIC_GIVENS[level] + 6)
+
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) {
+            if (q.grid[r][c] !== null) expect(q.grid[r][c]).toBe(q.solution[r][c])
+          }
+        }
+
+        expect(countClassicSolutions(q)).toBe(1)
+      }
+    }, 20000)
   }
 })

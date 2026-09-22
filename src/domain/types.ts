@@ -200,16 +200,18 @@ export interface SpotDifferenceQuestion {
   subSkill: string
 }
 
-/** A 4x4 "mini sudoku" — each row and column (and, from ★3, each 2x2 block) contains each
- * of `symbols`'s 4 colors exactly once. `grid` is the puzzle as shown (null = blank the
- * child must fill); `solution` is the same 4x4 shape fully filled in. Generated so the
- * blanks always have exactly one valid completion under whichever ruleset the current
- * level actually teaches (row/column only below ★3, row/column/block from ★3) — see
- * questionGenerators/sudoku.ts. */
+/** 'mini': the original 4x4 mini-sudoku — each row, column, and 2x2 block contains each of
+ * `symbols`'s 4 colors exactly once. 'classic': a real 9x9 sudoku — each row, column, and
+ * 3x3 box contains each of `symbols`'s 9 digits ('1'-'9') exactly once. `grid` is the
+ * puzzle as shown (null = blank the child must fill); `solution` is the same shape fully
+ * filled in. Both modes are always generated with a guaranteed unique solution — see
+ * questionGenerators/sudoku.ts (mini) and questionGenerators/sudokuSolver.ts (classic,
+ * whose search space is far too large for mini's brute-force approach). */
 export interface SudokuQuestion {
   id: string
   category: 'sudoku'
   level: Level
+  mode: 'mini' | 'classic'
   grid: (string | null)[][]
   solution: string[][]
   symbols: string[]

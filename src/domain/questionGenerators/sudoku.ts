@@ -1,5 +1,11 @@
 import type { Level, SudokuQuestion } from '../types'
 import { shuffle } from '../../lib/shuffle'
+import { countSolutions, digHoles, generateFullGrid } from './sudokuSolver'
+
+/** 'mini': the original 4x4 board. 'classic': a real 9x9 board (see sudokuSolver.ts) —
+ * chosen via LevelSelectScreen's mode toggle the same way ClockMode is (see
+ * questionGenerators/clock.ts), not a per-question random mix. */
+export type SudokuMode = 'mini' | 'classic'
 
 function makeId(): string {
   return `sudoku-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
@@ -162,7 +168,7 @@ function blankCountForLevel(level: Level): number {
   return BLANK_COUNT[level]
 }
 
-export function generateSudokuQuestion(level: Level): SudokuQuestion {
+function generateMiniSudokuQuestion(level: Level): SudokuQuestion {
   const solutionNums = randomSolution()
   // Every level's blanks must be solvable only by using the full row/column/2x2-block
   // ruleset — a real mini-sudoku at every ★, not a partial Latin square that merely
@@ -183,9 +189,62 @@ export function generateSudokuQuestion(level: Level): SudokuQuestion {
     id: makeId(),
     category: 'sudoku',
     level,
+    mode: 'mini',
     grid,
     solution,
     symbols: SYMBOLS,
     subSkill: 'sudoku-fill',
   }
+}
+
+/** ★1-★3 by hint (given) count only — no attempt to grade by which solving techniques a
+ * puzzle actually requires (see the plan discussion this was scoped down from). 38/32/26
+ * givens land in the standard easy/medium/hard bands real sudoku books use; digHoles may
+ * land a few givens above these if a puzzle can't be dug further while staying uniquely
+ * solvable, which is an accepted looseness of this simple approach. */
+const CLASSIC_GIVENS: Record<Level, number> = {
+  1: 38,
+  2: 32,
+  3: 26,
+  // Never reached — sudoku caps at ★3 (see CATEGORY_MAX_LEVEL), same as mini's BLANK_COUNT
+  // above.
+  4: 26,
+  5: 26,
+  6: 26,
+}
+
+const CLASSIC_SYMBOLS = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+
+function generateClassicSudokuQuestion(level: Level): SudokuQuestion {
+  const solutionNums = generateFullGrid()
+  const targetBlanks = 81 - CLASSIC_GIVENS[level]
+  const puzzleNums = digHoles(solutionNums, targetBlanks)
+
+  const solution = solutionNums.map((row) => row.map((v) => CLASSIC_SYMBOLS[v - 1]))
+  const grid: (string | null)[][] = puzzleNums.map((row) =>
+    row.map((v) => (v === 0 ? null : CLASSIC_SYMBOLS[v - 1])),
+  )
+
+  return {
+    id: makeId(),
+    category: 'sudoku',
+    level,
+    mode: 'classic',
+    grid,
+    solution,
+    symbols: CLASSIC_SYMBOLS,
+    subSkill: 'sudoku-fill',
+  }
+}
+
+export function generateSudokuQuestion(level: Level, mode: SudokuMode = 'mini'): SudokuQuestion {
+  return mode === 'classic' ? generateClassicSudokuQuestion(level) : generateMiniSudokuQuestion(level)
+}
+
+/** Exposed for tests only (sudokuSolver.ts's countSolutions needs a Grid9 of numbers, not
+ * SudokuQuestion's string grid) — verifies a generated classic puzzle really has exactly
+ * one solution, independent of digHoles' own internal bookkeeping. */
+export function countClassicSolutions(question: SudokuQuestion): number {
+  const grid = question.grid.map((row) => row.map((v) => (v === null ? 0 : CLASSIC_SYMBOLS.indexOf(v) + 1)))
+  return countSolutions(grid, 2)
 }

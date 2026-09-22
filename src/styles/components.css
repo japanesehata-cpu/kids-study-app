@@ -704,6 +704,16 @@
   gap: 20px;
 }
 
+/* Same look/role as .spot-wrong-count — see SudokuBoard.tsx's MAX_WRONG_GUESSES. */
+.sudoku-wrong-count {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-error);
+  background: var(--color-error-soft);
+  padding: 6px 18px;
+  border-radius: 999px;
+}
+
 /** One continuous board, not 4 separate boxes — cells sit edge-to-edge (no `gap`) with a
  * thin line between every cell and a thicker one at the 2x2 block boundary, the classic
  * sudoku look (an earlier attempt used a `gap`-separated grid of floating rounded cards,
@@ -749,9 +759,32 @@
   animation: spot-shake 0.35s ease;
 }
 
+/* Classic (9x9) needs much smaller cells than mini's fixed 64px to fit 9 across a phone
+ * width — clamp()-based like most sizing elsewhere in this app, rather than a fixed px, so
+ * it also shrinks further on genuinely narrow/short viewports. */
+.sudoku-cell--classic {
+  width: clamp(28px, 8vw, 44px);
+  height: clamp(28px, 8vw, 44px);
+}
+
+.sudoku-digit {
+  font-size: clamp(14px, 4vw, 22px);
+  font-weight: 800;
+  color: var(--color-text);
+}
+
 .sudoku-palette {
   display: flex;
   gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Narrower gap and a max-width so 9 digit buttons wrap into two balanced rows instead of
+ * one long, off-center row. */
+.sudoku-palette--classic {
+  gap: 8px;
+  max-width: 280px;
 }
 
 .sudoku-palette-item {
@@ -766,6 +799,11 @@
   justify-content: center;
   cursor: pointer;
   padding: 0;
+}
+
+.sudoku-palette-item--classic {
+  width: 44px;
+  height: 44px;
 }
 
 .sudoku-palette-item:disabled {
@@ -1098,5 +1136,19 @@
   .sudoku-palette-item {
     width: 84px;
     height: 84px;
+  }
+
+  /* Overrides the desktop .sudoku-cell/.sudoku-palette-item bump just above for classic
+   * specifically (same class-specificity, later in the cascade wins) — 9 cells at mini's
+   * 96px would make the board needlessly huge and the digits look oversized rather than
+   * like an actual sudoku board. */
+  .sudoku-cell--classic {
+    width: 60px;
+    height: 60px;
+  }
+
+  .sudoku-palette-item--classic {
+    width: 52px;
+    height: 52px;
   }
 }

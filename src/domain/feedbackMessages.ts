@@ -117,6 +117,22 @@ const SPOT_DIFFERENCE_FAILED: Record<Lang, string[]> = {
   ],
 }
 
+// Sudoku's failed round (the wrong-guess limit was reached before every blank was filled —
+// see SudokuBoard.tsx's MAX_WRONG_GUESSES) has the same "no single {answer}" problem as
+// spot-the-difference's failure above, so it gets the same treatment: its own pool.
+const SUDOKU_FAILED: Record<Lang, string[]> = {
+  ja: [
+    'ざんねん！もういちど さいしょから ちょうせんしてみよう！',
+    'おしい！こんどは もっと じっくり かんがえてみよう！',
+    'だいじょうぶ！れんしゅうすれば きっと とけるようになるよ！',
+  ],
+  en: [
+    "Oh no! Let's start this puzzle over and try again!",
+    'So close! Take your time thinking it through next time!',
+    "That's okay — practice makes perfect!",
+  ],
+}
+
 const INCORRECT_NORMAL: Record<Lang, string[]> = {
   ja: [
     'おしい！こたえは {answer} だよ。つぎ いこう！',
@@ -224,6 +240,15 @@ export function buildSpotDifferenceFailedFeedback(lang: Lang): FeedbackResult {
   const idx = pickIndex(SPOT_DIFFERENCE_FAILED[lang].length)
   const text = SPOT_DIFFERENCE_FAILED[lang][idx]
   const cacheKey = lang === 'ja' ? `feedback-spotDifference-failed-${idx}` : undefined
+  return { text, speech: [{ text, cacheKey }] }
+}
+
+/** Sudoku's failure case (wrong-guess limit reached) — same reasoning as
+ * buildSpotDifferenceFailedFeedback above. */
+export function buildSudokuFailedFeedback(lang: Lang): FeedbackResult {
+  const idx = pickIndex(SUDOKU_FAILED[lang].length)
+  const text = SUDOKU_FAILED[lang][idx]
+  const cacheKey = lang === 'ja' ? `feedback-sudoku-failed-${idx}` : undefined
   return { text, speech: [{ text, cacheKey }] }
 }
 

@@ -62,8 +62,8 @@ export const alphabetStrokePaths: Record<string, string[]> = {
   ],
   'M': [
     "M28,15 L28,90",
-    "M28,15 L55,72",
-    "M55,72 L82,15",
+    "M28,15 L55,88",
+    "M55,88 L82,15",
     "M82,15 L82,90",
   ],
   'N': [
@@ -102,8 +102,8 @@ export const alphabetStrokePaths: Record<string, string[]> = {
   ],
   'W': [
     "M24,15 L38,90",
-    "M38,90 L55,25",
-    "M55,25 L72,90",
+    "M38,90 L55,18",
+    "M55,18 L72,90",
     "M72,90 L86,15",
   ],
   'X': [

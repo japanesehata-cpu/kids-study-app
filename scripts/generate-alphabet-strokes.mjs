@@ -131,8 +131,10 @@ upperStrokes['L'] = [combine(line(32, CAP_TOP, 32, BASE), line(32, BASE, 78, BAS
 // looks visibly backwards when the trace guide animates it — fixed here.
 // HIL review round 2: "should be 4 strokes" — reverted from the combined zigzag back to 4
 // separate lifts (left stem, down-diagonal, up-diagonal, right stem), keeping round 1's
-// deeper V vertex (y72, close to baseline).
-upperStrokes['M'] = [line(28, CAP_TOP, 28, BASE), line(28, CAP_TOP, 55, 72), line(55, 72, 82, CAP_TOP), line(82, CAP_TOP, 82, BASE)]
+// deeper V vertex (y72, close to baseline). Reference check against a real typeface (Busuu's
+// alphabet chart): its M's V touches the baseline itself, deeper than y72 — dropped to y88
+// (just short of BASE so the vertex stays a visible point rather than flattening out).
+upperStrokes['M'] = [line(28, CAP_TOP, 28, BASE), line(28, CAP_TOP, 55, 88), line(55, 88, 82, CAP_TOP), line(82, CAP_TOP, 82, BASE)]
 
 upperStrokes['N'] = [line(28, CAP_TOP, 28, BASE), line(28, CAP_TOP, 82, BASE), line(82, CAP_TOP, 82, BASE)]
 
@@ -178,11 +180,13 @@ upperStrokes['V'] = [line(28, CAP_TOP, MID, BASE), line(MID, BASE, 82, CAP_TOP)]
 // HIL review round 1: "should be 4 strokes; the center peak is too short" — reverted from the
 // combined 2-stroke version back to 4 separate lifts (down, up, down, up), and raised the
 // center vertex from y45 to y35. HIL review round 2: "raise the 2nd/3rd-stroke junction
-// further" — the center peak (where strokes 2 and 3 meet) raised again, y35 -> y25.
+// further" — raised again, y35 -> y25. Reference check against a real typeface (Busuu's
+// alphabet chart): its W's center peak reaches almost as high as the outer strokes' own top —
+// raised once more, y25 -> y18.
 upperStrokes['W'] = [
   line(24, CAP_TOP, 38, BASE),
-  line(38, BASE, 55, 25),
-  line(55, 25, 72, BASE),
+  line(38, BASE, 55, 18),
+  line(55, 18, 72, BASE),
   line(72, BASE, 86, CAP_TOP),
 ]
 

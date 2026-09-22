@@ -1,5 +1,6 @@
 const PROGRESS_KEY = 'manabi-friends:progress:v1'
 const LANG_KEY = 'manabi-friends:lang:v1'
+const HOME_FEEDBACK_KEY = 'manabi-friends:homeFeedback:v1'
 
 function readRaw(key: string): string | null {
   try {
@@ -31,4 +32,12 @@ export function loadLang(): string | null {
 
 export function saveLang(lang: string): void {
   writeRaw(LANG_KEY, lang)
+}
+
+export function loadHomeFeedbackJson(): string | null {
+  return readRaw(HOME_FEEDBACK_KEY)
+}
+
+export function saveHomeFeedbackJson(json: string): void {
+  writeRaw(HOME_FEEDBACK_KEY, json)
 }

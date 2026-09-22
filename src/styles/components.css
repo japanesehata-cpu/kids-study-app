@@ -76,6 +76,20 @@
   aspect-ratio: 1 / 1;
 }
 
+/* Home's replacement for the removed daily play-streak badge — see
+   domain/homeFeedback.ts. A full-width line rather than a top-bar pill (the streak badge's
+   old spot) since this text is a whole sentence, not a short "3日れんぞく" count. */
+.home-feedback-banner {
+  background: var(--color-accent-soft);
+  color: var(--color-text);
+  font-weight: 800;
+  font-size: clamp(13px, 2vh, 17px);
+  padding: 8px 20px;
+  border-radius: 999px;
+  text-align: center;
+  max-width: 100%;
+}
+
 /* Home's row of 10 mascots: a single horizontally-scrolling strip instead of wrapping onto
    3-4 rows on a phone-width screen, which used to push the actual category cards below the
    fold. One row costs a fixed, small amount of vertical space no matter how narrow the

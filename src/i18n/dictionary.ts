@@ -3,6 +3,22 @@ export type Lang = 'ja' | 'en'
 export const dictionary = {
   appTitle: { ja: 'まなびフレンズ', en: 'Manabi Friends' },
   homeSubtitle: { ja: 'きょうは なにをべんきょうする？', en: 'What should we learn today?' },
+  // Home's replacement for the removed daily play-streak badge — see
+  // domain/homeFeedback.ts's pickHomeFeedbackMessage for the priority order and why this
+  // stays positive-only (no weak-subSkill variant).
+  homeFeedbackLevelUp: {
+    ja: '{category}が ★{level}に レベルアップしたよ！🎉',
+    en: '{category} leveled up to ★{level}! 🎉',
+  },
+  homeFeedbackStrong: {
+    ja: '{category}の 「{subSkill}」が とくいだね！🌟',
+    en: 'You’re great at "{subSkill}" in {category}! 🌟',
+  },
+  homeFeedbackPerfectScore: {
+    ja: 'まえかいの {category}で ぜんもん せいかい！すごい！✨',
+    en: 'You got a perfect score in {category} last time! ✨',
+  },
+  homeFeedbackGeneric: { ja: 'きょうも いっしょに がんばろうね！', en: 'Let’s do our best together today!' },
   categoryAddition: { ja: 'たしざん', en: 'Addition' },
   categorySubtraction: { ja: 'ひきざん', en: 'Subtraction' },
   // "categoryEnglish" is the shared home-screen card label for the merged English chooser

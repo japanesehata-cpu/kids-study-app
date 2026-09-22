@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { AnswerRecord, Category, Level, ProgressState, SetResult } from './domain/types'
 import { applySetResult, loadProgress, persistProgress, SET_SIZE } from './domain/progress'
+import { saveLastQuizFeedback } from './domain/homeFeedback'
 import type { ClockMode } from './domain/questionGenerators/clock'
 import { I18nProvider } from './i18n/I18nContext'
 import { HomeScreen } from './screens/HomeScreen'
@@ -92,6 +93,14 @@ function AppContent() {
   ) {
     const { progress: nextProgress, result } = applySetResult(category, level, progress, answers)
     setProgress(nextProgress)
+    saveLastQuizFeedback({
+      category,
+      leveledUp: result.leveledUp,
+      newLevel: nextProgress[category].level,
+      strongSubSkill: result.strongSubSkill,
+      correctCount: result.answers.filter((a) => a.correct).length,
+      total: result.answers.length,
+    })
 
     navigate({
       name: 'result',

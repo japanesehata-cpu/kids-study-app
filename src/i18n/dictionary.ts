@@ -315,8 +315,6 @@ export const dictionary = {
   progressBack: { ja: 'もどる', en: 'Back' },
   progressNoData: { ja: 'まだきろくがないよ', en: 'No records yet' },
 
-  streakBadge: { ja: '🔥{count}にちれんぞく！', en: '🔥{count}-day streak!' },
-
   introduceCharacterHint: { ja: 'タップして じこしょうかいを きこう', en: 'Tap to hear a self-introduction' },
   introMomo: {
     ja: 'わたし もも！ かぞえるの だいすき！ いっしょに たしざん がんばろうね、いつも おうえんしてるよ！',

@@ -124,15 +124,6 @@
   scroll-snap-align: start;
 }
 
-.streak-badge {
-  background: var(--color-accent-soft);
-  color: var(--color-text);
-  font-weight: 800;
-  font-size: 15px;
-  padding: 8px 16px;
-  border-radius: 999px;
-}
-
 .character-intro-button {
   border: none;
   background: transparent;

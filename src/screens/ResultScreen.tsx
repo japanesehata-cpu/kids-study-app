@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import type { SetResult } from '../domain/types'
-import type { PlayStreak } from '../domain/streak'
 import { useI18n } from '../i18n/I18nContext'
 import { subSkillLabelKey } from '../i18n/subSkillLabels'
 import { speak } from '../lib/tts'
@@ -11,14 +10,13 @@ import { CategoryHeader } from '../components/CategoryHeader'
 
 interface ResultScreenProps {
   result: SetResult
-  streak: PlayStreak
   onRetry: () => void
   /** one step back — LevelSelectScreen, to pick a different level instead of the same one again */
   onBack: () => void
   onBackHome: () => void
 }
 
-export function ResultScreen({ result, streak, onRetry, onBack, onBackHome }: ResultScreenProps) {
+export function ResultScreen({ result, onRetry, onBack, onBackHome }: ResultScreenProps) {
   const { t, lang } = useI18n()
   const leveledUp = result.leveledUp
   const correctCount = result.answers.filter((a) => a.correct).length
@@ -93,10 +91,6 @@ export function ResultScreen({ result, streak, onRetry, onBack, onBackHome }: Re
           <p style={{ fontWeight: 700, color: 'var(--color-primary-dark)' }}>
             🔥 {t('resultBestStreak', { streak: result.bestStreak })}
           </p>
-        )}
-
-        {streak.currentStreak >= 1 && (
-          <p className="subtitle">{t('streakBadge', { count: streak.currentStreak })}</p>
         )}
 
         {leveledUp && (

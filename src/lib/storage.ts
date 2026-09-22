@@ -1,6 +1,5 @@
 const PROGRESS_KEY = 'manabi-friends:progress:v1'
 const LANG_KEY = 'manabi-friends:lang:v1'
-const STREAK_KEY = 'manabi-friends:streak:v1'
 
 function readRaw(key: string): string | null {
   try {
@@ -32,12 +31,4 @@ export function loadLang(): string | null {
 
 export function saveLang(lang: string): void {
   writeRaw(LANG_KEY, lang)
-}
-
-export function loadStreakJson(): string | null {
-  return readRaw(STREAK_KEY)
-}
-
-export function saveStreakJson(json: string): void {
-  writeRaw(STREAK_KEY, json)
 }

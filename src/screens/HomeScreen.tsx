@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type UIEvent } from 'react'
 import type { Category } from '../domain/types'
 import type { DictionaryKey } from '../i18n/dictionary'
-import type { PlayStreak } from '../domain/streak'
 import { CATEGORY_META } from '../domain/categoryMeta'
 import { useI18n } from '../i18n/I18nContext'
 import { speak, type SpeechLang } from '../lib/tts'
@@ -10,7 +9,6 @@ import { characterThemes } from '../components/characters/characterThemes'
 import { LanguageToggle } from '../components/LanguageToggle'
 
 interface HomeScreenProps {
-  streak: PlayStreak
   onSelectCategory: (category: Category) => void
   onOpenEnglishEntry: () => void
   onOpenMojiEntry: () => void
@@ -61,7 +59,6 @@ const INTRO_KEY_BY_CATEGORY: Record<Category, DictionaryKey> = {
 }
 
 export function HomeScreen({
-  streak,
   onSelectCategory,
   onOpenEnglishEntry,
   onOpenMojiEntry,
@@ -97,7 +94,6 @@ export function HomeScreen({
       <div className="top-bar">
         <h1 className="app-title">{t('appTitle')}</h1>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-          {streak.currentStreak >= 1 && <span className="streak-badge">{t('streakBadge', { count: streak.currentStreak })}</span>}
           <LanguageToggle />
           <button
             type="button"

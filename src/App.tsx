@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import type { AnswerRecord, Category, Level, ProgressState, SetResult } from './domain/types'
 import { applySetResult, loadProgress, persistProgress, SET_SIZE } from './domain/progress'
 import type { ClockMode } from './domain/questionGenerators/clock'
-import { loadStreak, persistStreak, recordPlaySession, type PlayStreak } from './domain/streak'
 import { I18nProvider } from './i18n/I18nContext'
 import { HomeScreen } from './screens/HomeScreen'
 import { LevelSelectScreen } from './screens/LevelSelectScreen'
@@ -46,14 +45,12 @@ type Screen =
       setSize: number
       clockMode?: ClockMode
       result: SetResult
-      streak: PlayStreak
     }
   | { name: 'parentGate' }
   | { name: 'progress' }
 
 function AppContent() {
   const [progress, setProgress] = useState<ProgressState>(() => loadProgress())
-  const [streak, setStreak] = useState<PlayStreak>(() => loadStreak())
   const [screen, setScreen] = useState<Screen>({ name: 'home' })
   // Every screen below Home keeps a "もどる" (back one step) button alongside "ホームへ" (go
   // straight home) — this stack is what makes "one step back" actually mean the screen the
@@ -64,10 +61,6 @@ function AppContent() {
   useEffect(() => {
     persistProgress(progress)
   }, [progress])
-
-  useEffect(() => {
-    persistStreak(streak)
-  }, [streak])
 
   function navigate(next: Screen) {
     setHistory((h) => [...h, screen])
@@ -100,9 +93,6 @@ function AppContent() {
     const { progress: nextProgress, result } = applySetResult(category, level, progress, answers)
     setProgress(nextProgress)
 
-    const nextStreak = recordPlaySession(streak)
-    setStreak(nextStreak)
-
     navigate({
       name: 'result',
       category,
@@ -110,7 +100,6 @@ function AppContent() {
       setSize,
       clockMode,
       result,
-      streak: nextStreak,
     })
   }
 
@@ -119,7 +108,6 @@ function AppContent() {
       case 'home':
         return (
           <HomeScreen
-            streak={streak}
             onSelectCategory={(category) => {
               // counting has no ★ levels at all (助数詞 redesign — see CATEGORY_MAX_LEVEL) —
               // skip straight to a fixed-size round, same treatment as englishSentence
@@ -272,7 +260,6 @@ function AppContent() {
         return (
           <ResultScreen
             result={screen.result}
-            streak={screen.streak}
             onRetry={() =>
               navigate({
                 name: 'quiz',

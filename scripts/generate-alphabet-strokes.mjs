@@ -256,15 +256,17 @@ lowerStrokes['l'] = [line(MID, CAP_TOP, MID, BASE)]
 
 // m is two "n" shapes sharing a leg, all now one continuous stroke (HIL review: "should be a
 // single stroke"). Each leg is drawn, retraced up to the next arch's attachment height, then
-// the arch curves out to the following leg — same retrace pattern as h/n.
+// the arch curves out to the following leg — same retrace pattern as h/n. Reference check
+// against a real typeface (Busuu's alphabet chart) confirmed via a HIL decision: its arches
+// are shallower than ours (ry13 -> ry10) — tightened to match.
 lowerStrokes['m'] = [
   combine(
     line(24, 42, 24, BASE),
     line(24, BASE, 24, 42),
-    arc(39, 42, 15, 13, 180, 0, 1),
+    arc(39, 42, 15, 10, 180, 0, 1),
     line(54, 42, 54, BASE),
     line(54, BASE, 54, 42),
-    arc(69, 42, 15, 13, 180, 0, 1),
+    arc(69, 42, 15, 10, 180, 0, 1),
     line(84, 42, 84, BASE),
   ),
 ]
@@ -307,8 +309,11 @@ lowerStrokes['v'] = [combine(line(30, 42, MID, BASE), line(MID, BASE, 80, 42))]
 
 // One continuous stroke (HIL review: "should be a single stroke") — the two halves already met
 // at the same point (55,58), so this is a straight merge of the existing four segments.
+// Reference check against a real typeface (Busuu's alphabet chart) confirmed via a HIL
+// decision: its center peak reaches noticeably higher than ours (y58 -> y50) — raised to
+// match, same "deepen the peak" fix already applied to uppercase M/W.
 lowerStrokes['w'] = [
-  combine(line(24, 42, 36, BASE), line(36, BASE, 55, 58), line(55, 58, 74, BASE), line(74, BASE, 86, 42)),
+  combine(line(24, 42, 36, BASE), line(36, BASE, 55, 50), line(55, 50, 74, BASE), line(74, BASE, 86, 42)),
 ]
 
 lowerStrokes['x'] = [line(30, 42, 80, BASE), line(80, 42, 30, BASE)]

@@ -129,12 +129,10 @@ upperStrokes['L'] = [combine(line(32, CAP_TOP, 32, BASE), line(32, BASE, 78, BAS
 // stroke; those are called out inline. An earlier version of this file had M's and N's first
 // (plain, non-zigzag) vertical drawn bottom-to-top, which is exactly the kind of thing that
 // looks visibly backwards when the trace guide animates it — fixed here.
-// Stem alone, then the two diagonals + closing vertical as one continuous zigzag — all three
-// segments already met end-to-end, so there's no reason to force 3 separate lifts for what's
-// naturally a single motion once the stem is down. HIL review: "the V dips too short" — the
-// middle vertex used to stop at y60 (well above the midline); dropped to y72, much closer to
-// baseline, so the V reads clearly instead of looking clipped.
-upperStrokes['M'] = [line(28, CAP_TOP, 28, BASE), combine(line(28, CAP_TOP, 55, 72), line(55, 72, 82, CAP_TOP), line(82, CAP_TOP, 82, BASE))]
+// HIL review round 2: "should be 4 strokes" — reverted from the combined zigzag back to 4
+// separate lifts (left stem, down-diagonal, up-diagonal, right stem), keeping round 1's
+// deeper V vertex (y72, close to baseline).
+upperStrokes['M'] = [line(28, CAP_TOP, 28, BASE), line(28, CAP_TOP, 55, 72), line(55, 72, 82, CAP_TOP), line(82, CAP_TOP, 82, BASE)]
 
 upperStrokes['N'] = [line(28, CAP_TOP, 28, BASE), line(28, CAP_TOP, 82, BASE), line(82, CAP_TOP, 82, BASE)]
 
@@ -146,20 +144,25 @@ upperStrokes['P'] = [line(32, CAP_TOP, 32, BASE), arc(32, 33.75, 28, 18.75, 270,
 upperStrokes['Q'] = [fullCircle(MID, 52.5, 28, 37.5, 320, 0), line(66, 78, 82, 96)]
 
 // The bump's end and the leg's start are the same point (32,52.5) — one continuous stroke
-// (loop curving down into the kicked-out leg) after the stem. HIL review: "head too thin" —
-// same bowl-widening fix as B/D/P (rx 24 -> 28).
-upperStrokes['R'] = [line(32, CAP_TOP, 32, BASE), combine(arc(32, 33.75, 28, 18.75, 270, 450, 1), line(32, 52.5, 78, BASE))]
+// (loop curving down into the kicked-out leg) after the stem. HIL review round 1: "head too
+// thin" — same bowl-widening fix as B/D/P (rx 24 -> 28). HIL review round 2: "match the
+// width" — the leg used to kick out to x78, noticeably wider than the bowl's own ~x60 right
+// edge; brought in to x68 so the leg doesn't overshoot the bowl.
+upperStrokes['R'] = [line(32, CAP_TOP, 32, BASE), combine(arc(32, 33.75, 28, 18.75, 270, 450, 1), line(32, 52.5, 68, BASE))]
 
-// HIL review: "fundamentally wrong" — the previous two-~190°-arc version (kept as a comment
-// below for context) still rendered as a lopsided hook-and-tail instead of a symmetric S,
-// confirmed by a large-scale render, not just guessed from the path text. Replaced with two
-// same-size circles (radius 20) stacked top/bottom, each traced for the same ~180° sweep in
-// opposite rotation directions (top: decreasing/ccw, bottom: increasing/cw) — this is the
-// "two mirrored bowls" construction a print S is actually taught as, and it was the one
-// candidate (out of several tried side by side) that actually read as a clean S rather than
-// a spiral, a hook, or a double-parenthesis.
-// Previous attempt: combine(arc(58, 34, 19, 17, 350, 165, 0), arc(50, 72, 20, 17, 345, 160, 1))
-upperStrokes['S'] = [combine(arc(52, 35, 20, 20, 300, 120, 0), arc(52, 70, 20, 20, 300, 120, 1))]
+// HIL review round 1: "fundamentally wrong" — replaced the original hand-tuned path with a
+// "two mirrored half-circle bowls" construction; still round-tripped as "not S-shaped" in
+// round 2 (its ~180°-sweep arcs left flat, open-looking terminals that read more like a
+// digit 5 than a letter S — confirmed at both large and small/actual-usage render sizes, not
+// guessed from the path text). Rebuilt again, this time reusing uppercase C's own proportions
+// (arc(MID, 52.5, 27, 37.5, 320, 40, 0) — a mostly-closed ~280° loop with a narrow ~80°
+// opening) for the top half, and its horizontal mirror for the bottom half: this "closed
+// loop, narrow opening" shape is much rounder than a plain half-circle, and was the candidate
+// (out of many tried side by side, both large-scale and at actual icon size) that actually
+// read as S instead of a 5, a spiral, or a double-parenthesis.
+// Round 1 attempt: combine(arc(52, 35, 20, 20, 300, 120, 0), arc(52, 70, 20, 20, 300, 120, 1))
+// Original attempt: combine(arc(58, 34, 19, 17, 350, 165, 0), arc(50, 72, 20, 17, 345, 160, 1))
+upperStrokes['S'] = [combine(arc(55, 33, 20, 18, 320, 40, 0), arc(55, 73, 20, 18, 220, 140, 1))]
 
 upperStrokes['T'] = [line(28, CAP_TOP, 82, CAP_TOP), line(MID, CAP_TOP, MID, BASE)]
 
@@ -168,17 +171,18 @@ upperStrokes['T'] = [line(28, CAP_TOP, 82, CAP_TOP), line(MID, CAP_TOP, MID, BAS
 // looked like it had been "cut into pieces" rather than traced as one letter.
 upperStrokes['U'] = [combine(line(28, CAP_TOP, 28, 65), arc(55, 65, 27, 25, 180, 0, 0), line(82, 65, 82, CAP_TOP))]
 
-// Down-up in one continuous motion, not two separately-lifted diagonals.
-upperStrokes['V'] = [combine(line(28, CAP_TOP, MID, BASE), line(MID, BASE, 82, CAP_TOP))]
+// HIL review round 2: "should be 2 strokes" — reverted from the combined down-up motion back
+// to 2 separate lifts.
+upperStrokes['V'] = [line(28, CAP_TOP, MID, BASE), line(MID, BASE, 82, CAP_TOP)]
 
-// HIL review: "should be 4 strokes; the center peak is too short" — reverted from the
+// HIL review round 1: "should be 4 strokes; the center peak is too short" — reverted from the
 // combined 2-stroke version back to 4 separate lifts (down, up, down, up), and raised the
-// center vertex from y45 to y35 so the middle peak actually reads as a peak instead of
-// stopping around the letter's own midline.
+// center vertex from y45 to y35. HIL review round 2: "raise the 2nd/3rd-stroke junction
+// further" — the center peak (where strokes 2 and 3 meet) raised again, y35 -> y25.
 upperStrokes['W'] = [
   line(24, CAP_TOP, 38, BASE),
-  line(38, BASE, 55, 35),
-  line(55, 35, 72, BASE),
+  line(38, BASE, 55, 25),
+  line(55, 25, 72, BASE),
   line(72, BASE, 86, CAP_TOP),
 ]
 

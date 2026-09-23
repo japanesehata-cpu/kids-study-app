@@ -23,7 +23,6 @@ import { QuizScreen } from './screens/QuizScreen'
 import { ResultScreen } from './screens/ResultScreen'
 import { ParentGate } from './screens/ParentGate'
 import { ProgressScreen } from './screens/ProgressScreen'
-import { SparkleBackground } from './components/SparkleBackground'
 
 type Screen =
   | { name: 'home' }
@@ -310,12 +309,7 @@ function AppContent() {
     }
   }
 
-  return (
-    <>
-      <SparkleBackground />
-      <div style={{ position: 'relative', zIndex: 1 }}>{renderScreen()}</div>
-    </>
-  )
+  return renderScreen()
 }
 
 function App() {

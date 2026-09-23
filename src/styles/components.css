@@ -354,7 +354,7 @@
 }
 
 .equation-text {
-  font-size: 56px;
+  font-size: clamp(32px, 7vh, 56px);
   font-weight: 800;
   color: var(--color-text);
   text-align: center;
@@ -376,13 +376,13 @@
  * the picture read as "N of these", not just one example, which is the actual point of a
  * counter word. */
 .count-badge {
-  font-size: 40px;
+  font-size: clamp(24px, 5vh, 40px);
   font-weight: 800;
   color: var(--color-primary);
   background: var(--color-surface);
   border-radius: var(--radius-sm);
-  width: 64px;
-  height: 64px;
+  width: clamp(44px, 8vh, 64px);
+  height: clamp(44px, 8vh, 64px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -391,16 +391,16 @@
 }
 
 .story-text {
-  font-size: 26px;
+  font-size: clamp(18px, 3.2vh, 26px);
   font-weight: 700;
   color: var(--color-text);
   text-align: center;
-  line-height: 1.6;
+  line-height: 1.5;
   max-width: 480px;
 }
 
 .visual-item {
-  font-size: 40px;
+  font-size: clamp(24px, 5vh, 40px);
 }
 
 .visual-item.removed {
@@ -418,7 +418,7 @@
 }
 
 .pattern-visual-item {
-  font-size: 34px;
+  font-size: clamp(22px, 4.5vh, 34px);
   line-height: 1;
   flex-shrink: 0;
 }
@@ -426,8 +426,8 @@
 /* Replaces the old static "❓" — a real empty slot (dashed border) that the picked symbol
  * drops into once answered, instead of a fixed placeholder glyph. */
 .pattern-slot {
-  min-width: 44px;
-  min-height: 44px;
+  min-width: clamp(30px, 5.5vh, 44px);
+  min-height: clamp(30px, 5.5vh, 44px);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -483,12 +483,12 @@
 }
 
 .addition-visual-item {
-  font-size: 52px;
+  font-size: clamp(28px, 6vh, 52px);
   line-height: 1;
 }
 
 .addition-visual-plus {
-  font-size: 40px;
+  font-size: clamp(22px, 5vh, 40px);
   font-weight: 800;
   color: var(--color-primary-dark);
 }
@@ -502,7 +502,7 @@
 }
 
 .subtraction-visual-item {
-  font-size: 52px;
+  font-size: clamp(28px, 6vh, 52px);
   line-height: 1;
 }
 
@@ -1055,9 +1055,9 @@
 }
 
 .feedback-banner {
-  font-size: 28px;
+  font-size: clamp(19px, 3.6vh, 28px);
   font-weight: 800;
-  padding: 12px 24px;
+  padding: clamp(8px, 1.6vh, 12px) 24px;
   border-radius: var(--radius-md);
 }
 
@@ -1072,7 +1072,7 @@
 }
 
 .explanation-text {
-  font-size: 18px;
+  font-size: clamp(14px, 2.6vh, 18px);
   font-weight: 700;
   color: var(--color-text-soft);
   text-align: center;

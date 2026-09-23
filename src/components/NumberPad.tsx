@@ -35,20 +35,26 @@ export function NumberPad({ onSubmit, disabled }: NumberPadProps) {
   return (
     <div className="number-pad">
       <div className="number-pad-display">{typed || '?'}</div>
-      <div className="number-pad-grid">
-        {DIGITS.map((d) => (
-          <button
-            key={d}
-            type="button"
-            className={`number-pad-button ${d === '✓' ? 'number-pad-submit' : ''}`.trim()}
-            onClick={() => pressDigit(d)}
-            disabled={disabled || (d === '✓' && typed.length === 0)}
-            aria-label={d === '⌫' ? t('numberPadClearLabel') : d === '✓' ? t('numberPadSubmitLabel') : d}
-          >
-            {d}
-          </button>
-        ))}
-      </div>
+      {/* Once answered (disabled), the grid has nothing left to do — the typed value stays
+          visible in the display above — so it's dropped entirely rather than kept around
+          as inert, greyed-out buttons. This is a real chunk of the post-answer screen's
+          height, exactly where the feedback/explanation/next-button need the room. */}
+      {!disabled && (
+        <div className="number-pad-grid">
+          {DIGITS.map((d) => (
+            <button
+              key={d}
+              type="button"
+              className={`number-pad-button ${d === '✓' ? 'number-pad-submit' : ''}`.trim()}
+              onClick={() => pressDigit(d)}
+              disabled={d === '✓' && typed.length === 0}
+              aria-label={d === '⌫' ? t('numberPadClearLabel') : d === '✓' ? t('numberPadSubmitLabel') : d}
+            >
+              {d}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

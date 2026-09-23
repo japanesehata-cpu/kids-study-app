@@ -13,6 +13,11 @@ interface TtsButtonProps {
 }
 
 export function TtsButton({ text, lang, label, size = 72, voiceProfile, cacheKey }: TtsButtonProps) {
+  // `size` is the button's max/desktop size — actual size shrinks toward a still-tappable
+  // floor on a short viewport, same clamp()/vh discipline as .screen/.card-panel, since
+  // this button appears on nearly every quiz screen and its old fixed px size was a real
+  // contributor to needing a scroll on a phone.
+  const width = `clamp(44px, 8vh, ${size}px)`
   return (
     <motion.button
       type="button"
@@ -20,13 +25,13 @@ export function TtsButton({ text, lang, label, size = 72, voiceProfile, cacheKey
       aria-label={label}
       whileTap={{ scale: 0.88 }}
       style={{
-        width: size,
-        height: size,
+        width,
+        height: width,
         borderRadius: '50%',
         border: 'none',
         background: 'var(--color-accent)',
         boxShadow: '0 4px 0 #e0a83a',
-        fontSize: size * 0.45,
+        fontSize: `clamp(20px, 3.6vh, ${size * 0.45}px)`,
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',

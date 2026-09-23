@@ -32,7 +32,12 @@ import { alphabetSpeechPhrase, getAlphabetById } from '../domain/alphabetBank'
 import { formatClockKey, buildSetTimePrompt, type ClockMode } from '../domain/questionGenerators/clock'
 import type { SudokuMode } from '../domain/questionGenerators/sudoku'
 import { InteractiveClock } from '../components/InteractiveClock'
-import { buildFeedbackMessage, buildSpotDifferenceFailedFeedback, buildSudokuFailedFeedback } from '../domain/feedbackMessages'
+import {
+  buildFeedbackMessage,
+  buildSpotDifferenceFailedFeedback,
+  buildSudokuFailedFeedback,
+  buildMoneyFailedFeedback,
+} from '../domain/feedbackMessages'
 import { buildExplanation } from '../domain/explanations'
 import { speak, type SpeechLang, type VoiceProfile } from '../lib/tts'
 import { playCorrectSfx, playIncorrectSfx } from '../lib/sfx'
@@ -45,6 +50,9 @@ import { ClockFace } from '../components/ClockFace'
 import { ShapeIcon } from '../components/ShapeIcon'
 import { SpotDifferenceBoard } from '../components/SpotDifferenceBoard'
 import { SudokuBoard } from '../components/SudokuBoard'
+import { MoneyBoard } from '../components/MoneyBoard'
+import { NumberPad } from '../components/NumberPad'
+import { OddOneOutScene } from '../components/OddOneOutScene'
 import { CharacterPortrait } from '../components/characters/CharacterPortrait'
 import { characterThemes } from '../components/characters/characterThemes'
 import { RewardRain } from '../components/RewardRain'
@@ -84,6 +92,16 @@ const SUDOKU_DONE = 'sudoku-done'
  * MAX_WRONG_GUESSES): without this, nothing stopped a child from just cycling through
  * every palette option on a cell for free until one happened to be right. */
 const SUDOKU_FAILED = 'sudoku-failed'
+
+/** Sentinel passed to handleSelect once a money board's tray total exactly equals the
+ * target amount — like sudoku/spot-the-difference, that board has no discrete "choice"
+ * buttons. */
+const MONEY_DONE = 'money-done'
+
+/** Sentinel passed to handleSelect once a money board hits its wrong-guess limit (see
+ * MoneyBoard.tsx's MAX_WRONG_GUESSES) before the tray reached the target — mirrors
+ * SUDOKU_FAILED exactly. */
+const MONEY_FAILED = 'money-failed'
 
 function isArithmetic(q: Question): q is ArithmeticQuestion {
   return (
@@ -286,12 +304,10 @@ function computeAutoSpeech(
     }
   }
   if (isMoney(question)) {
-    const single = question.coinIds.length === 1
-    return {
-      text: t(single ? 'moneySinglePrompt' : 'moneyComboPrompt'),
-      speechLang,
-      cacheKey: ja ? (single ? 'prompt-money-single' : 'prompt-money-combo') : undefined,
-    }
+    // The target amount varies per question (unbounded, unlike sudoku's fixed prompt), so
+    // it's shown on-screen (see MoneyBoard.tsx's .money-target) rather than spoken inline
+    // — the spoken instruction itself stays one fixed, cacheable sentence.
+    return { text: t('moneyTargetPrompt'), speechLang, cacheKey: ja ? 'prompt-money-target' : undefined }
   }
   if (isShapes(question)) {
     const cacheKey = ja
@@ -613,14 +629,19 @@ function LogicQuestionView({
   lang,
   voiceProfile,
   cacheKey,
+  selected,
 }: {
   question: LogicQuestion
   promptText: string
   lang: Lang
   voiceProfile: VoiceProfile
   cacheKey?: string
+  /** pattern only: fills the trailing slot with the picked symbol once answered, instead
+   * of a static "?" — see the plan's "ろんり（パターン）: 空きスロット表示" section. */
+  selected: Choice | null
 }) {
   const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
+  const slotState = selected === null ? '' : selected === question.answer ? 'correct' : 'incorrect'
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
@@ -631,7 +652,9 @@ function LogicQuestionView({
               {s}
             </span>
           ))}
-          <span className="pattern-visual-item">❓</span>
+          <span className={`pattern-visual-item pattern-slot ${slotState}`.trim()}>
+            {selected !== null ? String(selected) : ''}
+          </span>
         </div>
       )}
       <p className="subtitle">{promptText}</p>
@@ -757,34 +780,6 @@ function CountingQuestionView({
   )
 }
 
-function MoneyQuestionView({
-  question,
-  promptText,
-  lang,
-  voiceProfile,
-  cacheKey,
-}: {
-  question: MoneyQuestion
-  promptText: string
-  lang: Lang
-  voiceProfile: VoiceProfile
-  cacheKey?: string
-}) {
-  const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-        {question.coinIds.map((coinId, i) => (
-          <WordIcon key={i} wordId={coinId} size={100} />
-        ))}
-      </div>
-      <p className="subtitle">{promptText}</p>
-      <TtsButton text={promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
-    </div>
-  )
-}
-
 /** pickShape (★1/★6): the prompt itself names the target shape, and the 4 choices are the
  * rendered shapes — no big stimulus icon here. pickName/countSides (★2-★5): one shape is
  * rendered as the stimulus and the prompt asks a fixed question about it. */
@@ -838,7 +833,8 @@ function renderChoiceContent(question: Question, choice: Choice, lang: Lang) {
   // never rendered: sudoku has no choice-grid either (see SudokuBoard)
   if (isSudoku(question)) return null
   if (isCounting(question)) return getCounterById(choice as string).kana
-  if (isMoney(question)) return `${choice}えん`
+  // never rendered: money has its own MoneyBoard, no choice-grid (see MoneyBoard.tsx)
+  if (isMoney(question)) return null
   if (isShapes(question)) {
     // pickShape (★1/★6): the prompt names a shape, so the choices themselves ARE the
     // shapes (production direction). pickName (★2/★4/★5)/countSides (★3): the choices
@@ -878,7 +874,7 @@ function computeCorrectAnswerLabel(question: Question, lang: Lang): string {
     const counter = getCounterById(question.counterId)
     return `${counter.kana}（${counter.kanji}）`
   }
-  if (isMoney(question)) return `${question.answer}えん`
+  if (isMoney(question)) return `${question.targetAmount}えん`
   if (isShapes(question)) {
     if (question.kind === 'countSides') return question.answer
     return dictionary[SHAPE_NAME_KEY[question.answer]][lang]
@@ -976,7 +972,8 @@ export function QuizScreen({
     // sudoku likewise answers by tapping the board (blank cell + palette), not a choice-grid
     if (isSudoku(question)) return []
     if (isCounting(question)) return question.choiceCounterIds
-    if (isMoney(question)) return question.choices
+    // money answers by tapping coins into MoneyBoard's own tray, not a choice-grid
+    if (isMoney(question)) return []
     if (isShapes(question)) return question.choices
     if (isEnglishSentence(question)) return question.choiceWordIds
     return question.choiceWordIds
@@ -1004,7 +1001,9 @@ export function QuizScreen({
     // wrong-guess limit is hit (SUDOKU_FAILED)
     if (isSudoku(question)) return choice !== SUDOKU_FAILED
     if (isCounting(question)) return choice === question.counterId
-    if (isMoney(question)) return choice === question.answer
+    // reached either once the tray total exactly matches targetAmount (MONEY_DONE) or once
+    // the wrong-guess limit is hit (MONEY_FAILED)
+    if (isMoney(question)) return choice !== MONEY_FAILED
     if (isShapes(question)) return choice === question.answer
     if (isEnglishSentence(question)) return choice === question.correctWordId
     return choice === question.wordId
@@ -1064,10 +1063,12 @@ export function QuizScreen({
         ? buildSpotDifferenceFailedFeedback(lang)
         : isSudoku(question) && choice === SUDOKU_FAILED
           ? buildSudokuFailedFeedback(lang)
-          : buildFeedbackMessage(
-              { correct, streak: newStreak, justBrokeStreak, correctAnswerLabel, answerCacheKey, category },
-              lang,
-            )
+          : isMoney(question) && choice === MONEY_FAILED
+            ? buildMoneyFailedFeedback(lang)
+            : buildFeedbackMessage(
+                { correct, streak: newStreak, justBrokeStreak, correctAnswerLabel, answerCacheKey, category },
+                lang,
+              )
     setFeedbackText(feedback.text)
     // Shown as text only — the reasoning reads fine on the page but is skipped for
     // speech, since narrating every explanation would make each answer noticeably slower.
@@ -1158,7 +1159,10 @@ export function QuizScreen({
 
       <div
         className={`card-panel ${
-          isSpotDifference(question) || isSudoku(question) || (isLogic(question) && question.kind === 'pattern')
+          isSpotDifference(question) ||
+          isSudoku(question) ||
+          isMoney(question) ||
+          (isLogic(question) && (question.kind === 'pattern' || question.kind === 'oddOneOut'))
             ? 'card-panel-wide'
             : ''
         }`.trim()}
@@ -1178,6 +1182,7 @@ export function QuizScreen({
             lang={lang}
             voiceProfile={voiceProfile}
             cacheKey={autoSpeech.cacheKey}
+            selected={selected}
           />
         ) : isHiragana(question) ? (
           <HiraganaQuestionView
@@ -1241,12 +1246,13 @@ export function QuizScreen({
             cacheKey={autoSpeech.cacheKey}
           />
         ) : isMoney(question) ? (
-          <MoneyQuestionView
+          <MoneyBoard
+            key={question.id}
             question={question}
             promptText={autoSpeech.text}
-            lang={lang}
-            voiceProfile={voiceProfile}
-            cacheKey={autoSpeech.cacheKey}
+            onComplete={() => handleSelect(MONEY_DONE)}
+            onFailed={() => handleSelect(MONEY_FAILED)}
+            disabled={selected !== null}
           />
         ) : isShapes(question) ? (
           <ShapeQuestionView
@@ -1280,20 +1286,35 @@ export function QuizScreen({
           />
         )}
 
-        {!isSpotDifference(question) && !isSudoku(question) && !(isClock(question) && question.kind === 'setTime') && (
-          <div className="choice-grid">
-            {choices.map((choice) => (
-              <button
-                key={String(choice)}
-                type="button"
-                className={`choice-button ${choiceState(choice)}`.trim()}
-                disabled={selected !== null}
-                onClick={() => handleSelect(choice)}
-              >
-                {renderChoiceContent(question, choice, lang)}
-              </button>
-            ))}
-          </div>
+        {isArithmetic(question) ? (
+          <NumberPad key={question.id} onSubmit={(n) => handleSelect(n)} disabled={selected !== null} />
+        ) : isLogic(question) && question.kind === 'oddOneOut' ? (
+          <OddOneOutScene
+            key={question.id}
+            question={question}
+            selected={selected}
+            disabled={selected !== null}
+            onSelect={(choice) => handleSelect(choice)}
+          />
+        ) : (
+          !isSpotDifference(question) &&
+          !isSudoku(question) &&
+          !isMoney(question) &&
+          !(isClock(question) && question.kind === 'setTime') && (
+            <div className="choice-grid">
+              {choices.map((choice) => (
+                <button
+                  key={String(choice)}
+                  type="button"
+                  className={`choice-button ${choiceState(choice)}`.trim()}
+                  disabled={selected !== null}
+                  onClick={() => handleSelect(choice)}
+                >
+                  {renderChoiceContent(question, choice, lang)}
+                </button>
+              ))}
+            </div>
+          )
         )}
 
         {selected !== null && (

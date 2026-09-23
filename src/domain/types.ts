@@ -233,14 +233,19 @@ export interface CountingQuestion {
   subSkill: string
 }
 
+/** A production task, not recognition: the child collects coins (tapping repeatedly from
+ * `paletteCoinIds`'s unlimited-supply denominations, see MoneyBoard.tsx) into a payment
+ * tray until its running total exactly equals `targetAmount` — closer to real change-making
+ * than picking a pre-computed sum from 4 choices. */
 export interface MoneyQuestion {
   id: string
   category: 'money'
   level: Level
-  /** words-image ids of the coin(s) shown, e.g. ['yen10', 'yen5'] — see moneyBank.ts */
-  coinIds: string[]
-  answer: number
-  choices: number[]
+  /** yen amount to build by collecting coins */
+  targetAmount: number
+  /** words-image ids of the coin denominations available in the palette, e.g. ['yen10',
+   * 'yen5'] — see moneyBank.ts. Each is tappable any number of times (unlimited supply). */
+  paletteCoinIds: string[]
   subSkill: string
 }
 

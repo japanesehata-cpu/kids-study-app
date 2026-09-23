@@ -171,6 +171,13 @@ function isCompatibleQuestion(q: Question): boolean {
     // resurface with count undefined and break CountingQuestionView's Array.from.
     return typeof q.counterId === 'string' && Array.isArray(q.choiceCounterIds) && typeof q.count === 'number'
   }
+  if (q.category === 'money') {
+    // Guards against a stored reviewQueue entry from before the coin-collection redesign
+    // replaced coinIds/answer/choices with targetAmount/paletteCoinIds (see
+    // questionGenerators/money.ts) — an old-shaped entry would otherwise resurface with
+    // targetAmount undefined and break MoneyBoard's tray-total arithmetic.
+    return typeof q.targetAmount === 'number' && Array.isArray(q.paletteCoinIds)
+  }
   return true
 }
 
@@ -303,14 +310,14 @@ function questionSignature(q: Question): string {
   }
   if (q.category === 'counting') return `counting:${q.counterId}`
   if (q.category === 'money') {
-    // ★1/★2 (single-coin recognition) only have 3/6 possible distinct questions — far
-    // fewer than SET_SIZE — so repeats within one round are unavoidable and fine (a
+    // ★1/★2 (single-coin targets) only have 3/6 possible distinct targetAmount values —
+    // far fewer than SET_SIZE — so repeats within one round are unavoidable and fine (a
     // flashcard drill through a small deck is expected to cycle). Using `id` (always
     // unique) here means "never a duplicate" for those, letting generateQuestionSet fill
     // the round by generating fresh draws instead of stalling out at 3/6 questions and
     // returning a short set. ★3-5 (2-3 coin combinations) have plenty of distinct sums to
-    // draw from, so those still dedupe by the actual coins shown, for real variety.
-    return q.coinIds.length === 1 ? `money:${q.id}` : `money:${q.coinIds.slice().sort().join(',')}`
+    // draw from, so those still dedupe by the actual target amount, for real variety.
+    return q.level <= 2 ? `money:${q.id}` : `money:${q.level}:${q.targetAmount}`
   }
   if (q.category === 'englishSentence') return `sentence:${q.sentenceId}`
   if (q.category === 'sudoku') return `sudoku:${q.grid.map((row) => row.map((c) => c ?? '_').join('')).join('|')}`

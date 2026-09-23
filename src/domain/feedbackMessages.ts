@@ -133,6 +133,23 @@ const SUDOKU_FAILED: Record<Lang, string[]> = {
   ],
 }
 
+// Money's failed round (the wrong-guess limit was reached before the tray total matched
+// targetAmount — see MoneyBoard.tsx's MAX_WRONG_GUESSES) has the same "no single {answer}"
+// problem as spot-the-difference's/sudoku's failure above, so it gets the same treatment:
+// its own pool.
+const MONEY_FAILED: Record<Lang, string[]> = {
+  ja: [
+    'ざんねん！もういちど さいしょから ちょうせんしてみよう！',
+    'おしい！こんどは もっと じっくり かんがえてみよう！',
+    'だいじょうぶ！れんしゅうすれば きっと できるようになるよ！',
+  ],
+  en: [
+    "Oh no! Let's start over and try again!",
+    'So close! Take your time thinking it through next time!',
+    "That's okay — practice makes perfect!",
+  ],
+}
+
 const INCORRECT_NORMAL: Record<Lang, string[]> = {
   ja: [
     'おしい！こたえは {answer} だよ。つぎ いこう！',
@@ -252,6 +269,15 @@ export function buildSudokuFailedFeedback(lang: Lang): FeedbackResult {
   return { text, speech: [{ text, cacheKey }] }
 }
 
+/** Money's failure case (wrong-guess limit reached) — same reasoning as
+ * buildSpotDifferenceFailedFeedback above. */
+export function buildMoneyFailedFeedback(lang: Lang): FeedbackResult {
+  const idx = pickIndex(MONEY_FAILED[lang].length)
+  const text = MONEY_FAILED[lang][idx]
+  const cacheKey = lang === 'ja' ? `feedback-money-failed-${idx}` : undefined
+  return { text, speech: [{ text, cacheKey }] }
+}
+
 /** One cacheable (text, cacheKey) pair reachable from buildFeedbackMessage in ja for one
  * category's voice — every template index crossed with every streak/justBrokeStreak value
  * that can actually occur, given the largest set size the level picker offers (see
@@ -320,6 +346,14 @@ export function enumerateFeedbackCacheEntries(category: Category): FeedbackCache
     // sudoku feedback line.
     SUDOKU_FAILED.ja.forEach((text, idx) => {
       entries.push({ cacheKey: `feedback-sudoku-failed-${idx}`, text })
+    })
+  }
+
+  if (category === 'money') {
+    // Added along with the coin-collection redesign's wrong-guess limit (see
+    // MoneyBoard.tsx's MAX_WRONG_GUESSES) — same reasoning as sudoku's branch above.
+    MONEY_FAILED.ja.forEach((text, idx) => {
+      entries.push({ cacheKey: `feedback-money-failed-${idx}`, text })
     })
   }
 

@@ -423,6 +423,48 @@
   flex-shrink: 0;
 }
 
+/* Replaces the old static "❓" — a real empty slot (dashed border) that the picked symbol
+ * drops into once answered, instead of a fixed placeholder glyph. */
+.pattern-slot {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px dashed var(--color-text-soft);
+  border-radius: var(--radius-sm);
+  opacity: 0.6;
+}
+
+.pattern-slot.correct,
+.pattern-slot.incorrect {
+  opacity: 1;
+  border-style: solid;
+  animation: pattern-slot-pop 0.25s ease;
+}
+
+.pattern-slot.correct {
+  border-color: var(--color-success);
+  background: var(--color-success-soft);
+}
+
+.pattern-slot.incorrect {
+  border-color: var(--color-error);
+  background: var(--color-error-soft);
+}
+
+@keyframes pattern-slot-pop {
+  0% {
+    transform: scale(0.6);
+  }
+  60% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .addition-visual {
   display: flex;
   align-items: center;
@@ -697,6 +739,48 @@
   }
 }
 
+/* Same "a place, not a color swatch" scene treatment as .spot-scene-panel above, but a
+ * single scene (logic's oddOneOut has only one set of 4 items, not two panels to compare). */
+.oddoneout-scene {
+  position: relative;
+  aspect-ratio: 1;
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    to bottom,
+    var(--color-accent-soft) 0%,
+    var(--color-accent-soft) 35%,
+    var(--color-primary-soft) 100%
+  );
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.oddoneout-item {
+  position: absolute;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.oddoneout-item:disabled {
+  cursor: default;
+}
+
+.oddoneout-item.correct {
+  outline: 4px solid var(--color-success);
+  outline-offset: 4px;
+}
+
+.oddoneout-item.incorrect {
+  outline: 4px solid var(--color-error);
+  outline-offset: 4px;
+}
+
 .sudoku-board {
   display: flex;
   flex-direction: column;
@@ -809,6 +893,144 @@
 .sudoku-palette-item:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+.number-pad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.number-pad-display {
+  min-width: 140px;
+  min-height: 56px;
+  padding: 0 20px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.number-pad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.number-pad-button {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.number-pad-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.number-pad-submit {
+  background: var(--color-primary);
+  color: white;
+}
+
+.money-board {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Same look/role as .sudoku-wrong-count/.spot-wrong-count — see MoneyBoard.tsx's
+   MAX_WRONG_GUESSES. */
+.money-wrong-count {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-error);
+  background: var(--color-error-soft);
+  padding: 6px 18px;
+  border-radius: 999px;
+}
+
+.money-target {
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.money-tray {
+  min-height: 72px;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-soft);
+  box-shadow: inset 0 0 0 2px var(--color-accent-soft);
+}
+
+.money-tray-empty {
+  font-size: 32px;
+  opacity: 0.4;
+}
+
+.money-tray-total {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.money-palette {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.money-palette-item {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.money-palette-item:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.money-palette-item.wrong {
+  animation: spot-shake 0.35s ease;
 }
 
 .icon-button {
@@ -1150,5 +1372,18 @@
   .sudoku-palette-item--classic {
     width: 52px;
     height: 52px;
+  }
+
+  /* Same reasoning as .sudoku-palette-item's bump above — money-palette-item is a
+     fixed-size box holding a WordIcon too. */
+  .money-palette-item {
+    width: 92px;
+    height: 92px;
+  }
+
+  .number-pad-button {
+    width: 76px;
+    height: 76px;
+    font-size: 28px;
   }
 }

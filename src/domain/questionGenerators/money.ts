@@ -1,6 +1,5 @@
 import type { Level, MoneyQuestion } from '../types'
 import { coinBank, getCoinById } from '../moneyBank'
-import { generateNumericChoices } from '../../lib/choices'
 import { shuffle } from '../../lib/shuffle'
 
 function makeId(): string {
@@ -20,11 +19,11 @@ const SMALL_COIN_IDS = ['yen1', 'yen5', 'yen10']
 // combinations up to the full set.
 const NO_500_COIN_IDS = coinBank.filter((c) => c.id !== 'yen500').map((c) => c.id)
 
-/** One fixed coin count per level, one fixed pool per level — deliberately not a random
- * range within a level (same "a level is one consistent difficulty" principle applied
- * throughout this app's other categories): ★1-2 show a single coin (recognition only),
- * ★3-5 show a combination to total up (recognition + addition), with the pool and coin
- * count each level uses spelled out here rather than computed. */
+/** One fixed palette per level, one fixed coin-count-to-collect per level — same "a level
+ * is one consistent difficulty" principle as every other category. ★1-2 target a single
+ * denomination's value (recognition: which coin is worth this much); ★3-5 target a sum of
+ * 2-3 coins (real combination-making). The palette is always the pool the target itself was
+ * drawn from, so every target is provably reachable — see generateMoneyQuestion. */
 function poolForLevel(level: Level): string[] {
   if (level === 1) return SMALL_COIN_IDS
   if (level === 3) return NO_500_COIN_IDS
@@ -46,29 +45,20 @@ function subSkillForLevel(level: Level): string {
 export function generateMoneyQuestion(level: Level): MoneyQuestion {
   const pool = poolForLevel(level)
   const count = coinCountForLevel(level)
-  const coinIds = Array.from({ length: count }, () => pickRandom(pool))
-  const answer = coinIds.reduce((sum, id) => sum + getCoinById(id).value, 0)
-
-  // Single-coin recognition draws its wrong choices from the *other real coin values* —
-  // the actual mistake this level teaches against is confusing one denomination for
-  // another, not an arbitrary nearby number. Combination totals aren't themselves
-  // constrained to a real coin value, so those fall back to the generic numeric-choice
-  // generator used throughout the app (arithmetic, missingOperand, ...).
-  const choices =
-    count === 1
-      ? shuffle([
-          answer,
-          ...shuffle(coinBank.filter((c) => c.id !== coinIds[0]).map((c) => c.value)).slice(0, 3),
-        ])
-      : generateNumericChoices(answer, 0, 1600)
+  // The specific coins drawn here only fix the *target amount* — the palette has
+  // unlimited supply of each denomination (see MoneyBoard.tsx), so the child is free to
+  // reach that amount with a different combination than the one drawn (e.g. 15円 via
+  // 5+5+5 instead of 10+5) — closer to real change-making, where more than one correct
+  // combination usually exists.
+  const drawnCoinIds = Array.from({ length: count }, () => pickRandom(pool))
+  const targetAmount = drawnCoinIds.reduce((sum, id) => sum + getCoinById(id).value, 0)
 
   return {
     id: makeId(),
     category: 'money',
     level,
-    coinIds,
-    answer,
-    choices,
+    targetAmount,
+    paletteCoinIds: shuffle(pool),
     subSkill: subSkillForLevel(level),
   }
 }

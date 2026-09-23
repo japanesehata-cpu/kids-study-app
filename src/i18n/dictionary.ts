@@ -119,11 +119,11 @@ export const dictionary = {
   levelDescKanji4: { ja: 'いろ・おおきさ・むき', en: 'Colors, size & direction' },
   levelDescKanji5: { ja: 'いきもの・まち', en: 'Animals & places' },
   levelDescKanji6: { ja: 'まなび・とき（ぜんぶ）', en: 'Study & time (all 80)' },
-  levelDescMoney1: { ja: '1まい（1・5・10円）', en: '1 coin (1, 5, 10 yen)' },
-  levelDescMoney2: { ja: '1まい（ぜんぶの こうか）', en: '1 coin (any denomination)' },
-  levelDescMoney3: { ja: '2まいの ごうけい（500円なし）', en: '2 coins added up (no 500 yen)' },
-  levelDescMoney4: { ja: '2まいの ごうけい（ぜんぶの こうか）', en: '2 coins added up (any denomination)' },
-  levelDescMoney5: { ja: '3まいの ごうけい', en: '3 coins added up' },
+  levelDescMoney1: { ja: '1・5・10円で きんがくを つくる', en: 'Build the amount with 1, 5, 10 yen coins' },
+  levelDescMoney2: { ja: 'ぜんぶの こうかで きんがくを つくる', en: 'Build the amount with any coin' },
+  levelDescMoney3: { ja: '2まいぶんの きんがくを つくる（500円なし）', en: 'Build a 2-coin amount (no 500 yen)' },
+  levelDescMoney4: { ja: '2まいぶんの きんがくを つくる', en: 'Build a 2-coin amount' },
+  levelDescMoney5: { ja: '3まいぶんの きんがくを つくる', en: 'Build a 3-coin amount' },
   levelDescShapes1: { ja: 'まる・さんかく・しかく・ほし', en: 'Circle, triangle, square, star' },
   levelDescShapes2: { ja: 'かたちの なまえ（7しゅるい）', en: 'Shape names (7 kinds)' },
   levelDescShapes3: { ja: 'へんの かずを かぞえよう', en: 'Count the sides' },
@@ -182,8 +182,6 @@ export const dictionary = {
   },
   reviewProgress: { ja: 'ふくしゅう {current}/{total}', en: 'Review {current}/{total}' },
   reviewDoneButton: { ja: 'おわり', en: 'Done' },
-  moneySinglePrompt: { ja: 'これは なんえんかな？', en: 'How much is this?' },
-  moneyComboPrompt: { ja: 'ぜんぶで なんえんかな？', en: 'How much is it all together?' },
   // shapes' 3 prompts, one per kind (see domain/questionGenerators/shapes.ts's KIND_BY_LEVEL):
   // 'pickShape' names a shape and the choices are shapes (production direction), 'pickName'/
   // 'countSides' show one shape and ask about it (recognition direction).
@@ -213,6 +211,14 @@ export const dictionary = {
   sudokuButton: { ja: 'すうどく', en: 'Sudoku' },
   missingOperandButton: { ja: '□の けいさん', en: 'Missing Number' },
   missingOperandPrompt: { ja: 'しかくに あう かずを えらんでね', en: 'Choose the number that fills the blank' },
+  numberPadClearLabel: { ja: 'けす', en: 'Clear' },
+  numberPadSubmitLabel: { ja: 'かくにん', en: 'Submit' },
+  // Fixed, cacheable sentence — the target amount itself varies per question and is shown
+  // on-screen instead (see MoneyBoard.tsx's .money-target), same "keep the spoken prompt
+  // one fixed sentence" design as sudokuPrompt above.
+  moneyTargetPrompt: { ja: 'こうかを タップして、おなじ きんがくに してね', en: 'Tap coins to match the target amount' },
+  moneyWrongCount: { ja: 'まちがえた かいすう：{count} / {max}', en: 'Wrong guesses: {count} / {max}' },
+  moneyResetButton: { ja: 'やりなおす', en: 'Start over' },
   // Shared title for every subject's mode-chooser (AdditionEntryScreen, SubtractionEntryScreen,
   // LogicEntryScreen, MojiModeEntryScreen) — same generic phrasing as kanjiEntryTitle/
   // handwritingLevelSelectTitle, kept as its own key rather than reusing those so each

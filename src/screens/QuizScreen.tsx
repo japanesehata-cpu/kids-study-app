@@ -931,6 +931,14 @@ export function QuizScreen({
   // announcement. Guard each step so an unmounted screen's chain stops issuing new calls.
   const isMountedRef = useRef(true)
   useEffect(() => {
+    // Explicitly set true on setup, not just relying on useRef's initial value — React 18
+    // StrictMode's dev-only mount→cleanup→remount double-invoke runs this effect's cleanup
+    // (setting .current = false) and then re-runs the effect body without ever setting it
+    // back to true, since the effect body used to be empty. That left isMountedRef.current
+    // stuck false for the rest of local dev (breaking every answer's speech, verified via
+    // instrumented testing — production is unaffected since React only invokes effects
+    // once there), even though the component was genuinely still mounted.
+    isMountedRef.current = true
     return () => {
       isMountedRef.current = false
     }

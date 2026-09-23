@@ -136,6 +136,7 @@ function buildJobs() {
     sudoku: 'introKoko',
     missingOperandAddition: 'introMomo',
     missingOperandSubtraction: 'introSora',
+    shapes: 'introKaku',
   }
   for (const { category } of CATEGORY_META) {
     const text = dictionary[introKeyByCategory[category]].ja

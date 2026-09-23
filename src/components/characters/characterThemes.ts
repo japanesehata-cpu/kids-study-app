@@ -201,7 +201,11 @@ export const characterThemes: Record<Category, CharacterTheme> = {
   // instead of hiragana's yui: alphabet has no card of its own on the Home grid (it's
   // reached via もじ, not directly), so its portrait was otherwise sitting unused — that
   // makes it a genuinely distinct-looking placeholder rather than the previous yui reuse,
-  // which put two identical faces (もじ/かんじ) side by side on Home.
+  // which put two identical faces (もじ/かんじ) side by side on Home. voiceProfile was left
+  // pointing at yui's old voice through that portrait swap — a real face/voice mismatch a
+  // child would notice mid-question — so this borrows aru's voice too, matching the
+  // borrowed portrait (see generate-tts-cache.mjs's --only run this was paired with to
+  // regenerate every affected cached kanji-*/feedback-kanji-*/result-kanji-* file).
   kanji: {
     id: 'aru',
     colorMain: '#f4a259',
@@ -210,11 +214,11 @@ export const characterThemes: Record<Category, CharacterTheme> = {
     colorAccent: '#6ec6ff',
     colorAccentDark: '#3f9bd9',
     voiceProfile: {
-      pitch: 1.15,
-      rate: 0.92,
-      playbackRate: 1.06,
-      voicevoxSpeaker: { name: '春日部つむぎ', style: 'ノーマル' },
-      kokoroVoice: 'bf_emma',
+      pitch: 1.2,
+      rate: 1.0,
+      playbackRate: 1.05,
+      voicevoxSpeaker: { name: '猫使アル', style: 'うきうき' },
+      kokoroVoice: 'am_puck',
     },
   },
   katakana: {
@@ -312,8 +316,13 @@ export const characterThemes: Record<Category, CharacterTheme> = {
   // of the last retry). This used to reuse kazu's (counting's) art directly, which put two
   // identical faces (かぞえる/おかね) side by side on Home; it now reuses peko's
   // (katakana's) art instead — katakana has no card of its own on the Home grid (it's
-  // reached via もじ, not directly), so its portrait was otherwise sitting unused. Swap
-  // this to a dedicated mascot once portrait generation is unblocked.
+  // reached via もじ, not directly), so its portrait was otherwise sitting unused.
+  // voiceProfile was left pointing at kazu's old voice through that portrait swap — the
+  // same leftover face/voice mismatch fixed on kanji's theme above — so this borrows
+  // peko's voice too, matching the borrowed portrait (cached money-*/feedback-money-*/
+  // prompt-money-*/result-money-* files were regenerated to match via generate-tts-
+  // cache.mjs). Swap this to a dedicated mascot (portrait AND voice) once portrait
+  // generation is unblocked.
   money: {
     id: 'peko',
     colorMain: '#2ec4b6',
@@ -322,11 +331,11 @@ export const characterThemes: Record<Category, CharacterTheme> = {
     colorAccent: '#ff9f4a',
     colorAccentDark: '#d97a2a',
     voiceProfile: {
-      pitch: 1.05,
-      rate: 1.0,
-      playbackRate: 1.0,
-      voicevoxSpeaker: { name: 'もち子さん', style: 'ノーマル' },
-      kokoroVoice: 'am_michael',
+      pitch: 1.3,
+      rate: 1.1,
+      playbackRate: 1.15,
+      voicevoxSpeaker: { name: 'ずんだもん', style: 'ノーマル' },
+      kokoroVoice: 'af_jessica',
     },
   },
   // A brand-new mascot, drafted here (id 'kaku', see generate-character-portraits.mjs)

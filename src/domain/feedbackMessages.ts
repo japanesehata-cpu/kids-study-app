@@ -313,5 +313,15 @@ export function enumerateFeedbackCacheEntries(category: Category): FeedbackCache
     })
   }
 
+  if (category === 'sudoku') {
+    // Added along with the wrong-guess limit (see SudokuBoard.tsx's MAX_WRONG_GUESSES) —
+    // without this, buildSudokuFailedFeedback's text never gets a cached file and always
+    // falls back to the generic browser voice on a deployed site, unlike every other
+    // sudoku feedback line.
+    SUDOKU_FAILED.ja.forEach((text, idx) => {
+      entries.push({ cacheKey: `feedback-sudoku-failed-${idx}`, text })
+    })
+  }
+
   return entries
 }

@@ -245,6 +245,7 @@ function buildJobs() {
     { cacheKey: 'prompt-clock', dictKey: 'clockPrompt', category: 'clock' },
     { cacheKey: 'prompt-spotdifference', dictKey: 'spotDifferencePrompt', category: 'spotDifference' },
     { cacheKey: 'prompt-sudoku', dictKey: 'sudokuPrompt', category: 'sudoku' },
+    { cacheKey: 'prompt-sudoku-classic', dictKey: 'sudokuPromptClassic', category: 'sudoku' },
     { cacheKey: 'prompt-addition-missing', dictKey: 'missingOperandPrompt', category: 'addition' },
     { cacheKey: 'prompt-subtraction-missing', dictKey: 'missingOperandPrompt', category: 'subtraction' },
     { cacheKey: 'prompt-english-look', dictKey: 'lookPrompt', category: 'englishSpelling' },

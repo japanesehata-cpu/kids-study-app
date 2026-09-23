@@ -745,7 +745,9 @@
   position: relative;
   aspect-ratio: 1;
   width: 100%;
-  max-width: 380px;
+  /* Square, so width also drives height — capped by vh too (not just 380px) so a short
+     phone viewport shrinks the whole scene instead of only being width-limited. */
+  max-width: min(380px, 60vh);
   margin: 0 auto;
   border-radius: var(--radius-md);
   background: linear-gradient(
@@ -895,21 +897,22 @@
   cursor: default;
 }
 
+/* Same clamp()/vh discipline as .money-board — see its comment. */
 .number-pad {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: clamp(8px, 1.5vh, 16px);
 }
 
 .number-pad-display {
   min-width: 140px;
-  min-height: 56px;
+  min-height: clamp(44px, 7vh, 56px);
   padding: 0 20px;
   border-radius: var(--radius-md);
   background: var(--color-surface);
   box-shadow: var(--shadow-card);
-  font-size: 32px;
+  font-size: clamp(24px, 4vh, 32px);
   font-weight: 800;
   color: var(--color-text);
   display: flex;
@@ -921,17 +924,17 @@
 .number-pad-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: clamp(6px, 1.2vh, 12px);
 }
 
 .number-pad-button {
-  width: 64px;
-  height: 64px;
+  width: clamp(48px, 9vh, 64px);
+  height: clamp(48px, 9vh, 64px);
   border-radius: var(--radius-sm);
   border: none;
   background: var(--color-surface);
   box-shadow: var(--shadow-card);
-  font-size: 24px;
+  font-size: clamp(18px, 3vh, 24px);
   font-weight: 800;
   color: var(--color-text);
   display: flex;
@@ -951,33 +954,37 @@
   color: white;
 }
 
+/* Every size below is clamp()/vh-based rather than a fixed px, same discipline as
+   .screen/.card-panel/.character-portrait — MoneyBoard stacks a lot of pieces (prompt,
+   wrong-count, target, tray, total, reset button, up to 6 palette coins), so on a short
+   phone viewport it needs to shrink toward fitting without a scroll, not just clip. */
 .money-board {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: clamp(8px, 1.5vh, 16px);
 }
 
 /* Same look/role as .sudoku-wrong-count/.spot-wrong-count — see MoneyBoard.tsx's
    MAX_WRONG_GUESSES. */
 .money-wrong-count {
-  font-size: 18px;
+  font-size: clamp(14px, 2vh, 18px);
   font-weight: 800;
   color: var(--color-error);
   background: var(--color-error-soft);
-  padding: 6px 18px;
+  padding: clamp(4px, 1vh, 6px) 18px;
   border-radius: 999px;
 }
 
 .money-target {
-  font-size: 40px;
+  font-size: clamp(26px, 5vh, 40px);
   font-weight: 800;
   color: var(--color-primary-dark);
   font-variant-numeric: tabular-nums;
 }
 
 .money-tray {
-  min-height: 72px;
+  min-height: clamp(52px, 9vh, 72px);
   width: 100%;
   max-width: 400px;
   display: flex;
@@ -985,19 +992,19 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px;
+  padding: clamp(8px, 1.5vh, 12px);
   border-radius: var(--radius-md);
   background: var(--color-bg-soft);
   box-shadow: inset 0 0 0 2px var(--color-accent-soft);
 }
 
 .money-tray-empty {
-  font-size: 32px;
+  font-size: clamp(24px, 4vh, 32px);
   opacity: 0.4;
 }
 
 .money-tray-total {
-  font-size: 22px;
+  font-size: clamp(17px, 2.6vh, 22px);
   font-weight: 800;
   color: var(--color-text);
   font-variant-numeric: tabular-nums;
@@ -1005,14 +1012,14 @@
 
 .money-palette {
   display: flex;
-  gap: 14px;
+  gap: clamp(8px, 1.5vh, 14px);
   flex-wrap: wrap;
   justify-content: center;
 }
 
 .money-palette-item {
-  width: 72px;
-  height: 72px;
+  width: clamp(52px, 9vh, 72px);
+  height: clamp(52px, 9vh, 72px);
   border-radius: var(--radius-sm);
   border: none;
   background: var(--color-surface);

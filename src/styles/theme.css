@@ -24,7 +24,14 @@
   --font-family: 'Hiragino Maru Gothic ProN', 'Rounded Mplus 1c', 'Zen Maru Gothic',
     'Hiragino Sans', sans-serif;
 
-  --touch-target-min: 88px;
+  /* Generous 88px on a normal/tall phone viewport (deliberately large for small hands with
+     less fine motor control), but shrinks toward a still-comfortable 56px (above the
+     44-48px iOS/Material minimums) on a short viewport — same clamp()/vh discipline as
+     .screen/.card-panel, extended here so every button built on this token (choice-button,
+     primary/secondary-button, icon-button, category-header pills) helps the "avoid
+     scrolling on a phone" goal instead of being the single biggest fixed cost in every
+     screen's top bar. */
+  --touch-target-min: clamp(56px, 10vh, 88px);
 }
 
 * {

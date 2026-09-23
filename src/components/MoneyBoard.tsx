@@ -93,7 +93,7 @@ export function MoneyBoard({ question, promptText, onComplete, onFailed, disable
             disabled={disabled}
             aria-label={coinId}
           >
-            <WordIcon wordId={coinId} size={56} />
+            <WordIcon wordId={coinId} size={44} />
           </button>
         ))}
       </div>

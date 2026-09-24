@@ -118,11 +118,11 @@ export function ResultScreen({ result, onRetry, onBack, onBackHome }: ResultScre
           <button type="button" className="primary-button" onClick={onRetry}>
             {t('tryAgainButton')}
           </button>
-          <button type="button" className="secondary-button" onClick={onBack}>
-            {t('backButton')}
+          <button type="button" className="icon-button" onClick={onBack} aria-label={t('backButton')}>
+            ←
           </button>
-          <button type="button" className="secondary-button" onClick={onBackHome}>
-            {t('backHomeButton')}
+          <button type="button" className="icon-button" onClick={onBackHome} aria-label={t('backHomeButton')}>
+            🏠
           </button>
         </div>
       </div>

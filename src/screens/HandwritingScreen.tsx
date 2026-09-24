@@ -111,11 +111,11 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
     <div className="screen">
       <div className="top-bar">
         <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" className="secondary-button" onClick={onBack}>
-            {t('backButton')}
+          <button type="button" className="icon-button" onClick={onBack} aria-label={t('backButton')}>
+            ←
           </button>
-          <button type="button" className="secondary-button" onClick={onHome}>
-            {t('backHomeButton')}
+          <button type="button" className="icon-button" onClick={onHome} aria-label={t('backHomeButton')}>
+            🏠
           </button>
         </div>
         <CategoryHeader category={category} />

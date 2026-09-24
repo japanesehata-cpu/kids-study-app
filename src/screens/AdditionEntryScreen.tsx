@@ -28,7 +28,7 @@ export function AdditionEntryScreen({ onSelect, onBack, onHome }: AdditionEntryS
             ←
           </button>
           <button type="button" className="icon-button" onClick={onHome} aria-label={t('backHomeButton')}>
-            🏠
+            ⌂
           </button>
         </div>
         <CategoryHeader category="addition" />

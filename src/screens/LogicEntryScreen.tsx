@@ -24,7 +24,7 @@ export function LogicEntryScreen({ onSelect, onBack, onHome }: LogicEntryScreenP
             ←
           </button>
           <button type="button" className="icon-button" onClick={onHome} aria-label={t('backHomeButton')}>
-            🏠
+            ⌂
           </button>
         </div>
         <CategoryHeader category="logic" />

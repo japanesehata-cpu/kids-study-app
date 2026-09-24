@@ -24,7 +24,7 @@ export function SubtractionEntryScreen({ onSelect, onBack, onHome }: Subtraction
             ←
           </button>
           <button type="button" className="icon-button" onClick={onHome} aria-label={t('backHomeButton')}>
-            🏠
+            ⌂
           </button>
         </div>
         <CategoryHeader category="subtraction" />

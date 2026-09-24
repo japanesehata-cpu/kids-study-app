@@ -27,7 +27,7 @@ export function KanjiEntryScreen({ onSelect, onBack, onHome }: KanjiEntryScreenP
             ←
           </button>
           <button type="button" className="icon-button" onClick={onHome} aria-label={t('backHomeButton')}>
-            🏠
+            ⌂
           </button>
         </div>
         <CategoryHeader category="kanji" />

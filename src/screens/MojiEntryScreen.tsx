@@ -26,7 +26,7 @@ export function MojiEntryScreen({ onSelect, onBack, onHome }: MojiEntryScreenPro
             ←
           </button>
           <button type="button" className="icon-button" onClick={onHome} aria-label={t('backHomeButton')}>
-            🏠
+            ⌂
           </button>
         </div>
       </div>

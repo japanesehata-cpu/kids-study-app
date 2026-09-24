@@ -89,7 +89,7 @@ export function WordTraceScreen({ onBack, onHome }: WordTraceScreenProps) {
             ←
           </button>
           <button type="button" className="icon-button" onClick={onHome} aria-label={t('backHomeButton')}>
-            🏠
+            ⌂
           </button>
         </div>
         {/* Not <CategoryHeader category="englishSpelling" /> — that pulls in the

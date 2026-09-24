@@ -122,7 +122,7 @@ export function ResultScreen({ result, onRetry, onBack, onBackHome }: ResultScre
             ←
           </button>
           <button type="button" className="icon-button" onClick={onBackHome} aria-label={t('backHomeButton')}>
-            🏠
+            ⌂
           </button>
         </div>
       </div>

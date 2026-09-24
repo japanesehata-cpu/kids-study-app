@@ -5,6 +5,7 @@ import { getLevelDescriptionKey, getSudokuClassicLevelDescriptionKey } from '../
 import type { ClockMode } from '../domain/questionGenerators/clock'
 import type { SudokuMode } from '../domain/questionGenerators/sudoku'
 import { useI18n } from '../i18n/I18nContext'
+import type { DictionaryKey } from '../i18n/dictionary'
 import { CharacterPortrait } from '../components/characters/CharacterPortrait'
 import { characterThemes } from '../components/characters/characterThemes'
 import { CategoryHeader } from '../components/CategoryHeader'
@@ -12,6 +13,20 @@ import { InteractiveClock } from '../components/InteractiveClock'
 
 const CLOCK_MODE_OPTIONS: ClockMode[] = ['multipleChoice', 'setTime']
 const SUDOKU_MODE_OPTIONS: SudokuMode[] = ['mini', 'classic']
+
+/** ろんり's ★1/★2/★3 are 3 unrelated puzzle kinds (odd-one-out/pattern/compare — see
+ * questionGenerators/logic.ts's KIND_BY_LEVEL), not an escalating difficulty ladder — a
+ * ★1/★2/★3 star row next to them would claim an ordering ("compare is harder than spotting
+ * the odd one out") that isn't actually true. So logic is the one category whose level
+ * grid drops the number+star display entirely and shows each kind's own short name
+ * instead, same "name + one-line description" shape as the practice/mode choosers
+ * (AdditionEntryScreen, LogicEntryScreen itself, etc.) rather than LevelSelectScreen's
+ * usual difficulty-ladder look. */
+const LOGIC_KIND_LABEL_KEY: Record<number, DictionaryKey> = {
+  1: 'logicKindOddOneOut',
+  2: 'logicKindPattern',
+  3: 'logicKindCompare',
+}
 
 interface LevelSelectScreenProps {
   category: Category
@@ -69,7 +84,7 @@ export function LevelSelectScreen({
 
       {category === 'clock' && <InteractiveClock size={220} />}
 
-      <p className="subtitle">{t('levelSelectTitle')}</p>
+      <p className="subtitle">{t(category === 'logic' ? 'logicKindSelectTitle' : 'levelSelectTitle')}</p>
 
       {category === 'clock' && (
         <div className="set-size-toggle">
@@ -133,11 +148,17 @@ export function LevelSelectScreen({
                 )
               }
             >
-              <span className="level-number">{level}</span>
-              <span className="level-stars">
-                {'★'.repeat(level)}
-                {'☆'.repeat(maxLevel - level)}
-              </span>
+              {category === 'logic' ? (
+                <span className="level-number">{t(LOGIC_KIND_LABEL_KEY[level])}</span>
+              ) : (
+                <>
+                  <span className="level-number">{level}</span>
+                  <span className="level-stars">
+                    {'★'.repeat(level)}
+                    {'☆'.repeat(maxLevel - level)}
+                  </span>
+                </>
+              )}
               {descKey && <span className="level-description">{t(descKey)}</span>}
             </button>
           )

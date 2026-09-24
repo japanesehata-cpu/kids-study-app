@@ -81,6 +81,9 @@ export const dictionary = {
   startButton: { ja: 'はじめる', en: 'Start' },
 
   levelSelectTitle: { ja: 'どのレベルにする？', en: 'Pick a level!' },
+  // ろんり only — "レベル" wording would repeat the same false difficulty-ladder framing
+  // the star row was dropped for (see LevelSelectScreen.tsx's LOGIC_KIND_LABEL_KEY).
+  logicKindSelectTitle: { ja: 'どれで あそぶ？', en: 'Pick a puzzle!' },
 
   // One short line per level (see domain/levelDescriptions.ts for why) — what each level
   // actually tests, not a restatement of the star count.
@@ -104,6 +107,14 @@ export const dictionary = {
   levelDescLogic1: { ja: 'なかまはずれを みつけよう', en: 'Find the odd one out' },
   levelDescLogic2: { ja: 'きまりを みつけよう', en: 'Spot the repeating pattern' },
   levelDescLogic3: { ja: 'おおきい・ちいさいを くらべよう', en: 'Compare biggest and smallest' },
+  // Short names for ろんり's 3 puzzle kinds, shown as each choice's main label on
+  // LevelSelectScreen instead of a level number + star count — see that screen's
+  // isKindChoiceCategory branch for why: these 3 kinds aren't a difficulty ladder (nothing
+  // about "compare two numbers" is inherently harder than "spot the pattern"), so a ★1/★2/★3
+  // star row next to them would misleadingly imply an ordering that isn't real.
+  logicKindOddOneOut: { ja: 'なかまはずれ', en: 'Odd One Out' },
+  logicKindPattern: { ja: 'きまり さがし', en: 'Pattern' },
+  logicKindCompare: { ja: 'おおきさ くらべ', en: 'Compare' },
   levelDescHiragana1: { ja: 'あ・か・さ行', en: '"a", "ka", "sa" rows' },
   levelDescHiragana2: { ja: 'あ〜ま行', en: '"a" through "ma" rows' },
   levelDescHiragana3: { ja: 'ぜんぶの もじ（にた もじに ちゅうい）', en: 'Every character, including tricky look-alikes' },

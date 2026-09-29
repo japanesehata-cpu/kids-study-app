@@ -38,11 +38,34 @@
   box-sizing: border-box;
 }
 
+/* Even once every child-facing screen's content fits within one viewport with room to
+   spare, the DOCUMENT itself staying scrollable (even by the odd sub-pixel of rounding
+   error, or during Safari's own toolbar show/hide animation) is enough for iOS to trigger
+   its rubber-band bounce on a vertical swipe — revealing the WebView's own white background
+   beyond the page, not anything this app draws. `overscroll-behavior: none` alone doesn't
+   reliably suppress that on every iOS version, so html/body are pinned with
+   `position: fixed` instead — the standard "lock the shell" technique for an app-like page —
+   which removes the document from scrolling at all, bounce included, regardless of content
+   height. `#root` becomes the one scrollable region so a genuinely tall screen (the
+   parent-only progress dashboard, still out of the no-scroll policy) still works; every
+   child-facing screen fits inside it already, so in practice #root has nothing to scroll
+   either. */
 html,
-body,
-#root {
+body {
   height: 100%;
   margin: 0;
+  overflow: hidden;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  overscroll-behavior: none;
+}
+
+#root {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
 }
 
 body {
@@ -50,7 +73,6 @@ body {
   background: linear-gradient(160deg, var(--color-bg) 0%, var(--color-bg-soft) 100%);
   color: var(--color-text);
   -webkit-tap-highlight-color: transparent;
-  overscroll-behavior: none;
 }
 
 /* This app is entirely tap/drag driven — no screen has running text worth selecting or

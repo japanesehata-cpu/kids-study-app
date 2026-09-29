@@ -11,6 +11,7 @@ import { TtsButton } from '../components/TtsButton'
 import { characterThemes } from '../components/characters/characterThemes'
 import { playCorrectSfx } from '../lib/sfx'
 import { shuffle } from '../lib/shuffle'
+import { useResponsiveSize } from '../lib/useResponsiveSize'
 
 type KanaCategory = 'hiragana' | 'katakana'
 type KanaEntry = HiraganaEntry | KatakanaEntry
@@ -75,6 +76,8 @@ export function KanaTraceScreen({ category, onBack, onHome }: KanaTraceScreenPro
   const isLastInDeck = index === order.length - 1
   const voiceProfile = characterThemes[category].voiceProfile
   const wentBackRef = useRef(false)
+  // See AlphabetTraceScreen.tsx's identical comment — HiraganaChar needs an actual number.
+  const charSize = useResponsiveSize(96, 0.14, 56)
 
   function handleComplete() {
     playCorrectSfx()
@@ -132,7 +135,7 @@ export function KanaTraceScreen({ category, onBack, onHome }: KanaTraceScreenPro
 
       {phase === 'praise' && praise && (
         <div className="handwriting-praise">
-          <HiraganaChar char={entry.char} size={96} />
+          <HiraganaChar char={entry.char} size={charSize} />
           <p className="handwriting-praise-text">{praise.text}</p>
           <TtsButton
             text={praise.text}
@@ -152,7 +155,7 @@ export function KanaTraceScreen({ category, onBack, onHome }: KanaTraceScreenPro
           <p className="hint-caption">
             {t('reviewProgress', { current: String(index + 1), total: String(order.length) })}
           </p>
-          <HiraganaChar char={entry.char} size={96} />
+          <HiraganaChar char={entry.char} size={charSize} />
           <TtsButton
             text={speechPhraseFor(category, entry)}
             lang="ja-JP"

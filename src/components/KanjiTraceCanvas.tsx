@@ -5,6 +5,11 @@ interface KanjiTraceCanvasProps {
   char: string
   /** Ordered SVG path "d" strings, viewBox "0 0 109 109" — see kanjiStrokes.ts. */
   strokes: string[]
+  /** Ceiling for the rendered size — the actual on-screen size shrinks toward a smaller
+   * floor on a short viewport (see the clamp() built from this value below), same
+   * clamp()/vh discipline as the rest of the app's mobile-first sizing. Safe to shrink
+   * freely: toSvgPoint() below reads the SVG's live on-screen CTM, not this number, so
+   * pointer coordinates stay correct at whatever size actually renders. */
   size?: number
   restartLabel: string
   onComplete: () => void
@@ -138,7 +143,7 @@ export function KanjiTraceCanvas({ char, strokes, size = DEFAULT_SIZE, restartLa
     <div className="handwriting-board">
       <div
         className={`kanji-trace-canvas-stack${mistake ? ' kanji-trace-canvas-stack--mistake' : ''}`}
-        style={{ width: size, height: size }}
+        style={{ width: `clamp(160px, 32vh, ${size}px)`, height: `clamp(160px, 32vh, ${size}px)` }}
       >
         <svg ref={svgRef} viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`} className="kanji-trace-svg">
           {strokes.map((d, i) => (

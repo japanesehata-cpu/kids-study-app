@@ -113,7 +113,7 @@ export function WordTraceScreen({ onBack, onHome }: WordTraceScreenProps) {
           <p className="hint-caption">
             {t('reviewProgress', { current: String(wordIndex + 1), total: String(wordOrder.length) })}
           </p>
-          <WordIcon wordId={entry.id} size={90} />
+          <WordIcon wordId={entry.id} size="clamp(56px, 11vh, 90px)" />
           <p className="word-trace-progress">
             {letters.map((letter, i) => (
               <span
@@ -143,7 +143,7 @@ export function WordTraceScreen({ onBack, onHome }: WordTraceScreenProps) {
 
       {phase === 'reveal' && (
         <div className="handwriting-praise">
-          <WordIcon wordId={entry.id} size={140} />
+          <WordIcon wordId={entry.id} size="clamp(80px, 16vh, 140px)" />
           <p className="handwriting-praise-text">{entry.word}</p>
           <p className="hint-caption">{entry.translationJa}</p>
           <TtsButton
@@ -164,7 +164,7 @@ export function WordTraceScreen({ onBack, onHome }: WordTraceScreenProps) {
           <p className="hint-caption">
             {t('reviewProgress', { current: String(wordIndex + 1), total: String(wordOrder.length) })}
           </p>
-          <WordIcon wordId={entry.id} size={140} />
+          <WordIcon wordId={entry.id} size="clamp(80px, 16vh, 140px)" />
           <p className="kanji-review-sentence">{entry.word}</p>
           <p className="hint-caption">{entry.translationJa}</p>
           <TtsButton

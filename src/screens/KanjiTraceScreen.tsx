@@ -125,7 +125,7 @@ export function KanjiTraceScreen({ onBack, onHome }: KanjiTraceScreenProps) {
       {phase === 'reveal' && (
         <div className="handwriting-praise">
           <p className="hint-caption">{t('kanjiTraceMeaningLabel')}</p>
-          <WordIcon wordId={entry.traceImageId!} size={140} />
+          <WordIcon wordId={entry.traceImageId!} size="clamp(80px, 16vh, 140px)" />
           <p className="handwriting-praise-text">{lang === 'ja' ? entry.meaningJa : entry.meaningEn}</p>
           <TtsButton
             text={kanjiSpeechPhrase(entry)}
@@ -145,7 +145,7 @@ export function KanjiTraceScreen({ onBack, onHome }: KanjiTraceScreenProps) {
           <p className="hint-caption">
             {t('reviewProgress', { current: String(index + 1), total: String(order.length) })}
           </p>
-          <WordIcon wordId={entry.traceImageId!} size={140} />
+          <WordIcon wordId={entry.traceImageId!} size="clamp(80px, 16vh, 140px)" />
           <p className="kanji-review-sentence">{lang === 'ja' ? entry.exampleSentenceJa : entry.exampleSentenceEn}</p>
           <TtsButton
             text={entry.exampleSentenceJa!}

@@ -10,6 +10,7 @@ import { TtsButton } from '../components/TtsButton'
 import { characterThemes } from '../components/characters/characterThemes'
 import { playCorrectSfx } from '../lib/sfx'
 import { shuffle } from '../lib/shuffle'
+import { useResponsiveSize } from '../lib/useResponsiveSize'
 
 interface AlphabetTraceScreenProps {
   onBack: () => void
@@ -63,6 +64,9 @@ export function AlphabetTraceScreen({ onBack, onHome }: AlphabetTraceScreenProps
   const isLastReview = reviewIndex === reviewOrder.length - 1
   const voiceProfile = characterThemes.alphabet.voiceProfile
   const wentBackRef = useRef(false)
+  // HiraganaChar computes its own font-size/border-radius from this number (not a CSS var +
+  // clamp() like WordIcon/TtsButton), so it needs an actual shrunk number, not a CSS string.
+  const charSize = useResponsiveSize(96, 0.14, 56)
 
   function handleComplete() {
     playCorrectSfx()
@@ -120,7 +124,7 @@ export function AlphabetTraceScreen({ onBack, onHome }: AlphabetTraceScreenProps
 
       {phase === 'praise' && praise && (
         <div className="handwriting-praise">
-          <HiraganaChar char={traceEntry.char} size={96} />
+          <HiraganaChar char={traceEntry.char} size={charSize} />
           <p className="handwriting-praise-text">{praise.text}</p>
           <TtsButton
             text={praise.text}
@@ -140,7 +144,7 @@ export function AlphabetTraceScreen({ onBack, onHome }: AlphabetTraceScreenProps
           <p className="hint-caption">
             {t('reviewProgress', { current: String(reviewIndex + 1), total: String(reviewOrder.length) })}
           </p>
-          <HiraganaChar char={reviewEntry.upper} size={96} />
+          <HiraganaChar char={reviewEntry.upper} size={charSize} />
           <TtsButton
             text={alphabetSpeechPhrase(reviewEntry)}
             lang="en-US"

@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { useResponsiveSize } from '../lib/useResponsiveSize'
 
 // Custom art (see scripts/generate-reward-images.mjs) instead of plain system emoji — the
 // 5 orbiting accents cycle through the 3 sparkle/star/heart images for the same visual
@@ -6,12 +7,23 @@ import { motion } from 'framer-motion'
 const ACCENT_IDS = ['star', 'heart', 'sparkle', 'star', 'sparkle']
 const REWARDS_BASE = `${import.meta.env.BASE_URL}images/rewards`
 
+// Original fixed design was a 220px box; every other measurement here is that same
+// proportion of it (accents 44/220, medal 110/220, orbit distance 90/220) so shrinking the
+// whole thing on a short viewport keeps its look instead of just cramming fixed-size parts
+// into a smaller box.
+const BASE_SIZE = 220
+
 export function StampReward() {
+  const size = useResponsiveSize(BASE_SIZE, 0.24, 130)
+  const scale = size / BASE_SIZE
+  const distance = 90 * scale
+  const accentSize = 44 * scale
+  const medalSize = 110 * scale
+
   return (
-    <div style={{ position: 'relative', width: 220, height: 220, margin: '0 auto' }}>
+    <div style={{ position: 'relative', width: size, height: size, margin: '0 auto' }}>
       {ACCENT_IDS.map((id, i) => {
         const angle = (i / ACCENT_IDS.length) * Math.PI * 2
-        const distance = 90
         const x = Math.cos(angle) * distance
         const y = Math.sin(angle) * distance
         return (
@@ -26,8 +38,8 @@ export function StampReward() {
               position: 'absolute',
               left: '50%',
               top: '50%',
-              width: 44,
-              height: 44,
+              width: accentSize,
+              height: accentSize,
               transform: 'translate(-50%, -50%)',
             }}
           />
@@ -43,8 +55,8 @@ export function StampReward() {
           position: 'absolute',
           left: '50%',
           top: '50%',
-          width: 110,
-          height: 110,
+          width: medalSize,
+          height: medalSize,
           transform: 'translate(-50%, -50%)',
         }}
       />

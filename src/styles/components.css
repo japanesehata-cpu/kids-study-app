@@ -360,6 +360,18 @@
   text-align: center;
 }
 
+/* ResultScreen's score line ("4 / 5 もんせいかい") — smaller ceiling than .equation-text
+ * since it's a longer string than a bare equation, but the same clamp()/vh shrink-on-short-
+ * viewport behavior (this used to be an inline `style={{fontSize: 36}}` on .equation-text
+ * itself, which silently overrode that class's own clamp and left the score full-size on
+ * every viewport). */
+.result-score-text {
+  font-size: clamp(22px, 5vh, 36px);
+  font-weight: 800;
+  color: var(--color-text);
+  text-align: center;
+}
+
 /* missingOperand's hidden slot — a dashed box standing in for the missing number,
  * distinct from the plain "= ?" the regular equation view uses (see
  * questionGenerators/missingOperand.ts and ArithmeticQuestionView in QuizScreen.tsx). */
@@ -962,29 +974,29 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(8px, 1.5vh, 16px);
+  gap: clamp(6px, 1.5vh, 16px);
 }
 
 /* Same look/role as .sudoku-wrong-count/.spot-wrong-count — see MoneyBoard.tsx's
    MAX_WRONG_GUESSES. */
 .money-wrong-count {
-  font-size: clamp(14px, 2vh, 18px);
+  font-size: clamp(13px, 2vh, 18px);
   font-weight: 800;
   color: var(--color-error);
   background: var(--color-error-soft);
-  padding: clamp(4px, 1vh, 6px) 18px;
+  padding: clamp(2px, 1vh, 6px) 18px;
   border-radius: 999px;
 }
 
 .money-target {
-  font-size: clamp(26px, 5vh, 40px);
+  font-size: clamp(24px, 5vh, 40px);
   font-weight: 800;
   color: var(--color-primary-dark);
   font-variant-numeric: tabular-nums;
 }
 
 .money-tray {
-  min-height: clamp(52px, 9vh, 72px);
+  min-height: clamp(44px, 9vh, 72px);
   width: 100%;
   max-width: 400px;
   display: flex;
@@ -992,19 +1004,19 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: clamp(8px, 1.5vh, 12px);
+  padding: clamp(6px, 1.5vh, 12px);
   border-radius: var(--radius-md);
   background: var(--color-bg-soft);
   box-shadow: inset 0 0 0 2px var(--color-accent-soft);
 }
 
 .money-tray-empty {
-  font-size: clamp(24px, 4vh, 32px);
+  font-size: clamp(20px, 4vh, 32px);
   opacity: 0.4;
 }
 
 .money-tray-total {
-  font-size: clamp(17px, 2.6vh, 22px);
+  font-size: clamp(15px, 2.6vh, 22px);
   font-weight: 800;
   color: var(--color-text);
   font-variant-numeric: tabular-nums;
@@ -1012,14 +1024,14 @@
 
 .money-palette {
   display: flex;
-  gap: clamp(8px, 1.5vh, 14px);
+  gap: clamp(6px, 1.5vh, 14px);
   flex-wrap: wrap;
   justify-content: center;
 }
 
 .money-palette-item {
-  width: clamp(52px, 9vh, 72px);
-  height: clamp(52px, 9vh, 72px);
+  width: clamp(46px, 9vh, 72px);
+  height: clamp(46px, 9vh, 72px);
   border-radius: var(--radius-sm);
   border: none;
   background: var(--color-surface);
@@ -1120,7 +1132,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: clamp(10px, 2vh, 20px);
 }
 
 .handwriting-canvas-stack {
@@ -1148,7 +1160,7 @@
 
 .handwriting-controls {
   display: flex;
-  gap: 16px;
+  gap: clamp(8px, 1.5vh, 16px);
 }
 
 .handwriting-praise {

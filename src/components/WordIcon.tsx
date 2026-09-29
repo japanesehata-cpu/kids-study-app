@@ -2,7 +2,11 @@ import { useState, type CSSProperties } from 'react'
 
 interface WordIconProps {
   wordId: string
-  size?: number
+  /** A plain number for the common case; a CSS size string (e.g. a `clamp(...)` expression)
+   * for the handful of call sites — a phase's single hero image, say — where the icon is
+   * large enough on its own to be worth shrinking further on a short viewport than
+   * `.word-icon`'s own 900px+ bump already does. */
+  size?: number | string
 }
 
 function IconShape({ wordId }: { wordId: string }) {
@@ -253,7 +257,7 @@ export function WordIcon({ wordId, size = 96 }: WordIconProps) {
   // "画面サイズに合わせてイメージの大きさを調整" request). Each call site's relative
   // sizing (a 140px hero image vs. a 72px choice tile) is preserved since they all
   // scale by the same factor together.
-  const style = { '--icon-size': `${size}px` } as CSSProperties
+  const style = { '--icon-size': typeof size === 'number' ? `${size}px` : size } as CSSProperties
 
   if (!generatedImageFailed) {
     return (

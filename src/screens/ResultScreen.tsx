@@ -83,9 +83,7 @@ export function ResultScreen({ result, onRetry, onBack, onBackHome }: ResultScre
       <StampReward />
 
       <div className="card-panel">
-        <p className="equation-text" style={{ fontSize: 36 }}>
-          {t('resultScoreLabel', { correct: correctCount, total })}
-        </p>
+        <p className="result-score-text">{t('resultScoreLabel', { correct: correctCount, total })}</p>
 
         {showBestStreak && (
           <p style={{ fontWeight: 700, color: 'var(--color-primary-dark)' }}>

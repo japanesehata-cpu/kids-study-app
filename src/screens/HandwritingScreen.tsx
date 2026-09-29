@@ -12,6 +12,7 @@ import { characterThemes } from '../components/characters/characterThemes'
 import { speak, type SpeechLang } from '../lib/tts'
 import { playCorrectSfx } from '../lib/sfx'
 import { shuffle } from '../lib/shuffle'
+import { useResponsiveSize } from '../lib/useResponsiveSize'
 
 type HandwritingCategory = 'hiragana' | 'katakana' | 'alphabet'
 
@@ -87,6 +88,12 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
       ? `alphabet-letter-${(entry as AlphabetWritableEntry).letterId}`
       : `${category}-${entry.id}`
   const { phrase: speechPhrase, lang: speechLang } = speechInfoFor(category, entry)
+  // HiraganaChar computes its own font-size/border-radius from this number (see
+  // AlphabetTraceScreen.tsx's identical comment). HandwritingCanvas is a real <canvas> whose
+  // drawing resolution and pixel-mask scoring both key off `size` directly, so it likewise
+  // needs an actual number here, not a CSS clamp() string like KanjiTraceCanvas's wrapper.
+  const charSize = useResponsiveSize(96, 0.14, 56)
+  const canvasSize = useResponsiveSize(280, 0.32, 160)
 
   useEffect(() => {
     if (praise) return
@@ -150,7 +157,7 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
           {/* きいてかく never shows the glyph at all until now, so this is the child's
               first chance to compare what they wrote against the real thing. */}
           <p className="hint-caption">{t('handwritingAnswerLabel')}</p>
-          <HiraganaChar char={entry.char} size={96} />
+          <HiraganaChar char={entry.char} size={charSize} />
           <p className="handwriting-praise-text">{praise.text}</p>
           <button type="button" className="primary-button next-button" onClick={handleNext}>
             {t('nextButton')}
@@ -160,6 +167,7 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
         <HandwritingCanvas
           key={entry.id}
           char={entry.char}
+          size={canvasSize}
           showGuide={false}
           doneLabel={t('handwritingDoneButton')}
           clearLabel={t('handwritingClearButton')}

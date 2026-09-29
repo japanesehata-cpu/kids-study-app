@@ -674,16 +674,18 @@
   border-radius: 999px;
 }
 
-/* Never wraps onto two stacked rows (no flex-wrap) — on a phone-width screen, two
- * 320px-basis panels used to not fit side by side and wrap into a vertical stack instead,
- * roughly doubling the board's height and forcing the very page-level scroll this whole
- * category was flagged for. flex:1 1 0 + min-width:0 makes each panel share whatever width
- * is actually available instead of insisting on its old fixed basis; .spot-scene-panel's own
- * max-width still caps how big they get on a spacious (desktop) layout. */
+/* Stacked top/bottom, not side by side (see the 2026-09-29 UX consultation this replaced a
+ * side-by-side layout with): a phone has much more spare width than height, so a wide,
+ * short panel that fills the card's own width reads far larger than half of that width
+ * split into a square. Side by side used to force each panel down to roughly half the
+ * card's width once it stopped wrapping (see the earlier fix for the *previous* problem —
+ * two square panels stacking and doubling the board's height); stacking vertically on
+ * purpose, with each panel already full-width, sidesteps both problems at once. */
 .spot-panels {
   display: flex;
-  gap: clamp(8px, 2vw, 20px);
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(8px, 2vh, 16px);
   width: 100%;
 }
 
@@ -693,13 +695,12 @@
  * palette rather than introducing an off-brand sky-blue. */
 .spot-scene-panel {
   position: relative;
-  aspect-ratio: 1;
-  flex: 1 1 0;
-  min-width: 0;
-  /* Bounded by width, and separately by height (vh) — on a short-but-wide viewport the vh
-   * term is what actually keeps the pair from growing taller than the screen even though
-   * there'd be plenty of horizontal room. */
-  max-width: min(400px, 42vh);
+  width: 100%;
+  max-width: 560px;
+  /* No aspect-ratio here on purpose — width already fills the card, so height is its own,
+     separate budget (vh-based, shrinks on a short phone) rather than following from width
+     the way a square panel's would. */
+  height: clamp(140px, 30vh, 260px);
   border-radius: var(--radius-md);
   background: linear-gradient(
     to bottom,

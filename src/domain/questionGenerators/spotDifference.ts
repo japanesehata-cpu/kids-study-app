@@ -36,14 +36,26 @@ const DIFF_TYPES: Record<Level, SpotDifferenceDiffType[]> = {
   6: ['swap', 'resize', 'flip', 'rotate'],
 }
 
-// Percent of the panel's own width/height (not px) — see SpotDifferenceItem's `size` field
-// comment in types.ts for why: rendering each item at a % of its actual panel lets the two
-// panels themselves shrink to fit side by side on a narrow phone (see components.css's
-// .spot-scene-panel) without the items inside overlapping or overflowing, something a
-// fixed-px size tied to one assumed reference panel size couldn't do.
+// Percent of the panel's own HEIGHT (not px, and not width — see the aspect-ratio note
+// below) — see SpotDifferenceItem's `size` field comment in types.ts for why: rendering
+// each item relative to its actual panel lets the panel itself shrink to fit the available
+// space on a narrow/short phone (see components.css's .spot-scene-panel) without the items
+// inside overlapping or overflowing, something a fixed-px size tied to one assumed
+// reference panel size couldn't do.
 const MIN_SIZE = 16
 const MAX_SIZE = 26
 const MIN_GAP_MARGIN = 3
+
+// .spot-scene-panel is a wide rectangle (full card width, a much shorter vh-based height —
+// see its own CSS comment for why), not a square, and its actual width:height ratio shifts
+// with viewport. scatterPositions below needs ONE assumed ratio to convert a %-of-width
+// (xPct) difference and a %-of-height (yPct, also what `size` is a percent of) difference
+// into the same physical unit before combining them in one hypot() — same category of
+// necessary approximation as the old fixed-360px-reference used to be, just for shape
+// instead of size. Picked to roughly match the panel's typical rendered proportions (a
+// phone around 700px tall renders .spot-scene-panel's `clamp(140px, 30vh, 260px)` height at
+// ~210px against a card width around 320-340px).
+const PANEL_ASPECT_RATIO = 1.6
 
 function makeId(): string {
   return `spot-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
@@ -70,11 +82,11 @@ function subSkillForLevel(level: Level): string {
  * per item, falling back to a best-effort placement if the scene is too crowded to find
  * a clean spot (only a real risk at ★5's 9-item ceiling, and even then rare).
  *
- * Every distance here is in percentage-of-panel units, same as `xPct`/`yPct`/`size` —
- * unlike an assumed-fixed-reference-px approach, this stays exactly correct regardless of
- * how large or small the panel actually renders (a square panel means % of width and % of
- * height are the same physical distance, so mixing xPct/yPct directly into one hypot() is
- * valid). */
+ * `size`/`MIN_GAP_MARGIN` are in percent-of-panel-HEIGHT units (see PANEL_ASPECT_RATIO
+ * above), but `xPct` is percent-of-WIDTH — an x-difference and a y-difference of the same
+ * percentage aren't the same physical distance on a non-square panel, so xDiff is scaled by
+ * PANEL_ASPECT_RATIO before combining it with yDiff in one hypot(), converting it into the
+ * same height-relative unit everything else is already in. */
 function scatterPositions(sizes: number[]): { xPct: number; yPct: number }[] {
   const placed: { xPct: number; yPct: number; size: number }[] = []
   for (const size of sizes) {
@@ -82,7 +94,7 @@ function scatterPositions(sizes: number[]): { xPct: number; yPct: number }[] {
     for (let attempt = 0; attempt < 80; attempt++) {
       candidate = { xPct: randRange(16, 84), yPct: randRange(18, 82) }
       const tooClose = placed.some((p) => {
-        const dist = Math.hypot(p.xPct - candidate.xPct, p.yPct - candidate.yPct)
+        const dist = Math.hypot((p.xPct - candidate.xPct) * PANEL_ASPECT_RATIO, p.yPct - candidate.yPct)
         return dist < p.size / 2 + size / 2 + MIN_GAP_MARGIN
       })
       if (!tooClose) break

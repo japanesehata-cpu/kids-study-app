@@ -51,12 +51,15 @@ function ScenePanel({
             style={{
               left: `${item.xPct}%`,
               top: `${item.yPct}%`,
-              // item.size is a % of the panel's own width/height (see types.ts) — sized
-              // this way, not in px, so the whole scene shrinks together with the panel
-              // (see components.css's .spot-scene-panel) instead of overlapping once the
-              // panel gets small enough to fit two side by side on a phone.
-              width: `${item.size}%`,
+              // item.size is a % of the panel's own HEIGHT (see types.ts and
+              // questionGenerators/spotDifference.ts's PANEL_ASPECT_RATIO) — sized this
+              // way, not in px, so the scene shrinks together with the panel (see
+              // components.css's .spot-scene-panel) instead of overlapping once the panel
+              // gets small enough on a phone. aspectRatio (not a % width too) keeps every
+              // item a true square regardless of the panel's own wide-rectangle shape —
+              // setting both width% and height% would stretch these photos otherwise.
               height: `${item.size}%`,
+              aspectRatio: '1',
               // The button's own transform only ever centers/rotates/flips the item — a
               // shake animation on this same property would wipe out that positioning
               // (jumping the item to the top-left corner) every time it's applied. The

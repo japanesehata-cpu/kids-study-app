@@ -285,7 +285,10 @@ function computeAutoSpeech(
     return { text: t('clockPrompt'), speechLang, cacheKey: ja ? 'prompt-clock' : undefined }
   }
   if (isSpotDifference(question)) {
-    return { text: t('spotDifferencePrompt'), speechLang, cacheKey: ja ? 'prompt-spotdifference' : undefined }
+    // No spoken prompt either — see SpotDifferenceBoard.tsx's own comment: the category
+    // header already says "まちがいさがし", and there's no per-question content (like a
+    // target time or amount) this instruction would otherwise be the only place to convey.
+    return { text: '', speechLang }
   }
   if (isSudoku(question)) {
     const isClassic = question.mode === 'classic'
@@ -980,9 +983,11 @@ export function QuizScreen({
   }, [question])
 
   // Auto-speaks every question as soon as it appears (including the very first one, since
-  // this effect also runs on mount), so the child never has to remember to tap "listen".
+  // this effect also runs on mount), so the child never has to remember to tap "listen" —
+  // except when there's genuinely nothing to say (spot-the-difference's empty text, see
+  // computeAutoSpeech above), in which case speak() is skipped rather than voicing silence.
   useEffect(() => {
-    speak(autoSpeech.text, autoSpeech.speechLang, voiceProfile, autoSpeech.cacheKey)
+    if (autoSpeech.text) speak(autoSpeech.text, autoSpeech.speechLang, voiceProfile, autoSpeech.cacheKey)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [question])
 
@@ -1229,10 +1234,6 @@ export function QuizScreen({
           <SpotDifferenceBoard
             key={question.id}
             question={question}
-            promptText={t('spotDifferencePrompt')}
-            speechLang={lang === 'ja' ? 'ja-JP' : 'en-US'}
-            voiceProfile={voiceProfile}
-            cacheKey={autoSpeech.cacheKey}
             onAllFound={() => handleSelect(SPOT_DIFFERENCE_DONE)}
             onFailed={() => handleSelect(SPOT_DIFFERENCE_FAILED)}
             disabled={selected !== null}

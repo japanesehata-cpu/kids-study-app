@@ -3,8 +3,6 @@ import type { SpotDifferenceItem, SpotDifferenceQuestion } from '../domain/types
 import { useI18n } from '../i18n/I18nContext'
 import { playFoundSfx } from '../lib/sfx'
 import { WordIcon } from './WordIcon'
-import { TtsButton } from './TtsButton'
-import type { SpeechLang, VoiceProfile } from '../lib/tts'
 
 /** Wrong taps allowed before the round ends in failure — a flat limit across every level,
  * matching the user's ask for a consistent "3 strikes" feel rather than a per-level value. */
@@ -12,10 +10,6 @@ const MAX_WRONG_TAPS = 3
 
 interface SpotDifferenceBoardProps {
   question: SpotDifferenceQuestion
-  promptText: string
-  speechLang: SpeechLang
-  voiceProfile: VoiceProfile
-  cacheKey?: string
   /** Called exactly once, the moment the last difference is found. */
   onAllFound: () => void
   /** Called exactly once, the moment the wrong-tap limit is reached. */
@@ -57,8 +51,12 @@ function ScenePanel({
             style={{
               left: `${item.xPct}%`,
               top: `${item.yPct}%`,
-              width: item.size,
-              height: item.size,
+              // item.size is a % of the panel's own width/height (see types.ts) — sized
+              // this way, not in px, so the whole scene shrinks together with the panel
+              // (see components.css's .spot-scene-panel) instead of overlapping once the
+              // panel gets small enough to fit two side by side on a phone.
+              width: `${item.size}%`,
+              height: `${item.size}%`,
               // The button's own transform only ever centers/rotates/flips the item — a
               // shake animation on this same property would wipe out that positioning
               // (jumping the item to the top-left corner) every time it's applied. The
@@ -71,7 +69,7 @@ function ScenePanel({
             aria-label={item.iconId}
           >
             <span className={`spot-scene-item-inner ${isWrong ? 'wrong' : ''}`.trim()}>
-              <WordIcon wordId={item.iconId} size={item.size} />
+              <WordIcon wordId={item.iconId} size="100%" />
             </span>
             {isFound && (
               <span
@@ -90,10 +88,6 @@ function ScenePanel({
 
 export function SpotDifferenceBoard({
   question,
-  promptText,
-  speechLang,
-  voiceProfile,
-  cacheKey,
   onAllFound,
   onFailed,
   disabled,
@@ -136,8 +130,12 @@ export function SpotDifferenceBoard({
 
   return (
     <div className="spot-difference-board">
-      <p className="subtitle">{promptText}</p>
-      <TtsButton text={promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
+      {/* No instructional text/TTS here — the category header above this board already
+          says "まちがいさがし" (spot the difference), and two side-by-side scenes with
+          tappable items reads as "find what's different" on its own — unlike, say, とけい's
+          setTime mode, whose prompt names a specific target time that isn't shown anywhere
+          else, this board's old prompt was purely generic instruction, not per-question
+          content. See the mobile-first-policy memory's 2026-09-29 note. */}
       <div className="spot-counts">
         <p className="spot-found-count">
           {t('spotDifferenceFoundCount', { found: String(found), total: String(total) })}

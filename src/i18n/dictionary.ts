@@ -244,9 +244,9 @@ export const dictionary = {
   mojiModePracticeLabel: { ja: 'れんしゅう', en: 'Practice' },
   mojiModePracticeDescription: { ja: 'よみを きいて もじを えらぼう', en: 'Listen and choose the matching character' },
   sudokuPrompt: {
-    // A "、" pause after the first clause, matching spotDifferencePrompt's own two-clause
-    // phrasing just below — without it VOICEVOX reads this longer sentence as one flat,
-    // unbroken run and it comes out sounding mechanical (reported by ear, not a rule).
+    // A "、" pause after the first clause — without it VOICEVOX reads this longer sentence
+    // as one flat, unbroken run and it comes out sounding mechanical (reported by ear, not
+    // a rule).
     ja: 'あいている マスに、あう いろを いれてね',
     en: 'Fill in the empty squares with the right color',
   },
@@ -273,10 +273,6 @@ export const dictionary = {
   clockPracticeHint: { ja: 'はりをうごかしてみよう！', en: 'Try moving the hands!' },
   clockModeReadLabel: { ja: 'よむ', en: 'Read' },
   clockModeSetTimeLabel: { ja: 'あわせる', en: 'Set the time' },
-  spotDifferencePrompt: {
-    ja: 'ふたつの えを くらべて、ちがうところを ぜんぶ タップしてね',
-    en: 'Compare the two pictures and tap every difference you find',
-  },
   spotDifferenceFoundCount: { ja: '{found} / {total} こ みつけたよ', en: 'Found {found} / {total}' },
   spotDifferenceWrongCount: { ja: 'まちがえた かいすう：{count} / {max}', en: 'Wrong taps: {count} / {max}' },
 

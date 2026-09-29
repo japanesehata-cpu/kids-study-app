@@ -179,7 +179,11 @@ export interface SpotDifferenceItem {
   /** 0-100, position within the scene panel */
   xPct: number
   yPct: number
-  /** px */
+  /** Percent of the panel's own width/height, not px — see SpotDifferenceBoard.tsx's
+   * rendering: this is what lets the panel itself shrink to fit both scenes side by side on
+   * a narrow phone (components.css's .spot-scene-panel) without the items inside
+   * overlapping/overflowing, since they always scale with whatever size the panel actually
+   * renders at. */
   size: number
   /** degrees */
   rotate: number

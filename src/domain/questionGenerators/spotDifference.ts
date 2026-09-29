@@ -36,9 +36,14 @@ const DIFF_TYPES: Record<Level, SpotDifferenceDiffType[]> = {
   6: ['swap', 'resize', 'flip', 'rotate'],
 }
 
-const MIN_SIZE = 58
-const MAX_SIZE = 92
-const MIN_GAP_MARGIN = 10
+// Percent of the panel's own width/height (not px) — see SpotDifferenceItem's `size` field
+// comment in types.ts for why: rendering each item at a % of its actual panel lets the two
+// panels themselves shrink to fit side by side on a narrow phone (see components.css's
+// .spot-scene-panel) without the items inside overlapping or overflowing, something a
+// fixed-px size tied to one assumed reference panel size couldn't do.
+const MIN_SIZE = 16
+const MAX_SIZE = 26
+const MIN_GAP_MARGIN = 3
 
 function makeId(): string {
   return `spot-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
@@ -63,7 +68,13 @@ function subSkillForLevel(level: Level): string {
  * radii plus a fixed margin — bigger icons get more berth than smaller ones, so nothing
  * visually overlaps regardless of the size mix a round happens to roll. Bounded attempts
  * per item, falling back to a best-effort placement if the scene is too crowded to find
- * a clean spot (only a real risk at ★5's 9-item ceiling, and even then rare). */
+ * a clean spot (only a real risk at ★5's 9-item ceiling, and even then rare).
+ *
+ * Every distance here is in percentage-of-panel units, same as `xPct`/`yPct`/`size` —
+ * unlike an assumed-fixed-reference-px approach, this stays exactly correct regardless of
+ * how large or small the panel actually renders (a square panel means % of width and % of
+ * height are the same physical distance, so mixing xPct/yPct directly into one hypot() is
+ * valid). */
 function scatterPositions(sizes: number[]): { xPct: number; yPct: number }[] {
   const placed: { xPct: number; yPct: number; size: number }[] = []
   for (const size of sizes) {
@@ -71,12 +82,7 @@ function scatterPositions(sizes: number[]): { xPct: number; yPct: number }[] {
     for (let attempt = 0; attempt < 80; attempt++) {
       candidate = { xPct: randRange(16, 84), yPct: randRange(18, 82) }
       const tooClose = placed.some((p) => {
-        // percentage-space distance approximated against a 360px-square scene — close
-        // enough to keep circles genuinely non-overlapping without plumbing the actual
-        // rendered panel size through the generator.
-        const dxPx = ((p.xPct - candidate.xPct) / 100) * 360
-        const dyPx = ((p.yPct - candidate.yPct) / 100) * 360
-        const dist = Math.hypot(dxPx, dyPx)
+        const dist = Math.hypot(p.xPct - candidate.xPct, p.yPct - candidate.yPct)
         return dist < p.size / 2 + size / 2 + MIN_GAP_MARGIN
       })
       if (!tooClose) break

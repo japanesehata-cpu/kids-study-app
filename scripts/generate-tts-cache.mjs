@@ -243,7 +243,6 @@ function buildJobs() {
     { cacheKey: 'prompt-logic-compare-max', dictKey: 'logicCompareMaxPrompt', category: 'logic' },
     { cacheKey: 'prompt-logic-compare-min', dictKey: 'logicCompareMinPrompt', category: 'logic' },
     { cacheKey: 'prompt-clock', dictKey: 'clockPrompt', category: 'clock' },
-    { cacheKey: 'prompt-spotdifference', dictKey: 'spotDifferencePrompt', category: 'spotDifference' },
     { cacheKey: 'prompt-sudoku', dictKey: 'sudokuPrompt', category: 'sudoku' },
     { cacheKey: 'prompt-sudoku-classic', dictKey: 'sudokuPromptClassic', category: 'sudoku' },
     { cacheKey: 'prompt-addition-missing', dictKey: 'missingOperandPrompt', category: 'addition' },

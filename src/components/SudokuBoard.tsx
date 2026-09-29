@@ -115,7 +115,7 @@ export function SudokuBoard({ question, promptText, onComplete, onFailed, disabl
                   (question.mode === 'classic' ? (
                     <span className="sudoku-digit">{symbolId}</span>
                   ) : (
-                    <WordIcon wordId={symbolId} size={48} />
+                    <WordIcon wordId={symbolId} size={40} />
                   ))}
               </button>
             )
@@ -135,7 +135,7 @@ export function SudokuBoard({ question, promptText, onComplete, onFailed, disabl
             {question.mode === 'classic' ? (
               <span className="sudoku-digit">{symbolId}</span>
             ) : (
-              <WordIcon wordId={symbolId} size={44} />
+              <WordIcon wordId={symbolId} size={36} />
             )}
           </button>
         ))}

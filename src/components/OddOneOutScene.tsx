@@ -9,9 +9,18 @@ interface OddOneOutSceneProps {
   onSelect: (choice: string) => void
 }
 
-const MIN_SIZE = 72
-const MAX_SIZE = 104
-const MIN_GAP_MARGIN = 14
+// Percent of the panel's own width/height (not px) — .oddoneout-scene is always square
+// (aspect-ratio: 1, see components.css), so a % of width and a % of height are always the
+// same physical distance regardless of how large or small the panel actually renders,
+// unlike a fixed-px size tied to one assumed reference size (which was this component's
+// original approach — same latent bug questionGenerators/spotDifference.ts had before it
+// was fixed the same way; see that file's own comment and the mobile-first-policy memory's
+// 2026-09-29 notes for the full story of why a fixed-px item on a CSS-shrinkable container
+// eventually overlaps/overflows once the container actually shrinks below the size the
+// item's own math assumed).
+const MIN_SIZE = 19
+const MAX_SIZE = 27
+const MIN_GAP_MARGIN = 4
 
 function randRange(min: number, max: number): number {
   return min + Math.random() * (max - min)
@@ -20,7 +29,12 @@ function randRange(min: number, max: number): number {
 /** Scatters `count` items with no two overlapping, the same rejection-sampling technique
  * questionGenerators/spotDifference.ts's scatterPositions uses for its scene panels — but
  * computed fresh client-side per render (not stored on the question) since oddOneOut's
- * layout is purely presentational and never needs to be reproduced/persisted. */
+ * layout is purely presentational and never needs to be reproduced/persisted.
+ *
+ * Every distance here is in percentage-of-panel units, same as `xPct`/`yPct`/`size` — valid
+ * to mix directly into one hypot() specifically because the panel is always square (see
+ * MIN_SIZE's comment above); a non-square panel would need the same aspect-ratio correction
+ * spotDifference.ts's scatterPositions applies. */
 function scatterPositions(sizes: number[]): { xPct: number; yPct: number }[] {
   const placed: { xPct: number; yPct: number; size: number }[] = []
   for (const size of sizes) {
@@ -28,9 +42,8 @@ function scatterPositions(sizes: number[]): { xPct: number; yPct: number }[] {
     for (let attempt = 0; attempt < 80; attempt++) {
       candidate = { xPct: randRange(14, 86), yPct: randRange(16, 84) }
       const tooClose = placed.some((p) => {
-        const dxPx = ((p.xPct - candidate.xPct) / 100) * 380
-        const dyPx = ((p.yPct - candidate.yPct) / 100) * 380
-        return Math.hypot(dxPx, dyPx) < p.size / 2 + size / 2 + MIN_GAP_MARGIN
+        const dist = Math.hypot(p.xPct - candidate.xPct, p.yPct - candidate.yPct)
+        return dist < p.size / 2 + size / 2 + MIN_GAP_MARGIN
       })
       if (!tooClose) break
     }
@@ -73,15 +86,17 @@ export function OddOneOutScene({ question, selected, disabled, onSelect }: OddOn
             style={{
               left: `${item.xPct}%`,
               top: `${item.yPct}%`,
-              width: item.size,
-              height: item.size,
+              // item.size is a % of the panel's own width/height, not px — see MIN_SIZE's
+              // comment above.
+              width: `${item.size}%`,
+              height: `${item.size}%`,
               transform: `translate(-50%, -50%) rotate(${item.rotate}deg)`,
             }}
             onClick={() => onSelect(item.choice)}
             disabled={disabled}
             aria-label={item.choice}
           >
-            <WordIcon wordId={item.choice} size={item.size} />
+            <WordIcon wordId={item.choice} size="100%" />
           </button>
         )
       })}

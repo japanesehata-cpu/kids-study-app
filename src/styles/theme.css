@@ -31,7 +31,7 @@
      primary/secondary-button, icon-button, category-header pills) helps the "avoid
      scrolling on a phone" goal instead of being the single biggest fixed cost in every
      screen's top bar. */
-  --touch-target-min: clamp(56px, 10vh, 88px);
+  --touch-target-min: clamp(48px, 8vh, 88px);
 }
 
 * {

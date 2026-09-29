@@ -166,11 +166,18 @@ export function buildExplanation(
         : `"${char}" is the character you hear at the start of "${mnemonic}."`
     }
     case 'kanji': {
+      // `mnemonic` (e.g. 一's "いちご") exists purely to disambiguate TTS pronunciation
+      // (see kanjiBank.ts's own comment on that field) — it was previously folded into
+      // this text too ("「一」は「いち」と よむよ。「いちご」の「いち」だよ。"), which
+      // read as a confusing non-sequitur to a child (why does a strawberry explain "一"?).
+      // The reading alone is already the meaningful word for every grade-1 kanji this app
+      // teaches (いぬ IS "dog", いち IS "one") — QuizScreen additionally shows
+      // meaningJa/traceImageId's picture right next to this text when available (see its
+      // feedback-banner), which is the actual "link the kanji to the real thing" the
+      // reading-plus-mnemonic sentence was trying and failing to do with words alone.
       const { char, charId } = question
-      const { reading, mnemonic } = getKanjiById(charId)
-      return lang === 'ja'
-        ? `「${char}」は 「${reading}」と よむよ。「${mnemonic}」の 「${reading}」だよ。`
-        : `"${char}" is read "${reading}," as in "${mnemonic}."`
+      const { reading } = getKanjiById(charId)
+      return lang === 'ja' ? `「${char}」は 「${reading}」と よむよ。` : `"${char}" is read "${reading}."`
     }
     case 'alphabet': {
       if (question.kind === 'caseMatch') {

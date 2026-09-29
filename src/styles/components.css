@@ -8,8 +8,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: clamp(10px, 2vh, 24px) clamp(12px, 4vw, 24px);
-  gap: clamp(8px, 1.5vh, 22px);
+  padding: clamp(8px, 1.5vh, 24px) clamp(12px, 4vw, 24px);
+  gap: clamp(6px, 1.2vh, 22px);
 }
 
 .top-bar {
@@ -75,7 +75,7 @@
      narrow card in a 4-column phone grid can be narrower than 12vh computes; without
      max-width the portrait overflowed the card's rounded edges sideways instead of
      shrinking to fit it, and a plain height clamp wouldn't have followed that shrink). */
-  width: clamp(56px, 12vh, var(--portrait-max));
+  width: clamp(42px, 8vh, var(--portrait-max));
   max-width: 100%;
   aspect-ratio: 1 / 1;
 }
@@ -258,6 +258,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* The per-question-type prompt renderers in QuizScreen.tsx (arithmetic/englishWord/
+   hiragana/katakana/kanji/alphabet/clock/counting/shapes/logic/englishSentence — 14
+   near-identical wrappers) all shared one inline `gap: 16` that never got the vh-clamp
+   treatment the rest of the app's chrome did this session — a fixed cost on every single
+   question screen, stacking with the choice-grid/feedback-banner/explanation/portrait
+   below it once a question's been answered. See the mobile-first-policy memory's notes
+   on englishListening ★5's post-answer overflow, found this way. */
+.quiz-prompt-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(6px, 1.5vh, 16px);
 }
 
 .choice-grid {
@@ -576,7 +590,7 @@
      90px to fit each level's one-line description (see .level-description) without
      wrapping onto three lines on a typical phone width. */
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: clamp(8px, 2vh, 16px);
+  gap: clamp(6px, 1.5vh, 16px);
   width: 100%;
   max-width: 640px;
 }
@@ -589,12 +603,12 @@
   background: var(--color-surface);
   box-shadow: var(--shadow-card);
   cursor: pointer;
-  padding: clamp(10px, 2.2vh, 18px) 8px clamp(8px, 1.8vh, 14px);
+  padding: clamp(8px, 1.8vh, 18px) 8px clamp(6px, 1.4vh, 14px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: clamp(3px, 0.8vh, 6px);
 }
 
 .level-button:active {
@@ -634,7 +648,25 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(8px, 1.6vh, 20px);
+  gap: clamp(6px, 1.4vh, 20px);
+}
+
+/* Every gap between .card-panel's children is already set explicitly via its own `gap`
+ * (and .stat-row's) — a bare <p> inside it (ResultScreen's best-streak/all-good lines,
+ * stat-row's strong/weak lines) still carries the browser's default ~1em top+bottom
+ * margin on top of that gap, stacking with it rather than being absorbed by it (margins
+ * don't collapse between flex siblings). On .result-score-text specifically, whose
+ * font-size reaches clamp(22px, 5vh, 36px), that default margin alone could add up to
+ * ~70px — a real, silent contributor to ResultScreen's #root overflow/bounce. */
+.card-panel p {
+  margin: 0;
+}
+
+.result-button-row {
+  display: flex;
+  gap: clamp(8px, 1.5vh, 16px);
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .card-panel-wide {
@@ -1096,10 +1128,11 @@
 }
 
 .feedback-banner {
-  font-size: clamp(19px, 3.6vh, 28px);
+  font-size: clamp(15px, 2.6vh, 28px);
   font-weight: 800;
-  padding: clamp(8px, 1.6vh, 12px) 24px;
+  padding: clamp(6px, 1.3vh, 12px) 20px;
   border-radius: var(--radius-md);
+  text-align: center;
 }
 
 .feedback-banner.correct {
@@ -1113,11 +1146,11 @@
 }
 
 .explanation-text {
-  font-size: clamp(14px, 2.6vh, 18px);
+  font-size: clamp(13px, 2.2vh, 18px);
   font-weight: 700;
   color: var(--color-text-soft);
   text-align: center;
-  line-height: 1.6;
+  line-height: 1.35;
   /* Widened from 480px — englishSpelling/englishListening's wrong-answer explanation now
    * appends a second clause naming the picked word (see explanations.ts), and the
    * narrower width was wrapping that combined text to 3 lines, tall enough to sit
@@ -1125,6 +1158,24 @@
    * width. */
   max-width: 640px;
   margin: 0;
+}
+
+/* Kanji's post-answer explanation only (see QuizScreen.tsx) — pairs the picture from
+ * kanjiBank.ts's traceImageId with the (now much shorter, reading-only) explanation text
+ * so the kanji links to the real thing it means at a glance, instead of the old
+ * text-only mnemonic wordplay a child had to puzzle out. A row, not a stack, so this
+ * costs no extra vertical space over the plain .explanation-text it replaces. */
+.explanation-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 2vw, 16px);
+  max-width: 640px;
+}
+
+.explanation-media .explanation-text {
+  max-width: none;
+  text-align: left;
 }
 
 .progress-row {

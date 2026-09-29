@@ -112,7 +112,7 @@ export function ResultScreen({ result, onRetry, onBack, onBackHome }: ResultScre
           <p>{t('resultAllGoodMessage')}</p>
         )}
 
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div className="result-button-row">
           <button type="button" className="primary-button" onClick={onRetry}>
             {t('tryAgainButton')}
           </button>

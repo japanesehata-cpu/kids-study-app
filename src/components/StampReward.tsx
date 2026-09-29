@@ -14,7 +14,7 @@ const REWARDS_BASE = `${import.meta.env.BASE_URL}images/rewards`
 const BASE_SIZE = 220
 
 export function StampReward() {
-  const size = useResponsiveSize(BASE_SIZE, 0.24, 130)
+  const size = useResponsiveSize(BASE_SIZE, 0.17, 92)
   const scale = size / BASE_SIZE
   const distance = 90 * scale
   const accentSize = 44 * scale

@@ -167,11 +167,14 @@
   /* auto-fit lets this settle at however many columns actually fit — 2 on a phone, up
      to 8 in one row on a wide desktop — instead of a fixed flex min-width that forces
      every card onto its own row once the viewport is narrower than two of them. */
-  /* Lowered from 130px so a phone-width screen settles at 3 columns instead of 2 — with 10
-     cards that's 4 rows instead of 5, a meaningful chunk of Home's total height on exactly
-     the short/narrow viewports where that height is the whole problem. */
-  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
-  gap: clamp(8px, 2vh, 20px);
+  /* Lowered from 130px, then from 70px to 56px — with 10 cards, 5 columns (2 rows) instead
+     of 4 columns (3 rows) turned out to be the single biggest lever for Home's own #root
+     overflow: each row costs a whole category-card's height (icon badge + mascot portrait +
+     label, ~140-160px), so removing one row saves far more than any further per-card
+     shrink could. Verified this still reads fine at ~60px card width — see the
+     mobile-first-policy memory's home-screen follow-up. */
+  grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
+  gap: clamp(6px, 1.6vh, 20px);
   width: 100%;
   max-width: 960px;
 }
@@ -296,7 +299,12 @@
   border: 2px solid var(--color-bg-soft);
   background: var(--color-surface);
   box-shadow: var(--shadow-card);
-  font-size: clamp(18px, 4vh, 28px);
+  /* Lowered ceiling from 28px — longer choice text (clock's "12じ45ふん" format, money/
+     counting labels) was wrapping to 2 lines at the old size on an ordinary phone height,
+     which (since a grid row's height follows its tallest cell) inflated the whole row and
+     was a real contributor to clock's post-answer #root overflow. 24px is still plenty
+     large for a single digit/letter answer, the majority case. */
+  font-size: clamp(16px, 3.4vh, 24px);
   font-weight: 800;
   color: var(--color-text);
   cursor: pointer;
@@ -819,8 +827,16 @@
   aspect-ratio: 1;
   width: 100%;
   /* Square, so width also drives height — capped by vh too (not just 380px) so a short
-     phone viewport shrinks the whole scene instead of only being width-limited. */
-  max-width: min(380px, 60vh);
+     phone viewport shrinks the whole scene instead of only being width-limited. 60vh was
+     still hitting the 380px ceiling untouched at an ordinary ~696px-tall phone viewport
+     (60% of 696 = 417.6 > 380) — unlike the standard .choice-grid, this scene stays on
+     screen through the post-answer feedback state too (quiz-prompt-stack + this scene +
+     feedback-banner + explanation-text + portrait + next-button all stacked at once), so
+     its full 380px size caused a genuine #root overflow/bounce there. Lowered the ceiling
+     and vh factor so it actually shrinks well before the feedback state needs the room;
+     max(160px, ...) keeps a floor so the scattered items (≥19% of panel each, see
+     OddOneOutScene.tsx's MIN_SIZE) don't shrink below a comfortably tappable size. */
+  max-width: max(160px, min(240px, 32vh));
   margin: 0 auto;
   border-radius: var(--radius-md);
   background: linear-gradient(
@@ -1001,8 +1017,12 @@
 }
 
 .number-pad-button {
-  width: clamp(48px, 9vh, 64px);
-  height: clamp(48px, 9vh, 64px);
+  /* 4 rows (0-9 + backspace + check, 3 columns) — the old 9vh/64px ceiling barely shrank
+     at all at an ordinary ~696px phone height (9vh ≈ 62.6px, right at the ceiling),
+     leaving missingOperand's NumberPad screen (question state, not even the feedback
+     state) with a genuine #root overflow. See the mobile-first-policy memory. */
+  width: clamp(44px, 7.5vh, 56px);
+  height: clamp(44px, 7.5vh, 56px);
   border-radius: var(--radius-sm);
   border: none;
   background: var(--color-surface);

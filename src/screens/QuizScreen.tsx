@@ -681,9 +681,14 @@ function ClockQuestionView({
   cacheKey?: string
 }) {
   const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
+  // Fixed at 160px regardless of viewport height — on the multipleChoice format this stays
+  // on screen through the post-answer feedback state too (stacked above a 2x2 text choice
+  // grid plus feedback-banner/explanation/portrait/button), so its full fixed size caused a
+  // genuine #root overflow/bounce there. See the mobile-first-policy memory.
+  const faceSize = useResponsiveSize(160, 0.1, 72)
   return (
     <div className="quiz-prompt-stack">
-      <ClockFace hour={question.hour} minute={question.minute} size={160} />
+      <ClockFace hour={question.hour} minute={question.minute} size={faceSize} />
       <p className="subtitle">{promptText}</p>
       <TtsButton text={promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
     </div>
@@ -767,14 +772,21 @@ function CountingQuestionView({
   cacheKey?: string
 }) {
   const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
+  // Fixed at 56px regardless of viewport height, in a fixed 240px-wide wrap container —
+  // question.count is 2-5 (see questionGenerators/counting.ts), and 5 icons at 56px+gap
+  // don't fit in 240px on one row, wrapping to 2 rows. That extra row's fixed height was a
+  // real (and, since `count` is random, intermittent) contributor to #root overflow. Sized
+  // small enough here that even 5 icons fit on one row at an ordinary phone height, so it
+  // no longer depends on wrap at all.
+  const exampleIconSize = useResponsiveSize(56, 0.058, 32)
 
   return (
     <div className="quiz-prompt-stack">
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
         <span className="count-badge">{question.count}</span>
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center', maxWidth: 240 }}>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center', maxWidth: 260 }}>
           {Array.from({ length: question.count }, (_, i) => (
-            <WordIcon key={i} wordId={question.exampleWordId} size={56} />
+            <WordIcon key={i} wordId={question.exampleWordId} size={exampleIconSize} />
           ))}
         </div>
       </div>

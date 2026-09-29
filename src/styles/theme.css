@@ -53,6 +53,33 @@ body {
   overscroll-behavior: none;
 }
 
+/* This app is entirely tap/drag driven — no screen has running text worth selecting or
+   copying — so a long press on a word/image bringing up the mobile browser's native text
+   selection (blue highlight handles) or iOS's copy/share callout is pure friction: it
+   breaks visibility and pulls a child's focus off the app rather than doing anything
+   useful. Disabled globally, then explicitly re-enabled on ParentGate's number input below,
+   since a form control's own editing/selection behavior is what makes it usable at all
+   (browsers already exempt <input>/<textarea> from this in practice, but being explicit
+   here means that fact is documented, not just relied on silently). */
+*:not(input):not(textarea) {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Long-pressing an image (WordIcon's SVGs are inline, not <img>, but CharacterPortrait/
+   coin/character art use <img>) otherwise offers iOS's "Save Image"/drag-out sheet —
+   same "keep focus inside the app" reasoning as the selection rule above. */
+img {
+  -webkit-user-drag: none;
+}
+
 button {
   font-family: inherit;
 }

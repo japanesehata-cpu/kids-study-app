@@ -26,6 +26,11 @@ interface HomeScreenProps {
 // slot, relabeled the same way. sudoku and missingOperandAddition/missingOperandSubtraction
 // are also dropped — each is reached via a button on another category's own level-select
 // instead (see LevelSelectScreen.tsx), not its own home-screen card.
+//
+// shapes is temporarily dropped too (2026-09-29, at the user's request) — its content
+// quality isn't where it needs to be yet, so it's hidden from Home while that gets sorted
+// out. Nothing else about the feature (types, questionGenerators/shapes.ts, ShapeIcon,
+// QuizScreen wiring, tests) was touched — remove this line to bring it back.
 const HOME_CATEGORY_META = CATEGORY_META.filter(
   (c) =>
     c.category !== 'englishListening' &&
@@ -34,7 +39,8 @@ const HOME_CATEGORY_META = CATEGORY_META.filter(
     c.category !== 'alphabet' &&
     c.category !== 'sudoku' &&
     c.category !== 'missingOperandAddition' &&
-    c.category !== 'missingOperandSubtraction',
+    c.category !== 'missingOperandSubtraction' &&
+    c.category !== 'shapes',
 )
 const ALL_CATEGORIES: Category[] = HOME_CATEGORY_META.map((c) => c.category)
 

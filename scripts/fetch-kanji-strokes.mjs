@@ -23,10 +23,11 @@ const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = path.join(SCRIPT_DIR, '..')
 const OUT_PATH = path.join(REPO_ROOT, 'src', 'domain', 'kanjiStrokes.ts')
 
-// The なぞる feature's initial batch — see the plan doc / kanjiBank.ts's traceImageId
-// comment for why this specific subset (kanji whose meaning already has an existing
-// wordBank photo, so v1 needs zero new image generation).
-const TARGET_CHARS = ['日', '月', '水', '木', '金', '雨', '犬', '貝', '花', '草', '森', '山', '石', '川', '車', '本']
+import { kanjiBank } from '../src/domain/kanjiBank.ts'
+
+// Every kanji in the なぞる (trace) pool — the entries with a traceImageId (a picturable
+// meaning with an existing word image), see kanjiBank.ts.
+const TARGET_CHARS = kanjiBank.filter((k) => k.traceImageId).map((k) => k.char)
 
 function codepointHex(char) {
   return char.codePointAt(0).toString(16).padStart(5, '0')

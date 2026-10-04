@@ -64,6 +64,7 @@ export const dictionary = {
   categoryHiragana: { ja: 'ひらがな', en: 'Hiragana' },
   categoryKatakana: { ja: 'カタカナ', en: 'Katakana' },
   categoryKanji: { ja: 'かんじ', en: 'Kanji' },
+  categoryKanji2: { ja: 'かんじ（2ねんせい）', en: 'Kanji (Grade 2)' },
   categoryAlphabet: { ja: 'アルファベット', en: 'Alphabet' },
   // Shared home-screen card label for the ひらがな/カタカナ/アルファベット chooser (see
   // MojiEntryScreen) — hiragana/katakana/alphabet remain fully separate categories
@@ -130,6 +131,12 @@ export const dictionary = {
   levelDescKanji4: { ja: 'いろ・おおきさ・むき', en: 'Colors, size & direction' },
   levelDescKanji5: { ja: 'いきもの・まち', en: 'Animals & places' },
   levelDescKanji6: { ja: 'まなび・とき（ぜんぶ）', en: 'Study & time (all 80)' },
+  levelDescKanjiG2_1: { ja: 'しぜん（くも・うみ など）', en: 'Nature (cloud, sea...)' },
+  levelDescKanjiG2_2: { ja: 'きせつ・じかん', en: 'Seasons & time' },
+  levelDescKanjiG2_3: { ja: 'かぞく・からだ', en: 'Family & body' },
+  levelDescKanjiG2_4: { ja: 'いきもの・もの・いろ', en: 'Animals, things & colors' },
+  levelDescKanjiG2_5: { ja: 'ほうがく・まち', en: 'Directions & places' },
+  levelDescKanjiG2_6: { ja: 'うごき・ようす（ぜんぶ）', en: 'Actions & descriptions (all 160)' },
   levelDescMoney1: { ja: '1・5・10円で きんがくを つくる', en: 'Build the amount with 1, 5, 10 yen coins' },
   levelDescMoney2: { ja: 'ぜんぶの こうかで きんがくを つくる', en: 'Build the amount with any coin' },
   levelDescMoney3: { ja: '2まいぶんの きんがくを つくる（500円なし）', en: 'Build a 2-coin amount (no 500 yen)' },
@@ -186,12 +193,14 @@ export const dictionary = {
   // duplicated per category.
   tracePrompt: { ja: 'なぞって かいてみよう', en: 'Trace each stroke in order' },
   traceRestartButton: { ja: 'はじめから', en: 'Start over' },
-  kanjiTraceMeaningLabel: { ja: 'この かんじの いみは…', en: 'This kanji means...' },
   traceStrokeCredit: {
     ja: '筆順データ: KanjiVG (CC BY-SA 3.0)',
     en: 'Stroke data: KanjiVG (CC BY-SA 3.0)',
   },
   reviewProgress: { ja: 'ふくしゅう {current}/{total}', en: 'Review {current}/{total}' },
+  kanjiGrade1Label: { ja: '1ねんせい', en: 'Grade 1' },
+  kanjiGrade2Label: { ja: '2ねんせい', en: 'Grade 2' },
+  kanjiTraceProgress: { ja: '{current}/{total}', en: '{current}/{total}' },
   reviewDoneButton: { ja: 'おわり', en: 'Done' },
   // shapes' 3 prompts, one per kind (see domain/questionGenerators/shapes.ts's KIND_BY_LEVEL):
   // 'pickShape' names a shape and the choices are shapes (production direction), 'pickName'/
@@ -358,6 +367,10 @@ export const dictionary = {
   subSkillKanjiPeopleBody: { ja: 'ひと・からだの かんじ', en: 'people & body kanji' },
   subSkillKanjiColorSize: { ja: 'いろ・おおきさの かんじ', en: 'color & size kanji' },
   subSkillKanjiAnimalsPlacesStudy: { ja: 'いきもの・まち・まなびの かんじ', en: 'animal, place & study kanji' },
+  subSkillKanji2NatureTime: { ja: 'しぜん・じかんの かんじ', en: 'nature & time kanji' },
+  subSkillKanji2PeopleThings: { ja: 'かぞく・いきもの・ものの かんじ', en: 'family, animal & object kanji' },
+  subSkillKanji2Places: { ja: 'ほうがく・まちの かんじ', en: 'direction & place kanji' },
+  subSkillKanji2ActionsStudy: { ja: 'うごき・ようすの かんじ', en: 'action & description kanji' },
   subSkillMoneyRecognize: { ja: 'こうかを みわける', en: 'recognizing coins' },
   subSkillMoneyCombine2: { ja: '2まいの ごうけい', en: 'adding up 2 coins' },
   subSkillMoneyCombine3: { ja: '3まいの ごうけい', en: 'adding up 3 coins' },

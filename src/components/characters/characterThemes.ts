@@ -15,7 +15,7 @@ export interface CharacterTheme {
 
 /** One themed mascot per learning category. The portrait art itself lives at
  * public/images/characters/<id>.png (see scripts/generate-character-portraits.mjs). */
-export const characterThemes: Record<Category, CharacterTheme> = {
+const BASE_THEMES: Record<Exclude<Category, 'kanji2'>, CharacterTheme> = {
   addition: {
     id: 'momo',
     colorMain: '#ff9bc0',
@@ -360,3 +360,7 @@ export const characterThemes: Record<Category, CharacterTheme> = {
     },
   },
 }
+
+// Grade-2 kanji is the same subject with the same mascot and voice — only its ★/progress
+// track is separate (see types.ts's 'kanji2').
+export const characterThemes: Record<Category, CharacterTheme> = { ...BASE_THEMES, kanji2: BASE_THEMES.kanji }

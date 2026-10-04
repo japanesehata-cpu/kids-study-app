@@ -4,6 +4,7 @@ import { applySetResult, loadProgress, persistProgress, SET_SIZE } from './domai
 import { saveLastQuizFeedback } from './domain/homeFeedback'
 import type { ClockMode } from './domain/questionGenerators/clock'
 import type { SudokuMode } from './domain/questionGenerators/sudoku'
+import type { KanjiGrade } from './domain/kanjiBank'
 import { I18nProvider } from './i18n/I18nContext'
 import { HomeScreen } from './screens/HomeScreen'
 import { LevelSelectScreen } from './screens/LevelSelectScreen'
@@ -23,6 +24,7 @@ import { QuizScreen } from './screens/QuizScreen'
 import { ResultScreen } from './screens/ResultScreen'
 import { ParentGate } from './screens/ParentGate'
 import { ProgressScreen } from './screens/ProgressScreen'
+import { FitToViewport } from './components/FitToViewport'
 
 type Screen =
   | { name: 'home' }
@@ -30,7 +32,7 @@ type Screen =
   | { name: 'mojiEntry' }
   | { name: 'mojiModeEntry'; script: 'hiragana' | 'katakana' | 'alphabet' }
   | { name: 'kanjiEntry' }
-  | { name: 'kanjiTrace' }
+  | { name: 'kanjiTrace'; grade: KanjiGrade }
   | { name: 'wordTrace' }
   | { name: 'additionEntry' }
   | { name: 'subtractionEntry' }
@@ -54,6 +56,9 @@ type Screen =
 function AppContent() {
   const [progress, setProgress] = useState<ProgressState>(() => loadProgress())
   const [screen, setScreen] = useState<Screen>({ name: 'home' })
+  // Remembered across visits to KanjiEntryScreen (which remounts each time) so a child
+  // working on grade 2 isn't bounced back to grade 1 every time they return.
+  const [kanjiGrade, setKanjiGrade] = useState<KanjiGrade>(1)
   // Every screen below Home keeps a "もどる" (back one step) button alongside "ホームへ" (go
   // straight home) — this stack is what makes "one step back" actually mean the screen the
   // player came from, not always Home, e.g. Quiz -> LevelSelect, or LevelSelect ->
@@ -192,15 +197,19 @@ function AppContent() {
       case 'kanjiEntry':
         return (
           <KanjiEntryScreen
+            grade={kanjiGrade}
+            onChangeGrade={setKanjiGrade}
             onSelect={(mode) =>
-              mode === 'trace' ? navigate({ name: 'kanjiTrace' }) : navigate({ name: 'levelSelect', category: 'kanji' })
+              mode === 'trace'
+                ? navigate({ name: 'kanjiTrace', grade: kanjiGrade })
+                : navigate({ name: 'levelSelect', category: kanjiGrade === 2 ? 'kanji2' : 'kanji' })
             }
             onBack={goBack}
             onHome={goHome}
           />
         )
       case 'kanjiTrace':
-        return <KanjiTraceScreen onBack={goBack} onHome={goHome} />
+        return <KanjiTraceScreen key={screen.grade} grade={screen.grade} onBack={goBack} onHome={goHome} />
       case 'wordTrace':
         return <WordTraceScreen onBack={goBack} onHome={goHome} />
       case 'additionEntry':
@@ -315,7 +324,9 @@ function AppContent() {
 function App() {
   return (
     <I18nProvider>
-      <AppContent />
+      <FitToViewport>
+        <AppContent />
+      </FitToViewport>
     </I18nProvider>
   )
 }

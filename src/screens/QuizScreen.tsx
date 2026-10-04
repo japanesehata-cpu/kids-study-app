@@ -126,7 +126,7 @@ function isKatakana(q: Question): q is KatakanaQuestion {
 }
 
 function isKanji(q: Question): q is KanjiQuestion {
-  return q.category === 'kanji'
+  return q.category === 'kanji' || q.category === 'kanji2'
 }
 
 function isClock(q: Question): q is ClockQuestion {

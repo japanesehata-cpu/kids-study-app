@@ -2,6 +2,7 @@ import type {
   AnswerRecord,
   Category,
   EnglishWordQuestion,
+  KanjiQuestion,
   Level,
   ProgressState,
   Question,
@@ -58,6 +59,7 @@ export const CATEGORY_MAX_LEVEL: Record<Category, Level> = {
   // Full 6 steps — each ★ cumulatively unlocks one more theme (or two merged themes) of
   // the 80 grade-1 kyōiku kanji, see kanjiBank.ts/questionGenerators/kanji.ts's LEVEL_ROWS.
   kanji: 6,
+  kanji2: 6,
   alphabet: 3,
   clock: 3,
   spotDifference: 3,
@@ -116,6 +118,7 @@ export function createInitialProgress(): ProgressState {
     hiragana: { level: 1, recentAccuracy: [], reviewQueue: [] },
     katakana: { level: 1, recentAccuracy: [], reviewQueue: [] },
     kanji: { level: 1, recentAccuracy: [], reviewQueue: [] },
+    kanji2: { level: 1, recentAccuracy: [], reviewQueue: [] },
     alphabet: { level: 1, recentAccuracy: [], reviewQueue: [] },
     clock: { level: 1, recentAccuracy: [], reviewQueue: [] },
     spotDifference: { level: 1, recentAccuracy: [], reviewQueue: [] },
@@ -215,6 +218,7 @@ export function loadProgress(): ProgressState {
       hiragana: sanitizeCategoryProgress('hiragana', parsed.hiragana, initial.hiragana),
       katakana: sanitizeCategoryProgress('katakana', parsed.katakana, initial.katakana),
       kanji: sanitizeCategoryProgress('kanji', parsed.kanji, initial.kanji),
+      kanji2: sanitizeCategoryProgress('kanji2', parsed.kanji2, initial.kanji2),
       alphabet: sanitizeCategoryProgress('alphabet', parsed.alphabet, initial.alphabet),
       clock: sanitizeCategoryProgress('clock', parsed.clock, initial.clock),
       spotDifference: sanitizeCategoryProgress('spotDifference', parsed.spotDifference, initial.spotDifference),
@@ -265,7 +269,9 @@ function generateFreshQuestion(
     case 'katakana':
       return generateKatakanaQuestion(level)
     case 'kanji':
-      return generateKanjiQuestion(level)
+      return generateKanjiQuestion(level, 1)
+    case 'kanji2':
+      return generateKanjiQuestion(level, 2)
     case 'alphabet':
       return generateAlphabetQuestion(level)
     case 'clock':
@@ -297,12 +303,16 @@ function isEnglishWordQuestion(q: Question): q is EnglishWordQuestion {
   return q.category === 'englishSpelling' || q.category === 'englishListening'
 }
 
+function isKanjiQuestion(q: Question): q is KanjiQuestion {
+  return q.category === 'kanji' || q.category === 'kanji2'
+}
+
 function questionSignature(q: Question): string {
   if (isEnglishWordQuestion(q)) return `word:${q.wordId}:${q.mode}`
   if (q.category === 'logic') return `logic:${q.kind}:${[...q.choices].sort().join(',')}`
   if (q.category === 'hiragana') return `hiragana:${q.charId}`
   if (q.category === 'katakana') return `katakana:${q.charId}`
-  if (q.category === 'kanji') return `kanji:${q.charId}`
+  if (isKanjiQuestion(q)) return `kanji:${q.charId}`
   if (q.category === 'alphabet') return `alphabet:${q.letterId}:${q.kind}:${q.answerChar}`
   if (q.category === 'clock') return `clock:${q.hour}:${q.minute}`
   if (q.category === 'spotDifference') {

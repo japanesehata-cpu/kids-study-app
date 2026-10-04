@@ -1,10 +1,10 @@
 .screen {
-  /* dvh (not vh) so mobile browser chrome showing/hiding doesn't leave a sliver that
-     forces a scroll; padding/gap scale with viewport HEIGHT (clamp, not a fixed
-     breakpoint) so short phone/tablet viewports shrink toward fitting everything
-     without a scroll, while a tall viewport still gets the original spacious values. */
-  min-height: 100vh;
-  min-height: 100dvh;
+  /* Fills FitToViewport's container (flex-grow) instead of a 100dvh min-height — a
+     viewport-unit height can differ from the actual visible box by a few px on iOS
+     (toolbar animation, rounding), which alone was enough to make the screen "taller
+     than the screen". padding/gap still scale with viewport HEIGHT so short viewports
+     shrink toward fitting before FitToViewport's scale-down ever has to kick in. */
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -132,6 +132,8 @@
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
+  overscroll-behavior: contain;
+  touch-action: pan-x;
   scroll-snap-type: x proximity;
   padding-bottom: 4px;
   justify-content: safe center;
@@ -457,6 +459,8 @@
   justify-content: center;
   width: 100%;
   overflow-x: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-x;
   padding: 4px;
 }
 
@@ -668,6 +672,17 @@
  * ~70px — a real, silent contributor to ResultScreen's #root overflow/bounce. */
 .card-panel p {
   margin: 0;
+}
+
+/* The parent-only progress dashboard — the one screen allowed to scroll (a long list of
+ * every category's stats). Its own fixed-height scroll container, so FitToViewport sees
+ * it as exactly viewport-height and never scales it. */
+.screen.screen-scroll {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 
 .result-button-row {
@@ -1398,6 +1413,28 @@
   color: var(--color-text-soft);
   text-align: center;
   margin-top: 8px;
+}
+
+/* KanjiTraceScreen's explanation step: the traced kanji right beside a picture of what it
+ * means, so the character links to the real thing at a glance (雨 ＝ 🌧). */
+.kanji-meaning-link {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 2vw, 16px);
+}
+
+.kanji-meaning-char {
+  font-family: 'BIZ UDGothic', var(--font-family);
+  font-size: clamp(56px, 12vh, 104px);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-text);
+}
+
+.kanji-meaning-equals {
+  font-size: clamp(22px, 4vh, 34px);
+  font-weight: 800;
+  color: var(--color-text-soft);
 }
 
 .kanji-review-sentence {

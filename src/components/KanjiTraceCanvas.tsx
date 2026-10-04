@@ -27,13 +27,17 @@ const SAMPLE_COUNT = 20
  * stroke paths (and therefore as the points getPointAtLength() below produces) — this is
  * what makes the component correct at any rendered `size`, not just DEFAULT_SIZE. */
 function toSvgPoint(svg: SVGSVGElement, clientX: number, clientY: number): Point {
-  const ctm = svg.getScreenCTM()
-  if (!ctm) return { x: 0, y: 0 }
-  const pt = svg.createSVGPoint()
-  pt.x = clientX
-  pt.y = clientY
-  const transformed = pt.matrixTransform(ctm.inverse())
-  return { x: transformed.x, y: transformed.y }
+  // From the rendered box rather than getScreenCTM(): the box already reflects any CSS
+  // transform on an ancestor (FitToViewport scales a too-tall screen), whereas older
+  // WebKit's getScreenCTM ignored ancestor CSS transforms. The square viewBox is centered
+  // in the box under the default preserveAspectRatio (xMidYMid meet).
+  const rect = svg.getBoundingClientRect()
+  const side = Math.min(rect.width, rect.height)
+  if (side === 0) return { x: 0, y: 0 }
+  return {
+    x: ((clientX - rect.left - (rect.width - side) / 2) * VIEWBOX) / side,
+    y: ((clientY - rect.top - (rect.height - side) / 2) * VIEWBOX) / side,
+  }
 }
 
 function sampleStroke(pathEl: SVGPathElement): Point[] {

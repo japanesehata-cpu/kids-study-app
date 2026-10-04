@@ -40,7 +40,8 @@ const HOME_CATEGORY_META = CATEGORY_META.filter(
     c.category !== 'sudoku' &&
     c.category !== 'missingOperandAddition' &&
     c.category !== 'missingOperandSubtraction' &&
-    c.category !== 'shapes',
+    c.category !== 'shapes' &&
+    c.category !== 'kanji2',
 )
 const ALL_CATEGORIES: Category[] = HOME_CATEGORY_META.map((c) => c.category)
 
@@ -55,6 +56,7 @@ const INTRO_KEY_BY_CATEGORY: Record<Category, DictionaryKey> = {
   // Stand-in for kanji's not-yet-generated "fumi" mascot (see characterThemes.ts) — reuses
   // yui's own intro line/voice, same reuse as everywhere else in this map.
   kanji: 'introYui',
+  kanji2: 'introYui',
   alphabet: 'introAru',
   clock: 'introToki',
   spotDifference: 'introMitsu',

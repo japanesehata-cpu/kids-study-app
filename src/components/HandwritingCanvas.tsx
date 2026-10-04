@@ -75,7 +75,10 @@ export function HandwritingCanvas({
 
   function getPos(e: ReactPointerEvent<HTMLCanvasElement>): { x: number; y: number } {
     const rect = e.currentTarget.getBoundingClientRect()
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top }
+    // Layout px per on-screen px — not 1 when FitToViewport has scaled the screen down,
+    // and the ink/scoring coordinate system is in layout px (`size`).
+    const scale = rect.width > 0 ? e.currentTarget.offsetWidth / rect.width : 1
+    return { x: (e.clientX - rect.left) * scale, y: (e.clientY - rect.top) * scale }
   }
 
   function handlePointerDown(e: ReactPointerEvent<HTMLCanvasElement>) {

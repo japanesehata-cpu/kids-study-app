@@ -61,11 +61,34 @@ body {
   overscroll-behavior: none;
 }
 
+/* #root is no longer a scroll container at all — an overflow:auto element is still
+   something iOS can rubber-band whenever its content ends up even a pixel taller than it
+   on some device height, which kept happening on phones shorter than any test viewport.
+   Instead FitToViewport (see that component) scales a too-tall screen down to fit, so
+   nothing here ever needs to scroll. touch-action: none removes default panning entirely
+   (taps still fire click); the two places that are meant to scroll — Home's mascot
+   carousel and the parent-only progress screen — are their own scroll containers with
+   their own touch-action, which is all that governs a gesture starting inside them. */
 #root {
   position: absolute;
   inset: 0;
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.fit-viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.fit-viewport-inner {
+  position: relative;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  transform-origin: top center;
 }
 
 body {

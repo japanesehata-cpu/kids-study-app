@@ -165,7 +165,8 @@ export function buildExplanation(
         ? `「${char}」は 「${mnemonic}」の 「${char}」だよ。`
         : `"${char}" is the character you hear at the start of "${mnemonic}."`
     }
-    case 'kanji': {
+    case 'kanji':
+    case 'kanji2': {
       // `mnemonic` (e.g. 一's "いちご") exists purely to disambiguate TTS pronunciation
       // (see kanjiBank.ts's own comment on that field) — it was previously folded into
       // this text too ("「一」は「いち」と よむよ。「いちご」の「いち」だよ。"), which

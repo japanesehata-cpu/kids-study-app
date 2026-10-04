@@ -7,6 +7,8 @@ export type Category =
   | 'hiragana'
   | 'katakana'
   | 'kanji'
+  /** Grade-2 kanji (160) — same question type/UI as 'kanji', separate ★/progress track. */
+  | 'kanji2'
   | 'alphabet'
   | 'clock'
   | 'spotDifference'
@@ -114,7 +116,7 @@ export interface HiraganaQuestion {
 
 export interface KanjiQuestion {
   id: string
-  category: 'kanji'
+  category: 'kanji' | 'kanji2'
   level: Level
   charId: string
   char: string

@@ -61,6 +61,9 @@ function cooldown() {
 const args = process.argv.slice(2)
 const onlyArg = args.find((a) => a.startsWith('--only='))
 const onlyKeys = onlyArg ? new Set(onlyArg.slice('--only='.length).split(',')) : null
+// --match=REGEX regenerates every cache key the regex matches (e.g. --match=^kanji-)
+const matchArg = args.find((a) => a.startsWith('--match='))
+const matchRe = matchArg ? new RegExp(matchArg.slice('--match='.length)) : null
 
 async function checkVoicevoxRunning() {
   try {
@@ -127,6 +130,7 @@ function buildJobs() {
     hiragana: 'introYui',
     katakana: 'introPeko',
     kanji: 'introYui',
+    kanji2: 'introYui',
     alphabet: 'introAru',
     clock: 'introToki',
     spotDifference: 'introMitsu',
@@ -192,7 +196,7 @@ function buildJobs() {
     })
   }
 
-  // Every grade-1 kanji reading phrase (80 total), in kanji's own voice (currently reused
+  // Every kanji reading phrase (grade 1 + grade 2), in kanji's own voice (currently reused
   // from yui/hiragana — see characterThemes.ts's comment on why).
   const { name: kanjiSpeakerName, style: kanjiStyleName } = characterThemes.kanji.voiceProfile.voicevoxSpeaker
   for (const entry of kanjiBank) {
@@ -454,7 +458,9 @@ function buildJobs() {
     }
   }
 
-  return onlyKeys ? jobs.filter((j) => onlyKeys.has(j.cacheKey)) : jobs
+  if (onlyKeys) return jobs.filter((j) => onlyKeys.has(j.cacheKey))
+  if (matchRe) return jobs.filter((j) => matchRe.test(j.cacheKey))
+  return jobs
 }
 
 async function main() {

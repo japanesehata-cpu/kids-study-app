@@ -18,6 +18,7 @@ export const CATEGORY_META: CategoryMeta[] = [
   { category: 'hiragana', symbol: 'あ', labelKey: 'categoryHiragana' },
   { category: 'katakana', symbol: 'ア', labelKey: 'categoryKatakana' },
   { category: 'kanji', symbol: '字', labelKey: 'categoryKanji' },
+  { category: 'kanji2', symbol: '字', labelKey: 'categoryKanji2' },
   { category: 'alphabet', symbol: 'Ab', labelKey: 'categoryAlphabet' },
   { category: 'clock', symbol: '🕐', labelKey: 'categoryClock' },
   { category: 'spotDifference', symbol: '🔍', labelKey: 'categorySpotDifference' },

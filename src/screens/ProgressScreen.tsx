@@ -11,7 +11,7 @@ export function ProgressScreen({ progress, onBack }: ProgressScreenProps) {
   const { t } = useI18n()
 
   return (
-    <div className="screen">
+    <div className="screen screen-scroll">
       <h1 className="app-title">{t('progressTitle')}</h1>
 
       <div className="card-panel">

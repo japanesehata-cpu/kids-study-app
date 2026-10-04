@@ -1,7 +1,14 @@
 import { useI18n } from '../i18n/I18nContext'
 import { CategoryHeader } from '../components/CategoryHeader'
+import type { KanjiGrade } from '../domain/kanjiBank'
+
+const GRADES: KanjiGrade[] = [1, 2]
 
 interface KanjiEntryScreenProps {
+  /** Which school grade's kanji both modes below use — grade 2 is its own ★ track
+   * ('kanji2'), see types.ts. */
+  grade: KanjiGrade
+  onChangeGrade: (grade: KanjiGrade) => void
   onSelect: (mode: 'quiz' | 'trace') => void
   /** one step back — from here, the same as onHome since Home is the only screen that
    * opens this one, but kept for consistency with every other screen's back button pair
@@ -16,7 +23,7 @@ interface KanjiEntryScreenProps {
  * to KanjiTraceScreen, an unscored practice activity that is NOT a Category at all (see
  * that screen's own top comment) — same relationship HandwritingScreen has to
  * hiragana/katakana/alphabet. */
-export function KanjiEntryScreen({ onSelect, onBack, onHome }: KanjiEntryScreenProps) {
+export function KanjiEntryScreen({ grade, onChangeGrade, onSelect, onBack, onHome }: KanjiEntryScreenProps) {
   const { t } = useI18n()
 
   return (
@@ -31,6 +38,19 @@ export function KanjiEntryScreen({ onSelect, onBack, onHome }: KanjiEntryScreenP
           </button>
         </div>
         <CategoryHeader category="kanji" />
+      </div>
+
+      <div className="set-size-toggle">
+        {GRADES.map((g) => (
+          <button
+            key={g}
+            type="button"
+            className={`set-size-button ${grade === g ? 'active' : ''}`.trim()}
+            onClick={() => onChangeGrade(g)}
+          >
+            {t(g === 1 ? 'kanjiGrade1Label' : 'kanjiGrade2Label')}
+          </button>
+        ))}
       </div>
 
       <p className="subtitle">{t('kanjiEntryTitle')}</p>

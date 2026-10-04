@@ -26,6 +26,7 @@ const LOGIC_KIND_LABEL_KEY: Record<number, DictionaryKey> = {
   1: 'logicKindOddOneOut',
   2: 'logicKindPattern',
   3: 'logicKindCompare',
+  4: 'logicKindOpposite',
 }
 
 interface LevelSelectScreenProps {

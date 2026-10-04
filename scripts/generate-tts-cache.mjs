@@ -36,6 +36,7 @@ import { dictionary } from '../src/i18n/dictionary.ts'
 import { characterThemes } from '../src/components/characters/characterThemes.ts'
 import { CATEGORY_META } from '../src/domain/categoryMeta.ts'
 import { counterBank } from '../src/domain/counterBank.ts'
+import { oppositeWords, oppositeWordKey } from '../src/domain/oppositeBank.ts'
 import { hiraganaBank, hiraganaSpeechPhrase } from '../src/domain/hiraganaBank.ts'
 import { katakanaBank, katakanaSpeechPhrase } from '../src/domain/katakanaBank.ts'
 import { kanjiBank, kanjiSpeechPhrase } from '../src/domain/kanjiBank.ts'
@@ -257,6 +258,15 @@ function buildJobs() {
   for (const { cacheKey, dictKey, category } of fixedPrompts) {
     const { name: speakerName, style: styleName } = speakerFor(category)
     jobs.push({ cacheKey, text: dictionary[dictKey].ja, speakerName, styleName })
+  }
+
+  // ろんり「はんたいことば」 — one question sentence per prompt word, in logic's voice.
+  for (const word of oppositeWords) {
+    jobs.push({
+      cacheKey: `prompt-opposite-${oppositeWordKey(word)}`,
+      text: dictionary.logicOppositePrompt.ja.replace('{word}', word),
+      ...(({ name, style }) => ({ speakerName: name, styleName: style }))(speakerFor('logic')),
+    })
   }
 
   // 助数詞 redesign — each counterBank entry carries its own full hand-authored sentence

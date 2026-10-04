@@ -58,6 +58,7 @@ import { characterThemes } from '../components/characters/characterThemes'
 import { RewardRain } from '../components/RewardRain'
 import { CategoryHeader } from '../components/CategoryHeader'
 import { useResponsiveSize } from '../lib/useResponsiveSize'
+import { oppositeWordKey } from '../domain/oppositeBank'
 
 interface QuizScreenProps {
   category: Category
@@ -245,6 +246,13 @@ function computeAutoSpeech(
     const keyPrefix = question.story ? 'story' : 'equation'
     const cacheKey = ja ? `${keyPrefix}-${question.category}-${question.operandA}-${question.operandB}` : undefined
     return { text, speechLang: sl, cacheKey }
+  }
+  if (isLogic(question) && question.kind === 'opposite') {
+    return {
+      text: t('logicOppositePrompt', { word: question.promptWord! }),
+      speechLang,
+      cacheKey: ja ? `prompt-opposite-${oppositeWordKey(question.promptWord!)}` : undefined,
+    }
   }
   if (isLogic(question)) {
     const cacheKey = ja
@@ -608,6 +616,7 @@ function AlphabetQuestionView({
 }
 
 function logicPromptKey(question: LogicQuestion): DictionaryKey {
+  if (question.kind === 'opposite') return 'logicOppositeQuestion'
   if (question.kind === 'pattern') return 'logicPatternPrompt'
   if (question.kind === 'oddOneOut') return 'logicOddOneOutPrompt'
   return question.compareGoal === 'max' ? 'logicCompareMaxPrompt' : 'logicCompareMinPrompt'
@@ -630,6 +639,7 @@ function shapesPromptText(
 function LogicQuestionView({
   question,
   promptText,
+  spokenText,
   lang,
   voiceProfile,
   cacheKey,
@@ -637,6 +647,9 @@ function LogicQuestionView({
 }: {
   question: LogicQuestion
   promptText: string
+  /** What the replay button says when it differs from the on-screen prompt (opposite: the
+   * screen shows the word big plus "の はんたいの いみは どれかな？", speech says it whole). */
+  spokenText?: string
   lang: Lang
   voiceProfile: VoiceProfile
   cacheKey?: string
@@ -661,8 +674,9 @@ function LogicQuestionView({
           </span>
         </div>
       )}
+      {question.kind === 'opposite' && <p className="opposite-prompt-word">{question.promptWord}</p>}
       <p className="subtitle">{promptText}</p>
-      <TtsButton text={promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
+      <TtsButton text={spokenText ?? promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
     </div>
   )
 }
@@ -827,6 +841,7 @@ function renderChoiceContent(question: Question, choice: Choice, lang: Lang, ico
   if (isArithmetic(question)) return choice
   if (isLogic(question)) {
     if (question.kind === 'oddOneOut') return <WordIcon wordId={choice as string} size={iconSize} />
+    if (question.kind === 'opposite') return choice
     return <span style={{ fontSize: 40 }}>{choice}</span>
   }
   if (isHiragana(question)) {
@@ -877,6 +892,7 @@ function computeCorrectAnswerLabel(question: Question, lang: Lang): string {
     if (question.kind === 'oddOneOut') {
       return lang === 'ja' ? getWordById(question.answer).translationJa : getWordById(question.answer).word
     }
+    if (question.answers) return question.answers.join(lang === 'ja' ? '・' : ' / ')
     return question.answer
   }
   if (isHiragana(question)) return question.char
@@ -923,7 +939,11 @@ export function QuizScreen({
         ? progress.clock.reviewQueue.filter((q) => q.category === 'clock' && q.kind === clockMode)
         : category === 'sudoku'
           ? progress.sudoku.reviewQueue.filter((q) => q.category === 'sudoku' && q.mode === sudokuMode)
-          : progress[category].reviewQueue
+          : category === 'logic'
+            ? // logic's levels are different puzzle types, not difficulty steps — a missed
+              // なかまはずれ question must not turn up in a はんたいことば round.
+              progress.logic.reviewQueue.filter((q) => q.category === 'logic' && q.level === level)
+            : progress[category].reviewQueue
     return generateQuestionSet(category, level, reviewQueue, setSize, clockMode, sudokuMode, progress[category].recent)
   })
   const [index, setIndex] = useState(0)
@@ -1019,7 +1039,7 @@ export function QuizScreen({
 
   function isCorrectChoice(choice: Choice): boolean {
     if (isArithmetic(question)) return choice === (question.blank ? question[question.blank] : question.answer)
-    if (isLogic(question)) return choice === question.answer
+    if (isLogic(question)) return question.answers ? question.answers.includes(choice as string) : choice === question.answer
     if (isHiragana(question)) return choice === question.charId
     if (isKatakana(question)) return choice === question.charId
     if (isKanji(question)) return choice === question.charId
@@ -1213,6 +1233,7 @@ export function QuizScreen({
           <LogicQuestionView
             question={question}
             promptText={t(logicPromptKey(question))}
+            spokenText={autoSpeech.text}
             lang={lang}
             voiceProfile={voiceProfile}
             cacheKey={autoSpeech.cacheKey}

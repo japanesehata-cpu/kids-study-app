@@ -1,6 +1,7 @@
 import type { Level, LogicQuestion } from '../types'
 import { eligibleWordBank } from '../wordBank'
 import { shuffle } from '../../lib/shuffle'
+import { oppositeWords, pairsFor, partnerIn } from '../oppositeBank'
 
 function makeId(): string {
   return `logic-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
@@ -154,16 +155,49 @@ function generateCompare(level: Level): LogicQuestion {
  * holding a short sequence in mind; ★3 compare (biggest/smallest of 4 numbers) is the
  * most abstract, numeric-only skill — a natural difficulty order even without needing to
  * blend them together.
- * Never reached — logic caps at ★3 (see CATEGORY_MAX_LEVEL). Kept only so this Record
- * type-checks against the full Level union; ★4-★6 fall back to compare, the last real
- * skill defined. */
+ * ★4 はんたいことば (opposite words) is the one language-based kind. ★5/★6 are never reached
+ * (logic caps at ★4, see CATEGORY_MAX_LEVEL) — kept only so this Record type-checks against
+ * the full Level union. */
 const KIND_BY_LEVEL: Record<Level, LogicQuestion['kind']> = {
   1: 'oddOneOut',
   2: 'pattern',
   3: 'compare',
-  4: 'compare',
-  5: 'compare',
-  6: 'compare',
+  4: 'opposite',
+  5: 'opposite',
+  6: 'opposite',
+}
+
+/** はんたいことば: "what is the opposite of たかい?". A word with several meanings has several
+ * opposites (たかい ⇔ ひくい / やすい); half the time two of them are put among the choices,
+ * and any of them counts as correct (see LogicQuestion.answers). Wrong choices are the same
+ * kind of word (describing vs action) and never from a meaning group the prompt belongs to,
+ * so none of them is arguably an opposite too (see oppositeBank.ts). */
+function generateOpposite(level: Level): LogicQuestion {
+  const word = pickRandom(oppositeWords)
+  const pairs = pairsFor(word)
+  const partners = shuffle([...new Set(pairs.map((p) => partnerIn(p, word)))])
+  const answers = partners.slice(0, partners.length >= 2 && Math.random() < 0.5 ? 2 : 1)
+  const pos = pairs[0].pos
+  const blockedGroups = new Set(pairs.map((p) => p.group))
+  const distractorPool = oppositeWords.filter(
+    (w) =>
+      w !== word &&
+      !partners.includes(w) &&
+      pairsFor(w).every((p) => p.pos === pos && !blockedGroups.has(p.group)),
+  )
+  const distractors = shuffle(distractorPool).slice(0, 4 - answers.length)
+
+  return {
+    id: makeId(),
+    category: 'logic',
+    level,
+    kind: 'opposite',
+    promptWord: word,
+    choices: shuffle([...answers, ...distractors]),
+    answer: answers[0],
+    answers,
+    subSkill: 'logic-opposite',
+  }
 }
 
 export function generateLogicQuestion(level: Level): LogicQuestion {
@@ -174,5 +208,7 @@ export function generateLogicQuestion(level: Level): LogicQuestion {
       return generatePattern(level)
     case 'compare':
       return generateCompare(level)
+    case 'opposite':
+      return generateOpposite(level)
   }
 }

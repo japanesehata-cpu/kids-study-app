@@ -108,6 +108,7 @@ export const dictionary = {
   levelDescLogic1: { ja: 'なかまはずれを みつけよう', en: 'Find the odd one out' },
   levelDescLogic2: { ja: 'きまりを みつけよう', en: 'Spot the repeating pattern' },
   levelDescLogic3: { ja: 'おおきい・ちいさいを くらべよう', en: 'Compare biggest and smallest' },
+  levelDescLogic4: { ja: 'はんたいの いみの ことばを みつけよう', en: 'Find the word with the opposite meaning' },
   // Short names for ろんり's 3 puzzle kinds, shown as each choice's main label on
   // LevelSelectScreen instead of a level number + star count — see that screen's
   // isKindChoiceCategory branch for why: these 3 kinds aren't a difficulty ladder (nothing
@@ -116,6 +117,9 @@ export const dictionary = {
   logicKindOddOneOut: { ja: 'なかまはずれ', en: 'Odd One Out' },
   logicKindPattern: { ja: 'きまり さがし', en: 'Pattern' },
   logicKindCompare: { ja: 'おおきさ くらべ', en: 'Compare' },
+  logicKindOpposite: { ja: 'はんたいことば', en: 'Opposites' },
+  logicOppositePrompt: { ja: '「{word}」の はんたいの いみは どれかな？', en: 'Which word means the opposite of "{word}"?' },
+  logicOppositeQuestion: { ja: 'の はんたいの いみは どれかな？', en: 'Which word means the opposite?' },
   levelDescHiragana1: { ja: 'あ・か・さ行', en: '"a", "ka", "sa" rows' },
   levelDescHiragana2: { ja: 'あ〜ま行', en: '"a" through "ma" rows' },
   levelDescHiragana3: { ja: 'ぜんぶの もじ（にた もじに ちゅうい）', en: 'Every character, including tricky look-alikes' },
@@ -350,6 +354,7 @@ export const dictionary = {
   subSkillLogicPattern: { ja: 'パターンのつづき', en: 'pattern sequences' },
   subSkillLogicOddOneOut: { ja: 'なかまはずれさがし', en: 'finding the odd one out' },
   subSkillLogicCompare: { ja: 'おおきさくらべ', en: 'comparing numbers' },
+  subSkillLogicOpposite: { ja: 'はんたいことば', en: 'opposite words' },
   subSkillSudokuFill: { ja: 'すうどく', en: 'sudoku' },
   subSkillHiraganaVowels: { ja: 'あいうえお', en: 'the vowel row (a-i-u-e-o)' },
   subSkillHiraganaBasic: { ja: 'か行・さ行', en: 'the ka/sa rows' },

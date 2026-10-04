@@ -272,6 +272,18 @@
    question screen, stacking with the choice-grid/feedback-banner/explanation/portrait
    below it once a question's been answered. See the mobile-first-policy memory's notes
    on englishListening ★5's post-answer overflow, found this way. */
+/* ろんり「はんたいことば」: the word whose opposite is asked, shown big above the question. */
+.opposite-prompt-word {
+  margin: 0;
+  padding: clamp(6px, 1.4vh, 12px) clamp(18px, 4vw, 28px);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  font-size: clamp(26px, 5.5vh, 44px);
+  font-weight: 800;
+  color: var(--color-text);
+}
+
 .quiz-prompt-stack {
   display: flex;
   flex-direction: column;
@@ -1181,6 +1193,8 @@
 }
 
 .explanation-text {
+  /* pre-line: はんたいことば lists each meaning's pair on its own line. */
+  white-space: pre-line;
   font-size: clamp(13px, 2.2vh, 18px);
   font-weight: 700;
   color: var(--color-text-soft);

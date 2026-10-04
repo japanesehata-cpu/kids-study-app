@@ -5,6 +5,7 @@ import { getCounterById } from './counterBank'
 import { getHiraganaById } from './hiraganaBank'
 import { getKatakanaById } from './katakanaBank'
 import { getKanjiById } from './kanjiBank'
+import { pairsFor, partnerIn } from './oppositeBank'
 import { formatClockKey } from './questionGenerators/clock'
 
 const CATEGORY_LABEL: Record<WordEntry['category'], Record<Lang, string>> = {
@@ -113,6 +114,28 @@ export function buildExplanation(
       return correctText + wrongText
     }
     case 'logic': {
+      if (question.kind === 'opposite') {
+        // Every meaning's pair, not just the one(s) among the choices — so a child who picked
+        // やすい for たかい also sees やまが たかい ⇔ ひくい, and vice versa.
+        const word = question.promptWord!
+        const lines = pairsFor(word).map((p) => {
+          const partner = partnerIn(p, word)
+          return lang === 'ja' ? `${p.context ? `${p.context} ` : ''}${word} ⇔ ${partner}` : `${word} ⇔ ${partner}`
+        })
+        const answers = question.answers ?? [question.answer]
+        if (answers.length > 1) {
+          lines.unshift(
+            correct
+              ? lang === 'ja'
+                ? `「${answers.join('」も「')}」も、どちらも せいかいだよ。`
+                : `"${answers.join('" and "')}" are both correct.`
+              : lang === 'ja'
+                ? `こたえは「${answers.join('」と「')}」の ふたつ あったよ。`
+                : `There were two answers: "${answers.join('" and "')}".`,
+          )
+        }
+        return lines.join('\n')
+      }
       if (question.kind === 'oddOneOut') {
         const answerEntry = getWordById(question.answer)
         const otherCategory = question.choices

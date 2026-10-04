@@ -93,12 +93,18 @@ export interface LogicQuestion {
   id: string
   category: 'logic'
   level: Level
-  kind: 'pattern' | 'oddOneOut' | 'compare'
+  kind: 'pattern' | 'oddOneOut' | 'compare' | 'opposite'
   /** pattern only: the sequence shown before the "?" */
   sequence?: string[]
   /** compare only: whether the biggest or smallest number is being asked for */
   compareGoal?: 'max' | 'min'
-  /** emoji (pattern), wordBank ids (oddOneOut), or number strings (compare) */
+  /** opposite only: the word whose opposite is asked for (たかい). */
+  promptWord?: string
+  /** opposite only: EVERY choice that is a valid opposite of promptWord — a word with
+   * several meanings can have more than one among the choices (たかい: ひくい and やすい),
+   * and any of them is correct. `answer` is the first of these. */
+  answers?: string[]
+  /** emoji (pattern), wordBank ids (oddOneOut), number strings (compare), or words (opposite) */
   choices: string[]
   answer: string
   subSkill: string

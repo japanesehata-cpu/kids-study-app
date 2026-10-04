@@ -60,7 +60,7 @@ export const CATEGORY_MAX_LEVEL: Record<Category, Level> = {
   subtraction: 6,
   englishSpelling: 5,
   englishListening: 5,
-  logic: 3,
+  logic: 4,
   hiragana: 4,
   katakana: 5,
   // Full 6 steps — each ★ cumulatively unlocks one more theme (or two merged themes) of
@@ -147,6 +147,9 @@ export function createInitialProgress(): ProgressState {
  * looking wrong, so it's safer to discard than reuse — same class of bug as addition's
  * stale showVisual field, but here the shape itself is incompatible. */
 function isCompatibleShape(q: Question): boolean {
+  if (q.category === 'logic' && q.kind === 'opposite') {
+    return typeof q.promptWord === 'string' && Array.isArray(q.answers) && Array.isArray(q.choices)
+  }
   if (q.category === 'spotDifference') {
     return Array.isArray(q.leftItems) && Array.isArray(q.rightItems) && Array.isArray(q.differenceIndexes)
   }
@@ -359,7 +362,9 @@ function isKanjiQuestion(q: Question): q is KanjiQuestion {
 
 export function questionSignature(q: Question): string {
   if (isEnglishWordQuestion(q)) return `word:${q.wordId}:${q.mode}`
-  if (q.category === 'logic') return `logic:${q.kind}:${[...q.choices].sort().join(',')}`
+  if (q.category === 'logic') {
+    return q.kind === 'opposite' ? `logic:opposite:${q.promptWord}` : `logic:${q.kind}:${[...q.choices].sort().join(',')}`
+  }
   if (q.category === 'hiragana') return `hiragana:${q.charId}`
   if (q.category === 'katakana') return `katakana:${q.charId}`
   if (isKanjiQuestion(q)) return `kanji:${q.charId}`

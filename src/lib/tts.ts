@@ -1,4 +1,4 @@
-import { isVoicevoxAvailable, resolveVoicevoxSpeakerId, synthesizeVoicevox } from './voicevox'
+import { isLocalDevHost, isVoicevoxAvailable, resolveVoicevoxSpeakerId, synthesizeVoicevox } from './voicevox'
 
 export type SpeechLang = 'ja-JP' | 'en-US'
 
@@ -94,6 +94,7 @@ function speakWithWebSpeech(text: string, lang: SpeechLang, profile: VoiceProfil
 const localVoiceAvailable: Partial<Record<SpeechLang, Promise<boolean>>> = {}
 
 function checkLocalVoiceAvailable(lang: SpeechLang): Promise<boolean> {
+  if (!isLocalDevHost()) return Promise.resolve(false)
   if (!localVoiceAvailable[lang]) {
     localVoiceAvailable[lang] = fetch(`${LOCAL_VOICE_SERVER_URL[lang]}/health`, { signal: AbortSignal.timeout(800) })
       .then((res) => res.ok)

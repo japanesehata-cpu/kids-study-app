@@ -23,7 +23,19 @@ interface VoicevoxSpeaker {
 let availableCache: Promise<boolean> | null = null
 let stylesCache: Promise<VoicevoxStyle[]> | null = null
 
+/** The local speech engines (VOICEVOX, the Piper/Kokoro servers) only ever run on the
+ * developer's own machine. From the deployed site a probe of 127.0.0.1 can never succeed,
+ * and current Chrome asks the visitor for "local network access" permission when a public
+ * page tries — a confusing prompt in a children's app — so only probe when the app itself
+ * is being served from this machine. */
+export function isLocalDevHost(): boolean {
+  if (typeof window === 'undefined') return false
+  const host = window.location.hostname
+  return host === 'localhost' || host === '127.0.0.1' || host === '[::1]'
+}
+
 export function isVoicevoxAvailable(): Promise<boolean> {
+  if (!isLocalDevHost()) return Promise.resolve(false)
   if (!availableCache) {
     availableCache = fetch(`${VOICEVOX_URL}/version`, { signal: AbortSignal.timeout(500) })
       .then((res) => res.ok)

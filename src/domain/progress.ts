@@ -26,6 +26,13 @@ import { generateSudokuQuestion, type SudokuMode } from './questionGenerators/su
 import { generateMissingOperandQuestion } from './questionGenerators/missingOperand'
 import { generateShapesQuestion } from './questionGenerators/shapes'
 import { loadProgressJson, saveProgressJson } from '../lib/storage'
+import { getKanjiById } from './kanjiBank'
+import { getHiraganaById } from './hiraganaBank'
+import { getKatakanaById } from './katakanaBank'
+import { getAlphabetById } from './alphabetBank'
+import { getWordById } from './wordBank'
+import { getCounterById } from './counterBank'
+import { getCoinById } from './moneyBank'
 
 export const SET_SIZE = 10
 /** Kept for the categories that still use the full 5-step scale. */
@@ -139,7 +146,7 @@ export function createInitialProgress(): ProgressState {
  * leftItems/rightItems). Replaying it as-is would crash the board instead of just
  * looking wrong, so it's safer to discard than reuse — same class of bug as addition's
  * stale showVisual field, but here the shape itself is incompatible. */
-function isCompatibleQuestion(q: Question): boolean {
+function isCompatibleShape(q: Question): boolean {
   if (q.category === 'spotDifference') {
     return Array.isArray(q.leftItems) && Array.isArray(q.rightItems) && Array.isArray(q.differenceIndexes)
   }
@@ -182,6 +189,48 @@ function isCompatibleQuestion(q: Question): boolean {
     return typeof q.targetAmount === 'number' && Array.isArray(q.paletteCoinIds)
   }
   return true
+}
+
+/** Content ids a saved question points at — rendering it looks every one of these up, and
+ * the lookups throw for an id that no longer exists (content renamed or removed since the
+ * question was saved), which used to crash the whole app to a blank screen whenever that
+ * review question came up, and keep crashing on every later visit since it never left the
+ * queue. */
+function referencedLookups(q: Question): (() => unknown)[] {
+  const ids = (list: unknown, get: (id: string) => unknown) =>
+    Array.isArray(list) ? list.map((id) => () => get(id as string)) : [() => get(undefined as unknown as string)]
+  switch (q.category) {
+    case 'kanji':
+    case 'kanji2':
+      return [() => getKanjiById(q.charId), ...ids(q.choiceIds, getKanjiById)]
+    case 'hiragana':
+      return [() => getHiraganaById(q.charId), ...ids(q.choiceIds, getHiraganaById)]
+    case 'katakana':
+      return [() => getKatakanaById(q.charId), ...ids(q.choiceIds, getKatakanaById)]
+    case 'alphabet':
+      return [() => getAlphabetById(q.letterId)]
+    case 'englishSpelling':
+    case 'englishListening':
+      return [() => getWordById(q.wordId), ...ids(q.choiceWordIds, getWordById)]
+    case 'englishSentence':
+      return [() => getWordById(q.correctWordId), ...ids(q.choiceWordIds, getWordById)]
+    case 'counting':
+      return [() => getCounterById(q.counterId), ...ids(q.choiceCounterIds, getCounterById)]
+    case 'money':
+      return ids(q.paletteCoinIds, getCoinById)
+    default:
+      return []
+  }
+}
+
+function isCompatibleQuestion(q: Question): boolean {
+  if (!q || typeof q !== 'object' || !isCompatibleShape(q)) return false
+  try {
+    for (const lookup of referencedLookups(q)) lookup()
+    return true
+  } catch {
+    return false
+  }
 }
 
 function sanitizeCategoryProgress(

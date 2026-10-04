@@ -948,6 +948,13 @@ export function QuizScreen({
   // the previous question can fire after ResultScreen mounts and silently cancel *its*
   // announcement. Guard each step so an unmounted screen's chain stops issuing new calls.
   const isMountedRef = useRef(true)
+  // Synchronous per-question guards: `selected`/`index` state only updates on the next
+  // render, so a fast double/triple tap (very common from small children) landing in the
+  // same tick used to pass the `selected !== null` check every time — recording one answer
+  // per tap ("1 / 9 もんせいかい" after a 5-question round) and skipping a question per
+  // extra tap on "つぎへ".
+  const answeredIndexRef = useRef(-1)
+  const advancedFromIndexRef = useRef(-1)
   useEffect(() => {
     // Explicitly set true on setup, not just relying on useRef's initial value — React 18
     // StrictMode's dev-only mount→cleanup→remount double-invoke runs this effect's cleanup
@@ -1055,7 +1062,8 @@ export function QuizScreen({
       : undefined
 
   function handleSelect(choice: Choice) {
-    if (selected !== null) return
+    if (selected !== null || answeredIndexRef.current === index) return
+    answeredIndexRef.current = index
     const correct = isCorrectChoice(choice)
     setSelected(choice)
     if (correct) {
@@ -1153,8 +1161,10 @@ export function QuizScreen({
   }
 
   function handleNext() {
+    if (advancedFromIndexRef.current === index || answeredIndexRef.current !== index) return
+    advancedFromIndexRef.current = index
     if (index + 1 < questions.length) {
-      setIndex((i) => i + 1)
+      setIndex(index + 1)
       setSelected(null)
       setFeedbackText('')
       setExplanationText('')

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { AnswerRecord, Category, Level, ProgressState, SetResult } from './domain/types'
 import { applySetResult, loadProgress, persistProgress, SET_SIZE } from './domain/progress'
 import { saveLastQuizFeedback } from './domain/homeFeedback'
@@ -25,6 +25,7 @@ import { ResultScreen } from './screens/ResultScreen'
 import { ParentGate } from './screens/ParentGate'
 import { ProgressScreen } from './screens/ProgressScreen'
 import { FitToViewport } from './components/FitToViewport'
+import { AppErrorBoundary } from './components/AppErrorBoundary'
 
 type Screen =
   | { name: 'home' }
@@ -69,12 +70,37 @@ function AppContent() {
     persistProgress(progress)
   }, [progress])
 
+  // A double tap on any navigation button (a level, ←, ⌂, a result-screen button) used to
+  // fire twice before the first navigation rendered: pushing the same screen onto the
+  // history twice, or going back two screens instead of one. Navigation is ignored until
+  // the screen it started has actually rendered.
+  const navLockRef = useRef(false)
+  useEffect(() => {
+    navLockRef.current = false
+  }, [screen])
+
+  function acquireNavLock(): boolean {
+    if (navLockRef.current) return false
+    navLockRef.current = true
+    return true
+  }
+
   function navigate(next: Screen) {
+    if (!acquireNavLock()) return
     setHistory((h) => [...h, screen])
     setScreen(next)
   }
 
+  /** Swaps the current screen without growing the history — for quiz → result and
+   * result → retry, so ← from either still means "back to level select" rather than
+   * reopening a finished quiz or a stale result. */
+  function replace(next: Screen) {
+    if (!acquireNavLock()) return
+    setScreen(next)
+  }
+
   function goBack() {
+    if (!acquireNavLock()) return
     setHistory((h) => {
       if (h.length === 0) {
         setScreen({ name: 'home' })
@@ -86,6 +112,7 @@ function AppContent() {
   }
 
   function goHome() {
+    if (!acquireNavLock()) return
     setHistory([])
     setScreen({ name: 'home' })
   }
@@ -109,7 +136,7 @@ function AppContent() {
       total: result.answers.length,
     })
 
-    navigate({
+    replace({
       name: 'result',
       category,
       level,
@@ -290,7 +317,7 @@ function AppContent() {
           <ResultScreen
             result={screen.result}
             onRetry={() =>
-              navigate({
+              replace({
                 name: 'quiz',
                 category: screen.category,
                 level: screen.level,
@@ -325,7 +352,7 @@ function App() {
   return (
     <I18nProvider>
       <FitToViewport>
-        <AppContent />
+        <AppErrorBoundary>{(resetKey) => <AppContent key={resetKey} />}</AppErrorBoundary>
       </FitToViewport>
     </I18nProvider>
   )

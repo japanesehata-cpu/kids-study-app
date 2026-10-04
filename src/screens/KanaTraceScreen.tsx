@@ -2,16 +2,14 @@ import { useRef, useState } from 'react'
 import { hiraganaBank, hiraganaSpeechPhrase, type HiraganaEntry } from '../domain/hiraganaBank'
 import { katakanaBank, katakanaSpeechPhrase, type KatakanaEntry } from '../domain/katakanaBank'
 import { kanaStrokePaths } from '../domain/kanaStrokes'
-import { pickHandwritingPraise } from '../domain/handwritingPraise'
+import { KANA_TRACE_IMAGE } from '../domain/kanaTraceImages'
 import { useI18n } from '../i18n/I18nContext'
 import { CategoryHeader } from '../components/CategoryHeader'
 import { KanjiTraceCanvas } from '../components/KanjiTraceCanvas'
-import { HiraganaChar } from '../components/HiraganaChar'
-import { TtsButton } from '../components/TtsButton'
+import { TraceReveal } from '../components/TraceReveal'
 import { characterThemes } from '../components/characters/characterThemes'
 import { playCorrectSfx } from '../lib/sfx'
 import { shuffle } from '../lib/shuffle'
-import { useResponsiveSize } from '../lib/useResponsiveSize'
 
 type KanaCategory = 'hiragana' | 'katakana'
 type KanaEntry = HiraganaEntry | KatakanaEntry
@@ -42,28 +40,17 @@ function traceDeckFor(category: KanaCategory): KanaEntry[] {
   )
 }
 
-type Phase = 'tracing' | 'praise' | 'review'
+type Phase = 'tracing' | 'reveal'
 
 /** ひらがな/カタカナ なぞる (stroke-order trace) practice — the same KanjiVG-driven,
- * shared KanjiTraceCanvas mechanism かんじ's KanjiTraceScreen uses (see that file's own
- * top comment for the full rationale: real per-stroke order guidance via a component that
- * only needs a char + its stroke list, nothing kanji-specific). Reached from
- * HandwritingScreen when level 1 ("なぞる") is picked for hiragana/katakana specifically
- * — HandwritingScreen renders this in place of its own whole-glyph HandwritingCanvas for
- * that one branch and leaves alphabet's level 1 and every category's level 2 (きいてかく,
- * which shows no guide at all and so can't use stroke-order tracing in the first place)
- * completely untouched.
+ * shared KanjiTraceCanvas mechanism かんじ's KanjiTraceScreen uses. Reached from
+ * HandwritingScreen when level 1 ("なぞる") is picked for hiragana/katakana.
  *
- * Unlike KanjiTraceScreen, there's no per-character "reveal" step — a kana has no meaning
- * to disclose, just a sound the child already knows going in. Trace-completion feedback
- * instead reuses HandwritingScreen's own existing praise mechanic
- * (pickHandwritingPraise/handwriting-praise-*, already cached). Once every character in
- * the deck has been traced once, the same deck restarts as a review pass exactly like
- * かんじ's: each kana's reading (existing hiragana-{id}/katakana-{id} cache — the same
- * audio HandwritingScreen's own level 2 already speaks) plays alongside a short example
- * sentence using it in context. Finishing the review pass calls onBack(), which — since
- * this screen is only ever rendered by HandwritingScreen — returns to its
- * なぞる/きいてかく chooser. */
+ * Same rhythm as かんじ: trace a kana → one explanation step (TraceReveal) showing the kana
+ * beside a picture of its example word (あ ＝ ant, あり), the example sentence, and the
+ * kana's sound followed by the sentence read aloud — right after each kana, instead of a
+ * generic praise line now and a separate review lap at the end of the deck. Finishing the
+ * last kana calls onBack(), returning to HandwritingScreen's なぞる/きいてかく chooser. */
 export function KanaTraceScreen({ category, onBack, onHome }: KanaTraceScreenProps) {
   const { t, lang } = useI18n()
   const [order] = useState<KanaEntry[]>(() => shuffle(traceDeckFor(category)))
@@ -76,35 +63,22 @@ export function KanaTraceScreen({ category, onBack, onHome }: KanaTraceScreenPro
   const isLastInDeck = index === order.length - 1
   const voiceProfile = characterThemes[category].voiceProfile
   const wentBackRef = useRef(false)
-  // See AlphabetTraceScreen.tsx's identical comment — HiraganaChar needs an actual number.
-  const charSize = useResponsiveSize(96, 0.14, 56)
 
   function handleComplete() {
     playCorrectSfx()
-    setPhase('praise')
+    setPhase('reveal')
   }
 
-  function handlePraiseNext() {
-    if (isLastInDeck) {
-      setIndex(0)
-      setPhase('review')
-    } else {
-      setIndex((i) => Math.min(i + 1, order.length - 1))
-      setPhase('tracing')
-    }
-  }
-
-  function handleReviewNext() {
+  function handleNext() {
     if (isLastInDeck) {
       if (wentBackRef.current) return
       wentBackRef.current = true
       onBack()
-    } else {
-      setIndex((i) => Math.min(i + 1, order.length - 1))
+      return
     }
+    setIndex((i) => Math.min(i + 1, order.length - 1))
+    setPhase('tracing')
   }
-
-  const praise = phase === 'praise' ? pickHandwritingPraise(lang, category) : null
 
   return (
     <div className="screen">
@@ -120,6 +94,10 @@ export function KanaTraceScreen({ category, onBack, onHome }: KanaTraceScreenPro
         <CategoryHeader category={category} />
       </div>
 
+      <p className="hint-caption">
+        {t('kanjiTraceProgress', { current: String(index + 1), total: String(order.length) })}
+      </p>
+
       {phase === 'tracing' && (
         <>
           <p className="subtitle">{t('tracePrompt')}</p>
@@ -130,55 +108,27 @@ export function KanaTraceScreen({ category, onBack, onHome }: KanaTraceScreenPro
             restartLabel={t('traceRestartButton')}
             onComplete={handleComplete}
           />
+          <p className="kanji-trace-credit">{t('traceStrokeCredit')}</p>
         </>
       )}
 
-      {phase === 'praise' && praise && (
-        <div className="handwriting-praise">
-          <HiraganaChar char={entry.char} size={charSize} />
-          <p className="handwriting-praise-text">{praise.text}</p>
-          <TtsButton
-            text={praise.text}
-            lang={lang === 'ja' ? 'ja-JP' : 'en-US'}
-            label="listen"
-            voiceProfile={voiceProfile}
-            cacheKey={praise.cacheKey}
-          />
-          <button type="button" className="primary-button next-button" onClick={handlePraiseNext}>
-            {t('nextButton')}
-          </button>
-        </div>
+      {phase === 'reveal' && (
+        <TraceReveal
+          key={entry.id}
+          glyph={entry.char}
+          imageId={KANA_TRACE_IMAGE[category][entry.id]}
+          label={entry.mnemonic ?? ''}
+          sentence={lang === 'ja' ? entry.exampleSentenceJa : entry.exampleSentenceEn}
+          speech={[
+            { text: speechPhraseFor(category, entry), lang: 'ja-JP', cacheKey: `${category}-${entry.id}` },
+            { text: entry.exampleSentenceJa!, lang: 'ja-JP', cacheKey: `${category}-review-${entry.id}` },
+          ]}
+          voiceProfile={voiceProfile}
+          nextLabel={isLastInDeck ? t('reviewDoneButton') : t('nextButton')}
+          onNext={handleNext}
+        />
       )}
 
-      {phase === 'review' && (
-        <div className="handwriting-praise">
-          <p className="hint-caption">
-            {t('reviewProgress', { current: String(index + 1), total: String(order.length) })}
-          </p>
-          <HiraganaChar char={entry.char} size={charSize} />
-          <TtsButton
-            text={speechPhraseFor(category, entry)}
-            lang="ja-JP"
-            label="listen"
-            size={56}
-            voiceProfile={voiceProfile}
-            cacheKey={`${category}-${entry.id}`}
-          />
-          <p className="kanji-review-sentence">{lang === 'ja' ? entry.exampleSentenceJa : entry.exampleSentenceEn}</p>
-          <TtsButton
-            text={entry.exampleSentenceJa!}
-            lang="ja-JP"
-            label="listen"
-            voiceProfile={voiceProfile}
-            cacheKey={`${category}-review-${entry.id}`}
-          />
-          <button type="button" className="primary-button next-button" onClick={handleReviewNext}>
-            {isLastInDeck ? t('reviewDoneButton') : t('nextButton')}
-          </button>
-        </div>
-      )}
-
-      <p className="kanji-trace-credit">{t('traceStrokeCredit')}</p>
     </div>
   )
 }

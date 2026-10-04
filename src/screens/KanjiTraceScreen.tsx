@@ -1,13 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { kanjiBank, type KanjiEntry, type KanjiGrade } from '../domain/kanjiBank'
 import { kanjiStrokePaths } from '../domain/kanjiStrokes'
 import { useI18n } from '../i18n/I18nContext'
 import { CategoryHeader } from '../components/CategoryHeader'
 import { KanjiTraceCanvas } from '../components/KanjiTraceCanvas'
-import { WordIcon } from '../components/WordIcon'
-import { TtsButton } from '../components/TtsButton'
+import { TraceReveal } from '../components/TraceReveal'
 import { characterThemes } from '../components/characters/characterThemes'
-import { speak } from '../lib/tts'
+import { playCorrectSfx } from '../lib/sfx'
 import { shuffle } from '../lib/shuffle'
 
 interface KanjiTraceScreenProps {
@@ -58,11 +57,6 @@ export function KanjiTraceScreen({ grade, onBack, onHome }: KanjiTraceScreenProp
   // card from popping two screens off App.tsx's history stack.
   const wentBackRef = useRef(false)
 
-  useEffect(() => {
-    if (phase !== 'reveal') return
-    speak(entry.exampleSentenceJa!, 'ja-JP', voiceProfile, `kanji-review-${entry.id}`).catch(() => {})
-  }, [phase, entry, voiceProfile])
-
   function handleNext() {
     if (isLastInDeck) {
       if (wentBackRef.current) return
@@ -100,34 +94,27 @@ export function KanjiTraceScreen({ grade, onBack, onHome }: KanjiTraceScreenProp
             char={entry.char}
             strokes={kanjiStrokePaths[entry.char]}
             restartLabel={t('traceRestartButton')}
-            onComplete={() => setPhase('reveal')}
+            onComplete={() => {
+              playCorrectSfx()
+              setPhase('reveal')
+            }}
           />
           <p className="kanji-trace-credit">{t('traceStrokeCredit')}</p>
         </>
       )}
 
       {phase === 'reveal' && (
-        <div className="handwriting-praise">
-          <div className="kanji-meaning-link">
-            <span className="kanji-meaning-char">{entry.char}</span>
-            <span className="kanji-meaning-equals" aria-hidden="true">
-              ＝
-            </span>
-            <WordIcon wordId={entry.traceImageId!} size="clamp(72px, 15vh, 130px)" />
-          </div>
-          <p className="handwriting-praise-text">{lang === 'ja' ? entry.meaningJa : entry.meaningEn}</p>
-          <p className="kanji-review-sentence">{lang === 'ja' ? entry.exampleSentenceJa : entry.exampleSentenceEn}</p>
-          <TtsButton
-            text={entry.exampleSentenceJa!}
-            lang="ja-JP"
-            label="listen"
-            voiceProfile={voiceProfile}
-            cacheKey={`kanji-review-${entry.id}`}
-          />
-          <button type="button" className="primary-button next-button" onClick={handleNext}>
-            {isLastInDeck ? t('reviewDoneButton') : t('nextButton')}
-          </button>
-        </div>
+        <TraceReveal
+          key={entry.id}
+          glyph={entry.char}
+          imageId={entry.traceImageId}
+          label={lang === 'ja' ? entry.meaningJa! : entry.meaningEn!}
+          sentence={lang === 'ja' ? entry.exampleSentenceJa : entry.exampleSentenceEn}
+          speech={[{ text: entry.exampleSentenceJa!, lang: 'ja-JP', cacheKey: `kanji-review-${entry.id}` }]}
+          voiceProfile={voiceProfile}
+          nextLabel={isLastInDeck ? t('reviewDoneButton') : t('nextButton')}
+          onNext={handleNext}
+        />
       )}
     </div>
   )

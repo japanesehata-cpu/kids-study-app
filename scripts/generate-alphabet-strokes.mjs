@@ -54,6 +54,15 @@ function arc(cx, cy, rx, ry, startDeg, endDeg, sweep) {
 // for letters real handwriting draws as a single fluid motion (e.g. U: down, curve under, up)
 // rather than as separate lifted-pen strokes.
 function combine(...parts) {
+  // Each part must start exactly where the previous one ended — the start point is dropped,
+  // so a mismatch silently bends the letter (this is how S and s ended up malformed).
+  for (let i = 1; i < parts.length; i++) {
+    const prevEnd = parts[i - 1].trim().split(/[\s,]+/).slice(-2).map(Number)
+    const start = parts[i].match(/^M([-\d.]+),([-\d.]+)/).slice(1).map(Number)
+    if (Math.hypot(prevEnd[0] - start[0], prevEnd[1] - start[1]) > 0.6) {
+      throw new Error(`combine: part ${i} starts at ${start} but previous part ended at ${prevEnd}`)
+    }
+  }
   return parts.map((p, i) => (i === 0 ? p : p.replace(/^M[-\d.]+,[-\d.]+\s*/, ''))).join(' ')
 }
 
@@ -104,7 +113,9 @@ upperStrokes['F'] = [line(32, CAP_TOP, 32, BASE), line(32, CAP_TOP, 78, CAP_TOP)
 
 // The arc's end point and the chin bar's start point are the same (80.37,65.33) — one
 // continuous stroke (curve flowing straight into the bar) instead of a separate lift.
-upperStrokes['G'] = [combine(arc(MID, 52.5, 27, 37.5, 340, 20, 0), line(80.37, 65.33, 52, 65.33))]
+// C ending a little below the middle on the right, then the bar back inward at that height
+// — the old version ended low on the right (y≈65) and read as a 6.
+upperStrokes['G'] = [combine(arc(MID, 52.5, 27, 37.5, 330, 10, 0), line(81.59, 59.01, 60, 59.01))]
 
 upperStrokes['H'] = [line(30, CAP_TOP, 30, BASE), line(80, CAP_TOP, 80, BASE), line(30, 52.5, 80, 52.5)]
 
@@ -164,7 +175,10 @@ upperStrokes['R'] = [line(32, CAP_TOP, 32, BASE), combine(arc(32, 33.75, 28, 18.
 // read as S instead of a 5, a spiral, or a double-parenthesis.
 // Round 1 attempt: combine(arc(52, 35, 20, 20, 300, 120, 0), arc(52, 70, 20, 20, 300, 120, 1))
 // Original attempt: combine(arc(58, 34, 19, 17, 350, 165, 0), arc(50, 72, 20, 17, 345, 160, 1))
-upperStrokes['S'] = [combine(arc(55, 33, 20, 18, 320, 40, 0), arc(55, 73, 20, 18, 220, 140, 1))]
+// Top bowl counterclockwise from the upper right round to its bottom center, then the
+// bottom bowl clockwise from that same point round to the lower left — the two halves meet
+// exactly at (55, 52.5).
+upperStrokes['S'] = [combine(arc(55, 33.75, 22, 18.75, 330, 90, 0), arc(55, 71.25, 24, 18.75, 270, 150, 1))]
 
 upperStrokes['T'] = [line(28, CAP_TOP, 82, CAP_TOP), line(MID, CAP_TOP, MID, BASE)]
 
@@ -229,7 +243,7 @@ lowerStrokes['e'] = [combine(line(35, 68, 75, 68), arc(55, 68, 20, 22, 0, 20, 0)
 // Hook + stem as one continuous stroke (HIL review: "1,2は一画" — merge strokes 1 and 2, keep
 // the crossbar separate). The hook is now drawn top-down (curling in from the upper right)
 // straight into the stem, instead of a separately-lifted curl above an independent stem line.
-lowerStrokes['f'] = [combine(arc(70, 24, 12, 9, 360, 200, 0), line(58, 15, 58, BASE)), line(42, 55, 74, 55)]
+lowerStrokes['f'] = [combine(arc(70, 24, 12, 9, 360, 180, 0), line(58, 24, 58, BASE)), line(42, 55, 74, 55)]
 
 // Bowl + stem + tail as one continuous stroke (HIL review, same "should be a single stroke"
 // note as a/d). The loop starts/ends exactly on the stem (east point, 78,66), same fix as a.
@@ -239,7 +253,10 @@ lowerStrokes['g'] = [combine(fullCircle(56, 66, 22, 24, 0, 0), line(78, 66, 78, 
 // stroke"). Retraces up the ascender to the arch's attachment height before curving out —
 // harmless for a filled/stroked line (the retraced segment repaints itself) but lets the
 // whole letter be one uninterrupted trace instead of two separately-lifted pieces.
-lowerStrokes['h'] = [combine(line(30, CAP_TOP, 30, BASE), line(30, BASE, 30, 42), arc(52, 42, 22, 18, 180, 0, 1), line(74, 42, 74, BASE))]
+// The arch tops out exactly at the x-height (y=42): it branches off the stem at y=58 and
+// its ellipse is centered there. Centering it ON the x-height line (the old version) pushed
+// the hump up to y≈24 — nearly cap height — so h/n/m looked tall and stretched.
+lowerStrokes['h'] = [combine(line(30, CAP_TOP, 30, BASE), line(30, BASE, 30, 58), arc(52, 58, 22, 16, 180, 0, 1), line(74, 58, 74, BASE))]
 
 lowerStrokes['i'] = [line(MID, 42, MID, BASE), line(MID, 30, MID, 30)]
 
@@ -262,19 +279,19 @@ lowerStrokes['l'] = [line(MID, CAP_TOP, MID, BASE)]
 lowerStrokes['m'] = [
   combine(
     line(24, 42, 24, BASE),
-    line(24, BASE, 24, 42),
-    arc(39, 42, 15, 10, 180, 0, 1),
-    line(54, 42, 54, BASE),
-    line(54, BASE, 54, 42),
-    arc(69, 42, 15, 10, 180, 0, 1),
-    line(84, 42, 84, BASE),
+    line(24, BASE, 24, 54),
+    arc(39, 54, 15, 12, 180, 0, 1),
+    line(54, 54, 54, BASE),
+    line(54, BASE, 54, 54),
+    arc(69, 54, 15, 12, 180, 0, 1),
+    line(84, 54, 84, BASE),
   ),
 ]
 
 // Same arch+leg construction as h, just without the ascender (n's first leg is x-height only).
 // One continuous stroke (HIL review: "should be a single stroke") — retrace up to the arch's
 // attachment height before curving out, same pattern as h/m/r.
-lowerStrokes['n'] = [combine(line(30, 42, 30, BASE), line(30, BASE, 30, 42), arc(52, 42, 22, 18, 180, 0, 1), line(74, 42, 74, BASE))]
+lowerStrokes['n'] = [combine(line(30, 42, 30, BASE), line(30, BASE, 30, 58), arc(52, 58, 22, 16, 180, 0, 1), line(74, 58, 74, BASE))]
 
 lowerStrokes['o'] = [fullCircle(MID, 66, 22, 24, 320, 0)]
 
@@ -288,12 +305,14 @@ lowerStrokes['q'] = [combine(line(80, 42, 80, 108), line(80, 108, 80, 66), fullC
 
 // Leg + arm as one continuous stroke (HIL review: "should be a single stroke"). Retraces up to
 // the arm's attachment height (now exactly the leg's top, 42, instead of overshooting to 39).
-lowerStrokes['r'] = [combine(line(32, 42, 32, BASE), line(32, BASE, 32, 42), arc(32, 58, 20, 16, 270, 10, 1))]
+// Stem, back up to just below the x-height, then the arch branching off it up and over to
+// the right (the old arch was centered on the stem itself and came out as a short stub).
+lowerStrokes['r'] = [combine(line(32, 42, 32, BASE), line(32, BASE, 32, 58), arc(52, 58, 20, 15, 180, 330, 1))]
 
 // Same two-opposite-arcs construction as uppercase S, scaled to x-height (HIL review flagged
 // the shape with no specific note — re-derived by scaling uppercase S's own proportions down
 // to x-height instead of guessing fresh radii).
-lowerStrokes['s'] = [combine(arc(56, 54, 12, 11, 350, 165, 0), arc(51, 78, 13, 11, 345, 160, 1))]
+lowerStrokes['s'] = [combine(arc(55, 54, 15, 12, 330, 90, 0), arc(55, 78, 16, 12, 270, 150, 1))]
 
 // Stem + hook as one continuous stroke (they meet exactly at (48,82)), crossbar separate.
 lowerStrokes['t'] = [combine(line(48, 22, 48, 82), arc(58, 82, 10, 8, 180, 90, 0)), line(32, 46, 66, 46)]

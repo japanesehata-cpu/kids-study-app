@@ -5,7 +5,7 @@ import { alphabetStrokePaths } from '../domain/alphabetStrokes'
 import { useI18n } from '../i18n/I18nContext'
 import { KanjiTraceCanvas } from '../components/KanjiTraceCanvas'
 import { WordIcon } from '../components/WordIcon'
-import { TtsButton } from '../components/TtsButton'
+import { TraceReveal } from '../components/TraceReveal'
 import { characterThemes } from '../components/characters/characterThemes'
 import { playCorrectSfx } from '../lib/sfx'
 import { shuffle } from '../lib/shuffle'
@@ -15,7 +15,7 @@ interface WordTraceScreenProps {
   onHome: () => void
 }
 
-type Phase = 'tracing' | 'reveal' | 'review'
+type Phase = 'tracing' | 'reveal'
 
 /** えいご「たんご」なぞる practice — reached via EnglishEntryScreen, NOT a Category (see
  * App.tsx's Screen union), the same escape hatch KanjiTraceScreen/AlphabetTraceScreen use
@@ -24,16 +24,14 @@ type Phase = 'tracing' | 'reveal' | 'review'
  *
  * Each word is traced one LETTER at a time using the exact same KanjiTraceCanvas +
  * alphabetStrokePaths mechanism アルファベット なぞる already uses — nothing new there.
- * What's new is the outer loop: a word has multiple letters, so on top of かんじ/アルファベット's
- * usual tracing→reveal→review phase machine, this screen also tracks which letter of the
- * current word is active (`letterIndex`), reset to 0 every time the word advances. Unlike
- * かんじ's reveal (which HIDES the meaning until after tracing, since discovering it is the
- * point), the picture and word text are visible the whole time here — the point is
- * "copy what you see," not "guess then reveal" — reveal after a word's last letter is just
- * a short, consistent checkpoint (praise + pronunciation) before moving on, matching every
- * other trace screen's rhythm. */
+ * What's new is the outer loop: a word has multiple letters, so this screen also tracks
+ * which letter of the current word is active (`letterIndex`), reset to 0 every time the
+ * word advances. The picture and word stay visible while tracing (the point is "copy what
+ * you see"); after a word's last letter comes the same explanation step every trace mode
+ * uses (TraceReveal: word ＝ picture, its Japanese meaning, the word read aloud), then the
+ * next word — no separate review lap. */
 export function WordTraceScreen({ onBack, onHome }: WordTraceScreenProps) {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const [wordOrder] = useState<string[]>(() => shuffle(wordTraceBank))
   const [wordIndex, setWordIndex] = useState(0)
   const [letterIndex, setLetterIndex] = useState(0)
@@ -59,26 +57,16 @@ export function WordTraceScreen({ onBack, onHome }: WordTraceScreenProps) {
     }
   }
 
-  function handleRevealNext() {
-    if (isLastWordInDeck) {
-      setWordIndex(0)
-      setLetterIndex(0)
-      setPhase('review')
-    } else {
-      setWordIndex((i) => Math.min(i + 1, wordOrder.length - 1))
-      setLetterIndex(0)
-      setPhase('tracing')
-    }
-  }
-
-  function handleReviewNext() {
+  function handleNext() {
     if (isLastWordInDeck) {
       if (wentBackRef.current) return
       wentBackRef.current = true
       onBack()
-    } else {
-      setWordIndex((i) => Math.min(i + 1, wordOrder.length - 1))
+      return
     }
+    setWordIndex((i) => Math.min(i + 1, wordOrder.length - 1))
+    setLetterIndex(0)
+    setPhase('tracing')
   }
 
   return (
@@ -108,11 +96,12 @@ export function WordTraceScreen({ onBack, onHome }: WordTraceScreenProps) {
         </div>
       </div>
 
+      <p className="hint-caption">
+        {t('kanjiTraceProgress', { current: String(wordIndex + 1), total: String(wordOrder.length) })}
+      </p>
+
       {phase === 'tracing' && (
         <>
-          <p className="hint-caption">
-            {t('reviewProgress', { current: String(wordIndex + 1), total: String(wordOrder.length) })}
-          </p>
           <WordIcon wordId={entry.id} size="clamp(56px, 11vh, 90px)" />
           <p className="word-trace-progress">
             {letters.map((letter, i) => (
@@ -142,42 +131,16 @@ export function WordTraceScreen({ onBack, onHome }: WordTraceScreenProps) {
       )}
 
       {phase === 'reveal' && (
-        <div className="handwriting-praise">
-          <WordIcon wordId={entry.id} size="clamp(80px, 16vh, 140px)" />
-          <p className="handwriting-praise-text">{entry.word}</p>
-          <p className="hint-caption">{entry.translationJa}</p>
-          <TtsButton
-            text={entry.word}
-            lang="en-US"
-            label="listen"
-            voiceProfile={voiceProfile}
-            cacheKey={`word-en-${entry.id}`}
-          />
-          <button type="button" className="primary-button next-button" onClick={handleRevealNext}>
-            {t('nextButton')}
-          </button>
-        </div>
-      )}
-
-      {phase === 'review' && (
-        <div className="handwriting-praise">
-          <p className="hint-caption">
-            {t('reviewProgress', { current: String(wordIndex + 1), total: String(wordOrder.length) })}
-          </p>
-          <WordIcon wordId={entry.id} size="clamp(80px, 16vh, 140px)" />
-          <p className="kanji-review-sentence">{entry.word}</p>
-          <p className="hint-caption">{entry.translationJa}</p>
-          <TtsButton
-            text={entry.word}
-            lang="en-US"
-            label="listen"
-            voiceProfile={voiceProfile}
-            cacheKey={`word-en-${entry.id}`}
-          />
-          <button type="button" className="primary-button next-button" onClick={handleReviewNext}>
-            {isLastWordInDeck ? t('reviewDoneButton') : t('nextButton')}
-          </button>
-        </div>
+        <TraceReveal
+          key={entry.id}
+          glyph={entry.word}
+          imageId={entry.id}
+          label={lang === 'ja' ? entry.translationJa : entry.word}
+          speech={[{ text: entry.word, lang: 'en-US', cacheKey: `word-en-${entry.id}` }]}
+          voiceProfile={voiceProfile}
+          nextLabel={isLastWordInDeck ? t('reviewDoneButton') : t('nextButton')}
+          onNext={handleNext}
+        />
       )}
     </div>
   )

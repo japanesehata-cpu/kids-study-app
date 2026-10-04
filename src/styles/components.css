@@ -1419,7 +1419,9 @@
  * means, so the character links to the real thing at a glance (雨 ＝ 🌧). */
 .kanji-meaning-link {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: clamp(8px, 2vw, 16px);
 }
 
@@ -1429,6 +1431,13 @@
   font-weight: 700;
   line-height: 1;
   color: var(--color-text);
+}
+
+.kanji-meaning-char--word {
+  font-family: var(--font-family);
+  font-size: clamp(30px, 6.5vh, 56px);
+  font-weight: 800;
+  letter-spacing: 0.02em;
 }
 
 .kanji-meaning-equals {

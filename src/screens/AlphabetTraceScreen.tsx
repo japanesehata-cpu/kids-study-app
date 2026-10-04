@@ -1,16 +1,16 @@
 import { useRef, useState } from 'react'
-import { alphabetBank, alphabetSpeechPhrase, type AlphabetEntry } from '../domain/alphabetBank'
+import { alphabetBank, alphabetSpeechPhrase, getAlphabetById } from '../domain/alphabetBank'
 import { alphabetStrokePaths } from '../domain/alphabetStrokes'
-import { pickHandwritingPraise } from '../domain/handwritingPraise'
 import { useI18n } from '../i18n/I18nContext'
 import { CategoryHeader } from '../components/CategoryHeader'
 import { KanjiTraceCanvas } from '../components/KanjiTraceCanvas'
-import { HiraganaChar } from '../components/HiraganaChar'
-import { TtsButton } from '../components/TtsButton'
+import { TraceReveal } from '../components/TraceReveal'
 import { characterThemes } from '../components/characters/characterThemes'
 import { playCorrectSfx } from '../lib/sfx'
 import { shuffle } from '../lib/shuffle'
-import { useResponsiveSize } from '../lib/useResponsiveSize'
+
+/** Example words with no fitting picture among images/words (queen). */
+const NO_PICTURE = new Set(['q'])
 
 interface AlphabetTraceScreenProps {
   onBack: () => void
@@ -27,73 +27,52 @@ interface TraceEntry {
 
 /** Both cases are traced as separate glyphs (52 total), the same way HandwritingScreen's
  * level-2 ALPHABET_HANDWRITING_BANK does — see that file's own comment for why `case` isn't
- * derived from the char itself. The review pass below is case-independent (26 cards, one
- * per letter), since a letter's reading/meaning doesn't change with case. */
+ * derived from the char itself. */
 const TRACE_DECK: TraceEntry[] = alphabetBank.flatMap((a) => [
   { id: `${a.id}-upper`, char: a.upper, letterId: a.id },
   { id: `${a.id}-lower`, char: a.lower, letterId: a.id },
 ])
 
-type Phase = 'tracing' | 'praise' | 'review'
+type Phase = 'tracing' | 'reveal'
 
-/** アルファベット なぞる (stroke-order trace) practice — mirrors KanaTraceScreen's
- * trace→praise→review flow, but with two independent decks instead of one reused deck:
- * `traceOrder` covers all 52 upper+lower glyphs, while `reviewOrder` covers only the 26
- * base letters (case doesn't change a letter's name or meaning, so review needs just one
- * card per letter). Reached from HandwritingScreen when level 1 ("なぞる") is picked for
- * alphabet — level 2 ("きいてかく") and every other category's level 1 are untouched.
+/** アルファベット なぞる (stroke-order trace) practice, reached from HandwritingScreen when
+ * level 1 ("なぞる") is picked for alphabet. Same rhythm as every other trace mode: trace a
+ * glyph → the shared explanation step (TraceReveal: the letter ＝ a picture of its example
+ * word, the word, an example sentence, the letter phrase then the sentence read aloud) →
+ * next glyph, across all 52 upper+lower glyphs. Finishing the last one calls onBack().
  *
  * Unlike かんじ/かな, the stroke guide data isn't fetched from KanjiVG (it has no
  * Latin-alphabet coverage) — see generate-alphabet-strokes.mjs, which computes all 52
  * letterforms from line/arc primitives instead. That's also why this screen omits the
- * shared "traceStrokeCredit" line KanjiTraceScreen/KanaTraceScreen show: that credit
- * specifically attributes KanjiVG, which doesn't apply to hand-computed data. */
+ * shared "traceStrokeCredit" line KanjiTraceScreen/KanaTraceScreen show. */
 export function AlphabetTraceScreen({ onBack, onHome }: AlphabetTraceScreenProps) {
-  const { t, lang } = useI18n()
-  const [traceOrder] = useState<TraceEntry[]>(() => shuffle(TRACE_DECK))
-  const [reviewOrder] = useState<AlphabetEntry[]>(() => shuffle(alphabetBank))
-  const [traceIndex, setTraceIndex] = useState(0)
-  const [reviewIndex, setReviewIndex] = useState(0)
+  const { t } = useI18n()
+  const [order] = useState<TraceEntry[]>(() => shuffle(TRACE_DECK))
+  const [index, setIndex] = useState(0)
   const [phase, setPhase] = useState<Phase>('tracing')
-  // See KanjiTraceScreen.tsx's identical comment: setIndex clamps on write (not just
-  // guarded by isLast at read time) because a stray double-fire of a "next" handler was
-  // confirmed reachable there and would otherwise push an index one past its deck's end.
-  const traceEntry = traceOrder[traceIndex]
-  const reviewEntry = reviewOrder[reviewIndex]
-  const isLastTrace = traceIndex === traceOrder.length - 1
-  const isLastReview = reviewIndex === reviewOrder.length - 1
+  // Clamped on write, and onBack guarded, against a stray double-fire of "next" (see
+  // KanjiTraceScreen).
+  const entry = order[index]
+  const letter = getAlphabetById(entry.letterId)
+  const isLastInDeck = index === order.length - 1
   const voiceProfile = characterThemes.alphabet.voiceProfile
   const wentBackRef = useRef(false)
-  // HiraganaChar computes its own font-size/border-radius from this number (not a CSS var +
-  // clamp() like WordIcon/TtsButton), so it needs an actual shrunk number, not a CSS string.
-  const charSize = useResponsiveSize(96, 0.14, 56)
 
   function handleComplete() {
     playCorrectSfx()
-    setPhase('praise')
+    setPhase('reveal')
   }
 
-  function handlePraiseNext() {
-    if (isLastTrace) {
-      setReviewIndex(0)
-      setPhase('review')
-    } else {
-      setTraceIndex((i) => Math.min(i + 1, traceOrder.length - 1))
-      setPhase('tracing')
-    }
-  }
-
-  function handleReviewNext() {
-    if (isLastReview) {
+  function handleNext() {
+    if (isLastInDeck) {
       if (wentBackRef.current) return
       wentBackRef.current = true
       onBack()
-    } else {
-      setReviewIndex((i) => Math.min(i + 1, reviewOrder.length - 1))
+      return
     }
+    setIndex((i) => Math.min(i + 1, order.length - 1))
+    setPhase('tracing')
   }
-
-  const praise = phase === 'praise' ? pickHandwritingPraise(lang, 'alphabet') : null
 
   return (
     <div className="screen">
@@ -109,62 +88,38 @@ export function AlphabetTraceScreen({ onBack, onHome }: AlphabetTraceScreenProps
         <CategoryHeader category="alphabet" />
       </div>
 
+      <p className="hint-caption">
+        {t('kanjiTraceProgress', { current: String(index + 1), total: String(order.length) })}
+      </p>
+
       {phase === 'tracing' && (
         <>
           <p className="subtitle">{t('tracePrompt')}</p>
           <KanjiTraceCanvas
-            key={traceEntry.id}
-            char={traceEntry.char}
-            strokes={alphabetStrokePaths[traceEntry.char]}
+            key={entry.id}
+            char={entry.char}
+            strokes={alphabetStrokePaths[entry.char]}
             restartLabel={t('traceRestartButton')}
             onComplete={handleComplete}
           />
         </>
       )}
 
-      {phase === 'praise' && praise && (
-        <div className="handwriting-praise">
-          <HiraganaChar char={traceEntry.char} size={charSize} />
-          <p className="handwriting-praise-text">{praise.text}</p>
-          <TtsButton
-            text={praise.text}
-            lang={lang === 'ja' ? 'ja-JP' : 'en-US'}
-            label="listen"
-            voiceProfile={voiceProfile}
-            cacheKey={praise.cacheKey}
-          />
-          <button type="button" className="primary-button next-button" onClick={handlePraiseNext}>
-            {t('nextButton')}
-          </button>
-        </div>
-      )}
-
-      {phase === 'review' && (
-        <div className="handwriting-praise">
-          <p className="hint-caption">
-            {t('reviewProgress', { current: String(reviewIndex + 1), total: String(reviewOrder.length) })}
-          </p>
-          <HiraganaChar char={reviewEntry.upper} size={charSize} />
-          <TtsButton
-            text={alphabetSpeechPhrase(reviewEntry)}
-            lang="en-US"
-            label="listen"
-            size={56}
-            voiceProfile={voiceProfile}
-            cacheKey={`alphabet-letter-${reviewEntry.id}`}
-          />
-          <p className="kanji-review-sentence">{reviewEntry.exampleSentenceEn}</p>
-          <TtsButton
-            text={reviewEntry.exampleSentenceEn}
-            lang="en-US"
-            label="listen"
-            voiceProfile={voiceProfile}
-            cacheKey={`alphabet-review-${reviewEntry.id}`}
-          />
-          <button type="button" className="primary-button next-button" onClick={handleReviewNext}>
-            {isLastReview ? t('reviewDoneButton') : t('nextButton')}
-          </button>
-        </div>
+      {phase === 'reveal' && (
+        <TraceReveal
+          key={entry.id}
+          glyph={entry.char}
+          imageId={NO_PICTURE.has(letter.id) ? undefined : letter.mnemonic.toLowerCase()}
+          label={letter.mnemonic}
+          sentence={letter.exampleSentenceEn}
+          speech={[
+            { text: alphabetSpeechPhrase(letter), lang: 'en-US', cacheKey: `alphabet-letter-${letter.id}` },
+            { text: letter.exampleSentenceEn, lang: 'en-US', cacheKey: `alphabet-review-${letter.id}` },
+          ]}
+          voiceProfile={voiceProfile}
+          nextLabel={isLastInDeck ? t('reviewDoneButton') : t('nextButton')}
+          onNext={handleNext}
+        />
       )}
     </div>
   )

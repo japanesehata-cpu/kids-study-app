@@ -3,6 +3,7 @@ import { alphabetStrokePaths } from '../alphabetStrokes'
 import { KANA_TRACE_IMAGE } from '../kanaTraceImages'
 import { hiraganaBank } from '../hiraganaBank'
 import { katakanaBank } from '../katakanaBank'
+import { alphabetBank } from '../alphabetBank'
 
 describe('alphabet trace strokes', () => {
   it('covers all 52 letters, each stroke a single continuous path (one moveto)', () => {
@@ -26,6 +27,15 @@ describe('kana trace pictures', () => {
         expect(ids.has(id), `${script}:${id}`).toBe(true)
         expect(WORD_IMAGES.has(image), image).toBe(true)
       }
+    }
+  })
+})
+
+describe('alphabet trace pictures', () => {
+  it('every letter except q (queen) has a picture of its example word', () => {
+    for (const a of alphabetBank) {
+      if (a.id === 'q') continue
+      expect(WORD_IMAGES.has(a.mnemonic.toLowerCase()), a.mnemonic).toBe(true)
     }
   })
 })

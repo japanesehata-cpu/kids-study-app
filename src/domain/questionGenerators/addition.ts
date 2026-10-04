@@ -1,5 +1,6 @@
 import type { ArithmeticQuestion, Level } from '../types'
 import { buildAdditionStory } from './wordProblems'
+import { enumeratePairs, pickUniform } from '../../lib/random'
 
 function randomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min
@@ -25,12 +26,13 @@ const SUM_BAND: Record<Level, [number, number]> = {
   6: [14, 18],
 }
 
+// Uniform over every distinct problem in the band (see enumeratePairs for why not
+// sum-then-split).
+const OPERAND_PAIRS: Partial<Record<Level, { a: number; b: number }[]>> = {}
 function generateOperands(level: Level): { a: number; b: number } {
   const [min, max] = SUM_BAND[level]
-  const sum = randomInt(min, max)
-  const a = randomInt(Math.max(1, sum - 9), Math.min(9, sum - 1))
-  const b = sum - a
-  return { a, b }
+  OPERAND_PAIRS[level] ??= enumeratePairs([1, 9], [1, 9], (a, b) => a + b >= min && a + b <= max)
+  return pickUniform(OPERAND_PAIRS[level]!)
 }
 
 /** ★4's round-tens half — 20+30-style, one digit's worth of addition scaled up by 10
@@ -39,11 +41,10 @@ function generateOperands(level: Level): { a: number; b: number } {
  * Deliberately capped so the sum never exceeds 90 (a two-digit round number) — going into
  * three digits would be a different, harder skill (carrying into the hundreds), not this
  * one. */
+const TENS_PAIRS = enumeratePairs([1, 9], [1, 9], (a, b) => a + b <= 9) // sums 20-90
 function generateTensOperands(): { a: number; b: number } {
-  const tensSum = randomInt(2, 9) // sum/10, so the actual sum lands on 20-90
-  const tensA = randomInt(Math.max(1, tensSum - 9), Math.min(9, tensSum - 1))
-  const tensB = tensSum - tensA
-  return { a: tensA * 10, b: tensB * 10 }
+  const { a, b } = pickUniform(TENS_PAIRS)
+  return { a: a * 10, b: b * 10 }
 }
 
 /** ★6 — a "teens plus a single digit" milestone (14-19 + 1-9, sums 15-28), matching the

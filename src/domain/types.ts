@@ -324,6 +324,10 @@ export interface CategoryProgress {
   level: Level
   recentAccuracy: number[]
   reviewQueue: Question[]
+  /** Recency keys (see progress.ts's recencyKey) of the most recently asked questions,
+   * oldest first — lets the next round avoid repeating what was just asked. Optional so
+   * progress saved before this field existed still loads. */
+  recent?: string[]
 }
 
 export type ProgressState = Record<Category, CategoryProgress>

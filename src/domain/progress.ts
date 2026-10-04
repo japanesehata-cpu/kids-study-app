@@ -196,6 +196,7 @@ function sanitizeCategoryProgress(
   return {
     ...stored,
     reviewQueue: Array.isArray(stored.reviewQueue) ? stored.reviewQueue.filter(isCompatibleQuestion) : [],
+    recent: Array.isArray(stored.recent) ? stored.recent.filter((k) => typeof k === 'string') : [],
   }
 }
 
@@ -307,7 +308,7 @@ function isKanjiQuestion(q: Question): q is KanjiQuestion {
   return q.category === 'kanji' || q.category === 'kanji2'
 }
 
-function questionSignature(q: Question): string {
+export function questionSignature(q: Question): string {
   if (isEnglishWordQuestion(q)) return `word:${q.wordId}:${q.mode}`
   if (q.category === 'logic') return `logic:${q.kind}:${[...q.choices].sort().join(',')}`
   if (q.category === 'hiragana') return `hiragana:${q.charId}`
@@ -352,7 +353,32 @@ function dedupeBySignature(questions: Question[]): Question[] {
   return result
 }
 
-/** Builds one question set at the given (manually chosen) level and size: a few review items first, filled out with fresh questions. */
+/** How many recently asked questions each category remembers — comfortably more than two
+ * 10-question rounds, so even a small pool (★1's 10 kanji) cycles through every item
+ * before any repeats instead of re-drawing independently each round. */
+const RECENT_CAP = 40
+
+/** Fresh candidates drawn per open slot, from which the least recently asked is kept —
+ * and, if even the best of those was asked in the last round, up to MAX_CANDIDATES_PER_SLOT
+ * before settling for a repeat (only reachable when the pool really is that small). */
+const CANDIDATES_PER_SLOT = 12
+const MAX_CANDIDATES_PER_SLOT = 60
+
+/** What counts as "the same question" across rounds. Same as questionSignature except money
+ * ★1/★2, whose signature is deliberately unique per question (see questionSignature) —
+ * across rounds what matters is the amount asked. */
+export function recencyKey(q: Question): string {
+  if (q.category === 'money') return `money:${q.level}:${q.targetAmount}`
+  return questionSignature(q)
+}
+
+/** Builds one question set at the given (manually chosen) level and size: a few review
+ * items first, filled out with fresh questions.
+ *
+ * Each fresh slot draws several candidates and keeps the one asked least recently
+ * (never-asked first), using `recent` — the category's memory of what earlier rounds
+ * asked. Without it every round was an independent draw: with ★1's 10 kanji, two 5-question
+ * rounds in a row shared 2.5 questions on average, which reads as "the same quiz again". */
 export function generateQuestionSet(
   category: Category,
   level: Level,
@@ -360,20 +386,35 @@ export function generateQuestionSet(
   setSize: number = SET_SIZE,
   clockMode?: ClockMode,
   sudokuMode?: SudokuMode,
+  recent: string[] = [],
 ): Question[] {
   const reviewSlots = setSize >= 10 ? REVIEW_SLOTS : 1
   const reviewItems = reviewQueue.slice(0, reviewSlots)
   const questions: Question[] = [...reviewItems]
 
+  const lastAsked = new Map(recent.map((key, i) => [key, i]))
+  const rank = (q: Question) => lastAsked.get(recencyKey(q)) ?? -1
+  // Sudoku boards are expensive to generate (classic runs a solver) and spot-the-difference
+  // scenes are effectively never repeated anyway — one draw per slot is enough there.
+  const cheap = category !== 'sudoku' && category !== 'spotDifference'
+  const askedLastRound = (q: Question) => rank(q) >= recent.length - setSize
+
   const seen = new Set(questions.map(questionSignature))
   let guard = 0
   while (questions.length < setSize && guard < setSize * 20) {
     guard++
-    const candidate = generateFreshQuestion(category, level, clockMode, sudokuMode)
-    const signature = questionSignature(candidate)
-    if (seen.has(signature)) continue
-    seen.add(signature)
-    questions.push(candidate)
+    let best: Question | null = null
+    for (let i = 0; i < (cheap ? MAX_CANDIDATES_PER_SLOT : 1); i++) {
+      if (best && i >= CANDIDATES_PER_SLOT && !askedLastRound(best)) break
+      const candidate = generateFreshQuestion(category, level, clockMode, sudokuMode)
+      if (seen.has(questionSignature(candidate))) continue
+      if (!best || rank(candidate) < rank(best)) best = candidate
+      if (rank(best) === -1) break
+    }
+    if (!best) continue
+    seen.add(questionSignature(best))
+    lastAsked.set(recencyKey(best), recent.length + questions.length)
+    questions.push(best)
   }
 
   return shuffle(questions)
@@ -453,9 +494,11 @@ export function applySetResult(
     -REVIEW_QUEUE_CAP,
   )
 
+  const recent = [...(categoryProgress.recent ?? []), ...answers.map((a) => recencyKey(a.question))].slice(-RECENT_CAP)
+
   const nextProgress: ProgressState = {
     ...progress,
-    [category]: { level, recentAccuracy: nextRecentAccuracy, reviewQueue },
+    [category]: { level, recentAccuracy: nextRecentAccuracy, reviewQueue, recent },
   }
 
   const bySubSkill = groupBySubSkill(answers)

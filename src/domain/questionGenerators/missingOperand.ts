@@ -1,8 +1,5 @@
 import type { ArithmeticQuestion, Level } from '../types'
-
-function randomInt(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min
-}
+import { enumeratePairs, pickUniform } from '../../lib/random'
 
 function makeId(): string {
   return `missing-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
@@ -19,28 +16,27 @@ function pickBlank(): 'operandA' | 'operandB' {
  * addition, minuend for subtraction) in 8-20 with single-digit-ish components. Addition
  * picks the sum then splits it (same shape as addition.ts's generateOperands); subtraction
  * picks the minuend then a subtrahend strictly less than it. */
+// Every problem enumerated and picked uniformly (see enumeratePairs for why not
+// target-then-split). The old sum-then-split also asked for impossible splits of 19/20
+// with single-digit addends.
+const BASIC_PAIRS = {
+  addition: enumeratePairs([1, 9], [1, 9], (a, b) => a + b >= 8),
+  subtraction: enumeratePairs([8, 20], [1, 19], (a, b) => b < a),
+}
+const TENS_PAIRS = {
+  addition: enumeratePairs([1, 9], [1, 9], (a, b) => a + b <= 10), // sums 20-100
+  subtraction: enumeratePairs([2, 10], [1, 9], (a, b) => b < a), // minuends 20-100
+}
+
 function generateBasic(operator: 'addition' | 'subtraction'): { a: number; b: number } {
-  if (operator === 'addition') {
-    const sum = randomInt(8, 20)
-    const a = randomInt(Math.max(1, sum - 9), Math.min(9, sum - 1))
-    return { a, b: sum - a }
-  }
-  const a = randomInt(8, 20)
-  const b = randomInt(1, a - 1)
-  return { a, b }
+  return pickUniform(BASIC_PAIRS[operator])
 }
 
 /** ★2 — the round-tens extension, same "next step up" relationship addition/subtraction's
  * own ★4→★5 already has: targets 20-100, every component a multiple of 10. */
 function generateTens(operator: 'addition' | 'subtraction'): { a: number; b: number } {
-  if (operator === 'addition') {
-    const tensSum = randomInt(2, 10) // sum/10, so the actual sum lands on 20-100
-    const tensA = randomInt(Math.max(1, tensSum - 9), Math.min(9, tensSum - 1))
-    return { a: tensA * 10, b: (tensSum - tensA) * 10 }
-  }
-  const tensA = randomInt(2, 10) // minuend/10
-  const tensB = randomInt(1, tensA - 1)
-  return { a: tensA * 10, b: tensB * 10 }
+  const { a, b } = pickUniform(TENS_PAIRS[operator])
+  return { a: a * 10, b: b * 10 }
 }
 
 /** `operator` is fixed by which category this is (missingOperandAddition vs

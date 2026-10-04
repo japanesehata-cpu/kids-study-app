@@ -924,7 +924,7 @@ export function QuizScreen({
         : category === 'sudoku'
           ? progress.sudoku.reviewQueue.filter((q) => q.category === 'sudoku' && q.mode === sudokuMode)
           : progress[category].reviewQueue
-    return generateQuestionSet(category, level, reviewQueue, setSize, clockMode, sudokuMode)
+    return generateQuestionSet(category, level, reviewQueue, setSize, clockMode, sudokuMode, progress[category].recent)
   })
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState<AnswerRecord[]>([])

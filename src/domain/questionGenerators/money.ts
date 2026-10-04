@@ -36,6 +36,20 @@ function coinCountForLevel(level: Level): number {
   return 2
 }
 
+/** Every distinct total reachable with exactly `count` coins from `pool`, each listed once —
+ * the target is picked uniformly from these. Drawing `count` random coins and summing them
+ * instead made totals with many combinations (e.g. 60 = 50+10 = 10+50) far more likely than
+ * ones with a single combination, so a few amounts kept repeating. */
+function reachableTargets(pool: string[], count: number): number[] {
+  let totals = new Set([0])
+  for (let i = 0; i < count; i++) {
+    const next = new Set<number>()
+    for (const t of totals) for (const id of pool) next.add(t + getCoinById(id).value)
+    totals = next
+  }
+  return [...totals]
+}
+
 function subSkillForLevel(level: Level): string {
   if (level <= 2) return 'money-recognize'
   if (level === 5) return 'money-combine-3'
@@ -50,8 +64,7 @@ export function generateMoneyQuestion(level: Level): MoneyQuestion {
   // reach that amount with a different combination than the one drawn (e.g. 15円 via
   // 5+5+5 instead of 10+5) — closer to real change-making, where more than one correct
   // combination usually exists.
-  const drawnCoinIds = Array.from({ length: count }, () => pickRandom(pool))
-  const targetAmount = drawnCoinIds.reduce((sum, id) => sum + getCoinById(id).value, 0)
+  const targetAmount = pickRandom(reachableTargets(pool, count))
 
   return {
     id: makeId(),

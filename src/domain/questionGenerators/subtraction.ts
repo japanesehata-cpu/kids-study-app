@@ -1,4 +1,5 @@
 import type { ArithmeticQuestion, Level } from '../types'
+import { enumeratePairs, pickUniform } from '../../lib/random'
 import { buildSubtractionStory } from './wordProblems'
 
 function randomInt(min: number, max: number): number {
@@ -37,20 +38,29 @@ function mustBorrowForLevel(level: Level): boolean {
   return level >= 4
 }
 
-function pickSubtrahend(a: number, level: Level): number {
-  if (level <= 2) return randomInt(1, a)
+function isValidSubtrahend(a: number, b: number, level: Level): boolean {
+  if (level <= 2) return b >= 1 && b <= a
   const onesDigit = a % 10
-  if (mustBorrowForLevel(level)) return randomInt(onesDigit + 1, a - 1)
-  return randomInt(1, onesDigit)
+  if (mustBorrowForLevel(level)) return b > onesDigit && b < a
+  return b >= 1 && b <= onesDigit
+}
+
+// Uniform over every distinct problem in the band (see enumeratePairs for why not
+// minuend-then-subtrahend).
+const OPERAND_PAIRS: Partial<Record<Level, { a: number; b: number }[]>> = {}
+function generateBandOperands(level: Level): { a: number; b: number } {
+  const [min, max] = MINUEND_BAND[level]
+  OPERAND_PAIRS[level] ??= enumeratePairs([min, max], [1, max], (a, b) => isValidSubtrahend(a, b, level))
+  return pickUniform(OPERAND_PAIRS[level]!)
 }
 
 /** ★4's round-tens half — 50-20-style, one digit's worth of subtraction scaled up by 10
  * (10-90 instead of 1-9), mirroring addition's generateTensOperands. Subtrahend is always
  * strictly less than the minuend so the result stays positive. */
+const TENS_PAIRS = enumeratePairs([2, 9], [1, 8], (a, b) => b < a) // minuend 20-90
 function generateTensOperands(): { a: number; b: number } {
-  const tensA = randomInt(2, 9) // minuend/10, so the actual minuend lands on 20-90
-  const tensB = randomInt(1, tensA - 1)
-  return { a: tensA * 10, b: tensB * 10 }
+  const { a, b } = pickUniform(TENS_PAIRS)
+  return { a: a * 10, b: b * 10 }
 }
 
 /** ★6 — the subtraction mirror of addition's generateTwentiesOperands: minuend in the
@@ -76,9 +86,7 @@ export function generateSubtractionQuestion(level: Level): ArithmeticQuestion {
   } else if (useTens) {
     ;({ a, b } = generateTensOperands())
   } else {
-    const [min, max] = MINUEND_BAND[level]
-    a = randomInt(min, max)
-    b = pickSubtrahend(a, level)
+    ;({ a, b } = generateBandOperands(level))
   }
   const requiresBorrow = !useTens && !useTwenties && level >= 3 && b > a % 10
   // ★4/★5/★6 are deliberately abstract — no apple visual, no word-problem framing — since

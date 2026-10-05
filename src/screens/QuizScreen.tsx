@@ -750,24 +750,30 @@ function ClockSetTimeView({
   return (
     <div className="quiz-prompt-stack">
       <p className="subtitle">{promptText}</p>
-      <TtsButton text={promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
+      {/* Once answered, these two have nothing left to do (できた！ is disabled) — hiding
+          them makes room for the feedback below without shrinking the big clock. */}
+      {!disabled && (
+        <TtsButton text={promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
+      )}
       <InteractiveClock
         key={question.id}
-        size={200}
+        large
+        minuteStep={question.minute % 5 === 0 ? 5 : 1}
         initialTotalMinutes={startTotalMinutes}
         hintText=""
         onChange={(hour12, minute) => {
           current.current = { hour: hour12, minute }
         }}
       />
-      <button
-        type="button"
-        className="primary-button"
-        disabled={disabled}
-        onClick={() => onSubmit(`${current.current.hour}:${current.current.minute}`)}
-      >
-        {doneLabel}
-      </button>
+      {!disabled && (
+        <button
+          type="button"
+          className="primary-button"
+          onClick={() => onSubmit(`${current.current.hour}:${current.current.minute}`)}
+        >
+          {doneLabel}
+        </button>
+      )}
     </div>
   )
 }

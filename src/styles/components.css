@@ -588,6 +588,19 @@
   height: clamp(88px, 13vh, 220px);
 }
 
+/* とけい「あわせる」: the clock IS the question, and dragging small hands with a finger was
+   the hard part — so the face takes as much of the screen as fits (≈320px on a typical
+   phone instead of ≈90px). FitToViewport absorbs any remaining overflow on short screens. */
+.interactive-clock--large {
+  padding: clamp(6px, 1.2vh, 14px) clamp(8px, 2vw, 16px);
+  gap: 4px;
+}
+
+.interactive-clock--large svg {
+  width: min(84vw, 44vh, 420px);
+  height: min(84vw, 44vh, 420px);
+}
+
 .digital-clock {
   font-size: clamp(22px, 4vh, 34px);
   font-weight: 800;

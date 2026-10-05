@@ -14,6 +14,13 @@ interface InteractiveClockProps {
   /** The free-play widget's "try moving the hands!" caption doesn't fit a quiz question
    * that already has its own prompt — omit it there. */
   hintText?: string
+  /** Minute hand snaps to multiples of this (5 → 3:00, 3:05, 3:10…). Small fingers can't
+   * reliably land on one exact minute; a question whose answer is a multiple of 5 stays
+   * exactly as answerable with far less fiddly dragging. */
+  minuteStep?: number
+  /** Quiz layout: the clock face as large as the screen allows (see
+   * .interactive-clock--large), instead of the compact free-play widget size. */
+  large?: boolean
 }
 
 type DragTarget = 'hour' | 'minute' | null
@@ -21,6 +28,12 @@ type DragTarget = 'hour' | 'minute' | null
 function pointOnCircle(angleDeg: number, radius: number): { x: number; y: number } {
   const angleRad = (angleDeg * Math.PI) / 180
   return { x: 50 + radius * Math.sin(angleRad), y: 50 - radius * Math.cos(angleRad) }
+}
+
+/** Smallest difference between two clock angles (0-180). */
+function angleDiff(a: number, b: number): number {
+  const d = Math.abs(a - b) % 360
+  return d > 180 ? 360 - d : d
 }
 
 /** Angle (0-360, clockwise from 12 o'clock) of a pointer position relative to the clock's center. */
@@ -36,7 +49,14 @@ function angleFromCenter(clientX: number, clientY: number, rect: DOMRect): numbe
  * "minutes since 12:00" value (0-719) as the sole source of truth for both hands and the
  * digital readout, instead of two independently-set numbers that could show an
  * impossible hand position. */
-export function InteractiveClock({ size = 220, initialTotalMinutes = 3 * 60, onChange, hintText }: InteractiveClockProps) {
+export function InteractiveClock({
+  size = 220,
+  initialTotalMinutes = 3 * 60,
+  onChange,
+  hintText,
+  minuteStep = 1,
+  large = false,
+}: InteractiveClockProps) {
   const { t, lang } = useI18n()
   const svgRef = useRef<SVGSVGElement>(null)
   const dragTarget = useRef<DragTarget>(null)
@@ -66,7 +86,7 @@ export function InteractiveClock({ size = 220, initialTotalMinutes = 3 * 60, onC
     const angle = angleFromCenter(clientX, clientY, svg.getBoundingClientRect())
 
     if (dragTarget.current === 'minute') {
-      const rawMinute = Math.round(angle / 6) % 60
+      const rawMinute = (Math.round(angle / (6 * minuteStep)) * minuteStep) % 60
       updateTotalMinutes((prev) => {
         const prevMinute = prev % 60
         const hourBase = prev - prevMinute
@@ -77,18 +97,37 @@ export function InteractiveClock({ size = 220, initialTotalMinutes = 3 * 60, onC
         return (((nextHourBase + rawMinute) % 720) + 720) % 720
       })
     } else {
-      const rawHour = Math.round(angle / 30) % 12
-      updateTotalMinutes((prev) => rawHour * 60 + (prev % 60))
+      // The hour whose hand position at the CURRENT minute is closest to the finger — at 9:30
+      // a real hour hand sits halfway between 9 and 10, and plain round(angle / 30) turned a
+      // correctly placed hand there into 10.
+      updateTotalMinutes((prev) => {
+        const prevMinute = prev % 60
+        const rawHour = ((Math.round((angle - prevMinute * 0.5) / 30) % 12) + 12) % 12
+        return rawHour * 60 + prevMinute
+      })
     }
   }
 
-  function startDrag(target: DragTarget) {
-    return (e: PointerEvent<SVGElement>) => {
-      e.preventDefault()
-      dragTarget.current = target
-      svgRef.current?.setPointerCapture(e.pointerId)
-      moveTo(e.clientX, e.clientY)
+  /** A drag can start ANYWHERE on the face, not only on a thin hand: the hand pointing
+   * closer to where the finger landed is the one that moves. When both hands point roughly
+   * the same way, distance from the center decides (the minute hand is the longer one). */
+  function handlePointerDown(e: PointerEvent<SVGSVGElement>) {
+    const svg = svgRef.current
+    if (!svg) return
+    e.preventDefault()
+    const rect = svg.getBoundingClientRect()
+    const angle = angleFromCenter(e.clientX, e.clientY, rect)
+    const radius = (Math.hypot(e.clientX - (rect.left + rect.width / 2), e.clientY - (rect.top + rect.height / 2)) / rect.width) * 100
+    const toHour = angleDiff(angle, hourAngle)
+    const toMinute = angleDiff(angle, minuteAngle)
+    dragTarget.current = Math.abs(toHour - toMinute) < 25 ? (radius > 30 ? 'minute' : 'hour') : toMinute < toHour ? 'minute' : 'hour'
+    try {
+      svg.setPointerCapture(e.pointerId)
+    } catch {
+      // Capture is a nicety (keeps the drag when the finger strays off the face); never let
+      // it stop the hand from moving.
     }
+    moveTo(e.clientX, e.clientY)
   }
 
   function handlePointerMove(e: PointerEvent<SVGSVGElement>) {
@@ -98,14 +137,18 @@ export function InteractiveClock({ size = 220, initialTotalMinutes = 3 * 60, onC
 
   function endDrag(e: PointerEvent<SVGSVGElement>) {
     dragTarget.current = null
-    svgRef.current?.releasePointerCapture(e.pointerId)
+    try {
+      svgRef.current?.releasePointerCapture(e.pointerId)
+    } catch {
+      // not captured
+    }
   }
 
   const digitalText = `${displayHour}:${String(minute).padStart(2, '0')}`
   const spokenText = formatClockKey(`${displayHour}:${minute}`, lang)
 
   return (
-    <div className="interactive-clock">
+    <div className={`interactive-clock${large ? ' interactive-clock--large' : ''}`}>
       <svg
         ref={svgRef}
         width={size}
@@ -113,10 +156,11 @@ export function InteractiveClock({ size = 220, initialTotalMinutes = 3 * 60, onC
         viewBox="0 0 100 100"
         role="img"
         aria-label={digitalText}
+        onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
-        style={{ touchAction: 'none' }}
+        style={{ touchAction: 'none', cursor: 'grab' }}
       >
         <circle cx="50" cy="50" r="47" fill="white" stroke="#ffd3ea" strokeWidth="4" />
         {Array.from({ length: 12 }, (_, i) => {
@@ -154,65 +198,26 @@ export function InteractiveClock({ size = 220, initialTotalMinutes = 3 * 60, onC
           )
         })}
 
-        {/* Wide invisible strokes give small fingers a forgiving drag target along the
-            whole hand, not just its thin visible line. */}
-        <line
-          x1="50"
-          y1="50"
-          x2={hourHand.x}
-          y2={hourHand.y}
-          stroke="transparent"
-          strokeWidth="14"
-          strokeLinecap="round"
-          onPointerDown={startDrag('hour')}
-          style={{ cursor: 'grab' }}
-        />
-        <line
-          x1="50"
-          y1="50"
-          x2={minuteHand.x}
-          y2={minuteHand.y}
-          stroke="transparent"
-          strokeWidth="14"
-          strokeLinecap="round"
-          onPointerDown={startDrag('minute')}
-          style={{ cursor: 'grab' }}
-        />
-
-        <line x1="50" y1="50" x2={hourHand.x} y2={hourHand.y} stroke="#4a3b4a" strokeWidth="5" strokeLinecap="round" />
+        <line x1="50" y1="50" x2={hourHand.x} y2={hourHand.y} stroke="#4a3b4a" strokeWidth="6" strokeLinecap="round" />
         <line
           x1="50"
           y1="50"
           x2={minuteHand.x}
           y2={minuteHand.y}
           stroke="#ff5fae"
-          strokeWidth="3.5"
+          strokeWidth="4.5"
           strokeLinecap="round"
         />
 
-        {/* Visible grab handles at each hand's tip, doubling as extra hit area. */}
-        <circle
-          cx={hourHand.x}
-          cy={hourHand.y}
-          r="6"
-          fill="#4a3b4a"
-          onPointerDown={startDrag('hour')}
-          style={{ cursor: 'grab' }}
-        />
-        <circle
-          cx={minuteHand.x}
-          cy={minuteHand.y}
-          r="5"
-          fill="#ff5fae"
-          onPointerDown={startDrag('minute')}
-          style={{ cursor: 'grab' }}
-        />
+        {/* Big knobs at each hand's tip show what to grab (the whole face is the hit area). */}
+        <circle cx={hourHand.x} cy={hourHand.y} r="7" fill="#4a3b4a" />
+        <circle cx={minuteHand.x} cy={minuteHand.y} r="6.5" fill="#ff5fae" stroke="white" strokeWidth="1.5" />
 
         <circle cx="50" cy="50" r="3.5" fill="#4a3b4a" />
       </svg>
 
       <div className="digital-clock">{digitalText}</div>
-      <p className="hint-caption">{hintText ?? t('clockPracticeHint')}</p>
+      {hintText !== '' && <p className="hint-caption">{hintText ?? t('clockPracticeHint')}</p>}
       <p className="digital-clock-reading">{spokenText}</p>
     </div>
   )

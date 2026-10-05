@@ -687,24 +687,29 @@ function ClockQuestionView({
   lang,
   voiceProfile,
   cacheKey,
+  answered,
 }: {
   question: ClockQuestion
   promptText: string
   lang: Lang
   voiceProfile: VoiceProfile
   cacheKey?: string
+  answered: boolean
 }) {
   const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
-  // Fixed at 160px regardless of viewport height — on the multipleChoice format this stays
-  // on screen through the post-answer feedback state too (stacked above a 2x2 text choice
-  // grid plus feedback-banner/explanation/portrait/button), so its full fixed size caused a
-  // genuine #root overflow/bounce there. See the mobile-first-policy memory.
-  const faceSize = useResponsiveSize(160, 0.1, 72)
+  // The clock is the whole question, so it's sized from the screen (see .clock-read-face),
+  // as large as fits — the old 72-160px face was hard to read.
   return (
     <div className="quiz-prompt-stack">
-      <ClockFace hour={question.hour} minute={question.minute} size={faceSize} />
+      <div className="clock-read-face">
+        <ClockFace hour={question.hour} minute={question.minute} />
+      </div>
       <p className="subtitle">{promptText}</p>
-      <TtsButton text={promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
+      {/* Nothing left to replay once answered — hiding it makes room for the feedback
+          below without shrinking the clock. */}
+      {!answered && (
+        <TtsButton text={promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
+      )}
     </div>
   )
 }
@@ -864,7 +869,7 @@ function renderChoiceContent(question: Question, choice: Choice, lang: Lang, ico
     // upper/lower distinction lives in which string it is, so no lookup is needed.
     return <HiraganaChar char={choice as string} size={iconSize} />
   }
-  if (isClock(question)) return formatClockKey(choice as string, lang)
+  if (isClock(question)) return <span className="clock-choice-text">{formatClockKey(choice as string, lang)}</span>
   // never rendered: spot-the-difference has no choice-grid (see SpotDifferenceBoard)
   if (isSpotDifference(question)) return null
   // never rendered: sudoku has no choice-grid either (see SudokuBoard)
@@ -1285,6 +1290,7 @@ export function QuizScreen({
             lang={lang}
             voiceProfile={voiceProfile}
             cacheKey={autoSpeech.cacheKey}
+            answered={selected !== null}
           />
         ) : isSpotDifference(question) ? (
           <SpotDifferenceBoard

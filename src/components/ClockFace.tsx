@@ -57,14 +57,14 @@ export function ClockFace({ hour, minute, size = 160 }: ClockFaceProps) {
           </text>
         )
       })}
-      <line x1="50" y1="50" x2={hourHand.x} y2={hourHand.y} stroke="#4a3b4a" strokeWidth="5" strokeLinecap="round" />
+      <line x1="50" y1="50" x2={hourHand.x} y2={hourHand.y} stroke="#4a3b4a" strokeWidth="6" strokeLinecap="round" />
       <line
         x1="50"
         y1="50"
         x2={minuteHand.x}
         y2={minuteHand.y}
         stroke="#ff5fae"
-        strokeWidth="3.5"
+        strokeWidth="4.5"
         strokeLinecap="round"
       />
       <circle cx="50" cy="50" r="3.5" fill="#4a3b4a" />

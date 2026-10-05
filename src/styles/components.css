@@ -591,6 +591,21 @@
 /* とけい「あわせる」: the clock IS the question, and dragging small hands with a finger was
    the hard part — so the face takes as much of the screen as fits (≈320px on a typical
    phone instead of ≈90px). FitToViewport absorbs any remaining overflow on short screens. */
+/* とけい「よむ」: the clock face is the question — as large as fits beside the 4 choices
+   (FitToViewport absorbs any remainder on short screens). */
+/* "12じ15ふん" broke as 12じ15ふ / ん in a half-width choice button at the regular choice
+   font size — a time must read as one unit. */
+.clock-choice-text {
+  white-space: nowrap;
+  font-size: clamp(15px, 2.8vh, 22px);
+}
+
+.clock-read-face svg {
+  display: block;
+  width: min(82vw, 44vh, 380px);
+  height: min(82vw, 44vh, 380px);
+}
+
 .interactive-clock--large {
   padding: clamp(6px, 1.2vh, 14px) clamp(8px, 2vw, 16px);
   gap: 4px;

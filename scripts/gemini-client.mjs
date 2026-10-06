@@ -23,13 +23,13 @@ const ai = new GoogleGenAI({ apiKey })
 
 /** `model` lets a caller opt into a higher (pricier) tier for assets where it's worth it —
  * see image-style-guardrail.mjs's CHARACTER_MODEL, used only for the 8 mascot portraits. */
-export async function generateGeminiImage({ prompt, model = DEFAULT_MODEL }) {
+export async function generateGeminiImage({ prompt, model = DEFAULT_MODEL, aspectRatio = '1:1' }) {
   const response = await ai.models.generateContent({
     model,
     contents: prompt,
     // Without an explicit aspectRatio the model picks whatever framing suits the prompt, which
     // produced inconsistently-shaped icons/portraits — every asset here needs a uniform square.
-    config: { responseModalities: ['IMAGE'], imageConfig: { aspectRatio: '1:1' } },
+    config: { responseModalities: ['IMAGE'], imageConfig: { aspectRatio } },
   })
 
   const part = response.candidates?.[0]?.content?.parts?.find((p) => p.inlineData?.data)

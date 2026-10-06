@@ -1,0 +1,3229 @@
+{
+  "sea": {
+    "background": "sunny beach, bright light blue sky with a few small white clouds, turquoise sea, white sand",
+    "zones": {
+      "sky": [
+        [
+          8,
+          92,
+          6,
+          30
+        ]
+      ],
+      "sea": [
+        [
+          10,
+          90,
+          52,
+          57
+        ],
+        [
+          26,
+          74,
+          68,
+          82
+        ]
+      ],
+      "sand": [
+        [
+          12,
+          88,
+          58,
+          64
+        ],
+        [
+          5,
+          22,
+          64,
+          78
+        ],
+        [
+          80,
+          95,
+          64,
+          78
+        ]
+      ]
+    },
+    "sprites": {
+      "crab": "a bright red crab",
+      "fish": "a bright orange fish",
+      "sailboat": "a small sailboat with a white sail and a blue hull",
+      "starfish": "an orange starfish",
+      "shell": "a pink spiral seashell",
+      "octopus": "a small pink octopus",
+      "beachball": "a striped beach ball",
+      "bucket": "a small yellow sand bucket with a spade",
+      "seagull": "a white seagull flying",
+      "sandcastle": "a small sandcastle with a flag",
+      "whale": "a small blue whale",
+      "turtle": "a green sea turtle",
+      "surfboard": "a striped surfboard",
+      "sunglasses": "a pair of sunglasses",
+      "windmill": "a small toy windmill"
+    },
+    "spriteZones": {
+      "crab": [
+        "sand"
+      ],
+      "fish": [
+        "sea"
+      ],
+      "sailboat": [
+        "sea"
+      ],
+      "starfish": [
+        "sand",
+        "sea"
+      ],
+      "shell": [
+        "sand"
+      ],
+      "octopus": [
+        "sea",
+        "sand"
+      ],
+      "beachball": [
+        "sand"
+      ],
+      "bucket": [
+        "sand"
+      ],
+      "seagull": [
+        "sky"
+      ],
+      "sandcastle": [
+        "sand"
+      ],
+      "whale": [
+        "sea"
+      ],
+      "turtle": [
+        "sand",
+        "sea"
+      ],
+      "surfboard": [
+        "sand"
+      ],
+      "sunglasses": [
+        "sand"
+      ],
+      "windmill": [
+        "sand"
+      ]
+    },
+    "living": [
+      "crab",
+      "fish",
+      "starfish",
+      "octopus",
+      "seagull",
+      "whale",
+      "turtle"
+    ],
+    "flippable": [
+      "fish",
+      "sailboat",
+      "bucket",
+      "seagull",
+      "whale",
+      "turtle"
+    ]
+  },
+  "forest": {
+    "background": "a calm green forest clearing, tall trees at the left and right edges, light green grass ground filling the lower half, soft blue sky above",
+    "zones": {
+      "air": [
+        [
+          15,
+          85,
+          10,
+          35
+        ]
+      ],
+      "ground": [
+        [
+          8,
+          92,
+          64,
+          92
+        ]
+      ]
+    },
+    "sprites": {
+      "squirrel": "a brown squirrel",
+      "rabbit": "a white rabbit sitting, side view",
+      "mushroom": "a single red mushroom with white spots",
+      "acorn": "a brown acorn",
+      "fox": "an orange fox",
+      "owl": "a brown owl",
+      "butterfly": "a yellow butterfly",
+      "bluebird": "a small blue bird flying",
+      "hedgehog": "a small hedgehog",
+      "pinecone": "a brown pinecone",
+      "deer": "a small spotted fawn standing, side view",
+      "bear": "a brown bear cub",
+      "leaf": "an orange maple leaf",
+      "log": "a short wooden log",
+      "woodpecker": "a woodpecker"
+    },
+    "spriteZones": {
+      "squirrel": [
+        "ground"
+      ],
+      "rabbit": [
+        "ground"
+      ],
+      "mushroom": [
+        "ground"
+      ],
+      "acorn": [
+        "ground"
+      ],
+      "fox": [
+        "ground"
+      ],
+      "owl": [
+        "air"
+      ],
+      "butterfly": [
+        "air"
+      ],
+      "bluebird": [
+        "air"
+      ],
+      "hedgehog": [
+        "ground"
+      ],
+      "pinecone": [
+        "ground"
+      ],
+      "deer": [
+        "ground"
+      ],
+      "bear": [
+        "ground"
+      ],
+      "leaf": [
+        "air",
+        "ground"
+      ],
+      "log": [
+        "ground"
+      ],
+      "woodpecker": [
+        "air"
+      ]
+    },
+    "living": [
+      "squirrel",
+      "rabbit",
+      "fox",
+      "owl",
+      "butterfly",
+      "bluebird",
+      "hedgehog",
+      "deer",
+      "bear",
+      "woodpecker"
+    ],
+    "flippable": [
+      "squirrel",
+      "fox",
+      "bluebird",
+      "hedgehog",
+      "woodpecker",
+      "deer"
+    ]
+  },
+  "park": {
+    "background": "a sunny park, soft blue sky, green lawn filling the lower half, a path, a few round trees far in the background",
+    "zones": {
+      "sky": [
+        [
+          20,
+          85,
+          6,
+          28
+        ]
+      ],
+      "lawn": [
+        [
+          6,
+          94,
+          60,
+          92
+        ]
+      ]
+    },
+    "sprites": {
+      "kite": "a red diamond kite with a tail",
+      "balloon": "a single round red balloon with a short string",
+      "soccerball": "a soccer ball",
+      "dog": "a small brown dog",
+      "tricycle": "a small blue tricycle",
+      "pigeon": "a grey pigeon",
+      "tulip": "a red tulip",
+      "shovel": "a small green toy shovel",
+      "frisbee": "a yellow plastic frisbee disc toy",
+      "duck": "a yellow duck",
+      "bench": "a small wooden bench",
+      "jumprope": "a jump rope",
+      "cat": "a grey cat",
+      "butterfly": "an orange butterfly",
+      "icecream": "an ice cream cone"
+    },
+    "spriteZones": {
+      "kite": [
+        "sky"
+      ],
+      "balloon": [
+        "sky",
+        "lawn"
+      ],
+      "soccerball": [
+        "lawn"
+      ],
+      "dog": [
+        "lawn"
+      ],
+      "tricycle": [
+        "lawn"
+      ],
+      "pigeon": [
+        "lawn"
+      ],
+      "tulip": [
+        "lawn"
+      ],
+      "shovel": [
+        "lawn"
+      ],
+      "frisbee": [
+        "sky",
+        "lawn"
+      ],
+      "duck": [
+        "lawn"
+      ],
+      "bench": [
+        "lawn"
+      ],
+      "jumprope": [
+        "lawn"
+      ],
+      "cat": [
+        "lawn"
+      ],
+      "butterfly": [
+        "sky",
+        "lawn"
+      ],
+      "icecream": [
+        "lawn"
+      ]
+    },
+    "living": [
+      "dog",
+      "pigeon",
+      "duck",
+      "cat",
+      "butterfly"
+    ],
+    "flippable": [
+      "dog",
+      "tricycle",
+      "pigeon",
+      "shovel",
+      "duck"
+    ]
+  },
+  "kitchen": {
+    "background": "a bright cozy kitchen interior, a long wooden counter across the middle, an empty wall shelf near the top, light tiled floor at the bottom, plain cream walls",
+    "zones": {
+      "shelf": [
+        [
+          4,
+          26,
+          31,
+          38
+        ]
+      ],
+      "counter": [
+        [
+          4,
+          40,
+          53,
+          59
+        ],
+        [
+          46,
+          74,
+          52,
+          57
+        ]
+      ],
+      "floor": [
+        [
+          6,
+          94,
+          78,
+          94
+        ]
+      ]
+    },
+    "sprites": {
+      "apple": "a red apple",
+      "banana": "a yellow banana",
+      "cup": "a blue cup",
+      "pot": "a red cooking pot",
+      "pan": "a frying pan",
+      "carrot": "an orange carrot",
+      "teapot": "a white teapot with blue dots",
+      "bread": "a loaf of bread",
+      "egg": "a white egg",
+      "milk": "a milk bottle",
+      "strawberry": "a red strawberry",
+      "spoon": "a silver spoon",
+      "kettle": "a green kettle",
+      "cheese": "a wedge of cheese",
+      "tomato": "a red tomato"
+    },
+    "spriteZones": {
+      "apple": [
+        "counter",
+        "shelf"
+      ],
+      "banana": [
+        "counter"
+      ],
+      "cup": [
+        "counter",
+        "shelf"
+      ],
+      "pot": [
+        "counter",
+        "floor"
+      ],
+      "pan": [
+        "counter"
+      ],
+      "carrot": [
+        "counter"
+      ],
+      "teapot": [
+        "counter",
+        "shelf"
+      ],
+      "bread": [
+        "counter",
+        "shelf"
+      ],
+      "egg": [
+        "counter"
+      ],
+      "milk": [
+        "counter",
+        "shelf",
+        "floor"
+      ],
+      "strawberry": [
+        "counter",
+        "shelf"
+      ],
+      "spoon": [
+        "counter"
+      ],
+      "kettle": [
+        "counter",
+        "shelf"
+      ],
+      "cheese": [
+        "counter"
+      ],
+      "tomato": [
+        "counter",
+        "shelf"
+      ]
+    },
+    "living": [],
+    "flippable": [
+      "cup",
+      "pan",
+      "teapot",
+      "kettle",
+      "cheese",
+      "banana"
+    ]
+  },
+  "kidsroom": {
+    "background": "a bright cozy child's bedroom interior, an empty low shelf on the wall, a soft rug on the wooden floor filling the lower half, a window with curtains at the side, plain pastel walls",
+    "zones": {
+      "shelf": [
+        [
+          28,
+          41,
+          32,
+          44
+        ],
+        [
+          3,
+          18,
+          48,
+          55
+        ]
+      ],
+      "floor": [
+        [
+          6,
+          94,
+          75,
+          94
+        ],
+        [
+          22,
+          66,
+          67,
+          75
+        ]
+      ]
+    },
+    "sprites": {
+      "teddybear": "a brown teddy bear",
+      "ball": "a single red and white beach ball",
+      "toycar": "a small red toy car",
+      "book": "a single closed hardcover picture book",
+      "blocks": "a small stack of colorful toy blocks",
+      "rocket": "a toy rocket",
+      "xylophone": "a colorful toy xylophone",
+      "clock": "a round alarm clock",
+      "robot": "a small toy robot",
+      "duckie": "a yellow rubber duck",
+      "drum": "a toy drum",
+      "train": "a toy train engine",
+      "doll": "a small rag doll",
+      "kite": "a small kite",
+      "pencilcase": "a pink zipper pencil pouch"
+    },
+    "spriteZones": {
+      "teddybear": [
+        "floor",
+        "shelf"
+      ],
+      "ball": [
+        "floor"
+      ],
+      "toycar": [
+        "floor",
+        "shelf"
+      ],
+      "book": [
+        "floor",
+        "shelf"
+      ],
+      "blocks": [
+        "floor"
+      ],
+      "rocket": [
+        "floor",
+        "shelf"
+      ],
+      "xylophone": [
+        "floor"
+      ],
+      "clock": [
+        "shelf"
+      ],
+      "robot": [
+        "floor",
+        "shelf"
+      ],
+      "duckie": [
+        "floor",
+        "shelf"
+      ],
+      "drum": [
+        "floor"
+      ],
+      "train": [
+        "floor",
+        "shelf"
+      ],
+      "doll": [
+        "floor",
+        "shelf"
+      ],
+      "kite": [
+        "floor"
+      ],
+      "pencilcase": [
+        "shelf",
+        "floor"
+      ]
+    },
+    "living": [],
+    "flippable": [
+      "toycar",
+      "duckie",
+      "train"
+    ]
+  },
+  "meadow": {
+    "background": "a sunny meadow, soft blue sky with small clouds, rolling green hills, light green grass filling the lower half",
+    "zones": {
+      "sky": [
+        [
+          8,
+          92,
+          8,
+          30
+        ]
+      ],
+      "grass": [
+        [
+          6,
+          94,
+          62,
+          92
+        ]
+      ]
+    },
+    "sprites": {
+      "ladybug": "a red ladybug",
+      "bee": "a yellow and black bee",
+      "sunflower": "a sunflower",
+      "snail": "a snail with a brown shell",
+      "frog": "a green frog",
+      "dragonfly": "a blue dragonfly",
+      "butterfly": "a pink butterfly",
+      "mushroom": "a small brown mushroom",
+      "daisy": "a white daisy flower",
+      "caterpillar": "a green caterpillar",
+      "rabbit": "a brown rabbit",
+      "bird": "a small yellow bird",
+      "tulip": "a yellow tulip",
+      "clover": "a four-leaf clover",
+      "ant": "a small red ant"
+    },
+    "spriteZones": {
+      "ladybug": [
+        "grass"
+      ],
+      "bee": [
+        "sky",
+        "grass"
+      ],
+      "sunflower": [
+        "grass"
+      ],
+      "snail": [
+        "grass"
+      ],
+      "frog": [
+        "grass"
+      ],
+      "dragonfly": [
+        "sky"
+      ],
+      "butterfly": [
+        "sky",
+        "grass"
+      ],
+      "mushroom": [
+        "grass"
+      ],
+      "daisy": [
+        "grass"
+      ],
+      "caterpillar": [
+        "grass"
+      ],
+      "rabbit": [
+        "grass"
+      ],
+      "bird": [
+        "sky"
+      ],
+      "tulip": [
+        "grass"
+      ],
+      "clover": [
+        "grass"
+      ],
+      "ant": [
+        "grass"
+      ]
+    },
+    "living": [
+      "ladybug",
+      "bee",
+      "snail",
+      "frog",
+      "dragonfly",
+      "butterfly",
+      "caterpillar",
+      "rabbit",
+      "bird",
+      "ant"
+    ],
+    "flippable": [
+      "ladybug",
+      "snail",
+      "caterpillar",
+      "bird",
+      "ant"
+    ]
+  },
+  "nightsky": {
+    "background": "a calm night sky, deep blue gradient sky filling most of the image, a dark green hill silhouette along the bottom",
+    "zones": {
+      "sky": [
+        [
+          8,
+          92,
+          6,
+          40
+        ]
+      ],
+      "hill": [
+        [
+          8,
+          92,
+          72,
+          92
+        ]
+      ]
+    },
+    "sprites": {
+      "star": "a yellow five-pointed star",
+      "moon": "a smiling yellow crescent moon",
+      "rocket": "a red and white rocket",
+      "planet": "an orange planet with a ring",
+      "comet": "a yellow comet with a tail",
+      "satellite": "a small satellite",
+      "cloud": "a small white cloud",
+      "owl": "a brown owl",
+      "bat": "a small purple bat",
+      "airplane": "a small white airplane",
+      "ufo": "a cute flying saucer",
+      "shootingstar": "a shooting star",
+      "lantern": "a paper lantern",
+      "cat": "a black cat sitting",
+      "smallplanet": "a small blue planet"
+    },
+    "spriteZones": {
+      "star": [
+        "sky"
+      ],
+      "moon": [
+        "sky"
+      ],
+      "rocket": [
+        "sky"
+      ],
+      "planet": [
+        "sky"
+      ],
+      "comet": [
+        "sky"
+      ],
+      "satellite": [
+        "sky"
+      ],
+      "cloud": [
+        "sky"
+      ],
+      "owl": [
+        "hill"
+      ],
+      "bat": [
+        "sky"
+      ],
+      "airplane": [
+        "sky"
+      ],
+      "ufo": [
+        "sky"
+      ],
+      "shootingstar": [
+        "sky"
+      ],
+      "lantern": [
+        "hill"
+      ],
+      "cat": [
+        "hill"
+      ],
+      "smallplanet": [
+        "sky"
+      ]
+    },
+    "living": [
+      "owl",
+      "bat",
+      "cat"
+    ],
+    "flippable": [
+      "rocket",
+      "comet",
+      "airplane",
+      "shootingstar",
+      "cat"
+    ]
+  },
+  "town": {
+    "background": "a calm small town street, soft blue sky, a row of simple pastel houses in the background, a grey road with a sidewalk filling the lower half",
+    "zones": {
+      "sky": [
+        [
+          10,
+          85,
+          6,
+          24
+        ]
+      ],
+      "street": [
+        [
+          8,
+          92,
+          66,
+          92
+        ]
+      ]
+    },
+    "sprites": {
+      "car": "a red car",
+      "bus": "a yellow bus",
+      "bicycle": "a blue bicycle",
+      "mailbox": "a red mailbox",
+      "cat": "an orange cat",
+      "dog": "a white dog",
+      "bird": "a small bird flying",
+      "balloon": "a blue balloon on a string",
+      "taxi": "a yellow taxi",
+      "trafficcone": "an orange traffic cone",
+      "truck": "a small green truck",
+      "scooter": "a red scooter",
+      "bench": "a street bench",
+      "pigeon": "a grey pigeon",
+      "umbrella": "an open yellow umbrella"
+    },
+    "spriteZones": {
+      "car": [
+        "street"
+      ],
+      "bus": [
+        "street"
+      ],
+      "bicycle": [
+        "street"
+      ],
+      "mailbox": [
+        "street"
+      ],
+      "cat": [
+        "street"
+      ],
+      "dog": [
+        "street"
+      ],
+      "bird": [
+        "sky"
+      ],
+      "balloon": [
+        "sky"
+      ],
+      "taxi": [
+        "street"
+      ],
+      "trafficcone": [
+        "street"
+      ],
+      "truck": [
+        "street"
+      ],
+      "scooter": [
+        "street"
+      ],
+      "bench": [
+        "street"
+      ],
+      "pigeon": [
+        "street"
+      ],
+      "umbrella": [
+        "street"
+      ]
+    },
+    "living": [
+      "cat",
+      "dog",
+      "bird",
+      "pigeon"
+    ],
+    "flippable": [
+      "car",
+      "bus",
+      "bicycle",
+      "mailbox",
+      "cat",
+      "bird",
+      "taxi",
+      "truck",
+      "scooter",
+      "pigeon",
+      "umbrella"
+    ]
+  },
+  "zoo": {
+    "background": "a sunny zoo, soft blue sky, a wooden fence and green bushes in the background, light green and sandy ground filling the lower half",
+    "zones": {
+      "ground": [
+        [
+          6,
+          94,
+          58,
+          92
+        ]
+      ]
+    },
+    "sprites": {
+      "elephant": "a grey elephant",
+      "giraffe": "a giraffe",
+      "lion": "a lion",
+      "panda": "a panda",
+      "penguin": "a penguin",
+      "monkey": "a brown monkey",
+      "zebra": "a zebra",
+      "flamingo": "a pink flamingo",
+      "hippo": "a hippo",
+      "kangaroo": "a kangaroo",
+      "koala": "a koala",
+      "rhino": "a rhinoceros",
+      "bear": "a brown bear",
+      "parrot": "a colorful parrot",
+      "seal": "a grey seal"
+    },
+    "spriteZones": {
+      "elephant": [
+        "ground"
+      ],
+      "giraffe": [
+        "ground"
+      ],
+      "lion": [
+        "ground"
+      ],
+      "panda": [
+        "ground"
+      ],
+      "penguin": [
+        "ground"
+      ],
+      "monkey": [
+        "ground"
+      ],
+      "zebra": [
+        "ground"
+      ],
+      "flamingo": [
+        "ground"
+      ],
+      "hippo": [
+        "ground"
+      ],
+      "kangaroo": [
+        "ground"
+      ],
+      "koala": [
+        "ground"
+      ],
+      "rhino": [
+        "ground"
+      ],
+      "bear": [
+        "ground"
+      ],
+      "parrot": [
+        "ground"
+      ],
+      "seal": [
+        "ground"
+      ]
+    },
+    "living": [
+      "elephant",
+      "giraffe",
+      "lion",
+      "panda",
+      "penguin",
+      "monkey",
+      "zebra",
+      "flamingo",
+      "hippo",
+      "kangaroo",
+      "koala",
+      "rhino",
+      "bear",
+      "parrot",
+      "seal"
+    ],
+    "flippable": [
+      "elephant",
+      "giraffe",
+      "zebra",
+      "flamingo",
+      "kangaroo",
+      "rhino",
+      "parrot",
+      "seal",
+      "penguin"
+    ]
+  },
+  "farm": {
+    "background": "a sunny farm, soft blue sky, a red barn in the far background, green pasture filling the lower half, a wooden fence",
+    "zones": {
+      "sky": [
+        [
+          8,
+          92,
+          6,
+          20
+        ]
+      ],
+      "pasture": [
+        [
+          6,
+          94,
+          62,
+          92
+        ]
+      ]
+    },
+    "sprites": {
+      "cow": "a black and white cow",
+      "pig": "a pink pig",
+      "sheep": "a fluffy white sheep",
+      "horse": "a brown horse",
+      "chicken": "a white hen",
+      "chick": "a yellow chick",
+      "goat": "a white goat",
+      "tractor": "a red tractor",
+      "haybale": "a round hay bale",
+      "milkcan": "a metal milk can",
+      "duck": "a white duck",
+      "dog": "a brown farm dog",
+      "carrot": "a single orange carrot with green leaves",
+      "basket": "a basket of eggs",
+      "crow": "a black crow flying"
+    },
+    "spriteZones": {
+      "cow": [
+        "pasture"
+      ],
+      "pig": [
+        "pasture"
+      ],
+      "sheep": [
+        "pasture"
+      ],
+      "horse": [
+        "pasture"
+      ],
+      "chicken": [
+        "pasture"
+      ],
+      "chick": [
+        "pasture"
+      ],
+      "goat": [
+        "pasture"
+      ],
+      "tractor": [
+        "pasture"
+      ],
+      "haybale": [
+        "pasture"
+      ],
+      "milkcan": [
+        "pasture"
+      ],
+      "duck": [
+        "pasture"
+      ],
+      "dog": [
+        "pasture"
+      ],
+      "carrot": [
+        "pasture"
+      ],
+      "basket": [
+        "pasture"
+      ],
+      "crow": [
+        "sky"
+      ]
+    },
+    "living": [
+      "cow",
+      "pig",
+      "sheep",
+      "horse",
+      "chicken",
+      "chick",
+      "goat",
+      "duck",
+      "dog",
+      "crow"
+    ],
+    "flippable": [
+      "horse",
+      "chicken",
+      "chick",
+      "goat",
+      "tractor",
+      "duck",
+      "dog",
+      "crow"
+    ]
+  },
+  "garden": {
+    "background": "a sunny home garden, soft blue sky, green lawn with a few flower beds filling the lower half, a wooden fence in the background",
+    "zones": {
+      "sky": [
+        [
+          22,
+          76,
+          5,
+          20
+        ]
+      ],
+      "lawn": [
+        [
+          4,
+          96,
+          70,
+          92
+        ]
+      ]
+    },
+    "sprites": {
+      "wateringcan": "a green watering can",
+      "flowerpot": "a flower pot with a red flower",
+      "snail": "a snail",
+      "ladybug": "a red ladybug",
+      "butterfly": "a blue butterfly",
+      "bee": "a bee",
+      "bird": "a robin bird",
+      "gnome": "a small garden statue of a frog",
+      "hose": "a green garden hose rolled on a reel",
+      "rake": "a small garden rake",
+      "sunflower": "a sunflower",
+      "wheelbarrow": "a small wheelbarrow",
+      "cat": "a calico cat",
+      "birdhouse": "a wooden birdhouse",
+      "tomatoplant": "a small tomato plant"
+    },
+    "spriteZones": {
+      "wateringcan": [
+        "lawn"
+      ],
+      "flowerpot": [
+        "lawn"
+      ],
+      "snail": [
+        "lawn"
+      ],
+      "ladybug": [
+        "lawn"
+      ],
+      "butterfly": [
+        "sky",
+        "lawn"
+      ],
+      "bee": [
+        "sky",
+        "lawn"
+      ],
+      "bird": [
+        "lawn",
+        "sky"
+      ],
+      "gnome": [
+        "lawn"
+      ],
+      "hose": [
+        "lawn"
+      ],
+      "rake": [
+        "lawn"
+      ],
+      "sunflower": [
+        "lawn"
+      ],
+      "wheelbarrow": [
+        "lawn"
+      ],
+      "cat": [
+        "lawn"
+      ],
+      "birdhouse": [
+        "lawn"
+      ],
+      "tomatoplant": [
+        "lawn"
+      ]
+    },
+    "living": [
+      "snail",
+      "ladybug",
+      "butterfly",
+      "bee",
+      "bird",
+      "cat"
+    ],
+    "flippable": [
+      "wateringcan",
+      "snail",
+      "bird",
+      "wheelbarrow"
+    ]
+  },
+  "river": {
+    "background": "a gentle river in the countryside, soft blue sky, a blue river flowing across the middle, green grassy banks above and below",
+    "zones": {
+      "sky": [
+        [
+          8,
+          92,
+          6,
+          22
+        ]
+      ],
+      "river": [
+        [
+          42,
+          84,
+          46,
+          54
+        ],
+        [
+          12,
+          70,
+          70,
+          86
+        ]
+      ],
+      "bank": [
+        [
+          4,
+          38,
+          55,
+          63
+        ],
+        [
+          80,
+          96,
+          66,
+          92
+        ]
+      ]
+    },
+    "sprites": {
+      "fish": "a blue fish",
+      "frog": "a green frog",
+      "duck": "a mallard duck",
+      "boat": "a small wooden rowboat",
+      "turtle": "a turtle",
+      "dragonfly": "a red dragonfly",
+      "fishingrod": "a fishing rod",
+      "bucket": "a blue bucket",
+      "heron": "a grey heron",
+      "lilypad": "a lily pad with a pink flower",
+      "crab": "a small red crab, top view",
+      "otter": "an otter",
+      "stone": "a smooth grey stone",
+      "kingfisher": "a blue kingfisher bird",
+      "leaf": "a single green leaf"
+    },
+    "spriteZones": {
+      "fish": [
+        "river"
+      ],
+      "frog": [
+        "bank"
+      ],
+      "duck": [
+        "river",
+        "bank"
+      ],
+      "boat": [
+        "river"
+      ],
+      "turtle": [
+        "bank"
+      ],
+      "dragonfly": [
+        "sky"
+      ],
+      "fishingrod": [
+        "bank"
+      ],
+      "bucket": [
+        "bank"
+      ],
+      "heron": [
+        "bank"
+      ],
+      "lilypad": [
+        "river"
+      ],
+      "crab": [
+        "bank"
+      ],
+      "otter": [
+        "bank",
+        "river"
+      ],
+      "stone": [
+        "bank"
+      ],
+      "kingfisher": [
+        "sky"
+      ],
+      "leaf": [
+        "river",
+        "bank"
+      ]
+    },
+    "living": [
+      "fish",
+      "frog",
+      "duck",
+      "turtle",
+      "dragonfly",
+      "heron",
+      "crab",
+      "otter",
+      "kingfisher"
+    ],
+    "flippable": [
+      "fish",
+      "duck",
+      "boat",
+      "turtle",
+      "heron",
+      "otter",
+      "kingfisher"
+    ]
+  },
+  "snowfield": {
+    "background": "a snowy winter field, pale blue sky, white snowy hills filling the lower half, a few snowy pine trees at the edges",
+    "zones": {
+      "sky": [
+        [
+          20,
+          80,
+          6,
+          26
+        ]
+      ],
+      "snow": [
+        [
+          6,
+          94,
+          64,
+          92
+        ]
+      ]
+    },
+    "sprites": {
+      "snowman": "a snowman with a carrot nose",
+      "sled": "a red wooden sled, side view",
+      "penguin": "a penguin",
+      "mitten": "a red mitten",
+      "cocoa": "a mug of hot cocoa",
+      "skis": "a pair of skis",
+      "polarbear": "a polar bear cub",
+      "fox": "an arctic fox",
+      "rabbit": "a white snow rabbit",
+      "snowflake": "a blue snowflake",
+      "bird": "a small red bird",
+      "beanie": "a knitted hat",
+      "snowball": "a pile of snowballs",
+      "firtree": "a small snowy fir tree",
+      "boots": "a pair of snow boots"
+    },
+    "spriteZones": {
+      "snowman": [
+        "snow"
+      ],
+      "sled": [
+        "snow"
+      ],
+      "penguin": [
+        "snow"
+      ],
+      "mitten": [
+        "snow"
+      ],
+      "cocoa": [
+        "snow"
+      ],
+      "skis": [
+        "snow"
+      ],
+      "polarbear": [
+        "snow"
+      ],
+      "fox": [
+        "snow"
+      ],
+      "rabbit": [
+        "snow"
+      ],
+      "snowflake": [
+        "sky"
+      ],
+      "bird": [
+        "sky",
+        "snow"
+      ],
+      "beanie": [
+        "snow"
+      ],
+      "snowball": [
+        "snow"
+      ],
+      "firtree": [
+        "snow"
+      ],
+      "boots": [
+        "snow"
+      ]
+    },
+    "living": [
+      "penguin",
+      "polarbear",
+      "fox",
+      "rabbit",
+      "bird"
+    ],
+    "flippable": [
+      "penguin",
+      "fox",
+      "rabbit",
+      "bird",
+      "boots",
+      "mitten"
+    ]
+  },
+  "underwater": {
+    "background": "under the sea, light blue water filling the image, sandy sea floor along the bottom with a few seaweeds at the edges, soft light rays",
+    "zones": {
+      "water": [
+        [
+          12,
+          88,
+          36,
+          64
+        ]
+      ],
+      "seabed": [
+        [
+          12,
+          88,
+          76,
+          92
+        ]
+      ]
+    },
+    "sprites": {
+      "clownfish": "a clownfish",
+      "jellyfish": "a pink jellyfish",
+      "seahorse": "a yellow seahorse",
+      "turtle": "a sea turtle swimming",
+      "octopus": "a purple octopus",
+      "starfish": "a red starfish",
+      "shell": "a white clam shell",
+      "crab": "a red crab",
+      "whale": "a small whale",
+      "dolphin": "a dolphin",
+      "pufferfish": "a pufferfish",
+      "treasure": "a small treasure chest",
+      "anchor": "an anchor",
+      "submarine": "a yellow submarine, side view",
+      "shark": "a small friendly shark"
+    },
+    "spriteZones": {
+      "clownfish": [
+        "water"
+      ],
+      "jellyfish": [
+        "water"
+      ],
+      "seahorse": [
+        "water"
+      ],
+      "turtle": [
+        "water"
+      ],
+      "octopus": [
+        "water",
+        "seabed"
+      ],
+      "starfish": [
+        "seabed"
+      ],
+      "shell": [
+        "seabed"
+      ],
+      "crab": [
+        "seabed"
+      ],
+      "whale": [
+        "water"
+      ],
+      "dolphin": [
+        "water"
+      ],
+      "pufferfish": [
+        "water"
+      ],
+      "treasure": [
+        "seabed"
+      ],
+      "anchor": [
+        "seabed"
+      ],
+      "submarine": [
+        "water"
+      ],
+      "shark": [
+        "water"
+      ]
+    },
+    "living": [
+      "clownfish",
+      "jellyfish",
+      "seahorse",
+      "turtle",
+      "octopus",
+      "starfish",
+      "crab",
+      "whale",
+      "dolphin",
+      "pufferfish",
+      "shark"
+    ],
+    "flippable": [
+      "clownfish",
+      "seahorse",
+      "turtle",
+      "whale",
+      "dolphin",
+      "pufferfish",
+      "shark",
+      "submarine"
+    ]
+  },
+  "space": {
+    "background": "outer space, deep navy blue background with tiny stars, a big pale planet surface curving along the bottom",
+    "zones": {
+      "space": [
+        [
+          8,
+          92,
+          8,
+          40
+        ]
+      ],
+      "surface": [
+        [
+          4,
+          40,
+          72,
+          92
+        ],
+        [
+          62,
+          96,
+          70,
+          92
+        ]
+      ]
+    },
+    "sprites": {
+      "rocket": "a single red and white rocket",
+      "astronaut": "a cute astronaut in a white space suit, full body",
+      "planet": "a ringed planet",
+      "moon": "a crescent moon",
+      "star": "a yellow star",
+      "satellite": "a satellite",
+      "ufo": "a purple flying saucer with a glass dome, side view",
+      "comet": "a comet",
+      "alien": "a cute green alien",
+      "rover": "a small moon rover",
+      "flag": "a small flag on a pole",
+      "meteor": "a rocky meteor",
+      "telescope": "a telescope",
+      "earth": "planet earth",
+      "spacestation": "a small space station with solar panels"
+    },
+    "spriteZones": {
+      "rocket": [
+        "space"
+      ],
+      "astronaut": [
+        "space",
+        "surface"
+      ],
+      "planet": [
+        "space"
+      ],
+      "moon": [
+        "space"
+      ],
+      "star": [
+        "space"
+      ],
+      "satellite": [
+        "space"
+      ],
+      "ufo": [
+        "space"
+      ],
+      "comet": [
+        "space"
+      ],
+      "alien": [
+        "surface"
+      ],
+      "rover": [
+        "surface"
+      ],
+      "flag": [
+        "surface"
+      ],
+      "meteor": [
+        "space"
+      ],
+      "telescope": [
+        "surface"
+      ],
+      "earth": [
+        "space"
+      ],
+      "spacestation": [
+        "space"
+      ]
+    },
+    "living": [
+      "astronaut",
+      "alien"
+    ],
+    "flippable": [
+      "comet",
+      "telescope",
+      "rover",
+      "flag",
+      "meteor",
+      "moon",
+      "rocket"
+    ]
+  },
+  "station": {
+    "background": "a train station platform, soft blue sky with a roof edge at the top, a long platform and rail tracks filling the lower half",
+    "zones": {
+      "sky": [
+        [
+          10,
+          90,
+          6,
+          22
+        ]
+      ],
+      "platform": [
+        [
+          4,
+          45,
+          62,
+          90
+        ],
+        [
+          45,
+          70,
+          58,
+          66
+        ]
+      ],
+      "track": [
+        [
+          55,
+          90,
+          72,
+          86
+        ]
+      ]
+    },
+    "sprites": {
+      "train": "a small green train",
+      "suitcase": "a red suitcase",
+      "clock": "a station clock",
+      "bench": "a single wooden bench, side view",
+      "ticket": "a train ticket",
+      "backpack": "a blue backpack",
+      "pigeon": "a pigeon",
+      "umbrella": "a closed umbrella",
+      "bottle": "a blue water bottle",
+      "dog": "a small dog on a leash",
+      "bento": "a lunch box",
+      "sign": "a round blue station sign on a pole",
+      "trashcan": "a small trash can",
+      "balloon": "a single round red balloon with a short string",
+      "camera": "a camera"
+    },
+    "spriteZones": {
+      "train": [
+        "track"
+      ],
+      "suitcase": [
+        "platform"
+      ],
+      "clock": [
+        "sky"
+      ],
+      "bench": [
+        "platform"
+      ],
+      "ticket": [
+        "platform"
+      ],
+      "backpack": [
+        "platform"
+      ],
+      "pigeon": [
+        "platform"
+      ],
+      "umbrella": [
+        "platform"
+      ],
+      "bottle": [
+        "platform"
+      ],
+      "dog": [
+        "platform"
+      ],
+      "bento": [
+        "platform"
+      ],
+      "sign": [
+        "platform"
+      ],
+      "trashcan": [
+        "platform"
+      ],
+      "balloon": [
+        "sky",
+        "platform"
+      ],
+      "camera": [
+        "platform"
+      ]
+    },
+    "living": [
+      "pigeon",
+      "dog"
+    ],
+    "flippable": [
+      "train",
+      "suitcase",
+      "pigeon",
+      "umbrella",
+      "dog",
+      "ticket"
+    ]
+  },
+  "supermarket": {
+    "background": "inside a bright supermarket, empty shelves along the back wall, a clean floor in the lower part",
+    "zones": {
+      "shelf": [
+        [
+          3,
+          28,
+          24,
+          52
+        ],
+        [
+          72,
+          96,
+          20,
+          56
+        ],
+        [
+          34,
+          66,
+          40,
+          52
+        ]
+      ],
+      "floor": [
+        [
+          20,
+          80,
+          70,
+          92
+        ]
+      ]
+    },
+    "sprites": {
+      "cart": "a shopping cart",
+      "basket": "a shopping basket",
+      "milk": "a carton of milk, flat front view",
+      "bread": "a loaf of bread",
+      "apple": "a shiny red apple",
+      "banana": "a bunch of bananas",
+      "watermelon": "a watermelon",
+      "cereal": "a cereal box",
+      "juice": "a single bottle of orange juice",
+      "eggs": "an egg carton",
+      "carrot": "a bunch of carrots",
+      "fish": "a fish on a tray",
+      "cheese": "a wedge of cheese",
+      "grapes": "a bunch of purple grapes",
+      "candy": "a lollipop"
+    },
+    "spriteZones": {
+      "cart": [
+        "floor"
+      ],
+      "basket": [
+        "floor"
+      ],
+      "milk": [
+        "shelf"
+      ],
+      "bread": [
+        "shelf"
+      ],
+      "apple": [
+        "shelf"
+      ],
+      "banana": [
+        "shelf"
+      ],
+      "watermelon": [
+        "floor",
+        "shelf"
+      ],
+      "cereal": [
+        "shelf"
+      ],
+      "juice": [
+        "shelf"
+      ],
+      "eggs": [
+        "shelf"
+      ],
+      "carrot": [
+        "shelf"
+      ],
+      "fish": [
+        "shelf"
+      ],
+      "cheese": [
+        "shelf"
+      ],
+      "grapes": [
+        "shelf"
+      ],
+      "candy": [
+        "shelf"
+      ]
+    },
+    "living": [],
+    "flippable": [
+      "cart",
+      "banana",
+      "cheese",
+      "fish"
+    ]
+  },
+  "classroom": {
+    "background": "a bright school classroom, a green blackboard on the back wall, empty wooden floor in the lower half",
+    "zones": {
+      "board": [
+        [
+          40,
+          63,
+          36,
+          48
+        ],
+        [
+          36,
+          70,
+          18,
+          30
+        ]
+      ],
+      "floor": [
+        [
+          10,
+          90,
+          68,
+          94
+        ]
+      ]
+    },
+    "sprites": {
+      "globe": "a globe",
+      "backpack": "a red school backpack",
+      "book": "a textbook",
+      "pencil": "a yellow pencil",
+      "magnet": "a red horseshoe magnet",
+      "eraser": "an eraser",
+      "sharpener": "a small blue pencil sharpener",
+      "clock": "a wall clock",
+      "scissors": "a pair of scissors",
+      "apple": "a shiny red apple",
+      "crayons": "a box of crayons",
+      "notebook": "a closed red notebook",
+      "plant": "a small potted plant",
+      "hamster": "a cute hamster sitting",
+      "abacus": "an abacus"
+    },
+    "spriteZones": {
+      "globe": [
+        "floor"
+      ],
+      "backpack": [
+        "floor"
+      ],
+      "book": [
+        "floor"
+      ],
+      "pencil": [
+        "floor"
+      ],
+      "magnet": [
+        "floor"
+      ],
+      "eraser": [
+        "floor"
+      ],
+      "sharpener": [
+        "board"
+      ],
+      "clock": [
+        "board"
+      ],
+      "scissors": [
+        "floor"
+      ],
+      "apple": [
+        "floor"
+      ],
+      "crayons": [
+        "floor"
+      ],
+      "notebook": [
+        "floor"
+      ],
+      "plant": [
+        "floor"
+      ],
+      "hamster": [
+        "floor"
+      ],
+      "abacus": [
+        "floor"
+      ]
+    },
+    "living": [
+      "hamster"
+    ],
+    "flippable": [
+      "eraser",
+      "scissors",
+      "notebook",
+      "hamster"
+    ]
+  },
+  "bathroom": {
+    "background": "a bright clean bathroom, light blue tiled walls, a white bathtub along the bottom, an empty shelf on the wall",
+    "zones": {
+      "shelf": [
+        [
+          80,
+          92,
+          26,
+          48
+        ]
+      ],
+      "bath": [
+        [
+          10,
+          38,
+          42,
+          52
+        ],
+        [
+          80,
+          96,
+          48,
+          56
+        ]
+      ],
+      "floor": [
+        [
+          30,
+          78,
+          66,
+          92
+        ]
+      ]
+    },
+    "sprites": {
+      "duck": "a yellow rubber duck",
+      "soap": "a bar of soap",
+      "toothbrush": "a toothbrush",
+      "towel": "a folded pink towel",
+      "shampoo": "a shampoo bottle",
+      "sponge": "a yellow sponge",
+      "bubbles": "a cluster of soap bubbles",
+      "comb": "a comb",
+      "cup": "a toothbrush cup",
+      "boat": "a toy boat",
+      "fish": "a toy fish",
+      "mirror": "a small round hand mirror",
+      "slippers": "a pair of slippers",
+      "bucket": "a small bath bucket",
+      "toothpaste": "a tube of toothpaste"
+    },
+    "spriteZones": {
+      "duck": [
+        "bath",
+        "shelf"
+      ],
+      "soap": [
+        "shelf",
+        "bath"
+      ],
+      "toothbrush": [
+        "shelf"
+      ],
+      "towel": [
+        "shelf",
+        "floor"
+      ],
+      "shampoo": [
+        "shelf",
+        "floor"
+      ],
+      "sponge": [
+        "bath",
+        "floor"
+      ],
+      "bubbles": [
+        "bath"
+      ],
+      "comb": [
+        "shelf"
+      ],
+      "cup": [
+        "shelf"
+      ],
+      "boat": [
+        "bath"
+      ],
+      "fish": [
+        "bath"
+      ],
+      "mirror": [
+        "shelf"
+      ],
+      "slippers": [
+        "floor"
+      ],
+      "bucket": [
+        "floor"
+      ],
+      "toothpaste": [
+        "shelf"
+      ]
+    },
+    "living": [],
+    "flippable": [
+      "duck",
+      "toothbrush",
+      "comb",
+      "cup",
+      "boat",
+      "fish",
+      "slippers"
+    ]
+  },
+  "picnic": {
+    "background": "a sunny picnic spot, soft blue sky, a red checkered blanket spread on green grass filling the lower half",
+    "zones": {
+      "sky": [
+        [
+          8,
+          92,
+          6,
+          22
+        ]
+      ],
+      "grass": [
+        [
+          6,
+          94,
+          62,
+          92
+        ]
+      ]
+    },
+    "sprites": {
+      "basket": "a picnic basket",
+      "sandwich": "a sandwich",
+      "riceball": "a triangle japanese onigiri rice ball with a black seaweed strip",
+      "juice": "a juice bottle",
+      "apple": "a green apple",
+      "cupcake": "a cupcake",
+      "ant": "a black ant",
+      "butterfly": "a yellow butterfly",
+      "ball": "a red ball",
+      "hat": "a sun hat with a ribbon",
+      "thermos": "a thermos",
+      "banana": "a banana",
+      "kite": "a kite",
+      "dog": "a puppy",
+      "bird": "a sparrow"
+    },
+    "spriteZones": {
+      "basket": [
+        "grass"
+      ],
+      "sandwich": [
+        "grass"
+      ],
+      "riceball": [
+        "grass"
+      ],
+      "juice": [
+        "grass"
+      ],
+      "apple": [
+        "grass"
+      ],
+      "cupcake": [
+        "grass"
+      ],
+      "ant": [
+        "grass"
+      ],
+      "butterfly": [
+        "sky",
+        "grass"
+      ],
+      "ball": [
+        "grass"
+      ],
+      "hat": [
+        "grass"
+      ],
+      "thermos": [
+        "grass"
+      ],
+      "banana": [
+        "grass"
+      ],
+      "kite": [
+        "sky"
+      ],
+      "dog": [
+        "grass"
+      ],
+      "bird": [
+        "sky",
+        "grass"
+      ]
+    },
+    "living": [
+      "ant",
+      "butterfly",
+      "dog",
+      "bird"
+    ],
+    "flippable": [
+      "ant",
+      "dog",
+      "bird",
+      "juice",
+      "banana"
+    ]
+  },
+  "camp": {
+    "background": "a campsite in the woods, evening sky, tall pine trees at the edges, a grassy clearing filling the lower half",
+    "zones": {
+      "sky": [
+        [
+          12,
+          88,
+          6,
+          22
+        ]
+      ],
+      "ground": [
+        [
+          6,
+          94,
+          66,
+          92
+        ]
+      ]
+    },
+    "sprites": {
+      "tent": "an orange tent",
+      "campfire": "a small campfire",
+      "mug": "a red enamel camping mug",
+      "backpack": "a hiking backpack",
+      "marshmallow": "a marshmallow on a stick",
+      "kettle": "a camping kettle",
+      "flashlight": "a flashlight",
+      "owl": "an owl",
+      "raccoon": "a raccoon",
+      "binoculars": "a pair of black binoculars",
+      "chair": "a folding camp chair",
+      "boots": "hiking boots",
+      "firefly": "a glowing firefly",
+      "fish": "a grilled fish on a stick",
+      "compass": "a compass"
+    },
+    "spriteZones": {
+      "tent": [
+        "ground"
+      ],
+      "campfire": [
+        "ground"
+      ],
+      "mug": [
+        "ground"
+      ],
+      "backpack": [
+        "ground"
+      ],
+      "marshmallow": [
+        "ground"
+      ],
+      "kettle": [
+        "ground"
+      ],
+      "flashlight": [
+        "ground"
+      ],
+      "owl": [
+        "sky"
+      ],
+      "raccoon": [
+        "ground"
+      ],
+      "binoculars": [
+        "ground"
+      ],
+      "chair": [
+        "ground"
+      ],
+      "boots": [
+        "ground"
+      ],
+      "firefly": [
+        "sky"
+      ],
+      "fish": [
+        "ground"
+      ],
+      "compass": [
+        "ground"
+      ]
+    },
+    "living": [
+      "owl",
+      "raccoon",
+      "firefly"
+    ],
+    "flippable": [
+      "tent",
+      "kettle",
+      "chair",
+      "boots",
+      "fish",
+      "raccoon"
+    ]
+  },
+  "rainyday": {
+    "background": "a rainy day street, soft grey sky with light rain lines, wet street with puddles filling the lower half, simple houses in the background",
+    "zones": {
+      "sky": [
+        [
+          12,
+          88,
+          4,
+          20
+        ]
+      ],
+      "street": [
+        [
+          6,
+          94,
+          62,
+          92
+        ]
+      ]
+    },
+    "sprites": {
+      "umbrella": "an open red umbrella, side view",
+      "raincoat": "a yellow raincoat",
+      "boots": "yellow rain boots",
+      "frog": "a green frog",
+      "snail": "a snail",
+      "puddle": "a small blue puddle",
+      "car": "a small blue car",
+      "cat": "a grey cat sitting",
+      "rainbow": "a small rainbow arc with two little clouds",
+      "cloud": "a small grey cloud",
+      "hydrangea": "a blue hydrangea flower",
+      "duck": "a duck",
+      "bucket": "a bucket",
+      "teruteru": "a teru teru bozu, white cloth ghost-shaped weather charm",
+      "bicycle": "a bicycle"
+    },
+    "spriteZones": {
+      "umbrella": [
+        "street"
+      ],
+      "raincoat": [
+        "street"
+      ],
+      "boots": [
+        "street"
+      ],
+      "frog": [
+        "street"
+      ],
+      "snail": [
+        "street"
+      ],
+      "puddle": [
+        "street"
+      ],
+      "car": [
+        "street"
+      ],
+      "cat": [
+        "street"
+      ],
+      "rainbow": [
+        "sky"
+      ],
+      "cloud": [
+        "sky"
+      ],
+      "hydrangea": [
+        "street"
+      ],
+      "duck": [
+        "street"
+      ],
+      "bucket": [
+        "street"
+      ],
+      "teruteru": [
+        "sky"
+      ],
+      "bicycle": [
+        "street"
+      ]
+    },
+    "living": [
+      "frog",
+      "snail",
+      "cat",
+      "duck"
+    ],
+    "flippable": [
+      "boots",
+      "snail",
+      "car",
+      "duck",
+      "bicycle"
+    ]
+  },
+  "autumn": {
+    "background": "an autumn forest, soft blue sky, trees with orange and yellow leaves at the edges, ground covered in fallen leaves filling the lower half",
+    "zones": {
+      "sky": [
+        [
+          15,
+          85,
+          4,
+          22
+        ]
+      ],
+      "ground": [
+        [
+          6,
+          94,
+          66,
+          92
+        ]
+      ]
+    },
+    "sprites": {
+      "maple": "a red maple leaf",
+      "acorn": "an acorn",
+      "grapes": "a bunch of purple grapes",
+      "mushroom": "a brown mushroom",
+      "squirrel": "a squirrel",
+      "persimmon": "an orange persimmon fruit with a green leaf",
+      "sweetpotato": "a single purple sweet potato",
+      "basket": "a basket",
+      "dragonfly": "a red dragonfly",
+      "ginkgo": "a yellow ginkgo leaf",
+      "hedgehog": "a hedgehog",
+      "pumpkin": "an orange pumpkin",
+      "leaves": "a small pile of autumn leaves",
+      "bird": "a small brown bird",
+      "rake": "a rake"
+    },
+    "spriteZones": {
+      "maple": [
+        "ground",
+        "sky"
+      ],
+      "acorn": [
+        "ground"
+      ],
+      "grapes": [
+        "ground"
+      ],
+      "mushroom": [
+        "ground"
+      ],
+      "squirrel": [
+        "ground"
+      ],
+      "persimmon": [
+        "ground"
+      ],
+      "sweetpotato": [
+        "ground"
+      ],
+      "basket": [
+        "ground"
+      ],
+      "dragonfly": [
+        "sky"
+      ],
+      "ginkgo": [
+        "ground",
+        "sky"
+      ],
+      "hedgehog": [
+        "ground"
+      ],
+      "pumpkin": [
+        "ground"
+      ],
+      "leaves": [
+        "ground"
+      ],
+      "bird": [
+        "sky"
+      ],
+      "rake": [
+        "ground"
+      ]
+    },
+    "living": [
+      "squirrel",
+      "dragonfly",
+      "hedgehog",
+      "bird"
+    ],
+    "flippable": [
+      "squirrel",
+      "hedgehog",
+      "bird",
+      "rake"
+    ]
+  },
+  "birthday": {
+    "background": "a birthday party room, pastel walls with bunting at the top, a long table across the middle, a wooden floor at the bottom",
+    "zones": {
+      "wall": [
+        [
+          12,
+          40,
+          32,
+          46
+        ],
+        [
+          60,
+          88,
+          30,
+          44
+        ]
+      ],
+      "table": [
+        [
+          30,
+          62,
+          56,
+          62
+        ],
+        [
+          76,
+          90,
+          56,
+          60
+        ]
+      ],
+      "floor": [
+        [
+          6,
+          94,
+          76,
+          94
+        ]
+      ]
+    },
+    "sprites": {
+      "cake": "a birthday cake with candles",
+      "present": "a wrapped present box",
+      "balloon": "a pink balloon",
+      "partyhat": "a party hat",
+      "cupcake": "a cupcake",
+      "candy": "a single wrapped candy",
+      "juice": "a cup of juice",
+      "teddybear": "a teddy bear",
+      "cracker": "a party popper cone with confetti",
+      "card": "a single folded greeting card",
+      "star": "a gold star decoration",
+      "icecream": "an ice cream",
+      "donut": "a donut",
+      "toycar": "a toy car",
+      "candle": "a birthday candle"
+    },
+    "spriteZones": {
+      "cake": [
+        "table"
+      ],
+      "present": [
+        "table",
+        "floor"
+      ],
+      "balloon": [
+        "wall"
+      ],
+      "partyhat": [
+        "table"
+      ],
+      "cupcake": [
+        "table"
+      ],
+      "candy": [
+        "table"
+      ],
+      "juice": [
+        "table"
+      ],
+      "teddybear": [
+        "floor"
+      ],
+      "cracker": [
+        "table"
+      ],
+      "card": [
+        "table"
+      ],
+      "star": [
+        "wall"
+      ],
+      "icecream": [
+        "table"
+      ],
+      "donut": [
+        "table"
+      ],
+      "toycar": [
+        "floor"
+      ],
+      "candle": [
+        "table"
+      ]
+    },
+    "living": [],
+    "flippable": [
+      "juice",
+      "toycar"
+    ]
+  },
+  "bakery": {
+    "background": "inside a cozy bakery, wooden shelves on the back wall, a long wooden counter across the lower middle, warm cream walls",
+    "zones": {
+      "shelf": [
+        [
+          3,
+          24,
+          22,
+          46
+        ],
+        [
+          74,
+          96,
+          24,
+          52
+        ]
+      ],
+      "counter": [
+        [
+          8,
+          34,
+          53,
+          58
+        ],
+        [
+          36,
+          66,
+          55,
+          59
+        ],
+        [
+          68,
+          94,
+          58,
+          64
+        ]
+      ]
+    },
+    "sprites": {
+      "croissant": "a single croissant",
+      "baguette": "a baguette",
+      "donut": "a donut",
+      "melonpan": "a round melon bread",
+      "cake": "a slice of strawberry cake",
+      "cookie": "a cookie",
+      "muffin": "a muffin",
+      "pretzel": "a single brown pretzel",
+      "tray": "a bread tray",
+      "tongs": "a pair of metal kitchen tongs",
+      "bag": "a paper bag",
+      "pie": "a single round apple pie",
+      "jam": "a jar of jam",
+      "rollingpin": "a single wooden rolling pin",
+      "loaf": "a loaf of bread"
+    },
+    "spriteZones": {
+      "croissant": [
+        "shelf",
+        "counter"
+      ],
+      "baguette": [
+        "shelf"
+      ],
+      "donut": [
+        "counter",
+        "shelf"
+      ],
+      "melonpan": [
+        "shelf",
+        "counter"
+      ],
+      "cake": [
+        "counter"
+      ],
+      "cookie": [
+        "counter",
+        "shelf"
+      ],
+      "muffin": [
+        "shelf",
+        "counter"
+      ],
+      "pretzel": [
+        "shelf"
+      ],
+      "tray": [
+        "counter"
+      ],
+      "tongs": [
+        "counter"
+      ],
+      "bag": [
+        "counter"
+      ],
+      "pie": [
+        "shelf"
+      ],
+      "jam": [
+        "shelf"
+      ],
+      "rollingpin": [
+        "counter"
+      ],
+      "loaf": [
+        "shelf"
+      ]
+    },
+    "living": [],
+    "flippable": [
+      "baguette",
+      "croissant",
+      "cake",
+      "loaf",
+      "rollingpin",
+      "tongs"
+    ]
+  },
+  "toyshop": {
+    "background": "inside a toy shop, colorful empty shelves on the back wall, a wooden floor in the lower part",
+    "zones": {
+      "shelf": [
+        [
+          4,
+          28,
+          26,
+          58
+        ],
+        [
+          72,
+          96,
+          28,
+          62
+        ],
+        [
+          40,
+          66,
+          40,
+          56
+        ]
+      ],
+      "floor": [
+        [
+          20,
+          80,
+          68,
+          94
+        ]
+      ]
+    },
+    "sprites": {
+      "teddybear": "a teddy bear",
+      "robot": "a toy robot",
+      "train": "a toy train",
+      "ball": "a striped ball",
+      "doll": "a doll",
+      "trumpet": "a yellow toy trumpet",
+      "kite": "a kite",
+      "blocks": "toy blocks",
+      "rockinghorse": "a rocking horse",
+      "car": "a toy car",
+      "drum": "a toy drum",
+      "puzzle": "a puzzle box",
+      "airplane": "a toy airplane",
+      "dinosaur": "a toy dinosaur",
+      "top": "a spinning top"
+    },
+    "spriteZones": {
+      "teddybear": [
+        "shelf",
+        "floor"
+      ],
+      "robot": [
+        "shelf"
+      ],
+      "train": [
+        "floor"
+      ],
+      "ball": [
+        "floor"
+      ],
+      "doll": [
+        "shelf"
+      ],
+      "trumpet": [
+        "shelf"
+      ],
+      "kite": [
+        "shelf"
+      ],
+      "blocks": [
+        "floor"
+      ],
+      "rockinghorse": [
+        "floor"
+      ],
+      "car": [
+        "shelf",
+        "floor"
+      ],
+      "drum": [
+        "floor"
+      ],
+      "puzzle": [
+        "shelf"
+      ],
+      "airplane": [
+        "shelf"
+      ],
+      "dinosaur": [
+        "shelf",
+        "floor"
+      ],
+      "top": [
+        "shelf"
+      ]
+    },
+    "living": [],
+    "flippable": [
+      "train",
+      "rockinghorse",
+      "car",
+      "airplane",
+      "dinosaur"
+    ]
+  },
+  "pond": {
+    "background": "a quiet pond in a park, soft blue sky, a round blue pond filling the middle, green grass around the edges",
+    "zones": {
+      "sky": [
+        [
+          12,
+          88,
+          6,
+          22
+        ]
+      ],
+      "pond": [
+        [
+          22,
+          80,
+          48,
+          68
+        ]
+      ],
+      "grass": [
+        [
+          6,
+          94,
+          80,
+          94
+        ]
+      ]
+    },
+    "sprites": {
+      "duck": "a duck",
+      "frog": "a frog on a lily pad",
+      "carp": "an orange koi fish",
+      "lilypad": "a lily pad",
+      "lotus": "a pink lotus flower",
+      "turtle": "a turtle",
+      "dragonfly": "a blue dragonfly",
+      "boat": "a small paper boat",
+      "heron": "a grey heron standing, side view",
+      "reed": "a cattail reed",
+      "snail": "a pond snail",
+      "swan": "a white swan",
+      "net": "a fishing net",
+      "butterfly": "a white butterfly",
+      "stone": "a stone"
+    },
+    "spriteZones": {
+      "duck": [
+        "pond"
+      ],
+      "frog": [
+        "pond"
+      ],
+      "carp": [
+        "pond"
+      ],
+      "lilypad": [
+        "pond"
+      ],
+      "lotus": [
+        "pond"
+      ],
+      "turtle": [
+        "grass"
+      ],
+      "dragonfly": [
+        "sky"
+      ],
+      "boat": [
+        "pond"
+      ],
+      "heron": [
+        "grass"
+      ],
+      "reed": [
+        "grass"
+      ],
+      "snail": [
+        "grass"
+      ],
+      "swan": [
+        "pond"
+      ],
+      "net": [
+        "grass"
+      ],
+      "butterfly": [
+        "sky"
+      ],
+      "stone": [
+        "grass"
+      ]
+    },
+    "living": [
+      "duck",
+      "frog",
+      "carp",
+      "turtle",
+      "dragonfly",
+      "heron",
+      "snail",
+      "swan",
+      "butterfly"
+    ],
+    "flippable": [
+      "duck",
+      "carp",
+      "turtle",
+      "heron",
+      "snail",
+      "swan"
+    ]
+  },
+  "jungle": {
+    "background": "a lush jungle, big green leaves and vines framing the edges, a sunny clearing in the middle, green ground at the bottom",
+    "zones": {
+      "canopy": [
+        [
+          15,
+          85,
+          10,
+          32
+        ]
+      ],
+      "ground": [
+        [
+          6,
+          94,
+          64,
+          92
+        ]
+      ]
+    },
+    "sprites": {
+      "monkey": "a monkey",
+      "parrot": "a red parrot",
+      "toucan": "a toucan",
+      "tiger": "a tiger",
+      "elephant": "an elephant",
+      "snake": "a green snake",
+      "frog": "a red tree frog",
+      "butterfly": "a blue butterfly",
+      "pineapple": "a pineapple",
+      "sloth": "a sloth",
+      "chameleon": "a chameleon",
+      "gorilla": "a cute grey gorilla sitting",
+      "flower": "a red tropical flower",
+      "coconut": "a coconut",
+      "crocodile": "a crocodile"
+    },
+    "spriteZones": {
+      "monkey": [
+        "canopy",
+        "ground"
+      ],
+      "parrot": [
+        "canopy"
+      ],
+      "toucan": [
+        "canopy"
+      ],
+      "tiger": [
+        "ground"
+      ],
+      "elephant": [
+        "ground"
+      ],
+      "snake": [
+        "ground"
+      ],
+      "frog": [
+        "ground"
+      ],
+      "butterfly": [
+        "canopy"
+      ],
+      "pineapple": [
+        "ground",
+        "canopy"
+      ],
+      "sloth": [
+        "canopy"
+      ],
+      "chameleon": [
+        "ground"
+      ],
+      "gorilla": [
+        "ground"
+      ],
+      "flower": [
+        "ground"
+      ],
+      "coconut": [
+        "ground"
+      ],
+      "crocodile": [
+        "ground"
+      ]
+    },
+    "living": [
+      "monkey",
+      "parrot",
+      "toucan",
+      "tiger",
+      "elephant",
+      "snake",
+      "frog",
+      "butterfly",
+      "sloth",
+      "chameleon",
+      "gorilla",
+      "crocodile"
+    ],
+    "flippable": [
+      "parrot",
+      "toucan",
+      "elephant",
+      "snake",
+      "chameleon",
+      "crocodile"
+    ]
+  },
+  "airport": {
+    "background": "an airport, bright blue sky, a wide grey runway and tarmac filling the lower half, a control tower far in the background",
+    "zones": {
+      "sky": [
+        [
+          8,
+          92,
+          6,
+          30
+        ]
+      ],
+      "tarmac": [
+        [
+          6,
+          94,
+          64,
+          92
+        ]
+      ]
+    },
+    "sprites": {
+      "airplane": "a single white passenger airplane, side view",
+      "jet": "a small blue jet",
+      "helicopter": "a red helicopter",
+      "suitcase": "a suitcase",
+      "cart": "a luggage cart",
+      "fueltruck": "a small fuel truck",
+      "cone": "an orange cone",
+      "windsock": "an orange and white striped windsock on a pole",
+      "bird": "a bird",
+      "cloud": "a white cloud",
+      "bus": "an airport bus",
+      "balloon": "a hot air balloon",
+      "propplane": "a small yellow propeller plane, side view",
+      "sunglasses": "a pair of sunglasses",
+      "tractor": "a small tow tractor"
+    },
+    "spriteZones": {
+      "airplane": [
+        "sky",
+        "tarmac"
+      ],
+      "jet": [
+        "sky"
+      ],
+      "helicopter": [
+        "sky"
+      ],
+      "suitcase": [
+        "tarmac"
+      ],
+      "cart": [
+        "tarmac"
+      ],
+      "fueltruck": [
+        "tarmac"
+      ],
+      "cone": [
+        "tarmac"
+      ],
+      "windsock": [
+        "tarmac"
+      ],
+      "bird": [
+        "sky"
+      ],
+      "cloud": [
+        "sky"
+      ],
+      "bus": [
+        "tarmac"
+      ],
+      "balloon": [
+        "sky"
+      ],
+      "propplane": [
+        "tarmac"
+      ],
+      "sunglasses": [
+        "tarmac"
+      ],
+      "tractor": [
+        "tarmac"
+      ]
+    },
+    "living": [
+      "bird"
+    ],
+    "flippable": [
+      "airplane",
+      "jet",
+      "helicopter",
+      "cart",
+      "fueltruck",
+      "bird",
+      "bus",
+      "tractor",
+      "windsock",
+      "propplane"
+    ]
+  },
+  "construction": {
+    "background": "a construction site, soft blue sky, a crane in the far background, light brown dirt ground filling the lower half",
+    "zones": {
+      "sky": [
+        [
+          4,
+          28,
+          6,
+          22
+        ],
+        [
+          60,
+          96,
+          6,
+          22
+        ]
+      ],
+      "ground": [
+        [
+          6,
+          94,
+          70,
+          94
+        ],
+        [
+          4,
+          28,
+          58,
+          70
+        ]
+      ]
+    },
+    "sprites": {
+      "excavator": "a yellow excavator",
+      "dumptruck": "an orange dump truck",
+      "bulldozer": "a single yellow bulldozer, side view",
+      "cone": "a traffic cone",
+      "drill": "a yellow power drill",
+      "shovel": "a shovel",
+      "bricks": "a stack of red bricks",
+      "wheelbarrow": "a wheelbarrow",
+      "mixer": "a cement mixer truck",
+      "hammer": "a hammer",
+      "ladder": "a ladder",
+      "barrier": "a red and white striped road barrier",
+      "pipe": "a single grey metal pipe",
+      "toolbox": "a red toolbox",
+      "bird": "a bird"
+    },
+    "spriteZones": {
+      "excavator": [
+        "ground"
+      ],
+      "dumptruck": [
+        "ground"
+      ],
+      "bulldozer": [
+        "ground"
+      ],
+      "cone": [
+        "ground"
+      ],
+      "drill": [
+        "ground"
+      ],
+      "shovel": [
+        "ground"
+      ],
+      "bricks": [
+        "ground"
+      ],
+      "wheelbarrow": [
+        "ground"
+      ],
+      "mixer": [
+        "ground"
+      ],
+      "hammer": [
+        "ground"
+      ],
+      "ladder": [
+        "ground"
+      ],
+      "barrier": [
+        "ground"
+      ],
+      "pipe": [
+        "ground"
+      ],
+      "toolbox": [
+        "ground"
+      ],
+      "bird": [
+        "sky"
+      ]
+    },
+    "living": [
+      "bird"
+    ],
+    "flippable": [
+      "excavator",
+      "dumptruck",
+      "bulldozer",
+      "wheelbarrow",
+      "mixer",
+      "hammer",
+      "bird",
+      "drill"
+    ]
+  }
+}

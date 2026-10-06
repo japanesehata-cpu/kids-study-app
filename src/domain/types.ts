@@ -175,28 +175,20 @@ export interface ClockQuestion {
   subSkill: string
 }
 
-export type SpotDifferenceDiffType = 'swap' | 'resize' | 'flip' | 'rotate'
+export type SpotDifferenceDiffType = 'missing' | 'swap' | 'resize' | 'flip'
 
-/** One item scattered freely across a spot-the-difference scene panel — not a grid cell.
- * Every item gets its own baseline size/rotation, even ones that don't differ between
- * panels, so a difference has to be found by comparing the two scenes rather than by
- * noticing "which cell looks off" (a flaw of the earlier fixed-grid version, where only
- * the differing cells ever varied from a uniform baseline). */
+/** One object placed in a まちがいさがし scene — a transparent illustrated sticker from the
+ * scene's theme (see spotScenes.ts, generated from scripts/spot-themes.json), on that theme's
+ * background illustration. */
 export interface SpotDifferenceItem {
-  iconId: string
-  /** 0-100, position within the scene panel */
+  /** Sprite id within the question's theme (images/spot/<theme>/<spriteId>.png). */
+  spriteId: string
+  /** 0-100, the object's center within the panel. */
   xPct: number
   yPct: number
-  /** Percent of the panel's own HEIGHT, not px and not width — see SpotDifferenceBoard.tsx's
-   * rendering (height% + aspect-ratio:1, so the item stays a true square on a panel that's
-   * itself a wide rectangle) and questionGenerators/spotDifference.ts's PANEL_ASPECT_RATIO
-   * (why the position math needs an assumed panel shape, not just a size). This is what lets
-   * the panel itself shrink to fit the available space on a phone (components.css's
-   * .spot-scene-panel) without the items inside overlapping/overflowing, since they always
-   * scale with whatever size the panel actually renders at. */
+  /** Height of the object's box, in % of the panel's HEIGHT; its width follows the sprite's
+   * own aspect ratio (see SpotSprite.aspect). */
   size: number
-  /** degrees */
-  rotate: number
   flipped: boolean
 }
 
@@ -204,12 +196,14 @@ export interface SpotDifferenceQuestion {
   id: string
   category: 'spotDifference'
   level: Level
-  /** the left ("reference") panel — always canonical */
+  /** Scene theme id (sea, forest, kitchen, ...) — picks the background and sprite set. */
+  theme: string
+  /** the top ("reference") picture — always complete */
   leftItems: SpotDifferenceItem[]
-  /** the right panel, same length/order/position as leftItems; entries at
-   * differenceIndexes differ (swapped icon, resized, rotated, or mirrored) */
-  rightItems: SpotDifferenceItem[]
-  /** indexes (into leftItems/rightItems) where the two panels actually differ — the tap targets */
+  /** the bottom picture, same order as leftItems; at differenceIndexes the object is
+   * missing (null), swapped for a different object, resized, or mirror-flipped */
+  rightItems: (SpotDifferenceItem | null)[]
+  /** indexes (into leftItems/rightItems) where the two pictures differ — the tap targets */
   differenceIndexes: number[]
   subSkill: string
 }

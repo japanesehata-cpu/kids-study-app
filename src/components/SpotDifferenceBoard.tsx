@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import type { SpotDifferenceItem, SpotDifferenceQuestion } from '../domain/types'
+import { SPOT_THEMES, type SpotTheme } from '../domain/spotScenes'
 import { useI18n } from '../i18n/I18nContext'
 import { playFoundSfx } from '../lib/sfx'
-import { WordIcon } from './WordIcon'
 
 /** Wrong taps allowed before the round ends in failure — a flat limit across every level,
  * matching the user's ask for a consistent "3 strikes" feel rather than a per-level value. */
@@ -23,65 +23,71 @@ interface WrongTap {
   index: number
 }
 
+const SPOT_IMAGE_BASE = `${import.meta.env.BASE_URL}images/spot`
+
+function spriteAspect(theme: SpotTheme | undefined, spriteId: string): number {
+  return theme?.sprites.find((sp) => sp.id === spriteId)?.aspect ?? 1
+}
+
 function ScenePanel({
+  themeId,
   items,
+  counterparts,
   panel,
   foundIndexes,
   wrongTap,
   disabled,
   onTap,
 }: {
-  items: SpotDifferenceItem[]
+  themeId: string
+  items: (SpotDifferenceItem | null)[]
+  /** The other picture's items — where this picture has nothing (a "missing" difference),
+   * the empty spot is still tappable, at the other picture's object's position. */
+  counterparts: (SpotDifferenceItem | null)[]
   panel: 'left' | 'right'
   foundIndexes: Set<number>
   wrongTap: WrongTap | null
   disabled: boolean
   onTap: (index: number) => void
 }) {
+  const theme = SPOT_THEMES.find((t) => t.id === themeId)
   return (
-    <div className="spot-scene-panel">
+    <div className="spot-scene-panel" style={{ backgroundImage: `url(${SPOT_IMAGE_BASE}/${themeId}/bg.jpg)` }}>
       {items.map((item, i) => {
+        const shown = item ?? counterparts[i]
+        if (!shown) return null
         const isFound = foundIndexes.has(i)
         const isWrong = wrongTap?.panel === panel && wrongTap.index === i
         return (
           <button
             key={i}
             type="button"
-            className={`spot-scene-item ${isFound ? 'found' : ''}`.trim()}
+            className={`spot-scene-item ${isFound ? 'found' : ''} ${item ? '' : 'spot-scene-item--empty'}`.trim()}
             style={{
-              left: `${item.xPct}%`,
-              top: `${item.yPct}%`,
-              // item.size is a % of the panel's own HEIGHT (see types.ts and
-              // questionGenerators/spotDifference.ts's PANEL_ASPECT_RATIO) — sized this
-              // way, not in px, so the scene shrinks together with the panel (see
-              // components.css's .spot-scene-panel) instead of overlapping once the panel
-              // gets small enough on a phone. aspectRatio (not a % width too) keeps every
-              // item a true square regardless of the panel's own wide-rectangle shape —
-              // setting both width% and height% would stretch these photos otherwise.
-              height: `${item.size}%`,
-              aspectRatio: '1',
-              // The button's own transform only ever centers/rotates/flips the item — a
-              // shake animation on this same property would wipe out that positioning
-              // (jumping the item to the top-left corner) every time it's applied. The
-              // shake instead lives on an inner wrapper (below) with its own, independent
-              // transform starting from identity.
-              transform: `translate(-50%, -50%) rotate(${item.rotate}deg) scaleX(${item.flipped ? -1 : 1})`,
+              left: `${shown.xPct}%`,
+              top: `${shown.yPct}%`,
+              // Height is a % of the panel; width follows the sticker's own proportions.
+              height: `${shown.size}%`,
+              aspectRatio: String(spriteAspect(theme, shown.spriteId)),
+              transform: 'translate(-50%, -50%)',
             }}
             onClick={() => onTap(i)}
             disabled={disabled}
-            aria-label={item.iconId}
+            aria-label={item ? item.spriteId : 'empty'}
           >
-            <span className={`spot-scene-item-inner ${isWrong ? 'wrong' : ''}`.trim()}>
-              <WordIcon wordId={item.iconId} size="100%" />
-            </span>
-            {isFound && (
-              <span
-                className="spot-found-badge"
-                style={{ transform: `rotate(${-item.rotate}deg) scaleX(${item.flipped ? -1 : 1})` }}
-              >
-                ✓
+            {item && (
+              // The shake lives on this inner element so its transform never wipes out the
+              // button's own centering transform.
+              <span className={`spot-scene-item-inner ${isWrong ? 'wrong' : ''}`.trim()}>
+                <img
+                  src={`${SPOT_IMAGE_BASE}/${themeId}/${item.spriteId}.png`}
+                  alt=""
+                  draggable={false}
+                  style={{ transform: item.flipped ? 'scaleX(-1)' : undefined }}
+                />
               </span>
             )}
+            {isFound && <span className="spot-found-ring" aria-hidden="true" />}
           </button>
         )
       })}
@@ -149,7 +155,9 @@ export function SpotDifferenceBoard({
       </div>
       <div className="spot-panels">
         <ScenePanel
+          themeId={question.theme}
           items={question.leftItems}
+          counterparts={question.rightItems}
           panel="left"
           foundIndexes={foundIndexes}
           wrongTap={wrongTap}
@@ -157,7 +165,9 @@ export function SpotDifferenceBoard({
           onTap={(i) => handleTap('left', i)}
         />
         <ScenePanel
+          themeId={question.theme}
           items={question.rightItems}
+          counterparts={question.leftItems}
           panel="right"
           foundIndexes={foundIndexes}
           wrongTap={wrongTap}

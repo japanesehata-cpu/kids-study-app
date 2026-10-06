@@ -33,6 +33,7 @@ import { getAlphabetById } from './alphabetBank'
 import { getWordById } from './wordBank'
 import { getCounterById } from './counterBank'
 import { getCoinById } from './moneyBank'
+import { SPOT_THEMES } from './spotScenes'
 
 export const SET_SIZE = 10
 /** Kept for the categories that still use the full 5-step scale. */
@@ -69,7 +70,7 @@ export const CATEGORY_MAX_LEVEL: Record<Category, Level> = {
   kanji2: 6,
   alphabet: 3,
   clock: 3,
-  spotDifference: 3,
+  spotDifference: 5,
   // No ★ levels at all (助数詞 redesign — see counterBank.ts/questionGenerators/
   // counting.ts) — same "fixed vocabulary pool, not a difficulty ladder" treatment as
   // englishSentence below. Reached directly from HomeScreen (no level-select screen in
@@ -151,7 +152,16 @@ function isCompatibleShape(q: Question): boolean {
     return typeof q.promptWord === 'string' && Array.isArray(q.answers) && Array.isArray(q.choices)
   }
   if (q.category === 'spotDifference') {
-    return Array.isArray(q.leftItems) && Array.isArray(q.rightItems) && Array.isArray(q.differenceIndexes)
+    // Also drops boards saved before the illustrated-scene redesign (no `theme`, items keyed
+    // by word-photo `iconId`), and any whose theme/sprite no longer exists.
+    const theme = SPOT_THEMES.find((t) => t.id === q.theme)
+    return (
+      !!theme &&
+      Array.isArray(q.leftItems) &&
+      Array.isArray(q.rightItems) &&
+      Array.isArray(q.differenceIndexes) &&
+      [...q.leftItems, ...q.rightItems].every((it) => it === null || theme.sprites.some((sp) => sp.id === it.spriteId))
+    )
   }
   if (q.category === 'englishSentence') {
     // Guards against a stored reviewQueue entry from before correctColorId/choiceColorIds
@@ -371,7 +381,7 @@ export function questionSignature(q: Question): string {
   if (q.category === 'alphabet') return `alphabet:${q.letterId}:${q.kind}:${q.answerChar}`
   if (q.category === 'clock') return `clock:${q.hour}:${q.minute}`
   if (q.category === 'spotDifference') {
-    return `spot:${q.leftItems.map((i) => i.iconId).join(',')}:${q.differenceIndexes.join(',')}`
+    return `spot:${q.theme}:${q.leftItems.map((i) => i.spriteId).join(',')}:${q.differenceIndexes.join(',')}`
   }
   if (q.category === 'counting') return `counting:${q.counterId}`
   if (q.category === 'money') {

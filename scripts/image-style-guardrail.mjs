@@ -22,6 +22,15 @@
 //    glossy, polished 3D-rendered objects matching the app's overall warm aesthetic. See
 //    generate-reward-images.mjs and DECORATION_STYLE_GUARDRAIL below.
 //
+// 4. SCENE ILLUSTRATION track — まちがいさがし (spot-the-difference) scenes only: themed
+//    background illustrations plus separate transparent object sprites the app composes
+//    into a scene. A picture-book illustration (not a photo) on purpose — chosen with the
+//    user (2026-10-05): a puzzle board needs objects that read instantly at small size and
+//    a coherent scene, which a soft outlined illustration gives and a pasted-together photo
+//    collage did not. Objects still stay recognizable as the real thing (no faces on
+//    inanimate objects, real proportions) since children also name what they spot. See
+//    generate-spot-scenes.mjs and SCENE_ILLUSTRATION_GUARDRAIL below.
+//
 // Model tier policy: character portraits and reward decorations are both reused everywhere
 // (home screen, quiz, results) and are relatively few in number, so both use one tier above
 // the cheapest — worth the extra cost. Word-bank flashcards use the cheapest currently-GA
@@ -54,3 +63,10 @@ export const DECORATION_STYLE_GUARDRAIL =
   'high-quality 3D animation rendering — like a premium mobile game reward icon. Avoid: ' +
   'realistic textures, dark shadows, muted colors, any face, eyes, or character. No text, ' +
   'no letters, no watermark, no logos.'
+
+/** Appended to every まちがいさがし scene/sprite prompt (see generate-spot-scenes.mjs). */
+export const SCENE_ILLUSTRATION_GUARDRAIL =
+  "Gentle children's picture-book illustration: clean soft dark-brown outlines, flat pastel " +
+  'colors with very light shading, simple readable shapes, warm and calm mood. Objects keep ' +
+  'their real shapes and proportions; no faces or eyes on inanimate objects. No text, no ' +
+  'letters, no numbers, no watermark, no logos.'

@@ -101,6 +101,8 @@ export const LEVEL_DESCRIPTION_KEY: Partial<Record<Category, Partial<Record<Leve
     1: 'levelDescSpotDifference1',
     2: 'levelDescSpotDifference2',
     3: 'levelDescSpotDifference3',
+    4: 'levelDescSpotDifference4',
+    5: 'levelDescSpotDifference5',
   },
   sudoku: {
     1: 'levelDescSudoku1',

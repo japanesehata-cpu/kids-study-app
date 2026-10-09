@@ -1,0 +1,510 @@
+{
+ "_doc": "まちがいさがし background differences drawn by AI (approach B): per theme, boxes [x0, x1, y0, y1] in % of the picture to repaint, and what should be there instead (mostly: the thing in the box is removed). Used by generate-spot-bg-inpaint.py. rejected: true = reviewed by eye and unusable.",
+ "sea": [
+  {
+   "id": "b1",
+   "box": [
+    12,
+    40,
+    18,
+    33
+   ],
+   "prompt": "clear bright blue sky, no clouds"
+  },
+  {
+   "id": "b2",
+   "box": [
+    78,
+    96,
+    9,
+    19
+   ],
+   "prompt": "clear bright blue sky, no clouds"
+  }
+ ],
+ "forest": [
+  {
+   "id": "b1",
+   "box": [
+    26,
+    44,
+    8,
+    75
+   ],
+   "prompt": "open green grass meadow, distant pale forest and blue sky, no tree"
+  },
+  {
+   "id": "b2",
+   "box": [
+    62,
+    82,
+    4,
+    13
+   ],
+   "prompt": "clear blue sky, no clouds",
+   "rejected": true
+  }
+ ],
+ "park": [
+  {
+   "id": "b1",
+   "box": [
+    26,
+    44,
+    19,
+    31
+   ],
+   "prompt": "clear blue sky, no clouds",
+   "rejected": true
+  },
+  {
+   "id": "b2",
+   "box": [
+    80,
+    96,
+    77,
+    92
+   ],
+   "prompt": "plain green grass lawn, no flowers"
+  },
+  {
+   "id": "b3",
+   "box": [
+    42,
+    62,
+    22,
+    55
+   ],
+   "prompt": "open green park lawn, distant small trees, blue sky, no big tree"
+  }
+ ],
+ "kitchen": [
+  {
+   "id": "b1",
+   "box": [
+    61,
+    69,
+    30,
+    42
+   ],
+   "prompt": "plain cream wall"
+  },
+  {
+   "id": "b2",
+   "box": [
+    84,
+    94,
+    58,
+    69
+   ],
+   "prompt": "empty wooden kitchen counter, cream wall",
+   "rejected": true
+  },
+  {
+   "id": "b3",
+   "box": [
+    49,
+    61,
+    61,
+    91
+   ],
+   "prompt": "white tiled kitchen floor, mint cabinets",
+   "rejected": true
+  }
+ ],
+ "kidsroom": [
+  {
+   "id": "b1",
+   "box": [
+    78,
+    91,
+    26,
+    41
+   ],
+   "prompt": "plain pink wall"
+  },
+  {
+   "id": "b2",
+   "box": [
+    20,
+    34,
+    55,
+    73
+   ],
+   "prompt": "pink wall and wooden floor, empty corner"
+  },
+  {
+   "id": "b3",
+   "box": [
+    86,
+    95,
+    48,
+    63
+   ],
+   "prompt": "plain pink wall"
+  }
+ ],
+ "nightsky": [
+  {
+   "id": "b1",
+   "box": [
+    58,
+    65,
+    32,
+    41
+   ],
+   "prompt": "dark blue night sky with tiny stars",
+   "rejected": true
+  },
+  {
+   "id": "b2",
+   "box": [
+    72,
+    95,
+    17,
+    31
+   ],
+   "prompt": "dark blue night sky with tiny stars, no clouds"
+  }
+ ],
+ "river": [
+  {
+   "id": "b1",
+   "box": [
+    9,
+    23,
+    12,
+    38
+   ],
+   "prompt": "green meadow and distant blue mountains, no tree"
+  },
+  {
+   "id": "b2",
+   "box": [
+    5,
+    24,
+    5,
+    15
+   ],
+   "prompt": "clear blue sky, no clouds"
+  },
+  {
+   "id": "b3",
+   "box": [
+    65,
+    79,
+    54,
+    82
+   ],
+   "prompt": "green grassy river bank, no stones"
+  }
+ ],
+ "snowfield": [
+  {
+   "id": "b1",
+   "box": [
+    7,
+    23,
+    8,
+    60
+   ],
+   "prompt": "snowy white field, blue sky, distant snowy mountains, no tree"
+  },
+  {
+   "id": "b2",
+   "box": [
+    85,
+    96,
+    8,
+    60
+   ],
+   "prompt": "snowy white field, blue sky, no tree",
+   "rejected": true
+  }
+ ],
+ "underwater": [
+  {
+   "id": "b1",
+   "box": [
+    6,
+    21,
+    58,
+    92
+   ],
+   "prompt": "smooth sandy sea floor, no coral"
+  },
+  {
+   "id": "b2",
+   "box": [
+    20,
+    38,
+    11,
+    22
+   ],
+   "prompt": "clear blue sky, no clouds"
+  },
+  {
+   "id": "b3",
+   "box": [
+    77,
+    94,
+    50,
+    80
+   ],
+   "prompt": "sandy sea floor and blue water, no seaweed"
+  }
+ ],
+ "space": [
+  {
+   "id": "b1",
+   "box": [
+    14,
+    33,
+    7,
+    31
+   ],
+   "prompt": "dark navy starry night sky, no planet"
+  },
+  {
+   "id": "b2",
+   "box": [
+    65,
+    81,
+    51,
+    63
+   ],
+   "prompt": "dark blue rolling hills, no mountain"
+  }
+ ],
+ "station": [
+  {
+   "id": "b1",
+   "box": [
+    60,
+    78,
+    7,
+    16
+   ],
+   "prompt": "clear blue sky, no clouds",
+   "rejected": true
+  },
+  {
+   "id": "b2",
+   "box": [
+    84,
+    95,
+    22,
+    62
+   ],
+   "prompt": "blue sky and railway platform, no pole"
+  },
+  {
+   "id": "b3",
+   "box": [
+    66,
+    83,
+    21,
+    36
+   ],
+   "prompt": "clear blue sky, no clouds"
+  }
+ ],
+ "bathroom": [
+  {
+   "id": "b1",
+   "box": [
+    62,
+    76,
+    21,
+    48
+   ],
+   "prompt": "light blue tiled wall, no window",
+   "rejected": true
+  },
+  {
+   "id": "b2",
+   "box": [
+    49,
+    57,
+    51,
+    69
+   ],
+   "prompt": "light blue tiled wall and floor, empty"
+  },
+  {
+   "id": "b3",
+   "box": [
+    79,
+    95,
+    27,
+    46
+   ],
+   "prompt": "light blue tiled wall, empty"
+  }
+ ],
+ "picnic": [
+  {
+   "id": "b1",
+   "box": [
+    51,
+    65,
+    51,
+    73
+   ],
+   "prompt": "red and white checkered picnic blanket"
+  },
+  {
+   "id": "b2",
+   "box": [
+    5,
+    25,
+    21,
+    39
+   ],
+   "prompt": "green meadow and blue sky, no trees"
+  }
+ ],
+ "camp": [
+  {
+   "id": "b1",
+   "box": [
+    15,
+    37,
+    54,
+    76
+   ],
+   "prompt": "green grass meadow, no tent"
+  },
+  {
+   "id": "b2",
+   "box": [
+    43,
+    51,
+    65,
+    77
+   ],
+   "prompt": "green grass, no fire"
+  },
+  {
+   "id": "b3",
+   "box": [
+    71,
+    83,
+    63,
+    77
+   ],
+   "prompt": "green grass, no table"
+  }
+ ],
+ "rainyday": [
+  {
+   "id": "b1",
+   "box": [
+    34,
+    53,
+    11,
+    21
+   ],
+   "prompt": "grey rainy sky, no clouds",
+   "rejected": true
+  },
+  {
+   "id": "b2",
+   "box": [
+    4,
+    11,
+    45,
+    63
+   ],
+   "prompt": "pink house wall, no door"
+  }
+ ],
+ "autumn": [
+  {
+   "id": "b1",
+   "box": [
+    45,
+    69,
+    9,
+    46
+   ],
+   "prompt": "blue sky and pale distant trees, no big tree"
+  },
+  {
+   "id": "b2",
+   "box": [
+    24,
+    41,
+    21,
+    33
+   ],
+   "prompt": "clear blue sky, no clouds",
+   "rejected": true
+  }
+ ],
+ "birthday": [
+  {
+   "id": "b1",
+   "box": [
+    25,
+    35,
+    41,
+    63
+   ],
+   "prompt": "plain turquoise wall, no balloons"
+  },
+  {
+   "id": "b2",
+   "box": [
+    71,
+    81,
+    37,
+    59
+   ],
+   "prompt": "plain turquoise wall, no balloons"
+  },
+  {
+   "id": "b3",
+   "box": [
+    33,
+    51,
+    41,
+    57
+   ],
+   "prompt": "turquoise wall and empty wooden counter"
+  }
+ ],
+ "construction": [
+  {
+   "id": "b1",
+   "box": [
+    4,
+    25,
+    17,
+    33
+   ],
+   "prompt": "clear blue sky, no clouds"
+  },
+  {
+   "id": "b2",
+   "box": [
+    5,
+    31,
+    46,
+    61
+   ],
+   "prompt": "flat dirt ground and blue sky, no building"
+  },
+  {
+   "id": "b3",
+   "box": [
+    29,
+    43,
+    63,
+    75
+   ],
+   "prompt": "flat brown dirt ground",
+   "rejected": true
+  }
+ ]
+}

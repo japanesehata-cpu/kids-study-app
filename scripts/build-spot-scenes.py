@@ -26,6 +26,10 @@ OUT = os.path.join(ROOT, "src", "domain", "spotScenes.ts")
 # Background differences (one recoloured area of bg.jpg each) — see build-spot-bg-variants.py.
 BG_DIFFS_PATH = os.path.join(ROOT, "scripts", "spot-bg-diffs.json")
 BG_DIFFS = json.load(open(BG_DIFFS_PATH)) if os.path.exists(BG_DIFFS_PATH) else {}
+# …plus the AI-repainted ones (generate-spot-bg-inpaint.py), listed per theme the same way.
+BG_INPAINT_PATH = os.path.join(ROOT, "scripts", "spot-bg-inpaint-diffs.json")
+for _theme, _diffs in (json.load(open(BG_INPAINT_PATH)) if os.path.exists(BG_INPAINT_PATH) else {}).items():
+    BG_DIFFS[_theme] = BG_DIFFS.get(_theme, []) + _diffs
 
 
 def mirror_difference(path):
@@ -85,7 +89,7 @@ lines = [
     "  partVariant: boolean",
     "}",
     "",
-    "/** One recoloured area of the background (bg__<id>.jpg); rect is [x0, x1, y0, y1] in % of the panel. */",
+    "/** One changed area of the background (bg__<id>.jpg — recoloured, or repainted by AI); rect is [x0, x1, y0, y1] in % of the panel. */",
     "export interface SpotBgDiff {",
     "  id: string",
     "  rect: [number, number, number, number]",

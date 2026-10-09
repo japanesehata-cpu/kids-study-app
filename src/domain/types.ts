@@ -211,7 +211,7 @@ export interface SpotDifferenceQuestion {
   differenceIndexes: number[]
   /** ★3+: one part of the BACKGROUND itself differs too — the bottom picture uses
    * bg__<id>.jpg, where the area at `rect` ([x0, x1, y0, y1], % of the panel) is a different
-   * colour. Counts as one of the board's differences; objects are never placed over it. */
+   * colour (d<N>) or was repainted (b<N>: a cloud gone, a chair turned into a plant). Counts as one of the board's differences; objects are never placed over it. */
   backgroundDiff?: { id: string; rect: [number, number, number, number] }
   subSkill: string
 }

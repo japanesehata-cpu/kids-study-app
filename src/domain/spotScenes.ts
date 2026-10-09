@@ -13,7 +13,7 @@ export interface SpotSprite {
   partVariant: boolean
 }
 
-/** One recoloured area of the background (bg__<id>.jpg); rect is [x0, x1, y0, y1] in % of the panel. */
+/** One changed area of the background (bg__<id>.jpg — recoloured, or repainted by AI); rect is [x0, x1, y0, y1] in % of the panel. */
 export interface SpotBgDiff {
   id: string
   rect: [number, number, number, number]
@@ -228,7 +228,26 @@ export const SPOT_THEMES: SpotTheme[] = [
         "partVariant": false
       }
     ],
-    "bgDiffs": []
+    "bgDiffs": [
+      {
+        "id": "b1",
+        "rect": [
+          12,
+          40,
+          18,
+          33
+        ]
+      },
+      {
+        "id": "b2",
+        "rect": [
+          78,
+          96,
+          9,
+          19
+        ]
+      }
+    ]
   },
   {
     "id": "forest",
@@ -403,7 +422,17 @@ export const SPOT_THEMES: SpotTheme[] = [
         "partVariant": false
       }
     ],
-    "bgDiffs": []
+    "bgDiffs": [
+      {
+        "id": "b1",
+        "rect": [
+          26,
+          44,
+          8,
+          75
+        ]
+      }
+    ]
   },
   {
     "id": "park",
@@ -580,7 +609,26 @@ export const SPOT_THEMES: SpotTheme[] = [
         "partVariant": false
       }
     ],
-    "bgDiffs": []
+    "bgDiffs": [
+      {
+        "id": "b2",
+        "rect": [
+          80,
+          96,
+          77,
+          92
+        ]
+      },
+      {
+        "id": "b3",
+        "rect": [
+          42,
+          62,
+          22,
+          55
+        ]
+      }
+    ]
   },
   {
     "id": "kitchen",
@@ -778,7 +826,17 @@ export const SPOT_THEMES: SpotTheme[] = [
         "partVariant": false
       }
     ],
-    "bgDiffs": []
+    "bgDiffs": [
+      {
+        "id": "b1",
+        "rect": [
+          61,
+          69,
+          30,
+          42
+        ]
+      }
+    ]
   },
   {
     "id": "kidsroom",
@@ -973,7 +1031,35 @@ export const SPOT_THEMES: SpotTheme[] = [
         "partVariant": false
       }
     ],
-    "bgDiffs": []
+    "bgDiffs": [
+      {
+        "id": "b1",
+        "rect": [
+          78,
+          91,
+          26,
+          41
+        ]
+      },
+      {
+        "id": "b2",
+        "rect": [
+          20,
+          34,
+          55,
+          73
+        ]
+      },
+      {
+        "id": "b3",
+        "rect": [
+          86,
+          95,
+          48,
+          63
+        ]
+      }
+    ]
   },
   {
     "id": "meadow",
@@ -1342,7 +1428,17 @@ export const SPOT_THEMES: SpotTheme[] = [
         "partVariant": false
       }
     ],
-    "bgDiffs": []
+    "bgDiffs": [
+      {
+        "id": "b2",
+        "rect": [
+          72,
+          95,
+          17,
+          31
+        ]
+      }
+    ]
   },
   {
     "id": "town",
@@ -2288,7 +2384,35 @@ export const SPOT_THEMES: SpotTheme[] = [
         "partVariant": false
       }
     ],
-    "bgDiffs": []
+    "bgDiffs": [
+      {
+        "id": "b1",
+        "rect": [
+          9,
+          23,
+          12,
+          38
+        ]
+      },
+      {
+        "id": "b2",
+        "rect": [
+          5,
+          24,
+          5,
+          15
+        ]
+      },
+      {
+        "id": "b3",
+        "rect": [
+          65,
+          79,
+          54,
+          82
+        ]
+      }
+    ]
   },
   {
     "id": "snowfield",
@@ -2463,7 +2587,17 @@ export const SPOT_THEMES: SpotTheme[] = [
         "partVariant": false
       }
     ],
-    "bgDiffs": []
+    "bgDiffs": [
+      {
+        "id": "b1",
+        "rect": [
+          7,
+          23,
+          8,
+          60
+        ]
+      }
+    ]
   },
   {
     "id": "underwater",
@@ -2638,7 +2772,35 @@ export const SPOT_THEMES: SpotTheme[] = [
         "partVariant": false
       }
     ],
-    "bgDiffs": []
+    "bgDiffs": [
+      {
+        "id": "b1",
+        "rect": [
+          6,
+          21,
+          58,
+          92
+        ]
+      },
+      {
+        "id": "b2",
+        "rect": [
+          20,
+          38,
+          11,
+          22
+        ]
+      },
+      {
+        "id": "b3",
+        "rect": [
+          77,
+          94,
+          50,
+          80
+        ]
+      }
+    ]
   },
   {
     "id": "space",
@@ -2819,7 +2981,26 @@ export const SPOT_THEMES: SpotTheme[] = [
         "partVariant": false
       }
     ],
-    "bgDiffs": []
+    "bgDiffs": [
+      {
+        "id": "b1",
+        "rect": [
+          14,
+          33,
+          7,
+          31
+        ]
+      },
+      {
+        "id": "b2",
+        "rect": [
+          65,
+          81,
+          51,
+          63
+        ]
+      }
+    ]
   },
   {
     "id": "station",
@@ -3008,7 +3189,26 @@ export const SPOT_THEMES: SpotTheme[] = [
         "partVariant": false
       }
     ],
-    "bgDiffs": []
+    "bgDiffs": [
+      {
+        "id": "b2",
+        "rect": [
+          84,
+          95,
+          22,
+          62
+        ]
+      },
+      {
+        "id": "b3",
+        "rect": [
+          66,
+          83,
+          21,
+          36
+        ]
+      }
+    ]
   },
   {
     "id": "supermarket",
@@ -3588,7 +3788,26 @@ export const SPOT_THEMES: SpotTheme[] = [
         "partVariant": false
       }
     ],
-    "bgDiffs": []
+    "bgDiffs": [
+      {
+        "id": "b2",
+        "rect": [
+          49,
+          57,
+          51,
+          69
+        ]
+      },
+      {
+        "id": "b3",
+        "rect": [
+          79,
+          95,
+          27,
+          46
+        ]
+      }
+    ]
   },
   {
     "id": "picnic",
@@ -3764,7 +3983,26 @@ export const SPOT_THEMES: SpotTheme[] = [
         "partVariant": true
       }
     ],
-    "bgDiffs": []
+    "bgDiffs": [
+      {
+        "id": "b1",
+        "rect": [
+          51,
+          65,
+          51,
+          73
+        ]
+      },
+      {
+        "id": "b2",
+        "rect": [
+          5,
+          25,
+          21,
+          39
+        ]
+      }
+    ]
   },
   {
     "id": "camp",
@@ -3938,7 +4176,35 @@ export const SPOT_THEMES: SpotTheme[] = [
         "partVariant": false
       }
     ],
-    "bgDiffs": []
+    "bgDiffs": [
+      {
+        "id": "b1",
+        "rect": [
+          15,
+          37,
+          54,
+          76
+        ]
+      },
+      {
+        "id": "b2",
+        "rect": [
+          43,
+          51,
+          65,
+          77
+        ]
+      },
+      {
+        "id": "b3",
+        "rect": [
+          71,
+          83,
+          63,
+          77
+        ]
+      }
+    ]
   },
   {
     "id": "rainyday",
@@ -4112,7 +4378,17 @@ export const SPOT_THEMES: SpotTheme[] = [
         "partVariant": false
       }
     ],
-    "bgDiffs": []
+    "bgDiffs": [
+      {
+        "id": "b2",
+        "rect": [
+          4,
+          11,
+          45,
+          63
+        ]
+      }
+    ]
   },
   {
     "id": "autumn",
@@ -4288,7 +4564,17 @@ export const SPOT_THEMES: SpotTheme[] = [
         "partVariant": false
       }
     ],
-    "bgDiffs": []
+    "bgDiffs": [
+      {
+        "id": "b1",
+        "rect": [
+          45,
+          69,
+          9,
+          46
+        ]
+      }
+    ]
   },
   {
     "id": "birthday",
@@ -4483,7 +4769,35 @@ export const SPOT_THEMES: SpotTheme[] = [
         "partVariant": false
       }
     ],
-    "bgDiffs": []
+    "bgDiffs": [
+      {
+        "id": "b1",
+        "rect": [
+          25,
+          35,
+          41,
+          63
+        ]
+      },
+      {
+        "id": "b2",
+        "rect": [
+          71,
+          81,
+          37,
+          59
+        ]
+      },
+      {
+        "id": "b3",
+        "rect": [
+          33,
+          51,
+          41,
+          57
+        ]
+      }
+    ]
   },
   {
     "id": "bakery",
@@ -5656,6 +5970,25 @@ export const SPOT_THEMES: SpotTheme[] = [
         "partVariant": false
       }
     ],
-    "bgDiffs": []
+    "bgDiffs": [
+      {
+        "id": "b1",
+        "rect": [
+          4,
+          25,
+          17,
+          33
+        ]
+      },
+      {
+        "id": "b2",
+        "rect": [
+          5,
+          31,
+          46,
+          61
+        ]
+      }
+    ]
   }
 ]

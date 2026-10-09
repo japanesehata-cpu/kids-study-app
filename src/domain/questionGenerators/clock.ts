@@ -1,6 +1,7 @@
 import type { ClockQuestion, Level } from '../types'
 import type { Lang } from '../../i18n/dictionary'
 import { shuffle } from '../../lib/shuffle'
+import { minuteSuffix } from '../answerSpeech'
 
 function makeId(): string {
   return `clock-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
@@ -48,7 +49,7 @@ export function formatClockKey(key: string, lang: Lang): string {
   if (lang === 'ja') {
     if (minute === 0) return `${hour}じ`
     if (minute === 30) return `${hour}じはん`
-    return `${hour}じ${minute}ふん`
+    return `${hour}じ${minute}${minuteSuffix(minute)}`
   }
   return `${hour}:${String(minute).padStart(2, '0')}`
 }

@@ -456,6 +456,14 @@ export const dictionary = {
     ja: 'ぼくは アル！ アルファベットの ブロックあそびが だいすきな アルパカだよ！ おおもじと こもじ、いっしょに おぼえようね！',
     en: "I'm Aru! I'm an alpaca who loves playing with ABC blocks. Let's learn uppercase and lowercase letters together!",
   },
+  introKanji: {
+    ja: 'ぼくは アル！ かんじの なりたちを しらべるのが だいすきな アルパカだよ！ いっしょに かんじを よめるように なろうね！',
+    en: "I'm Aru! I'm an alpaca who loves finding out how kanji are made. Let's learn to read kanji together!",
+  },
+  introMoney: {
+    ja: 'わたし ぺこ！ おかいものごっこが だいすきな オウムだよ！ おかねを かぞえて、いっしょに おかいもの しようね！',
+    en: "I'm Peko! I'm a parrot who loves playing shop. Let's count coins and go shopping together!",
+  },
   introKaku: {
     ja: 'ぼくは かく！ かたちあわせが だいすきな はりねずみだよ！ まるや さんかく、しかく、いっしょに みつけようね！',
     en: "I'm Kaku! I'm a hedgehog who loves shape-sorting games. Let's find circles, triangles, and squares together!",

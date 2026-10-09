@@ -1,4 +1,4 @@
-import { speak, type SpeechLang, type VoiceProfile } from '../lib/tts'
+import { speak, speakSequence, type SpeechLang, type SpeechPart, type VoiceProfile } from '../lib/tts'
 
 interface TtsButtonProps {
   text: string
@@ -9,9 +9,12 @@ interface TtsButtonProps {
   /** Plays a pre-rendered file first when one exists for this exact phrase — see
    * scripts/generate-tts-cache.mjs — falling back to live synthesis otherwise. */
   cacheKey?: string
+  /** When set, spoken instead of `text` as these pre-rendered parts in order (a sentence
+   * whose middle varies, e.g. とけい「あわせる」's time). */
+  parts?: SpeechPart[]
 }
 
-export function TtsButton({ text, lang, label, size = 72, voiceProfile, cacheKey }: TtsButtonProps) {
+export function TtsButton({ text, lang, label, size = 72, voiceProfile, cacheKey, parts }: TtsButtonProps) {
   // `size` is the button's max/desktop size — actual size shrinks toward a still-tappable
   // floor on a short viewport, same clamp()/vh discipline as .screen/.card-panel, since
   // this button appears on nearly every quiz screen and its old fixed px size was a real
@@ -20,7 +23,7 @@ export function TtsButton({ text, lang, label, size = 72, voiceProfile, cacheKey
   return (
     <button
       type="button"
-      onClick={() => speak(text, lang, voiceProfile, cacheKey)}
+      onClick={() => (parts ? speakSequence(parts, lang, voiceProfile) : speak(text, lang, voiceProfile, cacheKey))}
       aria-label={label}
       style={{
         width,

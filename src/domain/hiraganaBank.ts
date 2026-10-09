@@ -491,7 +491,7 @@ export function getHiraganaById(id: string): HiraganaEntry {
 // for the spoken text; the on-screen glyph (entry.char) is left untouched.
 const PARTICLE_READING_FIX: Partial<Record<string, string>> = { は: 'ハ', へ: 'ヘ', を: 'ヲ' }
 
-function speechSafeChar(char: string): string {
+export function speechSafeChar(char: string): string {
   return PARTICLE_READING_FIX[char] ?? char
 }
 

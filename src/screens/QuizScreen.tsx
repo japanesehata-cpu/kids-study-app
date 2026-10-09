@@ -39,7 +39,7 @@ import {
   buildMoneyFailedFeedback,
 } from '../domain/feedbackMessages'
 import { buildExplanation } from '../domain/explanations'
-import { speak, type SpeechLang, type VoiceProfile } from '../lib/tts'
+import { speak, speakSequence, type SpeechLang, type SpeechPart, type VoiceProfile } from '../lib/tts'
 import { playCorrectSfx, playIncorrectSfx } from '../lib/sfx'
 import { useI18n } from '../i18n/I18nContext'
 import { dictionary, type Lang, type DictionaryKey } from '../i18n/dictionary'
@@ -59,6 +59,8 @@ import { RewardRain } from '../components/RewardRain'
 import { CategoryHeader } from '../components/CategoryHeader'
 import { useResponsiveSize } from '../lib/useResponsiveSize'
 import { oppositeWordKey } from '../domain/oppositeBank'
+import { clockTimeSpeech, SET_TIME_PROMPT_AFTER, SET_TIME_PROMPT_BEFORE } from '../domain/answerSpeech'
+import { computeAnswerSpeech } from '../domain/answerSpeechFor'
 
 interface QuizScreenProps {
   category: Category
@@ -240,7 +242,7 @@ function computeAutoSpeech(
   question: Question,
   lang: Lang,
   t: (key: DictionaryKey, vars?: Record<string, string | number>) => string,
-): { text: string; speechLang: SpeechLang; cacheKey?: string } {
+): { text: string; speechLang: SpeechLang; cacheKey?: string; parts?: SpeechPart[] } {
   const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
   const ja = lang === 'ja'
 
@@ -300,7 +302,13 @@ function computeAutoSpeech(
   }
   if (isClock(question)) {
     if (question.kind === 'setTime') {
-      return { text: buildSetTimePrompt(question.hour, question.minute, lang), speechLang }
+      const text = buildSetTimePrompt(question.hour, question.minute, lang)
+      // The time in the middle varies (720 possibilities), so it's spoken as pre-rendered
+      // pieces rather than one live-synthesized sentence.
+      const parts = ja
+        ? [SET_TIME_PROMPT_BEFORE, ...clockTimeSpeech(question.hour, question.minute), SET_TIME_PROMPT_AFTER]
+        : undefined
+      return { text, speechLang, parts }
     }
     return { text: t('clockPrompt'), speechLang, cacheKey: ja ? 'prompt-clock' : undefined }
   }
@@ -738,6 +746,7 @@ function ClockSetTimeView({
   lang,
   voiceProfile,
   cacheKey,
+  parts,
   onSubmit,
   disabled,
 }: {
@@ -747,6 +756,7 @@ function ClockSetTimeView({
   lang: Lang
   voiceProfile: VoiceProfile
   cacheKey?: string
+  parts?: SpeechPart[]
   onSubmit: (choice: string) => void
   disabled: boolean
 }) {
@@ -769,7 +779,14 @@ function ClockSetTimeView({
       {/* Once answered, these two have nothing left to do (できた！ is disabled) — hiding
           them makes room for the feedback below without shrinking the big clock. */}
       {!disabled && (
-        <TtsButton text={promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
+        <TtsButton
+          text={promptText}
+          lang={speechLang}
+          label="listen"
+          voiceProfile={voiceProfile}
+          cacheKey={cacheKey}
+          parts={parts}
+        />
       )}
       <InteractiveClock
         key={question.id}
@@ -1055,7 +1072,8 @@ export function QuizScreen({
   // except when there's genuinely nothing to say (spot-the-difference's empty text, see
   // computeAutoSpeech above), in which case speak() is skipped rather than voicing silence.
   useEffect(() => {
-    if (autoSpeech.text) speak(autoSpeech.text, autoSpeech.speechLang, voiceProfile, autoSpeech.cacheKey)
+    if (autoSpeech.parts) speakSequence(autoSpeech.parts, autoSpeech.speechLang, voiceProfile)
+    else if (autoSpeech.text) speak(autoSpeech.text, autoSpeech.speechLang, voiceProfile, autoSpeech.cacheKey)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [question])
 
@@ -1140,7 +1158,15 @@ export function QuizScreen({
           : isMoney(question) && choice === MONEY_FAILED
             ? buildMoneyFailedFeedback(lang)
             : buildFeedbackMessage(
-                { correct, streak: newStreak, justBrokeStreak, correctAnswerLabel, answerCacheKey, category },
+                {
+                  correct,
+                  streak: newStreak,
+                  justBrokeStreak,
+                  correctAnswerLabel,
+                  answerCacheKey,
+                  answerSpeech: computeAnswerSpeech(question),
+                  category,
+                },
                 lang,
               )
     setFeedbackText(feedback.text)
@@ -1291,6 +1317,7 @@ export function QuizScreen({
             lang={lang}
             voiceProfile={voiceProfile}
             cacheKey={autoSpeech.cacheKey}
+            parts={autoSpeech.parts}
             onSubmit={(choice) => handleSelect(choice)}
             disabled={selected !== null}
           />

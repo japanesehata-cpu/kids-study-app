@@ -54,15 +54,15 @@ const INTRO_KEY_BY_CATEGORY: Record<Category, DictionaryKey> = {
   logic: 'introKoko',
   hiragana: 'introYui',
   katakana: 'introPeko',
-  // Stand-in for kanji's not-yet-generated "fumi" mascot (see characterThemes.ts) — reuses
-  // yui's own intro line/voice, same reuse as everywhere else in this map.
-  kanji: 'introYui',
-  kanji2: 'introYui',
+  // kanji/money borrow aru's/peko's portrait and voice (see characterThemes.ts), so their
+  // lines are spoken as those characters.
+  kanji: 'introKanji',
+  kanji2: 'introKanji',
   alphabet: 'introAru',
   clock: 'introToki',
   spotDifference: 'introMitsu',
   counting: 'introKazu',
-  money: 'introKazu',
+  money: 'introMoney',
   englishSentence: 'introHana',
   sudoku: 'introKoko',
   missingOperandAddition: 'introMomo',

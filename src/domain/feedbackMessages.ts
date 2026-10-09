@@ -22,6 +22,9 @@ export interface FeedbackContext {
    * pronunciations). Every other category's answer (a number, hiragana char, ...) is
    * effectively unbounded and stays live/uncached. */
   answerCacheKey?: string
+  /** How the answer is spoken, as pre-rendered parts (see answerSpeech.ts) — replaces the
+   * single live-synthesized `correctAnswerLabel` segment when set. */
+  answerSpeech?: FeedbackSpeechSegment[]
   /** Feedback is spoken in the current category's character voice (see voiceProfile in
    * QuizScreen.tsx), so cache keys must be namespaced per category too — otherwise every
    * category's differently-voiced take on e.g. "せいかい！すごい！" would collide on the
@@ -244,7 +247,8 @@ export function buildFeedbackMessage(ctx: FeedbackContext, lang: Lang): Feedback
       ctx.category === 'englishSentence'
         ? 'en-US'
         : undefined
-    speech.push({ text: ctx.correctAnswerLabel, speechLang: answerSpeechLang, cacheKey: ctx.answerCacheKey })
+    if (ctx.answerSpeech && lang === 'ja') speech.push(...ctx.answerSpeech)
+    else speech.push({ text: ctx.correctAnswerLabel, speechLang: answerSpeechLang, cacheKey: ctx.answerCacheKey })
   }
   if (afterText) speech.push({ text: afterText, cacheKey: afterCacheKey })
 

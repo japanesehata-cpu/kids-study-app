@@ -481,9 +481,14 @@ const SPEAK_AS_CHAR = new Set<string>(
   '一二三四五六七八九十金空雨天人名女男子王生学校目耳口手足音赤青白上下中左右犬貝虫石花草竹森林山川田町村円千百玉車糸気休字夕文本力雲雪星晴風光海池谷岩原地春夏秋冬朝昼夜前間週曜毎今半父母兄姉弟妹友親自頭顔首心体声牛馬鳥魚羽肉麦茶弓矢刀紙絵色黒黄丸角線点形東西南北方内外門戸家寺店道京国市里園場社工室船汽電台歌答用交活算数計記図画理科番才当万何組',
 )
 
+/** What the kanji itself is read as when spoken alone (an answer, the start of its phrase). */
+export function kanjiSpokenReading(entry: KanjiEntry): string {
+  return SPEAK_AS_CHAR.has(entry.char) ? entry.char : entry.reading
+}
+
 /** The reading quiz's spoken prompt: the reading, then a phrase that uses the kanji
  * (「あめ。雨が ふる」). */
 export function kanjiSpeechPhrase(entry: KanjiEntry): string {
-  const spoken = SPEAK_AS_CHAR.has(entry.char) ? entry.char : entry.reading
+  const spoken = kanjiSpokenReading(entry)
   return `${spoken}。${entry.hint}`
 }

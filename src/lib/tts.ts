@@ -1,4 +1,5 @@
 import { setBgmDucked } from './bgm'
+import { getContext } from './sfx'
 import { isLocalDevHost, isVoicevoxAvailable, resolveVoicevoxSpeakerId, synthesizeVoicevox } from './voicevox'
 
 export type SpeechLang = 'ja-JP' | 'en-US'
@@ -111,6 +112,22 @@ function checkLocalVoiceAvailable(lang: SpeechLang): Promise<boolean> {
 // whatever is currently playing immediately.
 let callToken = 0
 let currentAudio: HTMLAudioElement | null = null
+let currentSource: AudioBufferSourceNode | null = null
+
+function stopCurrentPlayback(): void {
+  if (currentAudio) {
+    currentAudio.pause()
+    currentAudio = null
+  }
+  if (currentSource) {
+    try {
+      currentSource.stop()
+    } catch {
+      // already stopped
+    }
+    currentSource = null
+  }
+}
 
 /** Plays a Blob as the current tracked audio, respecting the cancellation token.
  * Resolves true once playback finishes (or is superseded), false if it never started. */
@@ -147,10 +164,49 @@ async function playBlob(blob: Blob, token: number, playbackRate?: number): Promi
 // doesn't exist yet (before the cache is generated, or for text with no fixed phrase).
 const AUDIO_CACHE_BASE = `${import.meta.env.BASE_URL}audio`
 
+/** Plays a cached file through the shared Web Audio context (the same one BGM and the sound
+ * effects use). iOS Safari only lets an <audio> element start playing inside a tap handler,
+ * so a phrase started a moment later — the automatic reading when a question appears, the
+ * next segment of a feedback sentence after the previous one ends — was rejected there and
+ * silently fell through to the robotic browser voice. Once the context has been unlocked by
+ * any tap it can start sounds at any time. Resolves true if it played (or was superseded),
+ * false if the file doesn't exist / couldn't be decoded, null if Web Audio isn't usable yet. */
+async function playCachedWithWebAudio(url: string, token: number): Promise<boolean | null> {
+  const ctx = getContext()
+  if (!ctx || ctx.state !== 'running') return null
+  let buffer: AudioBuffer
+  try {
+    const res = await fetch(url)
+    if (!res.ok) return false
+    buffer = await ctx.decodeAudioData(await res.arrayBuffer())
+  } catch {
+    return false
+  }
+  if (token !== callToken) return true
+  const source = ctx.createBufferSource()
+  source.buffer = buffer
+  source.connect(ctx.destination)
+  currentSource = source
+  await new Promise<void>((resolve) => {
+    source.onended = () => resolve()
+    source.start()
+  })
+  if (currentSource === source) currentSource = null
+  return true
+}
+
 /** Resolves true if the cached file played, false if it doesn't exist / failed to load. */
 async function speakWithCachedFile(cacheKey: string, token: number): Promise<boolean> {
   if (token !== callToken) return true
-  const audio = new Audio(`${AUDIO_CACHE_BASE}/${cacheKey}.wav`)
+  const url = `${AUDIO_CACHE_BASE}/${cacheKey}.wav`
+  const viaWebAudio = await playCachedWithWebAudio(url, token)
+  if (viaWebAudio !== null) {
+    if (!viaWebAudio) logFallback('cached file missing or undecodable', cacheKey)
+    return viaWebAudio
+  }
+  // Before the first tap has unlocked the audio context (e.g. the very first sound, played
+  // from inside that tap's own handler): an <audio> element, which IS allowed there.
+  const audio = new Audio(url)
   currentAudio = audio
   const played = await new Promise<boolean>((resolve) => {
     audio.onended = () => resolve(true)
@@ -158,7 +214,14 @@ async function speakWithCachedFile(cacheKey: string, token: number): Promise<boo
     audio.play().catch(() => resolve(false))
   })
   if (currentAudio === audio) currentAudio = null
+  if (!played) logFallback('<audio> playback failed', cacheKey)
   return played
+}
+
+/** Dev aid: every time a phrase can't use its pre-rendered file and drops to a live engine
+ * (on a phone: the browser's own voice), say so in the console. */
+function logFallback(reason: string, detail: string): void {
+  if (import.meta.env.DEV) console.warn(`[tts] ${reason}: ${detail}`)
 }
 
 /** Resolves true if audio played or was intentionally skipped (superseded), false if the caller should fall back. */
@@ -207,6 +270,22 @@ async function speakWithLocalVoice(text: string, token: number, profile: VoicePr
  * the machine actually running them. Falls through to VOICEVOX (Japanese only), then the
  * local voice server (either language, one server process per voice — see
  * LOCAL_VOICE_SERVER_URL), then the browser's built-in TTS. */
+export interface SpeechPart {
+  text: string
+  cacheKey?: string
+  speechLang?: SpeechLang
+}
+
+/** Speaks several parts back to back (each with its own pre-rendered file), stopping early
+ * as soon as anything else starts speaking. */
+export async function speakSequence(parts: SpeechPart[], lang: SpeechLang, profile: VoiceProfile = DEFAULT_VOICE_PROFILE) {
+  for (const part of parts) {
+    const ownToken = callToken + 1 // speak() takes this token synchronously
+    await speak(part.text, part.speechLang ?? lang, profile, part.cacheKey).catch(() => {})
+    if (callToken !== ownToken) return
+  }
+}
+
 export async function speak(
   text: string,
   lang: SpeechLang,
@@ -215,10 +294,7 @@ export async function speak(
 ): Promise<void> {
   const token = ++callToken
   window.speechSynthesis?.cancel()
-  if (currentAudio) {
-    currentAudio.pause()
-    currentAudio = null
-  }
+  stopCurrentPlayback()
 
   // BGM dips for as long as anything is being said. Only the latest call un-ducks — a
   // superseded call's tail end must not bring the music back up mid-sentence of the newer one.
@@ -241,6 +317,8 @@ async function speakTiers(
     if (token !== callToken) return
     const played = await speakWithCachedFile(cacheKey, token)
     if (played) return
+  } else if (lang === 'ja-JP') {
+    logFallback('no pre-rendered audio for', text)
   }
 
   if (lang === 'ja-JP' && profile.voicevoxSpeaker !== undefined && (await isVoicevoxAvailable())) {

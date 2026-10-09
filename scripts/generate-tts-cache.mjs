@@ -37,9 +37,26 @@ import { characterThemes } from '../src/components/characters/characterThemes.ts
 import { CATEGORY_META } from '../src/domain/categoryMeta.ts'
 import { counterBank } from '../src/domain/counterBank.ts'
 import { oppositeWords, oppositeWordKey } from '../src/domain/oppositeBank.ts'
-import { hiraganaBank, hiraganaSpeechPhrase } from '../src/domain/hiraganaBank.ts'
+import { hiraganaBank, hiraganaSpeechPhrase, speechSafeChar } from '../src/domain/hiraganaBank.ts'
 import { katakanaBank, katakanaSpeechPhrase } from '../src/domain/katakanaBank.ts'
-import { kanjiBank, kanjiSpeechPhrase } from '../src/domain/kanjiBank.ts'
+import { kanjiBank, kanjiSpeechPhrase, kanjiSpokenReading } from '../src/domain/kanjiBank.ts'
+import { eligibleWordBank } from '../src/domain/wordBank.ts'
+import {
+  NUMBER_ANSWERS,
+  MONEY_ANSWERS,
+  PATTERN_SYMBOL_NAMES,
+  SET_TIME_PROMPT_AFTER,
+  SET_TIME_PROMPT_BEFORE,
+  clockTimeSpeech,
+  countingAnswerSpeech,
+  kanaAnswerSpeech,
+  kanjiAnswerSpeech,
+  moneyAnswerSpeech,
+  numberAnswerSpeech,
+  oddOneOutAnswerSpeech,
+  oppositeAnswerSpeech,
+  patternAnswerSpeech,
+} from '../src/domain/answerSpeech.ts'
 import { enumerateFeedbackCacheEntries } from '../src/domain/feedbackMessages.ts'
 import { HANDWRITING_PRAISE_JA } from '../src/domain/handwritingPraise.ts'
 import { buildAdditionStory, buildSubtractionStory } from '../src/domain/questionGenerators/wordProblems.ts'
@@ -130,13 +147,13 @@ function buildJobs() {
     logic: 'introKoko',
     hiragana: 'introYui',
     katakana: 'introPeko',
-    kanji: 'introYui',
-    kanji2: 'introYui',
+    kanji: 'introKanji',
+    kanji2: 'introKanji',
     alphabet: 'introAru',
     clock: 'introToki',
     spotDifference: 'introMitsu',
     counting: 'introKazu',
-    money: 'introKazu',
+    money: 'introMoney',
     englishSentence: 'introHana',
     sudoku: 'introKoko',
     missingOperandAddition: 'introMomo',
@@ -467,6 +484,32 @@ function buildJobs() {
       })
     }
   }
+
+  // The ANSWER part of every wrong-answer message (「こたえは ___ だよ」) and とけい「あわせる」's
+  // prompt, in each category's own voice — see src/domain/answerSpeech.ts.
+  const answerJob = (category, part) => ({ ...part, ...speakerJob(category) })
+  const speakerJob = (category) => {
+    const { name, style } = speakerFor(category)
+    return { speakerName: name, styleName: style }
+  }
+  for (const voice of ['addition', 'subtraction', 'logic']) {
+    for (const n of NUMBER_ANSWERS) jobs.push(answerJob(voice, numberAnswerSpeech(voice, n)))
+  }
+  for (const amount of MONEY_ANSWERS) jobs.push(answerJob('money', moneyAnswerSpeech(amount)))
+  for (const e of hiraganaBank) jobs.push(answerJob('hiragana', kanaAnswerSpeech('hiragana', e.id, speechSafeChar(e.char))))
+  for (const e of katakanaBank) jobs.push(answerJob('katakana', kanaAnswerSpeech('katakana', e.id, e.char)))
+  for (const e of kanjiBank) jobs.push(answerJob('kanji', kanjiAnswerSpeech(e.id, kanjiSpokenReading(e))))
+  for (const c of counterBank) jobs.push(answerJob('counting', countingAnswerSpeech(c.id, c.kana)))
+  for (const w of oppositeWords) jobs.push(answerJob('logic', oppositeAnswerSpeech(w, oppositeWordKey(w))))
+  // A superset of ろんり「なかまはずれ」's pool (that filter lives in logic.ts, which plain node
+  // can't import) — the answerSpeech test checks every generated answer is covered.
+  for (const w of eligibleWordBank().filter((w) => w.category !== 'color' && w.category !== 'shape')) {
+    jobs.push(answerJob('logic', oddOneOutAnswerSpeech(w.id, w.translationJa)))
+  }
+  for (const symbol of Object.keys(PATTERN_SYMBOL_NAMES)) jobs.push(answerJob('logic', patternAnswerSpeech(symbol)))
+  for (let hour = 1; hour <= 12; hour++) jobs.push(answerJob('clock', clockTimeSpeech(hour, 0)[0]))
+  for (let minute = 1; minute <= 59; minute++) jobs.push(answerJob('clock', clockTimeSpeech(1, minute)[1]))
+  jobs.push(answerJob('clock', SET_TIME_PROMPT_BEFORE), answerJob('clock', SET_TIME_PROMPT_AFTER))
 
   if (onlyKeys) return jobs.filter((j) => onlyKeys.has(j.cacheKey))
   if (matchRe) return jobs.filter((j) => matchRe.test(j.cacheKey))

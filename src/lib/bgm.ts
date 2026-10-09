@@ -11,7 +11,7 @@ import { loadBgmEnabled, saveBgmEnabled } from './storage'
  *              with thinking
  * - ducked   — while tts.ts is speaking, so every spoken word stays easy to hear
  * - hidden   — the tab/app is in the background
- * Browsers only allow audio after a user gesture, so nothing plays until the first tap. */
+ * Most phones only allow audio after a user gesture, so there it starts on the first touch. */
 
 type ChordName = 'C' | 'Am' | 'F' | 'G' | 'Dm' | 'Em'
 
@@ -212,22 +212,47 @@ function stop(): void {
   applyVolume(0.15)
 }
 
-/** Call once at startup. Arms the first-gesture unlock and background pausing. */
+/** Call once at startup. Starts the music right away where the browser allows audio
+ * without a gesture (e.g. desktop Chrome on a site the child already plays on), and
+ * otherwise on the very first touch/click/key anywhere. Also pauses in the background. */
 export function initBgm(): void {
   if (typeof window === 'undefined') return
+  // iOS mutes Web Audio while the ring/silent switch is on silent — music, chimes and the
+  // pre-recorded voice (tts.ts plays it through this same context) all went quiet. A
+  // 'playback' session plays like a media app instead (Safari 16.4+; ignored elsewhere).
+  const session = (navigator as unknown as { audioSession?: { type: string } }).audioSession
+  if (session) session.type = 'playback'
+
+  const UNLOCK_EVENTS = ['pointerdown', 'mousedown', 'touchstart', 'pointerup', 'touchend', 'click', 'keydown'] as const
+  const disarm = () => {
+    for (const type of UNLOCK_EVENTS) window.removeEventListener(type, unlock, true)
+  }
   const unlock = () => {
     const ctx = getContext() // resumes the context inside the gesture
     if (!ctx) return
     unlocked = true
     start()
-    if (ctx.state === 'running') {
-      for (const type of UNLOCK_EVENTS) window.removeEventListener(type, unlock, true)
-    }
+    if (ctx.state === 'running') disarm()
   }
-  // pointerdown alone doesn't count as a user activation for touch input (only pointerup/
-  // touchend/click do), so iOS needs these too before it will let the context run.
-  const UNLOCK_EVENTS = ['pointerup', 'touchend', 'click', 'keydown'] as const
+  // Which events count as a user activation differs by browser and input (iOS only lets
+  // touchend/click start audio; desktop Chrome already allows it on mousedown), so listen
+  // for all of them and stop at the first one that actually got the context running.
   for (const type of UNLOCK_EVENTS) window.addEventListener(type, unlock, true)
+
+  // Autoplay attempt: resume() succeeds without a gesture when the browser's autoplay
+  // policy allows it, and simply stays pending otherwise (the listeners above take over).
+  const ctx = getContext()
+  if (ctx) {
+    void ctx.resume().then(() => {
+      if (ctx.state !== 'running') return
+      unlocked = true
+      start()
+      disarm()
+    }, () => {})
+    ctx.addEventListener('statechange', () => {
+      if (ctx.state === 'running' && !unlocked) unlock()
+    })
+  }
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) stop()

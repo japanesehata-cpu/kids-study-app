@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState, type UIEvent } from 'react'
 import type { Category } from '../domain/types'
 import type { DictionaryKey } from '../i18n/dictionary'
-import { CATEGORY_META, getCategoryMeta } from '../domain/categoryMeta'
-import { loadLastQuizFeedback, pickHomeFeedbackMessage } from '../domain/homeFeedback'
-import { subSkillLabelKey } from '../i18n/subSkillLabels'
+import { CATEGORY_META } from '../domain/categoryMeta'
 import { useI18n } from '../i18n/I18nContext'
 import { speak, type SpeechLang } from '../lib/tts'
 import { CharacterPortrait } from '../components/characters/CharacterPortrait'
@@ -81,10 +79,6 @@ export function HomeScreen({
   const [atEnd, setAtEnd] = useState(false)
   const [bgmOn, setBgmOn] = useState(isBgmEnabled)
   const showcaseRef = useRef<HTMLDivElement>(null)
-  // Computed once per mount (not re-read on every render) — the underlying localStorage
-  // value only ever changes via a quiz completing, which unmounts Home entirely, so a
-  // fresh mount is exactly when it should be re-read.
-  const [feedbackMessage] = useState(() => pickHomeFeedbackMessage(loadLastQuizFeedback()))
 
   // Hides the "swipe for more" fade once there's nothing left to scroll to — both once the
   // player actually scrolls all the way there, and up front if every portrait already fits
@@ -106,36 +100,15 @@ export function HomeScreen({
     speak(t(INTRO_KEY_BY_CATEGORY[category]), speechLang, characterThemes[category].voiceProfile, cacheKey)
   }
 
-  function feedbackText(): string {
-    switch (feedbackMessage.kind) {
-      case 'levelUp':
-        return t('homeFeedbackLevelUp', {
-          category: t(getCategoryMeta(feedbackMessage.category).labelKey),
-          level: feedbackMessage.level,
-        })
-      case 'strong':
-        return t('homeFeedbackStrong', {
-          category: t(getCategoryMeta(feedbackMessage.category).labelKey),
-          subSkill: t(subSkillLabelKey[feedbackMessage.subSkill]),
-        })
-      case 'perfectScore':
-        return t('homeFeedbackPerfectScore', {
-          category: t(getCategoryMeta(feedbackMessage.category).labelKey),
-        })
-      case 'generic':
-        return t('homeFeedbackGeneric')
-    }
-  }
-
   return (
     <div className="screen">
-      <div className="top-bar">
+      <div className="top-bar top-bar-home">
         <h1 className="app-title">{t('appTitle')}</h1>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+        <div className="top-bar-controls">
           <LanguageToggle />
           <button
             type="button"
-            className={`icon-button ${bgmOn ? '' : 'icon-button-off'}`.trim()}
+            className={`icon-button icon-button-small ${bgmOn ? '' : 'icon-button-off'}`.trim()}
             aria-label={t(bgmOn ? 'bgmOnLabel' : 'bgmOffLabel')}
             aria-pressed={bgmOn}
             onClick={() => {
@@ -147,7 +120,7 @@ export function HomeScreen({
           </button>
           <button
             type="button"
-            className="icon-button"
+            className="icon-button icon-button-small"
             aria-label={t('settingsLabel')}
             onClick={onOpenParentGate}
           >
@@ -155,8 +128,6 @@ export function HomeScreen({
           </button>
         </div>
       </div>
-
-      <p className="home-feedback-banner">{feedbackText()}</p>
 
       <div className={`character-showcase-wrap ${atEnd ? 'at-end' : ''}`.trim()}>
         <div

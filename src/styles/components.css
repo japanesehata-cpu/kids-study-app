@@ -80,20 +80,6 @@
   aspect-ratio: 1 / 1;
 }
 
-/* Home's replacement for the removed daily play-streak badge — see
-   domain/homeFeedback.ts. A full-width line rather than a top-bar pill (the streak badge's
-   old spot) since this text is a whole sentence, not a short "3日れんぞく" count. */
-.home-feedback-banner {
-  background: var(--color-accent-soft);
-  color: var(--color-text);
-  font-weight: 800;
-  font-size: clamp(13px, 2vh, 17px);
-  padding: 8px 20px;
-  border-radius: 999px;
-  text-align: center;
-  max-width: 100%;
-}
-
 /* Home's row of 10 mascots: a single horizontally-scrolling strip instead of wrapping onto
    3-4 rows on a phone-width screen, which used to push the actual category cards below the
    fold. One row costs a fixed, small amount of vertical space no matter how narrow the
@@ -1174,6 +1160,66 @@
 
 .money-palette-item.wrong {
   animation: spot-shake 0.35s ease;
+}
+
+/* Home's header: title on the left, language / music / settings on ONE row on the right —
+   nothing wraps, the title gives way first on a very narrow phone. */
+.top-bar-home {
+  flex-wrap: nowrap;
+}
+
+.top-bar-home .app-title {
+  /* also tied to width, so 「まなびフレンズ」 still fits whole beside the buttons at 375px */
+  font-size: min(clamp(18px, 3.2vh, 30px), 5.4vw);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.top-bar-controls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.language-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 44px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: none;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  font-size: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.language-toggle span {
+  opacity: 0.35;
+  filter: grayscale(0.8);
+}
+
+.language-toggle span.is-active {
+  opacity: 1;
+  filter: none;
+}
+
+.language-toggle .language-toggle-slash {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-soft);
+  filter: none;
+}
+
+.icon-button.icon-button-small {
+  width: 44px;
+  height: 44px;
+  font-size: 22px;
 }
 
 .icon-button-off {

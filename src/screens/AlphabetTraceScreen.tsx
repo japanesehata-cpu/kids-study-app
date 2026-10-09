@@ -7,6 +7,7 @@ import { KanjiTraceCanvas } from '../components/KanjiTraceCanvas'
 import { TraceReveal } from '../components/TraceReveal'
 import { characterThemes } from '../components/characters/characterThemes'
 import { playCorrectSfx } from '../lib/sfx'
+import { useCorrectCelebration } from '../components/CorrectCelebration'
 import { shuffle } from '../lib/shuffle'
 
 /** Example words with no fitting picture among images/words (queen). */
@@ -47,6 +48,7 @@ type Phase = 'tracing' | 'reveal'
  * shared "traceStrokeCredit" line KanjiTraceScreen/KanaTraceScreen show. */
 export function AlphabetTraceScreen({ onBack, onHome }: AlphabetTraceScreenProps) {
   const { t } = useI18n()
+  const { celebrate, celebration } = useCorrectCelebration()
   const [order] = useState<TraceEntry[]>(() => shuffle(TRACE_DECK))
   const [index, setIndex] = useState(0)
   const [phase, setPhase] = useState<Phase>('tracing')
@@ -60,6 +62,7 @@ export function AlphabetTraceScreen({ onBack, onHome }: AlphabetTraceScreenProps
 
   function handleComplete() {
     playCorrectSfx()
+    celebrate()
     setPhase('reveal')
   }
 
@@ -76,6 +79,7 @@ export function AlphabetTraceScreen({ onBack, onHome }: AlphabetTraceScreenProps
 
   return (
     <div className="screen">
+      {celebration}
       <div className="top-bar">
         <div style={{ display: 'flex', gap: 8 }}>
           <button type="button" className="icon-button" onClick={onBack} aria-label={t('backButton')}>

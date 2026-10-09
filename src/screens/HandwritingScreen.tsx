@@ -11,6 +11,7 @@ import { TtsButton } from '../components/TtsButton'
 import { characterThemes } from '../components/characters/characterThemes'
 import { speak, type SpeechLang } from '../lib/tts'
 import { playCorrectSfx } from '../lib/sfx'
+import { useCorrectCelebration } from '../components/CorrectCelebration'
 import { shuffle } from '../lib/shuffle'
 import { useResponsiveSize } from '../lib/useResponsiveSize'
 
@@ -75,6 +76,7 @@ function speechInfoFor(category: HandwritingCategory, entry: WritableEntry): { p
  * why the two used to be bundled here behind an internal chooser and no longer are). */
 export function HandwritingScreen({ category, onBack, onHome }: HandwritingScreenProps) {
   const { t, lang } = useI18n()
+  const { celebrate, celebration } = useCorrectCelebration()
   const [index, setIndex] = useState(0)
   const [order] = useState<WritableEntry[]>(() => shuffle(BANK_BY_CATEGORY[category]))
   const [praise, setPraise] = useState<{ stars: number; text: string } | null>(null)
@@ -103,6 +105,7 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
 
   function handleDone(stars: number) {
     playCorrectSfx()
+    celebrate()
     const { text, cacheKey: praiseCacheKey } = pickHandwritingPraise(lang, category)
     setPraise({ stars, text })
     const praiseSpeechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
@@ -116,6 +119,7 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
 
   return (
     <div className="screen">
+      {celebration}
       <div className="top-bar">
         <div style={{ display: 'flex', gap: 8 }}>
           <button type="button" className="icon-button" onClick={onBack} aria-label={t('backButton')}>

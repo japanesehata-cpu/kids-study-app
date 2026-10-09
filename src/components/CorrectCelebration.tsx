@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useI18n } from '../i18n/I18nContext'
 import { RewardRain } from './RewardRain'
@@ -141,4 +141,17 @@ export function CorrectCelebration({ streak: streakProp }: { streak: number }) {
       </div>
     </div>
   )
+}
+
+/** For screens without a quiz streak (the なぞる practice screens): `celebrate()` replays
+ * the visual (call it next to playCorrectSfx(), which owns the sound) and `celebration` is
+ * rendered anywhere inside the screen. */
+export function useCorrectCelebration() {
+  const [key, setKey] = useState(0)
+  const celebrate = useCallback(() => {
+    setKey((k) => k + 1)
+    navigator.vibrate?.(35)
+  }, [])
+  const celebration = key > 0 ? <CorrectCelebration key={key} streak={1} /> : null
+  return { celebrate, celebration }
 }

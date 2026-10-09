@@ -9,6 +9,7 @@ import { KanjiTraceCanvas } from '../components/KanjiTraceCanvas'
 import { TraceReveal } from '../components/TraceReveal'
 import { characterThemes } from '../components/characters/characterThemes'
 import { playCorrectSfx } from '../lib/sfx'
+import { useCorrectCelebration } from '../components/CorrectCelebration'
 import { shuffle } from '../lib/shuffle'
 
 type KanaCategory = 'hiragana' | 'katakana'
@@ -53,6 +54,7 @@ type Phase = 'tracing' | 'reveal'
  * last kana calls onBack(), returning to HandwritingScreen's なぞる/きいてかく chooser. */
 export function KanaTraceScreen({ category, onBack, onHome }: KanaTraceScreenProps) {
   const { t, lang } = useI18n()
+  const { celebrate, celebration } = useCorrectCelebration()
   const [order] = useState<KanaEntry[]>(() => shuffle(traceDeckFor(category)))
   const [index, setIndex] = useState(0)
   const [phase, setPhase] = useState<Phase>('tracing')
@@ -66,6 +68,7 @@ export function KanaTraceScreen({ category, onBack, onHome }: KanaTraceScreenPro
 
   function handleComplete() {
     playCorrectSfx()
+    celebrate()
     setPhase('reveal')
   }
 
@@ -82,6 +85,7 @@ export function KanaTraceScreen({ category, onBack, onHome }: KanaTraceScreenPro
 
   return (
     <div className="screen">
+      {celebration}
       <div className="top-bar">
         <div style={{ display: 'flex', gap: 8 }}>
           <button type="button" className="icon-button" onClick={onBack} aria-label={t('backButton')}>

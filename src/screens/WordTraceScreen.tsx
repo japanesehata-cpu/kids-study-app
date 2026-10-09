@@ -8,6 +8,7 @@ import { WordIcon } from '../components/WordIcon'
 import { TraceReveal } from '../components/TraceReveal'
 import { characterThemes } from '../components/characters/characterThemes'
 import { playCorrectSfx } from '../lib/sfx'
+import { useCorrectCelebration } from '../components/CorrectCelebration'
 import { shuffle } from '../lib/shuffle'
 
 interface WordTraceScreenProps {
@@ -32,6 +33,7 @@ type Phase = 'tracing' | 'reveal'
  * next word — no separate review lap. */
 export function WordTraceScreen({ onBack, onHome }: WordTraceScreenProps) {
   const { t, lang } = useI18n()
+  const { celebrate, celebration } = useCorrectCelebration()
   const [wordOrder] = useState<string[]>(() => shuffle(wordTraceBank))
   const [wordIndex, setWordIndex] = useState(0)
   const [letterIndex, setLetterIndex] = useState(0)
@@ -51,6 +53,8 @@ export function WordTraceScreen({ onBack, onHome }: WordTraceScreenProps) {
   function handleLetterComplete() {
     playCorrectSfx()
     if (isLastLetterOfWord) {
+      // Each letter keeps just the chime; the whole word finished gets the full はなまる.
+      celebrate()
       setPhase('reveal')
     } else {
       setLetterIndex((i) => Math.min(i + 1, letters.length - 1))
@@ -71,6 +75,7 @@ export function WordTraceScreen({ onBack, onHome }: WordTraceScreenProps) {
 
   return (
     <div className="screen">
+      {celebration}
       <div className="top-bar">
         <div style={{ display: 'flex', gap: 8 }}>
           <button type="button" className="icon-button" onClick={onBack} aria-label={t('backButton')}>

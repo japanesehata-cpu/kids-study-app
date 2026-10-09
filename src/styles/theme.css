@@ -1,6 +1,6 @@
 :root {
-  --color-bg: #fff2f8;
-  --color-bg-soft: #ffe4f1;
+  --color-bg: #ffe9f4;
+  --color-bg-soft: #ffd9ec;
   --color-primary: #ff8fc7;
   --color-primary-dark: #ff5fae;
   --color-primary-soft: #ffd3ea;
@@ -12,7 +12,12 @@
   --color-error-soft: #ffe6e1;
   --color-text: #4a3b4a;
   --color-text-soft: #8a7a8a;
-  --color-surface: #ffffff;
+  /* Cards/buttons/panels are a pale pink rather than white so the whole app reads as pink
+     (white is kept only for --color-paper: surfaces a child writes on or reads fine detail
+     from — trace canvases, sudoku grid, number display — where contrast matters most). */
+  --color-surface: #fff2f8;
+  --color-paper: #ffffff;
+  --color-border: #ffcbe4;
 
   --radius-lg: 32px;
   --radius-md: 24px;
@@ -93,7 +98,13 @@ body {
 
 body {
   font-family: var(--font-family);
-  background: linear-gradient(160deg, var(--color-bg) 0%, var(--color-bg-soft) 100%);
+  /* Faint polka dots over the pink gradient — reads as a "pink room" rather than a flat
+     page, while staying light enough not to compete with question content. */
+  background:
+    radial-gradient(circle, rgba(255, 143, 199, 0.16) 2.5px, transparent 3px) 0 0 / 28px 28px,
+    radial-gradient(circle, rgba(255, 209, 102, 0.14) 2px, transparent 2.5px) 14px 14px / 28px 28px,
+    linear-gradient(160deg, var(--color-bg) 0%, var(--color-bg-soft) 100%);
+  background-color: var(--color-bg);
   color: var(--color-text);
   -webkit-tap-highlight-color: transparent;
 }

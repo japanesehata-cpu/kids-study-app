@@ -18,7 +18,7 @@ export default defineConfig({
         short_name: 'まなびフレンズ',
         description: '算数と英語に親しむ子ども向け学習アプリ',
         theme_color: '#ff8fc7',
-        background_color: '#fff2f8',
+        background_color: '#ffe9f4',
         display: 'standalone',
         orientation: 'landscape',
         icons: [

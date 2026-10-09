@@ -223,7 +223,7 @@ export function buildExplanation(
         : `The short hand points to ${hour} and the long hand points to ${minuteHandNumber}, so it's ${label}.`
     }
     case 'spotDifference': {
-      const count = question.differenceIndexes.length
+      const count = question.differenceIndexes.length + (question.backgroundDiff ? 1 : 0)
       if (!correct) {
         return lang === 'ja'
           ? `ちがうところは ぜんぶで ${count}こ あったよ。またチャレンジしてね！`

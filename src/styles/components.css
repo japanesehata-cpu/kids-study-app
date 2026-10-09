@@ -828,6 +828,19 @@
 }
 
 /* Found: a ring around the spot in both pictures — including where something is missing. */
+/* The tappable box over a changed area of the background (see SpotDifferenceBoard). */
+.spot-bg-area {
+  position: absolute;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.spot-bg-area:disabled {
+  cursor: default;
+}
+
 .spot-found-ring {
   position: absolute;
   inset: -14%;

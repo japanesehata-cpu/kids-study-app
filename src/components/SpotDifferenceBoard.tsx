@@ -29,8 +29,14 @@ function spriteAspect(theme: SpotTheme | undefined, spriteId: string): number {
   return theme?.sprites.find((sp) => sp.id === spriteId)?.aspect ?? 1
 }
 
+/** Index used in foundIndexes / handleTap for the background difference (object
+ * differences use their item index, always >= 0). */
+const BG_DIFF_INDEX = -1
+
 function ScenePanel({
   themeId,
+  background,
+  backgroundDiffRect,
   items,
   counterparts,
   panel,
@@ -40,6 +46,10 @@ function ScenePanel({
   onTap,
 }: {
   themeId: string
+  /** bg.jpg, or bg__<id>.jpg for the bottom picture of a board with a background difference */
+  background: string
+  /** where the background differs, if it does — tappable in both pictures */
+  backgroundDiffRect?: [number, number, number, number]
   items: (SpotDifferenceItem | null)[]
   /** The other picture's items — where this picture has nothing (a "missing" difference),
    * the empty spot is still tappable, at the other picture's object's position. */
@@ -52,7 +62,28 @@ function ScenePanel({
 }) {
   const theme = SPOT_THEMES.find((t) => t.id === themeId)
   return (
-    <div className="spot-scene-panel" style={{ backgroundImage: `url(${SPOT_IMAGE_BASE}/${themeId}/bg.jpg)` }}>
+    <div className="spot-scene-panel" style={{ backgroundImage: `url(${SPOT_IMAGE_BASE}/${themeId}/${background})` }}>
+      {backgroundDiffRect && (
+        // Rendered before the objects, so an object nearby still wins a tap on itself.
+        <button
+          type="button"
+          className={`spot-bg-area ${foundIndexes.has(BG_DIFF_INDEX) ? 'found' : ''}`.trim()}
+          style={{
+            left: `${backgroundDiffRect[0]}%`,
+            width: `${backgroundDiffRect[1] - backgroundDiffRect[0]}%`,
+            top: `${backgroundDiffRect[2]}%`,
+            height: `${backgroundDiffRect[3] - backgroundDiffRect[2]}%`,
+          }}
+          onClick={(e) => {
+            e.stopPropagation()
+            onTap(BG_DIFF_INDEX)
+          }}
+          disabled={disabled}
+          aria-label="background"
+        >
+          {foundIndexes.has(BG_DIFF_INDEX) && <span className="spot-found-ring" aria-hidden="true" />}
+        </button>
+      )}
       {items.map((item, i) => {
         const shown = item ?? counterparts[i]
         if (!shown) return null
@@ -106,12 +137,14 @@ export function SpotDifferenceBoard({
   const [wrongTap, setWrongTap] = useState<WrongTap | null>(null)
   const [wrongCount, setWrongCount] = useState(0)
 
-  const total = question.differenceIndexes.length
+  const total = question.differenceIndexes.length + (question.backgroundDiff ? 1 : 0)
   const found = foundIndexes.size
 
   function handleTap(panel: 'left' | 'right', index: number) {
     if (disabled) return
-    if (question.differenceIndexes.includes(index)) {
+    const isDifference =
+      index === BG_DIFF_INDEX ? !!question.backgroundDiff : question.differenceIndexes.includes(index)
+    if (isDifference) {
       // Tapping an already-found difference again undoes it — a child who found it by
       // accident, or wants to re-inspect it, isn't locked into a permanent mark. Once
       // every difference is found, onAllFound flips `disabled` on the very next parent
@@ -156,6 +189,8 @@ export function SpotDifferenceBoard({
       <div className="spot-panels">
         <ScenePanel
           themeId={question.theme}
+          background="bg.jpg"
+          backgroundDiffRect={question.backgroundDiff?.rect}
           items={question.leftItems}
           counterparts={question.rightItems}
           panel="left"
@@ -166,6 +201,8 @@ export function SpotDifferenceBoard({
         />
         <ScenePanel
           themeId={question.theme}
+          background={question.backgroundDiff ? `bg__${question.backgroundDiff.id}.jpg` : 'bg.jpg'}
+          backgroundDiffRect={question.backgroundDiff?.rect}
           items={question.rightItems}
           counterparts={question.leftItems}
           panel="right"

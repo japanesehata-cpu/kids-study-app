@@ -160,6 +160,7 @@ function isCompatibleShape(q: Question): boolean {
       Array.isArray(q.leftItems) &&
       Array.isArray(q.rightItems) &&
       Array.isArray(q.differenceIndexes) &&
+      (!q.backgroundDiff || theme.bgDiffs.some((d) => d.id === q.backgroundDiff!.id)) &&
       [...q.leftItems, ...q.rightItems].every((it) => it === null || theme.sprites.some((sp) => sp.id === it.spriteId))
     )
   }
@@ -381,7 +382,7 @@ export function questionSignature(q: Question): string {
   if (q.category === 'alphabet') return `alphabet:${q.letterId}:${q.kind}:${q.answerChar}`
   if (q.category === 'clock') return `clock:${q.hour}:${q.minute}`
   if (q.category === 'spotDifference') {
-    return `spot:${q.theme}:${q.leftItems.map((i) => i.spriteId).join(',')}:${q.differenceIndexes.join(',')}`
+    return `spot:${q.theme}:${q.leftItems.map((i) => i.spriteId).join(',')}:${q.differenceIndexes.join(',')}:${q.backgroundDiff?.id ?? ''}`
   }
   if (q.category === 'counting') return `counting:${q.counterId}`
   if (q.category === 'money') {

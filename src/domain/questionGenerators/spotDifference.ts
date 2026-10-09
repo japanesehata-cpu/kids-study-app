@@ -57,11 +57,28 @@ function subSkillForLevel(level: Level): string {
 }
 
 interface Footprint {
+  /** A reserved area (the changed part of the background): any overlap with it costs far
+   * more than overlapping another object, so it's avoided whenever there's any room. */
+  hard?: boolean
   x: number
   y: number
   /** half width / half height, both in % of panel HEIGHT */
   hw: number
   hh: number
+}
+
+const BG_DIFF_CHANCE = 0.5
+
+/** A background area ([x0, x1, y0, y1], % of the panel) as a placement footprint. */
+export function rectFootprint([x0, x1, y0, y1]: [number, number, number, number]): Footprint {
+  return { x: (x0 + x1) / 2, y: (y0 + y1) / 2, hw: ((x1 - x0) / 2) * PANEL_ASPECT_RATIO, hh: (y1 - y0) / 2, hard: true }
+}
+
+/** True when an object's box overlaps the reserved area by more than a sliver. */
+function covers(area: Footprint, spot: Footprint): boolean {
+  const ox = area.hw + spot.hw - Math.abs(area.x - spot.x) * PANEL_ASPECT_RATIO
+  const oy = area.hh + spot.hh - Math.abs(area.y - spot.y)
+  return ox > 2 && oy > 2
 }
 
 /** Places an object of the given box size at a random spot in one of `zones`, keeping it
@@ -79,7 +96,7 @@ function place(theme: SpotTheme, zones: string[], hw: number, hh: number, placed
     const overlap = placed.reduce((sum, p) => {
       const ox = p.hw + hw + GAP - Math.abs(p.x - x) * PANEL_ASPECT_RATIO
       const oy = p.hh + hh + GAP - Math.abs(p.y - y)
-      return sum + (ox > 0 && oy > 0 ? ox * oy : 0)
+      return sum + (ox > 0 && oy > 0 ? ox * oy * (p.hard ? 1000 : 1) : 0)
     }, 0)
     if (overlap < bestOverlap) {
       bestOverlap = overlap
@@ -106,7 +123,7 @@ function chooseDiff(level: Level, sprite: SpotSprite, swapCandidates: SpotSprite
   return pickRandom(weighted)
 }
 
-export function generateSpotDifferenceQuestion(level: Level): SpotDifferenceQuestion {
+export function generateSpotDifferenceQuestion(level: Level, allowBackground = true): SpotDifferenceQuestion {
   const { items: target, differences, size: [minSize, maxSize], resize } = BOARD[level]
   const spare = level >= 2 ? 1 : 0
   const roomy = SPOT_THEMES.filter((t) => t.sprites.length >= target + spare)
@@ -118,8 +135,15 @@ export function generateSpotDifferenceQuestion(level: Level): SpotDifferenceQues
   const scene = ordered.slice(0, wanted)
   const unused = ordered.slice(wanted)
 
+  // ★3+: about half the boards whose background has a recoloured area use it as one of
+  // the differences (in place of an object difference, so the total per level is unchanged).
+  const backgroundDiff =
+    allowBackground && level >= 3 && theme.bgDiffs.length > 0 && Math.random() < BG_DIFF_CHANCE
+      ? pickRandom(theme.bgDiffs)
+      : undefined
+
   const differenceIndexes = shuffle(scene.map((_, i) => i))
-    .slice(0, differences)
+    .slice(0, differences - (backgroundDiff ? 1 : 0))
     .sort((a, b) => a - b)
 
   // Decide every difference first, so each object's footprint reserves room for its
@@ -134,7 +158,11 @@ export function generateSpotDifferenceQuestion(level: Level): SpotDifferenceQues
     return { type, replacement }
   })
 
+  // The changed background area is reserved first, so no object ever covers it.
   const placed: Footprint[] = []
+  const reserved = backgroundDiff ? rectFootprint(backgroundDiff.rect) : null
+  if (reserved) placed.push(reserved)
+  let blocked = false
   const leftItems: SpotDifferenceItem[] = scene.map((sprite, i) => {
     const plan = plans[i]
     const size = randRange(minSize, maxSize)
@@ -143,8 +171,13 @@ export function generateSpotDifferenceQuestion(level: Level): SpotDifferenceQues
     const zones = plan.replacement ? sprite.zones.filter((z) => plan.replacement!.zones.includes(z)) : sprite.zones
     const spot = place(theme, zones, (size * grow * aspect) / 2, (size * grow) / 2, placed)
     placed.push(spot)
+    if (reserved && covers(reserved, spot)) blocked = true
     return { spriteId: sprite.id, xPct: spot.x, yPct: spot.y, size, flipped: sprite.flippable && Math.random() < 0.5 }
   })
+
+  // A crowded ★5 board occasionally can't keep every object off the changed area — an
+  // object hiding it would make that difference unfindable, so redo the board without one.
+  if (blocked) return generateSpotDifferenceQuestion(level, false)
 
   const rightItems = leftItems.map((item, i) => {
     const plan = plans[i]
@@ -174,6 +207,7 @@ export function generateSpotDifferenceQuestion(level: Level): SpotDifferenceQues
     leftItems,
     rightItems,
     differenceIndexes,
+    ...(backgroundDiff ? { backgroundDiff: { id: backgroundDiff.id, rect: backgroundDiff.rect } } : {}),
     subSkill: subSkillForLevel(level),
   }
 }

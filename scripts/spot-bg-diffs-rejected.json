@@ -1,0 +1,10 @@
+{
+ "_doc": "Background areas reviewed by eye and judged not to read as 'that thing changed colour' (a patch in the sky/sea, too small to notice, an odd colour). Ids are stable as long as build-spot-bg-variants.py's selection rules don't change.",
+ "forest": ["d1", "d2"],
+ "farm": ["d2"],
+ "garden": ["d1", "d3", "d4"],
+ "underwater": ["d1"],
+ "classroom": ["d1"],
+ "picnic": ["d1"],
+ "jungle": ["d2"]
+}

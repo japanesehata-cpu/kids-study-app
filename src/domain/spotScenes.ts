@@ -13,10 +13,17 @@ export interface SpotSprite {
   partVariant: boolean
 }
 
+/** One recoloured area of the background (bg__<id>.jpg); rect is [x0, x1, y0, y1] in % of the panel. */
+export interface SpotBgDiff {
+  id: string
+  rect: [number, number, number, number]
+}
+
 export interface SpotTheme {
   id: string
   zones: Record<string, [number, number, number, number][]>
   sprites: SpotSprite[]
+  bgDiffs: SpotBgDiff[]
 }
 
 export const SPOT_THEMES: SpotTheme[] = [
@@ -220,7 +227,8 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": true,
         "partVariant": false
       }
-    ]
+    ],
+    "bgDiffs": []
   },
   {
     "id": "forest",
@@ -394,7 +402,8 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": false,
         "partVariant": false
       }
-    ]
+    ],
+    "bgDiffs": []
   },
   {
     "id": "park",
@@ -570,7 +579,8 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": true,
         "partVariant": false
       }
-    ]
+    ],
+    "bgDiffs": []
   },
   {
     "id": "kitchen",
@@ -767,7 +777,8 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": true,
         "partVariant": false
       }
-    ]
+    ],
+    "bgDiffs": []
   },
   {
     "id": "kidsroom",
@@ -961,7 +972,8 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": true,
         "partVariant": false
       }
-    ]
+    ],
+    "bgDiffs": []
   },
   {
     "id": "meadow",
@@ -1136,6 +1148,26 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": true,
         "partVariant": true
       }
+    ],
+    "bgDiffs": [
+      {
+        "id": "d1",
+        "rect": [
+          6.7,
+          14.8,
+          33.4,
+          54.4
+        ]
+      },
+      {
+        "id": "d2",
+        "rect": [
+          16.5,
+          23.8,
+          45.3,
+          59.1
+        ]
+      }
     ]
   },
   {
@@ -1309,7 +1341,8 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": true,
         "partVariant": false
       }
-    ]
+    ],
+    "bgDiffs": []
   },
   {
     "id": "town",
@@ -1482,6 +1515,35 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": true,
         "partVariant": false
       }
+    ],
+    "bgDiffs": [
+      {
+        "id": "d1",
+        "rect": [
+          51.0,
+          58.3,
+          51.2,
+          65.3
+        ]
+      },
+      {
+        "id": "d2",
+        "rect": [
+          20.6,
+          30.6,
+          44.7,
+          68.4
+        ]
+      },
+      {
+        "id": "d3",
+        "rect": [
+          10.8,
+          21.0,
+          26.2,
+          69.7
+        ]
+      }
     ]
   },
   {
@@ -1646,6 +1708,17 @@ export const SPOT_THEMES: SpotTheme[] = [
         "flippable": true,
         "colorVariant": true,
         "partVariant": false
+      }
+    ],
+    "bgDiffs": [
+      {
+        "id": "d1",
+        "rect": [
+          9.6,
+          29.0,
+          15.9,
+          28.4
+        ]
       }
     ]
   },
@@ -1819,6 +1892,17 @@ export const SPOT_THEMES: SpotTheme[] = [
         "flippable": true,
         "colorVariant": false,
         "partVariant": false
+      }
+    ],
+    "bgDiffs": [
+      {
+        "id": "d1",
+        "rect": [
+          25.2,
+          37.5,
+          44.1,
+          57.8
+        ]
       }
     ]
   },
@@ -1995,6 +2079,17 @@ export const SPOT_THEMES: SpotTheme[] = [
         "flippable": false,
         "colorVariant": false,
         "partVariant": false
+      }
+    ],
+    "bgDiffs": [
+      {
+        "id": "d2",
+        "rect": [
+          33.1,
+          40.8,
+          32.5,
+          50.9
+        ]
       }
     ]
   },
@@ -2192,7 +2287,8 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": true,
         "partVariant": false
       }
-    ]
+    ],
+    "bgDiffs": []
   },
   {
     "id": "snowfield",
@@ -2366,7 +2462,8 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": false,
         "partVariant": false
       }
-    ]
+    ],
+    "bgDiffs": []
   },
   {
     "id": "underwater",
@@ -2540,7 +2637,8 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": true,
         "partVariant": false
       }
-    ]
+    ],
+    "bgDiffs": []
   },
   {
     "id": "space",
@@ -2720,7 +2818,8 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": false,
         "partVariant": false
       }
-    ]
+    ],
+    "bgDiffs": []
   },
   {
     "id": "station",
@@ -2908,7 +3007,8 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": false,
         "partVariant": false
       }
-    ]
+    ],
+    "bgDiffs": []
   },
   {
     "id": "supermarket",
@@ -3094,6 +3194,17 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": false,
         "partVariant": false
       }
+    ],
+    "bgDiffs": [
+      {
+        "id": "d1",
+        "rect": [
+          4.6,
+          13.5,
+          68.1,
+          78.4
+        ]
+      }
     ]
   },
   {
@@ -3272,6 +3383,17 @@ export const SPOT_THEMES: SpotTheme[] = [
         "flippable": false,
         "colorVariant": true,
         "partVariant": false
+      }
+    ],
+    "bgDiffs": [
+      {
+        "id": "d2",
+        "rect": [
+          76.7,
+          89.6,
+          68.4,
+          75.3
+        ]
       }
     ]
   },
@@ -3465,7 +3587,8 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": true,
         "partVariant": false
       }
-    ]
+    ],
+    "bgDiffs": []
   },
   {
     "id": "picnic",
@@ -3640,7 +3763,8 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": true,
         "partVariant": true
       }
-    ]
+    ],
+    "bgDiffs": []
   },
   {
     "id": "camp",
@@ -3813,7 +3937,8 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": true,
         "partVariant": false
       }
-    ]
+    ],
+    "bgDiffs": []
   },
   {
     "id": "rainyday",
@@ -3986,7 +4111,8 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": false,
         "partVariant": false
       }
-    ]
+    ],
+    "bgDiffs": []
   },
   {
     "id": "autumn",
@@ -4161,7 +4287,8 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": true,
         "partVariant": false
       }
-    ]
+    ],
+    "bgDiffs": []
   },
   {
     "id": "birthday",
@@ -4355,7 +4482,8 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": false,
         "partVariant": false
       }
-    ]
+    ],
+    "bgDiffs": []
   },
   {
     "id": "bakery",
@@ -4551,6 +4679,17 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": true,
         "partVariant": false
       }
+    ],
+    "bgDiffs": [
+      {
+        "id": "d1",
+        "rect": [
+          76.0,
+          83.1,
+          75.6,
+          89.7
+        ]
+      }
     ]
   },
   {
@@ -4739,6 +4878,17 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": false,
         "partVariant": false
       }
+    ],
+    "bgDiffs": [
+      {
+        "id": "d1",
+        "rect": [
+          4.4,
+          12.7,
+          72.8,
+          81.6
+        ]
+      }
     ]
   },
   {
@@ -4920,6 +5070,26 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": true,
         "partVariant": false
       }
+    ],
+    "bgDiffs": [
+      {
+        "id": "d1",
+        "rect": [
+          14.6,
+          20.2,
+          31.2,
+          46.9
+        ]
+      },
+      {
+        "id": "d2",
+        "rect": [
+          10.2,
+          17.3,
+          22.8,
+          34.1
+        ]
+      }
     ]
   },
   {
@@ -5095,6 +5265,17 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": false,
         "partVariant": false
       }
+    ],
+    "bgDiffs": [
+      {
+        "id": "d1",
+        "rect": [
+          17.9,
+          27.3,
+          47.8,
+          61.9
+        ]
+      }
     ]
   },
   {
@@ -5268,6 +5449,26 @@ export const SPOT_THEMES: SpotTheme[] = [
         "flippable": true,
         "colorVariant": true,
         "partVariant": false
+      }
+    ],
+    "bgDiffs": [
+      {
+        "id": "d1",
+        "rect": [
+          81.0,
+          90.4,
+          39.4,
+          48.8
+        ]
+      },
+      {
+        "id": "d2",
+        "rect": [
+          49.6,
+          56.0,
+          23.8,
+          36.2
+        ]
       }
     ]
   },
@@ -5454,6 +5655,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "colorVariant": false,
         "partVariant": false
       }
-    ]
+    ],
+    "bgDiffs": []
   }
 ]

@@ -114,6 +114,17 @@ function isArithmetic(q: Question): q is ArithmeticQuestion {
   )
 }
 
+/** Plain たしざん/ひきざん up to this level answer by tapping one of 4 choices instead of the
+ * number pad — the youngest players recognize the right number far more easily than they
+ * produce it, and the pad's extra step (type, then ✓) was too much at ★1-2. □のけいさん and
+ * every higher level keep the pad. */
+const ARITHMETIC_CHOICE_MAX_LEVEL = 2
+
+function usesNumberPad(q: ArithmeticQuestion): boolean {
+  const isPlain = q.category === 'addition' || q.category === 'subtraction'
+  return !(isPlain && q.level <= ARITHMETIC_CHOICE_MAX_LEVEL)
+}
+
 function isLogic(q: Question): q is LogicQuestion {
   return q.category === 'logic'
 }
@@ -1349,7 +1360,7 @@ export function QuizScreen({
           />
         )}
 
-        {isArithmetic(question) ? (
+        {isArithmetic(question) && usesNumberPad(question) ? (
           <NumberPad key={question.id} onSubmit={(n) => handleSelect(n)} disabled={selected !== null} />
         ) : isLogic(question) && question.kind === 'oddOneOut' ? (
           <OddOneOutScene

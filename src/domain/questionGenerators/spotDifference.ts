@@ -17,16 +17,21 @@ const BOARD: Record<Level, { items: number; differences: number; size: [number, 
 }
 
 /** Each ★ adds a kind of difference (decided with the user, 2026-10-05): ★1 only "something
- * is missing" — the most obvious kind; ★2 adds "a different object"; ★3 adds bigger and
- * mirror-flipped. */
+ * is missing" — the most obvious kind; ★2 adds "a different object" and "a different colour"
+ * (2026-10-09 — as easy to see as a swap); ★3 adds bigger, mirror-flipped and "one part is
+ * different" (a shorter tail, a longer beak, different eyes — the subtlest kind). */
 const DIFF_TYPES: Record<Level, SpotDifferenceDiffType[]> = {
   1: ['missing'],
-  2: ['missing', 'swap'],
-  3: ['missing', 'swap', 'resize', 'flip'],
-  4: ['missing', 'swap', 'resize', 'flip'],
-  5: ['missing', 'swap', 'resize', 'flip'],
-  6: ['missing', 'swap', 'resize', 'flip'],
+  2: ['missing', 'swap', 'recolor'],
+  3: ['missing', 'swap', 'recolor', 'resize', 'flip', 'part'],
+  4: ['missing', 'swap', 'recolor', 'resize', 'flip', 'part'],
+  5: ['missing', 'swap', 'recolor', 'resize', 'flip', 'part'],
+  6: ['missing', 'swap', 'recolor', 'resize', 'flip', 'part'],
 }
+
+/** A part change only exists for some animals, so when one is possible it's favoured —
+ * otherwise the newest, most interesting kind would almost never come up. */
+const DIFF_WEIGHT: Partial<Record<SpotDifferenceDiffType, number>> = { part: 3 }
 
 /** Panel width / height — the panel keeps the background illustration's own 3:2 shape (see
  * .spot-scene-panel), so this is exact, not an assumption. */
@@ -92,9 +97,13 @@ function chooseDiff(level: Level, sprite: SpotSprite, swapCandidates: SpotSprite
   const options = DIFF_TYPES[level].filter((t) => {
     if (t === 'flip') return sprite.flippable
     if (t === 'swap') return swapCandidates.some((c) => c.zones.some((z) => sprite.zones.includes(z)))
+    if (t === 'recolor') return sprite.colorVariant
+    if (t === 'part') return sprite.partVariant
     return true
   })
-  return options.length > 0 ? pickRandom(options) : 'missing'
+  if (options.length === 0) return 'missing'
+  const weighted = options.flatMap((t) => Array<SpotDifferenceDiffType>(DIFF_WEIGHT[t] ?? 1).fill(t))
+  return pickRandom(weighted)
 }
 
 export function generateSpotDifferenceQuestion(level: Level): SpotDifferenceQuestion {
@@ -150,6 +159,10 @@ export function generateSpotDifferenceQuestion(level: Level): SpotDifferenceQues
         return { ...item, size: item.size * resize }
       case 'flip':
         return { ...item, flipped: !item.flipped }
+      case 'recolor':
+        return { ...item, variant: 'color' as const }
+      case 'part':
+        return { ...item, variant: 'part' as const }
     }
   })
 

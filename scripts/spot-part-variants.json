@@ -1,0 +1,1075 @@
+{
+  "_doc": "まちがいさがし 'part' differences: per theme/sprite, the box(es) to repaint as [x0, y0, x1, y1] fractions of the sprite image, and what that part should become. Used by generate-spot-part-variants.py. keepShape: true for a change inside the outline (eyes, a pattern) — the silhouette is kept exactly. rejected: true marks one whose output was reviewed by eye and judged unusable (too subtle, or visibly broken) after 2 seeds — skipped by the generator.",
+  "forest/fox": {
+    "boxes": [
+      [
+        0.0,
+        0.38,
+        0.42,
+        0.95
+      ]
+    ],
+    "prompt": "a cute orange fox with a tiny short stubby tail"
+  },
+  "sea/seagull": {
+    "boxes": [
+      [
+        0.74,
+        0.6,
+        1.0,
+        0.86
+      ]
+    ],
+    "prompt": "a white seagull with a very long thin pointed beak"
+  },
+  "forest/owl": {
+    "boxes": [
+      [
+        0.17,
+        0.17,
+        0.83,
+        0.43
+      ]
+    ],
+    "prompt": "a cute brown owl with small black dot eyes",
+    "keepShape": true
+  },
+  "park/dog": {
+    "boxes": [
+      [
+        0.02,
+        0.04,
+        0.36,
+        0.5
+      ],
+      [
+        0.64,
+        0.04,
+        0.98,
+        0.5
+      ]
+    ],
+    "prompt": "a cute puppy with pointy upright triangle ears sticking up"
+  },
+  "zoo/elephant": {
+    "boxes": [
+      [
+        0.5,
+        0.42,
+        0.88,
+        0.76
+      ]
+    ],
+    "prompt": "a cute grey elephant with a very short trunk"
+  },
+  "meadow/bird": {
+    "boxes": [
+      [
+        0.74,
+        0.44,
+        1.0,
+        0.78
+      ]
+    ],
+    "prompt": "a cute yellow bird with a short round tail"
+  },
+  "sea/fish": {
+    "boxes": [
+      [
+        0.78,
+        0.15,
+        1.0,
+        0.7
+      ]
+    ],
+    "prompt": "an orange fish with a tiny short tail fin"
+  },
+  "sea/whale": {
+    "boxes": [
+      [
+        0.62,
+        0.0,
+        1.0,
+        0.5
+      ]
+    ],
+    "prompt": "a blue whale with a very small tail",
+    "rejected": true
+  },
+  "forest/squirrel": {
+    "boxes": [
+      [
+        0.5,
+        0.0,
+        1.0,
+        0.8
+      ]
+    ],
+    "prompt": "a squirrel with a thin short tail",
+    "rejected": true
+  },
+  "forest/rabbit": {
+    "boxes": [
+      [
+        0.08,
+        0.0,
+        0.62,
+        0.33
+      ]
+    ],
+    "prompt": "a white rabbit with short round ears",
+    "rejected": true
+  },
+  "forest/bear": {
+    "boxes": [
+      [
+        0.0,
+        0.0,
+        0.33,
+        0.25
+      ],
+      [
+        0.67,
+        0.0,
+        1.0,
+        0.25
+      ]
+    ],
+    "prompt": "a cute brown bear with tiny ears"
+  },
+  "forest/woodpecker": {
+    "boxes": [
+      [
+        0.0,
+        0.17,
+        0.32,
+        0.38
+      ]
+    ],
+    "prompt": "a woodpecker with a very short tiny beak",
+    "rejected": true
+  },
+  "park/cat": {
+    "boxes": [
+      [
+        0.0,
+        0.6,
+        0.3,
+        0.95
+      ]
+    ],
+    "prompt": "a grey kitten sitting, no tail"
+  },
+  "park/duck": {
+    "boxes": [
+      [
+        0.6,
+        0.25,
+        0.98,
+        0.52
+      ]
+    ],
+    "prompt": "a yellow duck with a tiny short beak",
+    "rejected": true
+  },
+  "meadow/rabbit": {
+    "boxes": [
+      [
+        0.1,
+        0.0,
+        0.9,
+        0.3
+      ]
+    ],
+    "prompt": "a brown rabbit with short round ears",
+    "rejected": true
+  },
+  "meadow/ant": {
+    "boxes": [
+      [
+        0.1,
+        0.0,
+        0.9,
+        0.3
+      ]
+    ],
+    "prompt": "a red ant with short tiny antennae"
+  },
+  "meadow/snail": {
+    "boxes": [
+      [
+        0.0,
+        0.1,
+        0.35,
+        0.5
+      ]
+    ],
+    "prompt": "a snail with very short antennae"
+  },
+  "meadow/caterpillar": {
+    "boxes": [
+      [
+        0.68,
+        0.0,
+        0.95,
+        0.3
+      ]
+    ],
+    "prompt": "a green caterpillar with no antennae"
+  },
+  "nightsky/owl": {
+    "boxes": [
+      [
+        0.12,
+        0.15,
+        0.88,
+        0.4
+      ]
+    ],
+    "prompt": "an owl with small black dot eyes",
+    "keepShape": true
+  },
+  "nightsky/cat": {
+    "boxes": [
+      [
+        0.48,
+        0.55,
+        0.78,
+        1.0
+      ]
+    ],
+    "prompt": "a black cat sitting, no tail",
+    "rejected": true
+  },
+  "nightsky/bat": {
+    "boxes": [
+      [
+        0.25,
+        0.0,
+        0.75,
+        0.3
+      ]
+    ],
+    "prompt": "a purple bat with small round ears",
+    "rejected": true
+  },
+  "town/cat": {
+    "boxes": [
+      [
+        0.05,
+        0.0,
+        0.95,
+        0.25
+      ]
+    ],
+    "prompt": "an orange cat with small round ears",
+    "rejected": true
+  },
+  "town/dog": {
+    "boxes": [
+      [
+        0.1,
+        0.0,
+        0.9,
+        0.28
+      ]
+    ],
+    "prompt": "a white puppy with pointy upright ears"
+  },
+  "town/bird": {
+    "boxes": [
+      [
+        0.78,
+        0.3,
+        1.0,
+        0.6
+      ]
+    ],
+    "prompt": "a blue bird with a long thin pointed beak",
+    "rejected": true
+  },
+  "town/pigeon": {
+    "boxes": [
+      [
+        0.75,
+        0.05,
+        1.0,
+        0.25
+      ]
+    ],
+    "prompt": "a grey pigeon with a long beak",
+    "rejected": true
+  },
+  "zoo/lion": {
+    "boxes": [
+      [
+        0.05,
+        0.0,
+        0.95,
+        0.55
+      ]
+    ],
+    "prompt": "a lion cub without a mane, round head with small ears"
+  },
+  "zoo/penguin": {
+    "boxes": [
+      [
+        0.62,
+        0.15,
+        1.0,
+        0.35
+      ]
+    ],
+    "prompt": "a penguin with a long orange beak",
+    "rejected": true
+  },
+  "zoo/flamingo": {
+    "boxes": [
+      [
+        0.72,
+        0.05,
+        0.98,
+        0.4
+      ]
+    ],
+    "prompt": "a pink flamingo with a short small beak"
+  },
+  "zoo/monkey": {
+    "boxes": [
+      [
+        0.72,
+        0.55,
+        1.0,
+        0.85
+      ]
+    ],
+    "prompt": "a brown monkey sitting, no tail"
+  },
+  "zoo/hippo": {
+    "boxes": [
+      [
+        0.08,
+        0.0,
+        0.92,
+        0.2
+      ]
+    ],
+    "prompt": "a blue hippo with big round ears"
+  },
+  "zoo/kangaroo": {
+    "boxes": [
+      [
+        0.08,
+        0.0,
+        0.55,
+        0.25
+      ]
+    ],
+    "prompt": "a kangaroo with tiny small ears",
+    "rejected": true
+  },
+  "zoo/koala": {
+    "boxes": [
+      [
+        0.0,
+        0.0,
+        0.35,
+        0.4
+      ],
+      [
+        0.65,
+        0.0,
+        1.0,
+        0.4
+      ]
+    ],
+    "prompt": "a koala with tiny small ears",
+    "rejected": true
+  },
+  "zoo/rhino": {
+    "boxes": [
+      [
+        0.72,
+        0.05,
+        1.0,
+        0.45
+      ]
+    ],
+    "prompt": "a grey rhino with no horn"
+  },
+  "zoo/parrot": {
+    "boxes": [
+      [
+        0.62,
+        0.05,
+        0.9,
+        0.3
+      ]
+    ],
+    "prompt": "a parrot with a long straight beak"
+  },
+  "zoo/bear": {
+    "boxes": [
+      [
+        0.0,
+        0.0,
+        0.3,
+        0.25
+      ],
+      [
+        0.7,
+        0.0,
+        1.0,
+        0.25
+      ]
+    ],
+    "prompt": "a brown bear with tiny ears",
+    "rejected": true
+  },
+  "farm/pig": {
+    "boxes": [
+      [
+        0.0,
+        0.0,
+        0.32,
+        0.4
+      ],
+      [
+        0.68,
+        0.0,
+        1.0,
+        0.4
+      ]
+    ],
+    "prompt": "a pink pig with small round ears",
+    "rejected": true
+  },
+  "farm/cow": {
+    "boxes": [
+      [
+        0.2,
+        0.0,
+        0.85,
+        0.18
+      ]
+    ],
+    "prompt": "a cow with big long horns"
+  },
+  "farm/horse": {
+    "boxes": [
+      [
+        0.72,
+        0.5,
+        1.0,
+        0.9
+      ]
+    ],
+    "prompt": "a horse with a very short tail",
+    "rejected": true
+  },
+  "farm/chicken": {
+    "boxes": [
+      [
+        0.0,
+        0.0,
+        0.28,
+        0.2
+      ]
+    ],
+    "prompt": "a white hen with no red comb"
+  },
+  "farm/chick": {
+    "boxes": [
+      [
+        0.8,
+        0.15,
+        1.0,
+        0.35
+      ]
+    ],
+    "prompt": "a yellow chick with a long pointed beak",
+    "rejected": true
+  },
+  "farm/goat": {
+    "boxes": [
+      [
+        0.15,
+        0.0,
+        0.85,
+        0.18
+      ]
+    ],
+    "prompt": "a white goat with no horns"
+  },
+  "farm/duck": {
+    "boxes": [
+      [
+        0.0,
+        0.25,
+        0.4,
+        0.5
+      ]
+    ],
+    "prompt": "a white duck with a tiny short beak",
+    "rejected": true
+  },
+  "farm/crow": {
+    "boxes": [
+      [
+        0.0,
+        0.45,
+        0.25,
+        0.75
+      ]
+    ],
+    "prompt": "a black crow with a long beak",
+    "rejected": true
+  },
+  "garden/snail": {
+    "boxes": [
+      [
+        0.0,
+        0.0,
+        0.4,
+        0.4
+      ]
+    ],
+    "prompt": "a snail with no antennae"
+  },
+  "garden/bird": {
+    "boxes": [
+      [
+        0.75,
+        0.0,
+        1.0,
+        0.25
+      ]
+    ],
+    "prompt": "a robin with a long thin beak",
+    "rejected": true
+  },
+  "garden/bee": {
+    "boxes": [
+      [
+        0.25,
+        0.0,
+        0.8,
+        0.2
+      ]
+    ],
+    "prompt": "a bee with no antennae",
+    "rejected": true
+  },
+  "garden/cat": {
+    "boxes": [
+      [
+        0.0,
+        0.0,
+        0.35,
+        0.35
+      ],
+      [
+        0.65,
+        0.0,
+        1.0,
+        0.35
+      ]
+    ],
+    "prompt": "a cat with small round ears",
+    "rejected": true
+  },
+  "river/fish": {
+    "boxes": [
+      [
+        0.75,
+        0.1,
+        1.0,
+        0.6
+      ]
+    ],
+    "prompt": "a fish with a tiny short tail fin"
+  },
+  "river/heron": {
+    "boxes": [
+      [
+        0.6,
+        0.05,
+        1.0,
+        0.25
+      ]
+    ],
+    "prompt": "a grey heron with a short beak",
+    "rejected": true
+  },
+  "river/otter": {
+    "boxes": [
+      [
+        0.0,
+        0.45,
+        0.4,
+        0.85
+      ]
+    ],
+    "prompt": "a brown otter sitting, no tail"
+  },
+  "river/kingfisher": {
+    "boxes": [
+      [
+        0.0,
+        0.15,
+        0.35,
+        0.35
+      ]
+    ],
+    "prompt": "a kingfisher with a short beak",
+    "rejected": true
+  },
+  "snowfield/penguin": {
+    "boxes": [
+      [
+        0.72,
+        0.12,
+        1.0,
+        0.33
+      ]
+    ],
+    "prompt": "a penguin with a long orange beak"
+  },
+  "snowfield/polarbear": {
+    "boxes": [
+      [
+        0.0,
+        0.0,
+        0.3,
+        0.22
+      ],
+      [
+        0.7,
+        0.0,
+        1.0,
+        0.22
+      ]
+    ],
+    "prompt": "a polar bear with no ears",
+    "rejected": true
+  },
+  "snowfield/fox": {
+    "boxes": [
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.25
+      ]
+    ],
+    "prompt": "a white fox with small round ears",
+    "rejected": true
+  },
+  "snowfield/rabbit": {
+    "boxes": [
+      [
+        0.15,
+        0.0,
+        0.75,
+        0.35
+      ]
+    ],
+    "prompt": "a white rabbit with short round ears",
+    "rejected": true
+  },
+  "snowfield/bird": {
+    "boxes": [
+      [
+        0.82,
+        0.05,
+        1.0,
+        0.25
+      ]
+    ],
+    "prompt": "a bird with a long thin beak"
+  },
+  "underwater/clownfish": {
+    "boxes": [
+      [
+        0.8,
+        0.15,
+        1.0,
+        0.6
+      ]
+    ],
+    "prompt": "a clownfish with a tiny tail fin",
+    "rejected": true
+  },
+  "underwater/whale": {
+    "boxes": [
+      [
+        0.7,
+        0.0,
+        1.0,
+        0.5
+      ]
+    ],
+    "prompt": "a whale with a tiny tail"
+  },
+  "underwater/dolphin": {
+    "boxes": [
+      [
+        0.0,
+        0.65,
+        0.4,
+        1.0
+      ]
+    ],
+    "prompt": "a dolphin with a tiny tail",
+    "rejected": true
+  },
+  "underwater/shark": {
+    "boxes": [
+      [
+        0.7,
+        0.0,
+        1.0,
+        0.65
+      ]
+    ],
+    "prompt": "a shark with a tiny tail",
+    "rejected": true
+  },
+  "underwater/seahorse": {
+    "boxes": [
+      [
+        0.0,
+        0.65,
+        0.5,
+        1.0
+      ]
+    ],
+    "prompt": "a seahorse with a short straight tail",
+    "rejected": true
+  },
+  "station/pigeon": {
+    "boxes": [
+      [
+        0.0,
+        0.1,
+        0.22,
+        0.3
+      ]
+    ],
+    "prompt": "a grey pigeon with a long beak",
+    "rejected": true
+  },
+  "station/dog": {
+    "boxes": [
+      [
+        0.0,
+        0.35,
+        0.25,
+        0.7
+      ]
+    ],
+    "prompt": "a puppy sitting, no tail",
+    "rejected": true
+  },
+  "classroom/hamster": {
+    "boxes": [
+      [
+        0.0,
+        0.0,
+        0.3,
+        0.25
+      ],
+      [
+        0.7,
+        0.0,
+        1.0,
+        0.25
+      ]
+    ],
+    "prompt": "a white hamster with big round ears"
+  },
+  "picnic/dog": {
+    "boxes": [
+      [
+        0.0,
+        0.0,
+        0.3,
+        0.4
+      ],
+      [
+        0.7,
+        0.0,
+        1.0,
+        0.4
+      ]
+    ],
+    "prompt": "a puppy with pointy upright ears"
+  },
+  "picnic/bird": {
+    "boxes": [
+      [
+        0.75,
+        0.08,
+        1.0,
+        0.3
+      ]
+    ],
+    "prompt": "a bird with a long thin beak"
+  },
+  "camp/owl": {
+    "boxes": [
+      [
+        0.15,
+        0.25,
+        0.85,
+        0.5
+      ]
+    ],
+    "prompt": "an owl with small black dot eyes",
+    "keepShape": true
+  },
+  "camp/raccoon": {
+    "boxes": [
+      [
+        0.62,
+        0.6,
+        1.0,
+        0.95
+      ]
+    ],
+    "prompt": "a raccoon sitting, no tail",
+    "rejected": true
+  },
+  "rainyday/frog": {
+    "boxes": [
+      [
+        0.25,
+        0.0,
+        0.85,
+        0.22
+      ]
+    ],
+    "prompt": "a green frog with small black eyes",
+    "keepShape": true
+  },
+  "rainyday/cat": {
+    "boxes": [
+      [
+        0.5,
+        0.55,
+        0.85,
+        0.95
+      ]
+    ],
+    "prompt": "a grey cat sitting, no tail"
+  },
+  "rainyday/duck": {
+    "boxes": [
+      [
+        0.0,
+        0.18,
+        0.25,
+        0.38
+      ]
+    ],
+    "prompt": "a white duck with a tiny short beak",
+    "rejected": true
+  },
+  "autumn/squirrel": {
+    "boxes": [
+      [
+        0.55,
+        0.0,
+        1.0,
+        0.75
+      ]
+    ],
+    "prompt": "a squirrel with a thin short tail",
+    "rejected": true
+  },
+  "autumn/bird": {
+    "boxes": [
+      [
+        0.0,
+        0.6,
+        0.3,
+        0.95
+      ]
+    ],
+    "prompt": "a brown bird with a short tail",
+    "rejected": true
+  },
+  "pond/duck": {
+    "boxes": [
+      [
+        0.0,
+        0.25,
+        0.25,
+        0.42
+      ]
+    ],
+    "prompt": "a yellow duckling with a tiny beak",
+    "rejected": true
+  },
+  "pond/heron": {
+    "boxes": [
+      [
+        0.5,
+        0.03,
+        1.0,
+        0.12
+      ]
+    ],
+    "prompt": "a heron with a short beak",
+    "rejected": true
+  },
+  "pond/swan": {
+    "boxes": [
+      [
+        0.1,
+        0.1,
+        0.35,
+        0.35
+      ]
+    ],
+    "prompt": "a white swan with a tiny short beak",
+    "rejected": true
+  },
+  "pond/carp": {
+    "boxes": [
+      [
+        0.25,
+        0.6,
+        0.7,
+        1.0
+      ]
+    ],
+    "prompt": "an orange carp with a tiny tail fin",
+    "rejected": true
+  },
+  "jungle/monkey": {
+    "boxes": [
+      [
+        0.0,
+        0.5,
+        0.22,
+        0.85
+      ]
+    ],
+    "prompt": "a brown monkey sitting, no tail",
+    "rejected": true
+  },
+  "jungle/toucan": {
+    "boxes": [
+      [
+        0.0,
+        0.0,
+        0.45,
+        0.35
+      ]
+    ],
+    "prompt": "a toucan with a small short beak",
+    "rejected": true
+  },
+  "jungle/parrot": {
+    "boxes": [
+      [
+        0.55,
+        0.6,
+        1.0,
+        1.0
+      ]
+    ],
+    "prompt": "a red parrot with a short tail",
+    "rejected": true
+  },
+  "jungle/elephant": {
+    "boxes": [
+      [
+        0.6,
+        0.4,
+        1.0,
+        0.8
+      ]
+    ],
+    "prompt": "a grey elephant with a short trunk",
+    "rejected": true
+  },
+  "jungle/crocodile": {
+    "boxes": [
+      [
+        0.75,
+        0.4,
+        1.0,
+        0.85
+      ]
+    ],
+    "prompt": "a green crocodile with a short tail",
+    "rejected": true
+  },
+  "jungle/frog": {
+    "boxes": [
+      [
+        0.15,
+        0.05,
+        0.85,
+        0.25
+      ]
+    ],
+    "prompt": "a green frog with small black eyes",
+    "keepShape": true
+  },
+  "jungle/chameleon": {
+    "boxes": [
+      [
+        0.0,
+        0.45,
+        0.35,
+        1.0
+      ]
+    ],
+    "prompt": "a chameleon with a short straight tail",
+    "rejected": true
+  },
+  "jungle/tiger": {
+    "boxes": [
+      [
+        0.0,
+        0.0,
+        0.3,
+        0.3
+      ],
+      [
+        0.7,
+        0.0,
+        1.0,
+        0.3
+      ]
+    ],
+    "prompt": "a tiger cub with no ears",
+    "rejected": true
+  },
+  "airport/bird": {
+    "boxes": [
+      [
+        0.68,
+        0.5,
+        1.0,
+        0.75
+      ]
+    ],
+    "prompt": "a bird with a short tail"
+  },
+  "construction/bird": {
+    "boxes": [
+      [
+        0.0,
+        0.6,
+        0.35,
+        1.0
+      ]
+    ],
+    "prompt": "a bird with a short tail",
+    "rejected": true
+  }
+}

@@ -175,7 +175,7 @@ export interface ClockQuestion {
   subSkill: string
 }
 
-export type SpotDifferenceDiffType = 'missing' | 'swap' | 'resize' | 'flip'
+export type SpotDifferenceDiffType = 'missing' | 'swap' | 'resize' | 'flip' | 'recolor' | 'part'
 
 /** One object placed in a まちがいさがし scene — a transparent illustrated sticker from the
  * scene's theme (see spotScenes.ts, generated from scripts/spot-themes.json), on that theme's
@@ -190,6 +190,9 @@ export interface SpotDifferenceItem {
    * own aspect ratio (see SpotSprite.aspect). */
   size: number
   flipped: boolean
+  /** Which version of the sticker is shown: the original, the recoloured one
+   * (<spriteId>__color.png) or the one with a part changed (<spriteId>__part.png). */
+  variant?: 'color' | 'part'
 }
 
 export interface SpotDifferenceQuestion {
@@ -201,7 +204,8 @@ export interface SpotDifferenceQuestion {
   /** the top ("reference") picture — always complete */
   leftItems: SpotDifferenceItem[]
   /** the bottom picture, same order as leftItems; at differenceIndexes the object is
-   * missing (null), swapped for a different object, resized, or mirror-flipped */
+   * missing (null), swapped for a different object, resized, mirror-flipped, a different
+   * colour, or with one part changed (a shorter tail, a longer beak, different eyes) */
   rightItems: (SpotDifferenceItem | null)[]
   /** indexes (into leftItems/rightItems) where the two pictures differ — the tap targets */
   differenceIndexes: number[]

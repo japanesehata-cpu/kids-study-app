@@ -30,11 +30,25 @@ describe('まちがいさがし (illustrated scenes)', () => {
             return
           }
           if (right === null) return // missing
-          const changed = [right.spriteId !== left.spriteId, right.size !== left.size, right.flipped !== left.flipped].filter(Boolean)
+          const changed = [
+            right.spriteId !== left.spriteId,
+            right.size !== left.size,
+            right.flipped !== left.flipped,
+            right.variant !== left.variant,
+          ].filter(Boolean)
           expect(changed.length, `slot ${i}`).toBeGreaterThanOrEqual(1)
           if (right.spriteId !== left.spriteId) expect(sceneIds.has(right.spriteId)).toBe(false)
           if (right.flipped !== left.flipped) expect(sprite(left.spriteId).flippable).toBe(true)
           if (right.size !== left.size) expect(level).toBeGreaterThanOrEqual(3)
+          expect(left.variant).toBeUndefined()
+          if (right.variant === 'color') {
+            expect(level).toBeGreaterThanOrEqual(2)
+            expect(sprite(left.spriteId).colorVariant).toBe(true)
+          }
+          if (right.variant === 'part') {
+            expect(level).toBeGreaterThanOrEqual(3)
+            expect(sprite(left.spriteId).partVariant).toBe(true)
+          }
         })
         if (level === 1) expect(q.differenceIndexes.every((i) => q.rightItems[i] === null)).toBe(true)
 
@@ -50,4 +64,14 @@ describe('まちがいさがし (illustrated scenes)', () => {
       }
     })
   }
+
+  it('★3+ actually uses the colour and part differences', () => {
+    const seen = new Set<string>()
+    for (let n = 0; n < 400; n++) {
+      const q = generateSpotDifferenceQuestion(3)
+      for (const r of q.rightItems) if (r?.variant) seen.add(r.variant)
+    }
+    expect(seen.has('color')).toBe(true)
+    expect(seen.has('part')).toBe(true)
+  })
 })

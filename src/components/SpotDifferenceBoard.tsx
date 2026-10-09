@@ -80,7 +80,7 @@ function ScenePanel({
               // button's own centering transform.
               <span className={`spot-scene-item-inner ${isWrong ? 'wrong' : ''}`.trim()}>
                 <img
-                  src={`${SPOT_IMAGE_BASE}/${themeId}/${item.spriteId}.png`}
+                  src={`${SPOT_IMAGE_BASE}/${themeId}/${item.spriteId}${item.variant ? `__${item.variant}` : ''}.png`}
                   alt=""
                   draggable={false}
                   style={{ transform: item.flipped ? 'scaleX(-1)' : undefined }}

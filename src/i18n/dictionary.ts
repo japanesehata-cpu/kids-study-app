@@ -416,6 +416,9 @@ export const dictionary = {
   progressBack: { ja: 'もどる', en: 'Back' },
   progressNoData: { ja: 'まだきろくがないよ', en: 'No records yet' },
 
+  greetMorning: { ja: 'おはよう！ きょうも いっしょに がんばろうね！', en: "Good morning! Let's do our best together today!" },
+  greetDay: { ja: 'こんにちは！ きょうは なにを して あそぶ？', en: 'Hello! What shall we play today?' },
+  greetEvening: { ja: 'こんばんは！ ねる まえに ちょっとだけ やってみよう！', en: "Good evening! Let's try a little before bed!" },
   introduceCharacterHint: { ja: 'タップして じこしょうかいを きこう', en: 'Tap to hear a self-introduction' },
   introMomo: {
     ja: 'わたし もも！ かぞえるの だいすき！ いっしょに たしざん がんばろうね、いつも おうえんしてるよ！',

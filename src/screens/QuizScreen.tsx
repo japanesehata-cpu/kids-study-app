@@ -56,6 +56,7 @@ import { OddOneOutScene } from '../components/OddOneOutScene'
 import { CharacterPortrait } from '../components/characters/CharacterPortrait'
 import { characterThemes } from '../components/characters/characterThemes'
 import { CorrectCelebration } from '../components/CorrectCelebration'
+import { PeekingMascot, QuizProgressStars } from '../components/QuizFlourishes'
 import { CategoryHeader } from '../components/CategoryHeader'
 import { useResponsiveSize } from '../lib/useResponsiveSize'
 import { oppositeWordKey } from '../domain/oppositeBank'
@@ -1246,6 +1247,7 @@ export function QuizScreen({
   return (
     <div className="screen">
       {celebrationKey > 0 && <CorrectCelebration key={celebrationKey} streak={streak} />}
+      {index > 0 && <PeekingMascot key={index} theme={characterThemes[category]} />}
       <div className="top-bar">
         <div style={{ display: 'flex', gap: 8 }}>
           <button type="button" className="icon-button" onClick={onExit} aria-label={t('backButton')}>
@@ -1256,9 +1258,7 @@ export function QuizScreen({
           </button>
         </div>
         <CategoryHeader category={category} />
-        <span className="subtitle">
-          {t('quizProgress', { current: index + 1, total: questions.length })}
-        </span>
+        <QuizProgressStars total={questions.length} index={index} answers={answers} label={t('quizProgress', { current: index + 1, total: questions.length })} />
       </div>
 
       <div

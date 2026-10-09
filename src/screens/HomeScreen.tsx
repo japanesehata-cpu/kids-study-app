@@ -4,6 +4,7 @@ import type { DictionaryKey } from '../i18n/dictionary'
 import { CATEGORY_META } from '../domain/categoryMeta'
 import { useI18n } from '../i18n/I18nContext'
 import { speak, type SpeechLang } from '../lib/tts'
+import { getContext } from '../lib/sfx'
 import { CharacterPortrait } from '../components/characters/CharacterPortrait'
 import { characterThemes } from '../components/characters/characterThemes'
 import { LanguageToggle } from '../components/LanguageToggle'
@@ -43,6 +44,16 @@ const HOME_CATEGORY_META = CATEGORY_META.filter(
     c.category !== 'kanji2',
 )
 const ALL_CATEGORIES: Category[] = HOME_CATEGORY_META.map((c) => c.category)
+
+// Shown (and spoken by momo) on the first Home of each app visit only — not every time the
+// child comes back from a quiz.
+let greetedThisVisit = false
+
+function greetingFor(hour: number): { key: DictionaryKey; cacheKey: string } {
+  if (hour >= 4 && hour < 11) return { key: 'greetMorning', cacheKey: 'greet-morning' }
+  if (hour >= 11 && hour < 17) return { key: 'greetDay', cacheKey: 'greet-day' }
+  return { key: 'greetEvening', cacheKey: 'greet-evening' }
+}
 
 const INTRO_KEY_BY_CATEGORY: Record<Category, DictionaryKey> = {
   addition: 'introMomo',
@@ -91,6 +102,53 @@ export function HomeScreen({
     if (showcaseRef.current) updateAtEnd(showcaseRef.current)
   }, [])
 
+  const [greeting, setGreeting] = useState<{ key: DictionaryKey; cacheKey: string } | null>(() =>
+    greetedThisVisit ? null : greetingFor(new Date().getHours()),
+  )
+  useEffect(() => {
+    if (!greeting) return
+    greetedThisVisit = true
+    let alive = true
+    const say = () => {
+      if (!alive) return
+      const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
+      speak(t(greeting.key), speechLang, characterThemes.addition.voiceProfile, lang === 'ja' ? greeting.cacheKey : undefined)
+    }
+    // Speak right away if this browser already allows sound; otherwise right after the
+    // first touch — unless that touch took the child off Home (then it's not said at all).
+    const ctx = getContext()
+    let pending: ReturnType<typeof setTimeout> | null = null
+    const onFirstTouch = () => {
+      window.removeEventListener('pointerup', onFirstTouch, true)
+      pending = setTimeout(say, 200)
+    }
+    if (ctx?.state === 'running') say()
+    else window.addEventListener('pointerup', onFirstTouch, true)
+    const hide = setTimeout(() => setGreeting(null), 6000)
+    return () => {
+      alive = false
+      window.removeEventListener('pointerup', onFirstTouch, true)
+      if (pending) clearTimeout(pending)
+      clearTimeout(hide)
+    }
+    // once per mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Every few seconds one mascot in the strip hops and waves, so Home feels alive without
+  // anything big moving at once.
+  const [wavingIndex, setWavingIndex] = useState<number | null>(null)
+  useEffect(() => {
+    const id = setInterval(() => {
+      setWavingIndex((prev) => {
+        let next = Math.floor(Math.random() * ALL_CATEGORIES.length)
+        if (next === prev) next = (next + 1) % ALL_CATEGORIES.length
+        return next
+      })
+    }, 3200)
+    return () => clearInterval(id)
+  }, [])
+
   function handleIntroduce(category: Category) {
     const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
     // A pre-rendered file exists only for the Japanese intros (see
@@ -135,26 +193,30 @@ export function HomeScreen({
           ref={showcaseRef}
           onScroll={(e: UIEvent<HTMLDivElement>) => updateAtEnd(e.currentTarget)}
         >
-          {ALL_CATEGORIES.map((category) => (
+          {ALL_CATEGORIES.map((category, i) => (
             <button
               key={category}
               type="button"
-              className="character-intro-button"
+              className={`character-intro-button ${wavingIndex === i ? 'is-waving' : ''}`.trim()}
               aria-label={t('introduceCharacterHint')}
               onClick={() => handleIntroduce(category)}
             >
-              <CharacterPortrait theme={characterThemes[category]} mood="happy" size={110} />
+              <CharacterPortrait theme={characterThemes[category]} mood="happy" size={110} phase={i * 0.37} />
             </button>
           ))}
         </div>
       </div>
 
-      <p className="hint-caption">{t('introduceCharacterHint')}</p>
+      {greeting ? (
+        <p className="home-greeting">{t(greeting.key)}</p>
+      ) : (
+        <p className="hint-caption">{t('introduceCharacterHint')}</p>
+      )}
 
       <p className="subtitle">{t('homeSubtitle')}</p>
 
       <div className="category-grid">
-        {HOME_CATEGORY_META.map(({ category, symbol, labelKey }) => (
+        {HOME_CATEGORY_META.map(({ category, symbol, labelKey }, i) => (
           <button
             key={category}
             type="button"
@@ -175,7 +237,7 @@ export function HomeScreen({
             >
               {symbol}
             </span>
-            <CharacterPortrait theme={characterThemes[category]} mood="happy" size={92} />
+            <CharacterPortrait theme={characterThemes[category]} mood="happy" size={92} phase={i * 0.53} />
             <span className="category-label">
               {t(category === 'englishSpelling' ? 'categoryEnglish' : category === 'hiragana' ? 'categoryMoji' : labelKey)}
             </span>

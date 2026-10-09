@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { AnswerRecord, Category, Level, ProgressState, SetResult } from './domain/types'
 import { applySetResult, loadProgress, persistProgress, SET_SIZE } from './domain/progress'
 import { saveLastQuizFeedback } from './domain/homeFeedback'
@@ -25,8 +25,10 @@ import { ResultScreen } from './screens/ResultScreen'
 import { ParentGate } from './screens/ParentGate'
 import { ProgressScreen } from './screens/ProgressScreen'
 import { FitToViewport } from './components/FitToViewport'
+import { FloatingBackdrop } from './components/FloatingBackdrop'
 import { AppErrorBoundary } from './components/AppErrorBoundary'
 import { setBgmMode } from './lib/bgm'
+import { lastPointer } from './lib/pointer'
 
 // Screens where the child is answering or writing — BGM drops to a quiet background level
 // there so it never competes with thinking (see bgm.ts).
@@ -94,6 +96,27 @@ function AppContent() {
     navLockRef.current = false
   }, [screen])
 
+  // Which way the next screen enters (see theme.css's .screen[data-nav]): forward slides in
+  // from the right, back from the left, and leaving Home "opens" the new screen out of the
+  // card that was tapped. Set before paint so the very first frame already uses it.
+  const navKindRef = useRef<'forward' | 'back' | 'open' | 'swap'>('swap')
+  useLayoutEffect(() => {
+    const el = document.querySelector<HTMLElement>('.fit-viewport-inner > .screen')
+    if (!el) return
+    const kind = navKindRef.current
+    const inner = el.parentElement
+    if (kind === 'open' && lastPointer && inner) {
+      // Measured against the (never-animated) FitToViewport wrapper plus the screen's own
+      // layout offset — the screen's own rect is already mid-animation here.
+      const r = inner.getBoundingClientRect()
+      const scale = inner.offsetWidth ? r.width / inner.offsetWidth : 1
+      const x = (lastPointer.x - r.left) / scale - el.offsetLeft
+      const y = (lastPointer.y - r.top) / scale - el.offsetTop
+      el.style.transformOrigin = `${x}px ${y}px`
+    }
+    el.dataset.nav = kind
+  }, [screen])
+
   function acquireNavLock(): boolean {
     if (navLockRef.current) return false
     navLockRef.current = true
@@ -102,6 +125,7 @@ function AppContent() {
 
   function navigate(next: Screen) {
     if (!acquireNavLock()) return
+    navKindRef.current = screen.name === 'home' ? 'open' : 'forward'
     setHistory((h) => [...h, screen])
     setScreen(next)
   }
@@ -111,11 +135,13 @@ function AppContent() {
    * reopening a finished quiz or a stale result. */
   function replace(next: Screen) {
     if (!acquireNavLock()) return
+    navKindRef.current = 'swap'
     setScreen(next)
   }
 
   function goBack() {
     if (!acquireNavLock()) return
+    navKindRef.current = 'back'
     setHistory((h) => {
       if (h.length === 0) {
         setScreen({ name: 'home' })
@@ -128,6 +154,7 @@ function AppContent() {
 
   function goHome() {
     if (!acquireNavLock()) return
+    navKindRef.current = 'back'
     setHistory([])
     setScreen({ name: 'home' })
   }
@@ -366,6 +393,7 @@ function AppContent() {
 function App() {
   return (
     <I18nProvider>
+      <FloatingBackdrop />
       <FitToViewport>
         <AppErrorBoundary>{(resetKey) => <AppContent key={resetKey} />}</AppErrorBoundary>
       </FitToViewport>

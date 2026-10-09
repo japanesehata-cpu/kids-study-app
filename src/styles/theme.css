@@ -160,10 +160,13 @@ button:not(:disabled):active {
   scale: 0.96;
 }
 
-/* Soft fade-and-rise each time a new screen mounts. A keyframe animation with no fill
-   mode, so the transform is gone again once it finishes — a lingering transform here would
-   make .screen the containing block for its position:fixed children (.next-button,
-   RewardRain) and pin them inside the screen instead of the viewport. */
+/* Each time a new screen mounts it enters according to how it was reached (App.tsx sets
+   data-nav before the first paint): forward slides in from the right, back from the left,
+   and a screen opened from a Home card grows out of the tapped spot. All under 0.3s and
+   nothing waits on them — taps work from the first frame. Keyframe animations with no fill
+   mode, so the transform is gone again once they finish — a lingering transform here would
+   make .screen the containing block for its position:fixed children (.next-button, the
+   celebration overlay) and pin them inside the screen instead of the viewport. */
 @keyframes screen-enter {
   from {
     opacity: 0;
@@ -175,16 +178,152 @@ button:not(:disabled):active {
   }
 }
 
+@keyframes screen-enter-forward {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes screen-enter-back {
+  from {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes screen-enter-open {
+  from {
+    opacity: 0;
+    transform: scale(0.55);
+    border-radius: 40px;
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .screen {
   animation: screen-enter 0.34s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.screen[data-nav='forward'] {
+  animation: screen-enter-forward 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.screen[data-nav='back'] {
+  animation: screen-enter-back 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.screen[data-nav='open'] {
+  animation: screen-enter-open 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .screen {
+  .screen,
+  .screen[data-nav] {
     animation: none;
   }
   button,
   button:not(:disabled):active {
     transition: none;
+  }
+}
+
+/* lib/tapEffects.ts: a few ★ scattering from each tap. */
+.tap-sparkle-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.tap-sparkle {
+  position: absolute;
+  font-size: 12px;
+  line-height: 1;
+  translate: -50% -50%;
+  animation: tap-sparkle 0.45s ease-out forwards;
+}
+
+@keyframes tap-sparkle {
+  from {
+    transform: translate(0, 0) scale(0.6) rotate(0deg);
+    opacity: 1;
+  }
+  to {
+    transform: translate(var(--dx), var(--dy)) scale(1.1) rotate(90deg);
+    opacity: 0;
+  }
+}
+
+/* components/FloatingBackdrop.tsx */
+.floating-backdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.floating-item {
+  position: absolute;
+  bottom: -60px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+  animation-name: float-rise, float-sway;
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+  animation-direction: normal, alternate;
+}
+
+.floating-heart {
+  color: #ffb3d1;
+  opacity: 0.45;
+}
+
+.floating-bubble {
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, rgba(255, 255, 255, 0.9) 0 18%, rgba(255, 255, 255, 0.15) 45%, rgba(255, 182, 213, 0.25) 100%);
+  box-shadow: inset 0 0 0 1.5px rgba(255, 160, 200, 0.45);
+  opacity: 0.6;
+}
+
+@keyframes float-rise {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 calc(-100vh - 120px);
+  }
+}
+
+@keyframes float-sway {
+  from {
+    transform: translateX(calc(var(--sway) * -1)) rotate(-8deg);
+  }
+  to {
+    transform: translateX(var(--sway)) rotate(8deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-backdrop {
+    display: none;
   }
 }

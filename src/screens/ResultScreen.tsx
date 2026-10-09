@@ -7,6 +7,7 @@ import { StampReward } from '../components/StampReward'
 import { CharacterPortrait } from '../components/characters/CharacterPortrait'
 import { characterThemes } from '../components/characters/characterThemes'
 import { CategoryHeader } from '../components/CategoryHeader'
+import { ResultStars } from '../components/QuizFlourishes'
 
 interface ResultScreenProps {
   result: SetResult
@@ -83,6 +84,7 @@ export function ResultScreen({ result, onRetry, onBack, onBackHome }: ResultScre
       <StampReward />
 
       <div className="card-panel">
+        <ResultStars correct={correctCount} total={total} />
         <p className="result-score-text">{t('resultScoreLabel', { correct: correctCount, total })}</p>
 
         {showBestStreak && (

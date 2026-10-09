@@ -166,6 +166,14 @@ function buildJobs() {
     jobs.push({ cacheKey: `intro-${category}`, text, speakerName, styleName })
   }
 
+  // Home's once-per-visit greeting by time of day (HomeScreen's GREETINGS), in momo's voice.
+  {
+    const { name: speakerName, style: styleName } = characterThemes.addition.voiceProfile.voicevoxSpeaker
+    for (const [key, cacheKey] of [['greetMorning', 'greet-morning'], ['greetDay', 'greet-day'], ['greetEvening', 'greet-evening']]) {
+      jobs.push({ cacheKey, text: dictionary[key].ja, speakerName, styleName })
+    }
+  }
+
   // Every hiragana reading phrase (46 base + 25 dakuten/handakuten), all in yui's
   // (the hiragana category's) voice.
   const { name: hiraganaSpeakerName, style: hiraganaStyleName } = characterThemes.hiragana.voiceProfile.voicevoxSpeaker

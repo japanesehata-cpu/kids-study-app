@@ -3,8 +3,11 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import { initBgm } from './lib/bgm'
+import { initTapEffects } from './lib/tapEffects'
+import './lib/pointer'
 
 initBgm()
+initTapEffects()
 
 // iOS Safari only applies :active styles (the "ぷにっ" press feedback on every button, see
 // theme.css) when the page has at least one touchstart listener.

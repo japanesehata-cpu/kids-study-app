@@ -7,6 +7,8 @@ interface CharacterPortraitProps {
   theme: CharacterTheme
   mood?: CharacterMood
   size?: number
+  /** Seconds into the idle loop to start from, so a row of portraits doesn't bob in lockstep. */
+  phase?: number
 }
 
 const SPARKLE_POSITIONS = [
@@ -40,7 +42,7 @@ const celebrateAnimation = { rotate: [-8, 8, -8], y: [0, -16, 0], scale: 1 }
 const streakAnimation = { rotate: [-10, 10, -10], y: [0, -20, 0], scale: [1, 1.1, 1] }
 const thinkingAnimation = { rotate: [-3, 3, -3], y: [0, 2, 0], scale: 1 }
 
-export function CharacterPortrait({ theme, mood = 'happy', size = 220 }: CharacterPortraitProps) {
+export function CharacterPortrait({ theme, mood = 'happy', size = 220, phase = 0 }: CharacterPortraitProps) {
   const animate =
     mood === 'streak'
       ? streakAnimation
@@ -57,12 +59,23 @@ export function CharacterPortrait({ theme, mood = 'happy', size = 220 }: Charact
       style={{ position: 'relative', display: 'inline-block', ['--portrait-max' as string]: `${size}px` }}
     >
       <Sparkles active={mood === 'celebrate' || mood === 'streak'} />
+      {mood === 'thinking' && (
+        // 「おしい！」 — a little sweat drop that slides down once, instead of sparkles.
+        <motion.span
+          style={{ position: 'absolute', right: '6%', top: '8%', fontSize: '22%', zIndex: 1 }}
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: [0, 1, 1, 0], y: [-6, 0, 6, 10] }}
+          transition={{ duration: 1.4, times: [0, 0.2, 0.75, 1] }}
+        >
+          💦
+        </motion.span>
+      )}
       <motion.img
         src={`${import.meta.env.BASE_URL}images/characters/${theme.id}.png`}
         alt={theme.id}
         style={{ width: '100%', height: '100%', objectFit: 'contain' }}
         animate={animate}
-        transition={{ duration, repeat: Infinity, ease: 'easeInOut' }}
+        transition={{ duration, repeat: Infinity, ease: 'easeInOut', delay: -phase }}
       />
     </div>
   )

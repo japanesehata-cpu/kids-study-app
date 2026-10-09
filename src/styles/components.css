@@ -1,4 +1,6 @@
 .screen {
+  /* anchors Home's greeting bubble (relative doesn't capture position:fixed children) */
+  position: relative;
   /* Fills FitToViewport's container (flex-grow) instead of a 100dvh min-height — a
      viewport-unit height can differ from the actual visible box by a few px on iOS
      (toolbar animation, rounding), which alone was enough to make the screen "taller
@@ -136,6 +138,59 @@
   padding: 0;
   cursor: pointer;
   border-radius: 50%;
+}
+
+/* HomeScreen's once-per-visit greeting: a speech bubble in the hint caption's spot, its
+   tail pointing up at the mascot strip; the caption comes back when it's gone. */
+.home-greeting {
+  position: relative;
+  margin: -4px 0 0;
+  max-width: 100%;
+  padding: 5px 14px;
+  border-radius: 14px;
+  background: white;
+  color: var(--color-text);
+  font-weight: 800;
+  font-size: clamp(12px, 1.9vh, 15px);
+  text-align: center;
+  box-shadow: var(--shadow-card);
+  animation: greeting-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.home-greeting::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  /* under momo, the first portrait in the strip — she's the one saying it */
+  left: 30px;
+  border: 7px solid transparent;
+  border-bottom-color: white;
+  border-top: 0;
+}
+
+@keyframes greeting-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.85); }
+  to { opacity: 1; transform: none; }
+}
+
+/* HomeScreen picks one mascot every few seconds: a little hop with a wave-like wiggle. */
+.character-intro-button.is-waving {
+  animation: mascot-wave 0.8s ease-in-out;
+  transform-origin: 50% 90%;
+}
+
+@keyframes mascot-wave {
+  0%, 100% { transform: none; }
+  20% { transform: translateY(-10px) rotate(-8deg); }
+  40% { transform: translateY(-10px) rotate(8deg); }
+  60% { transform: translateY(-4px) rotate(-6deg); }
+  80% { transform: translateY(0) rotate(3deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .character-intro-button.is-waving {
+    animation: none;
+  }
 }
 
 
@@ -1702,5 +1757,118 @@
     width: 76px;
     height: 76px;
     font-size: 28px;
+  }
+}
+
+/* components/QuizFlourishes.tsx */
+.quiz-progress-stars {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px;
+  max-width: 100%;
+}
+
+.quiz-progress-star {
+  font-size: clamp(14px, 2.4vh, 20px);
+  line-height: 1;
+  color: rgba(255, 126, 182, 0.22);
+  transition: color 0.2s;
+}
+
+.quiz-progress-star.is-current {
+  color: rgba(255, 126, 182, 0.5);
+  animation: progress-star-pulse 1.2s ease-in-out infinite;
+}
+
+.quiz-progress-star.is-correct {
+  color: #ff5c9d;
+  text-shadow: 0 0 6px rgba(255, 209, 102, 0.9);
+  animation: progress-star-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.quiz-progress-star.is-missed {
+  color: #c9b8c2;
+}
+
+@keyframes progress-star-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.18); }
+}
+
+@keyframes progress-star-pop {
+  0% { transform: scale(0.3) rotate(-40deg); }
+  70% { transform: scale(1.4) rotate(10deg); }
+  100% { transform: none; }
+}
+
+.peeking-mascot {
+  position: fixed;
+  right: 10px;
+  bottom: 0;
+  width: clamp(64px, 11vh, 96px);
+  pointer-events: none;
+  z-index: 40;
+  translate: 0 100%;
+  animation: mascot-peek 0.9s ease-in-out;
+}
+
+@keyframes mascot-peek {
+  0% { translate: 0 100%; rotate: 0deg; }
+  28% { translate: 0 35%; rotate: -8deg; }
+  50% { translate: 0 38%; rotate: 6deg; }
+  72% { translate: 0 35%; rotate: -4deg; }
+  100% { translate: 0 100%; rotate: 0deg; }
+}
+
+.choice-button.incorrect {
+  animation: spot-shake 0.35s ease;
+}
+
+.choice-button.incorrect:disabled {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiz-progress-star.is-current,
+  .quiz-progress-star.is-correct,
+  .choice-button.incorrect {
+    animation: none;
+  }
+  .peeking-mascot {
+    display: none;
+  }
+}
+
+.result-stars {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+}
+
+.result-star {
+  font-size: clamp(22px, 4vh, 34px);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(255, 126, 182, 0.35);
+}
+
+.result-star.is-landed {
+  color: #ffc93c;
+  -webkit-text-stroke: 2px #ff8fb8;
+  filter: drop-shadow(0 0 6px rgba(255, 201, 60, 0.7));
+  animation: result-star-land 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes result-star-land {
+  0% { transform: translateY(-40px) scale(0.4) rotate(-90deg); opacity: 0; }
+  70% { transform: translateY(2px) scale(1.25) rotate(10deg); opacity: 1; }
+  100% { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .result-star.is-landed {
+    animation: none;
   }
 }

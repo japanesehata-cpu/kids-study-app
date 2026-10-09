@@ -58,3 +58,32 @@ export function playFoundSfx(): void {
   if (!ctx) return
   playTone(ctx, 880, 0, 0.1, 0.14) // A5
 }
+
+/** A soft "ぽん" for ordinary button taps — a quick downward pitch drop, very quiet so it
+ * sits under speech and never competes with the answer chimes. */
+export function playTapSfx(): void {
+  const ctx = getContext()
+  if (!ctx || ctx.state !== 'running') return
+  const osc = ctx.createOscillator()
+  const gain = ctx.createGain()
+  const t = ctx.currentTime
+  osc.type = 'sine'
+  osc.frequency.setValueAtTime(900, t)
+  osc.frequency.exponentialRampToValueAtTime(420, t + 0.08)
+  gain.gain.setValueAtTime(0, t)
+  gain.gain.linearRampToValueAtTime(0.07, t + 0.008)
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.12)
+  osc.connect(gain)
+  gain.connect(ctx.destination)
+  osc.start(t)
+  osc.stop(t + 0.14)
+}
+
+/** Light "ピコン" for each star landing on the result screen; `step` climbs the pitch. */
+export function playStarSfx(step: number): void {
+  const ctx = getContext()
+  if (!ctx) return
+  const base = 1046.5 * 2 ** (Math.min(step, 12) / 12)
+  playTone(ctx, base, 0, 0.08, 0.08)
+  playTone(ctx, base * 1.5, 0.05, 0.12, 0.06)
+}

@@ -401,6 +401,8 @@ export const dictionary = {
   subSkillShapesClassify: { ja: 'にた かたちの みわけ', en: 'telling similar shapes apart' },
 
   settingsLabel: { ja: 'おうちのひとへ', en: 'For parents' },
+  bgmOnLabel: { ja: 'おんがくを とめる', en: 'Turn music off' },
+  bgmOffLabel: { ja: 'おんがくを ながす', en: 'Turn music on' },
   parentGateTitle: { ja: 'おうちのひと専用', en: 'Parent access' },
   parentGatePrompt: { ja: 'こたえをいれてね: {a} + {b} = ?', en: 'Solve to continue: {a} + {b} = ?' },
   parentGateWrong: { ja: 'ちがうみたい、もう一度どうぞ', en: 'That’s not it, try again' },

@@ -1,3 +1,4 @@
+import { setBgmDucked } from './bgm'
 import { isLocalDevHost, isVoicevoxAvailable, resolveVoicevoxSpeakerId, synthesizeVoicevox } from './voicevox'
 
 export type SpeechLang = 'ja-JP' | 'en-US'
@@ -219,6 +220,23 @@ export async function speak(
     currentAudio = null
   }
 
+  // BGM dips for as long as anything is being said. Only the latest call un-ducks — a
+  // superseded call's tail end must not bring the music back up mid-sentence of the newer one.
+  setBgmDucked(true)
+  try {
+    await speakTiers(text, lang, profile, cacheKey, token)
+  } finally {
+    if (token === callToken) setBgmDucked(false)
+  }
+}
+
+async function speakTiers(
+  text: string,
+  lang: SpeechLang,
+  profile: VoiceProfile,
+  cacheKey: string | undefined,
+  token: number,
+): Promise<void> {
   if (cacheKey) {
     if (token !== callToken) return
     const played = await speakWithCachedFile(cacheKey, token)

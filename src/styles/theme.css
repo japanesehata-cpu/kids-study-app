@@ -138,4 +138,53 @@ img {
 
 button {
   font-family: inherit;
+  /* "ぷにっ" press feedback, shared by every button in the app: a quick squash on press and
+     a springy overshoot on release. Uses the standalone `scale` property rather than
+     `transform`, so it composes with buttons that already position or sink themselves via
+     transform (.next-button's translateX(-50%), .primary-button's translateY on press)
+     instead of overwriting them. Any rule that sets its own `transition` on a button must
+     include `scale` in it or it loses this. */
+  transition: scale 0.32s cubic-bezier(0.34, 1.9, 0.5, 1);
+}
+
+button:not(:disabled):active {
+  scale: 0.92;
+  transition: scale 0.07s ease-out;
+}
+
+/* Large tap targets (cards, answer choices) squash less — the same 8% on a full-width
+   card reads as a lurch rather than a squish. */
+.category-card:not(:disabled):active,
+.level-button:not(:disabled):active,
+.choice-button:not(:disabled):active {
+  scale: 0.96;
+}
+
+/* Soft fade-and-rise each time a new screen mounts. A keyframe animation with no fill
+   mode, so the transform is gone again once it finishes — a lingering transform here would
+   make .screen the containing block for its position:fixed children (.next-button,
+   RewardRain) and pin them inside the screen instead of the viewport. */
+@keyframes screen-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.screen {
+  animation: screen-enter 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen {
+    animation: none;
+  }
+  button,
+  button:not(:disabled):active {
+    transition: none;
+  }
 }

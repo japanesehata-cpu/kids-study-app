@@ -2,6 +2,13 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
+import { initBgm } from './lib/bgm'
+
+initBgm()
+
+// iOS Safari only applies :active styles (the "ぷにっ" press feedback on every button, see
+// theme.css) when the page has at least one touchstart listener.
+document.addEventListener('touchstart', () => {}, { passive: true })
 
 // The PWA's service worker (registerType: 'autoUpdate', see vite.config.ts) fetches and
 // activates a new version in the background, but an already-open tab keeps running

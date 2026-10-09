@@ -150,12 +150,8 @@
   padding: 0;
   cursor: pointer;
   border-radius: 50%;
-  transition: transform 0.15s ease;
 }
 
-.character-intro-button:active {
-  transform: scale(0.92);
-}
 
 .hint-caption {
   font-size: clamp(11px, 1.8vh, 14px);
@@ -226,12 +222,8 @@
   font-size: clamp(13px, 2vh, 24px);
   font-weight: 800;
   color: var(--color-text);
-  transition: transform 0.1s ease;
 }
 
-.category-card:active {
-  transform: translateY(4px) scale(0.98);
-}
 
 /* Some labels (たしざん/ひきざん) didn't quite fit the card width in one line at the
    inherited font-size and wrapped with a single orphaned character stranded on its own
@@ -663,9 +655,6 @@
   gap: clamp(3px, 0.8vh, 6px);
 }
 
-.level-button:active {
-  transform: translateY(4px) scale(0.98);
-}
 
 .level-number {
   font-size: clamp(20px, 3.6vh, 28px);
@@ -1172,6 +1161,11 @@
 
 .money-palette-item.wrong {
   animation: spot-shake 0.35s ease;
+}
+
+.icon-button-off {
+  opacity: 0.45;
+  filter: grayscale(1);
 }
 
 .icon-button {

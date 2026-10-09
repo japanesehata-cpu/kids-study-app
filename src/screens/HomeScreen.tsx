@@ -9,6 +9,7 @@ import { speak, type SpeechLang } from '../lib/tts'
 import { CharacterPortrait } from '../components/characters/CharacterPortrait'
 import { characterThemes } from '../components/characters/characterThemes'
 import { LanguageToggle } from '../components/LanguageToggle'
+import { isBgmEnabled, setBgmEnabled } from '../lib/bgm'
 
 interface HomeScreenProps {
   onSelectCategory: (category: Category) => void
@@ -78,6 +79,7 @@ export function HomeScreen({
 }: HomeScreenProps) {
   const { t, lang } = useI18n()
   const [atEnd, setAtEnd] = useState(false)
+  const [bgmOn, setBgmOn] = useState(isBgmEnabled)
   const showcaseRef = useRef<HTMLDivElement>(null)
   // Computed once per mount (not re-read on every render) — the underlying localStorage
   // value only ever changes via a quiz completing, which unmounts Home entirely, so a
@@ -131,6 +133,18 @@ export function HomeScreen({
         <h1 className="app-title">{t('appTitle')}</h1>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <LanguageToggle />
+          <button
+            type="button"
+            className={`icon-button ${bgmOn ? '' : 'icon-button-off'}`.trim()}
+            aria-label={t(bgmOn ? 'bgmOnLabel' : 'bgmOffLabel')}
+            aria-pressed={bgmOn}
+            onClick={() => {
+              setBgmEnabled(!bgmOn)
+              setBgmOn(!bgmOn)
+            }}
+          >
+            🎵
+          </button>
           <button
             type="button"
             className="icon-button"

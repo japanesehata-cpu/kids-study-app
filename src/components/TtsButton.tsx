@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import { speak, type SpeechLang, type VoiceProfile } from '../lib/tts'
 
 interface TtsButtonProps {
@@ -19,11 +18,10 @@ export function TtsButton({ text, lang, label, size = 72, voiceProfile, cacheKey
   // contributor to needing a scroll on a phone.
   const width = `clamp(44px, 8vh, ${size}px)`
   return (
-    <motion.button
+    <button
       type="button"
       onClick={() => speak(text, lang, voiceProfile, cacheKey)}
       aria-label={label}
-      whileTap={{ scale: 0.88 }}
       style={{
         width,
         height: width,
@@ -39,6 +37,6 @@ export function TtsButton({ text, lang, label, size = 72, voiceProfile, cacheKey
       }}
     >
       🔊
-    </motion.button>
+    </button>
   )
 }

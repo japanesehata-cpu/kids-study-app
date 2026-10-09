@@ -26,6 +26,17 @@ import { ParentGate } from './screens/ParentGate'
 import { ProgressScreen } from './screens/ProgressScreen'
 import { FitToViewport } from './components/FitToViewport'
 import { AppErrorBoundary } from './components/AppErrorBoundary'
+import { setBgmMode } from './lib/bgm'
+
+// Screens where the child is answering or writing — BGM drops to a quiet background level
+// there so it never competes with thinking (see bgm.ts).
+const FOCUS_SCREENS: ReadonlySet<Screen['name']> = new Set([
+  'quiz',
+  'handwriting',
+  'handwritingTrace',
+  'kanjiTrace',
+  'wordTrace',
+])
 
 type Screen =
   | { name: 'home' }
@@ -69,6 +80,10 @@ function AppContent() {
   useEffect(() => {
     persistProgress(progress)
   }, [progress])
+
+  useEffect(() => {
+    setBgmMode(FOCUS_SCREENS.has(screen.name) ? 'focus' : 'normal')
+  }, [screen.name])
 
   // A double tap on any navigation button (a level, ←, ⌂, a result-screen button) used to
   // fire twice before the first navigation rendered: pushing the same screen onto the

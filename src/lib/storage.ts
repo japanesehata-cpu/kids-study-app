@@ -41,3 +41,15 @@ export function loadHomeFeedbackJson(): string | null {
 export function saveHomeFeedbackJson(json: string): void {
   writeRaw(HOME_FEEDBACK_KEY, json)
 }
+
+const BGM_KEY = 'manabi-friends:bgm:v1'
+
+/** null when never set — the caller decides the default (on). */
+export function loadBgmEnabled(): boolean | null {
+  const raw = readRaw(BGM_KEY)
+  return raw === null ? null : raw === '1'
+}
+
+export function saveBgmEnabled(enabled: boolean): void {
+  writeRaw(BGM_KEY, enabled ? '1' : '0')
+}

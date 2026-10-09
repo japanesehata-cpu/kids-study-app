@@ -1,6 +1,7 @@
 let sharedContext: AudioContext | null = null
 
-function getContext(): AudioContext | null {
+/** Shared with bgm.ts so the whole app uses one AudioContext (iOS limits how many can exist). */
+export function getContext(): AudioContext | null {
   if (typeof window === 'undefined') return null
   const AudioContextClass = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
   if (!AudioContextClass) return null

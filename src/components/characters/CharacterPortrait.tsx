@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import type { CharacterTheme } from './characterThemes'
 
@@ -37,6 +38,11 @@ function Sparkles({ active }: { active: boolean }) {
   )
 }
 
+// Portraits with a closed-eye frame (<id>__blink.png, scripts/generate-blink-portraits.py).
+// The blink is pure CSS (.portrait-blink in components.css): the closed-eye image sits on
+// top of the open one at opacity 0 and shows for ~0.13s once per cycle — no re-renders.
+const BLINK_IDS = new Set(['momo', 'sora', 'hana', 'koko', 'yui', 'toki', 'mitsu', 'kazu', 'peko', 'aru'])
+
 const bounceAnimation = { y: [0, -6, 0], rotate: 0 }
 const celebrateAnimation = { rotate: [-8, 8, -8], y: [0, -16, 0], scale: 1 }
 const streakAnimation = { rotate: [-10, 10, -10], y: [0, -20, 0], scale: [1, 1.1, 1] }
@@ -51,6 +57,11 @@ export function CharacterPortrait({ theme, mood = 'happy', size = 220, phase = 0
         : mood === 'thinking'
           ? thinkingAnimation
           : bounceAnimation
+  // Each portrait blinks on its own rhythm (every 3.5-6.5s), starting at a random point.
+  const [blinkTiming] = useState(() => {
+    const period = 3.5 + Math.random() * 3
+    return { animationDuration: `${period}s`, animationDelay: `${-Math.random() * period}s` }
+  })
   const duration = mood === 'streak' ? 0.5 : mood === 'celebrate' ? 0.6 : mood === 'thinking' ? 1.6 : 2.4
 
   return (
@@ -70,13 +81,26 @@ export function CharacterPortrait({ theme, mood = 'happy', size = 220, phase = 0
           💦
         </motion.span>
       )}
-      <motion.img
-        src={`${import.meta.env.BASE_URL}images/characters/${theme.id}.png`}
-        alt={theme.id}
-        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+      <motion.div
+        style={{ position: 'relative', width: '100%', height: '100%' }}
         animate={animate}
         transition={{ duration, repeat: Infinity, ease: 'easeInOut', delay: -phase }}
-      />
+      >
+        <img
+          src={`${import.meta.env.BASE_URL}images/characters/${theme.id}.png`}
+          alt={theme.id}
+          style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+        />
+        {BLINK_IDS.has(theme.id) && (
+          <img
+            className="portrait-blink"
+            src={`${import.meta.env.BASE_URL}images/characters/${theme.id}__blink.png`}
+            alt=""
+            aria-hidden="true"
+            style={blinkTiming}
+          />
+        )}
+      </motion.div>
     </div>
   )
 }

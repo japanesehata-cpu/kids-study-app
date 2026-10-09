@@ -27,13 +27,20 @@ function playTone(ctx: AudioContext, freq: number, startOffset: number, duration
   osc.stop(startTime + duration + 0.02)
 }
 
-/** Short cheerful rising chime, played immediately on a correct answer (ahead of the spoken feedback). */
-export function playCorrectSfx(): void {
+/** Cheerful rising fanfare, played immediately on a correct answer (ahead of the spoken
+ * feedback): a C-E-G-C arpeggio landing on a ringing chord, with a few high sparkles. From 3
+ * in a row it climbs one step higher each time (capped), so a streak *sounds* like it's
+ * building. */
+export function playCorrectSfx(streak = 1): void {
   const ctx = getContext()
   if (!ctx) return
-  playTone(ctx, 523.25, 0, 0.14, 0.18) // C5
-  playTone(ctx, 659.25, 0.09, 0.16, 0.18) // E5
-  playTone(ctx, 783.99, 0.18, 0.22, 0.2) // G5
+  const lift = 2 ** (Math.min(Math.max(streak - 2, 0), 4) / 12) // +1 semitone per streak step
+  const notes = [523.25, 659.25, 783.99, 1046.5] // C5 E5 G5 C6
+  notes.forEach((f, i) => playTone(ctx, f * lift, i * 0.07, 0.16, 0.16))
+  // landing chord
+  for (const f of [659.25, 783.99, 1046.5]) playTone(ctx, f * lift, 0.3, 0.55, 0.09)
+  // sparkles
+  ;[2093, 2637, 3136].forEach((f, i) => playTone(ctx, f * lift, 0.34 + i * 0.06, 0.12, 0.04))
 }
 
 /** Short, gentle descending blip — never harsh, since this is for a 5-year-old. */

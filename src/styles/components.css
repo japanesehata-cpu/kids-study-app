@@ -310,7 +310,23 @@
 
 .choice-button.correct {
   background: var(--color-success-soft);
-  box-shadow: 0 0 0 4px var(--color-success) inset;
+  box-shadow: 0 0 0 4px var(--color-success) inset, 0 0 0 0 rgba(255, 126, 182, 0.6);
+  animation: correct-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), correct-glow 0.9s ease-out;
+}
+
+.choice-button.correct:disabled {
+  opacity: 1;
+}
+
+@keyframes correct-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+@keyframes correct-glow {
+  0% { box-shadow: 0 0 0 4px var(--color-success) inset, 0 0 0 0 rgba(255, 126, 182, 0.7); }
+  100% { box-shadow: 0 0 0 4px var(--color-success) inset, 0 0 0 22px rgba(255, 126, 182, 0); }
 }
 
 .choice-button.incorrect {
@@ -1252,6 +1268,61 @@
 .feedback-banner.correct {
   color: #2f8f5b;
   background: var(--color-success-soft);
+  animation: correct-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* CorrectCelebration: はなまる + confetti burst, centred over the question. */
+.correct-celebration {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  overflow: hidden;
+}
+
+.correct-celebration-center {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 0;
+  height: 0;
+}
+
+.correct-hanamaru {
+  position: absolute;
+  width: clamp(140px, 26vh, 220px);
+  height: clamp(140px, 26vh, 220px);
+  left: calc(clamp(140px, 26vh, 220px) / -2);
+  top: calc(clamp(140px, 26vh, 220px) / -2);
+  filter: drop-shadow(0 6px 14px rgba(255, 92, 157, 0.35));
+}
+
+.correct-burst-piece {
+  position: absolute;
+  left: -6px;
+  top: -6px;
+}
+
+.correct-streak-ribbon {
+  position: absolute;
+  top: calc(clamp(140px, 26vh, 220px) / 2 + 6px);
+  left: 0;
+  translate: -50% 0;
+  white-space: nowrap;
+  padding: 6px 18px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff7eb6, #ffb36b);
+  color: white;
+  font-weight: 900;
+  font-size: clamp(16px, 2.8vh, 24px);
+  box-shadow: 0 4px 12px rgba(255, 92, 157, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .choice-button.correct,
+  .feedback-banner.correct {
+    animation: none;
+  }
 }
 
 .feedback-banner.incorrect {

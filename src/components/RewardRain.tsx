@@ -2,7 +2,6 @@ import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 
 const ITEMS = ['🍰', '🎀', '🧁', '🍭', '🍬', '🎈', '💝', '⭐️', '🌈', '👑', '✨', '💎']
-const COUNT = 16
 
 interface FallingItemConfig {
   key: number
@@ -15,8 +14,8 @@ interface FallingItemConfig {
   size: number
 }
 
-function buildItems(): FallingItemConfig[] {
-  return Array.from({ length: COUNT }, (_, i) => ({
+function buildItems(count: number): FallingItemConfig[] {
+  return Array.from({ length: count }, (_, i) => ({
     key: i,
     emoji: ITEMS[Math.floor(Math.random() * ITEMS.length)],
     leftPercent: Math.random() * 94 + 3,
@@ -29,8 +28,8 @@ function buildItems(): FallingItemConfig[] {
 }
 
 /** A fresh burst of cute falling items — mount with a new `key` on the parent to replay it. */
-export function RewardRain() {
-  const items = useMemo(() => buildItems(), [])
+export function RewardRain({ count = 16 }: { count?: number }) {
+  const items = useMemo(() => buildItems(count), [count])
 
   return (
     <div

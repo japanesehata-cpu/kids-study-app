@@ -304,6 +304,7 @@ export const dictionary = {
   resultWeakLabel: { ja: 'もうすこしれんしゅう', en: 'Let’s practice more' },
   resultAllGoodMessage: { ja: 'よくできました！このちょうしでいこう！', en: 'Well done! Keep it up!' },
   resultLevelUp: { ja: 'レベルアップ！つぎはもうすこしむずかしいよ', en: 'Level up! Next time is a bit harder' },
+  celebrationStreak: { ja: '{streak}もん れんぞく！', en: '{streak} in a row!' },
   resultBestStreak: { ja: 'さいこうきろく：{streak}もんれんぞく せいかい！', en: 'Best streak: {streak} in a row!' },
   tryAgainButton: { ja: 'もういちど', en: 'Try again' },
   backHomeButton: { ja: 'ホームへ', en: 'Back home' },

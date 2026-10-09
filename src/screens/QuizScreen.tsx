@@ -55,7 +55,7 @@ import { NumberPad } from '../components/NumberPad'
 import { OddOneOutScene } from '../components/OddOneOutScene'
 import { CharacterPortrait } from '../components/characters/CharacterPortrait'
 import { characterThemes } from '../components/characters/characterThemes'
-import { RewardRain } from '../components/RewardRain'
+import { CorrectCelebration } from '../components/CorrectCelebration'
 import { CategoryHeader } from '../components/CategoryHeader'
 import { useResponsiveSize } from '../lib/useResponsiveSize'
 import { oppositeWordKey } from '../domain/oppositeBank'
@@ -1127,8 +1127,10 @@ export function QuizScreen({
     const correct = isCorrectChoice(choice)
     setSelected(choice)
     if (correct) {
-      playCorrectSfx()
+      playCorrectSfx(streak + 1)
       setCelebrationKey((k) => k + 1)
+      // A tiny "ぷるっ" on phones that support it (Android; iOS ignores it).
+      navigator.vibrate?.(35)
     } else {
       playIncorrectSfx()
     }
@@ -1243,7 +1245,7 @@ export function QuizScreen({
 
   return (
     <div className="screen">
-      {celebrationKey > 0 && <RewardRain key={celebrationKey} />}
+      {celebrationKey > 0 && <CorrectCelebration key={celebrationKey} streak={streak} />}
       <div className="top-bar">
         <div style={{ display: 'flex', gap: 8 }}>
           <button type="button" className="icon-button" onClick={onExit} aria-label={t('backButton')}>

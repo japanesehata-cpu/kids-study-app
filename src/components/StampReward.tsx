@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { useResponsiveSize } from '../lib/useResponsiveSize'
 
-// Custom art (see scripts/generate-reward-images.mjs) instead of plain system emoji — the
+// Custom art (see scripts/generate-reward-images-local.py) instead of plain system emoji — the
 // 5 orbiting accents cycle through the 3 sparkle/star/heart images for the same visual
 // variety the original 5-emoji burst had.
 const ACCENT_IDS = ['star', 'heart', 'sparkle', 'star', 'sparkle']

@@ -106,7 +106,7 @@ function extractWarnings(output) {
 const MAX_ATTEMPTS = 2
 
 async function main() {
-  assertGeminiAllowed('decoration')
+  assertGeminiAllowed('decoration', 'scripts/generate-reward-images-local.py')
   await mkdir(OUTPUT_DIR, { recursive: true })
 
   const targets = REWARDS.filter((r) => !onlyIds || onlyIds.has(r.id))

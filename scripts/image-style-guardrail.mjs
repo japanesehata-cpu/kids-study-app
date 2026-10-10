@@ -35,8 +35,8 @@
 // CHARACTER DESIGN ONLY — the mascots are the face of the app and the local models can't
 // reach that quality. Every other track (word flashcards, decorations, まちがいさがし
 // scenes, and character derivatives such as blink frames) is generated on-device with the
-// SDXL-family scripts (*-local.py, generate-spot-*.py, generate-blink-portraits.py), which
-// cost nothing per image. The Gemini versions of the non-character scripts are kept only as
+// SDXL-family scripts (*-local.py incl. generate-reward-images-local.py, generate-spot-*.py,
+// generate-blink-portraits.py), which cost nothing per image. The Gemini versions of the non-character scripts are kept only as
 // a record of how the existing assets were first made and refuse to run — see
 // assertGeminiAllowed below.
 //

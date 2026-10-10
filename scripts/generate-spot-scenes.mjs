@@ -13,7 +13,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { generateGeminiImage, geminiCooldown } from './gemini-client.mjs'
-import { SCENE_ILLUSTRATION_GUARDRAIL } from './image-style-guardrail.mjs'
+import { SCENE_ILLUSTRATION_GUARDRAIL, assertGeminiAllowed } from './image-style-guardrail.mjs'
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = path.join(SCRIPT_DIR, '..')
@@ -45,6 +45,7 @@ function spritePrompt(desc) {
 }
 
 async function main() {
+  assertGeminiAllowed('scene illustration', 'scripts/generate-spot-scenes-local.py')
   const { theme, out, only } = args()
   const spec = THEMES[theme]
   if (!spec) throw new Error(`unknown --theme (${Object.keys(THEMES).join(', ')})`)

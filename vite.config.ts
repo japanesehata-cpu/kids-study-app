@@ -16,11 +16,12 @@ export default defineConfig({
       manifest: {
         name: 'まなびフレンズ / Manabi Friends',
         short_name: 'まなびフレンズ',
-        description: '算数と英語に親しむ子ども向け学習アプリ',
+        description: '算数・英語・ことば・考える力を、キャラクターと遊びながら養う子ども向け学習アプリ',
         theme_color: '#ff8fc7',
         background_color: '#ffe9f4',
         display: 'standalone',
-        orientation: 'landscape',
+        // Portrait only — the app is built for a parent's phone held upright (docs/architecture.md).
+        orientation: 'portrait',
         icons: [
           {
             src: 'pwa-icon.png',

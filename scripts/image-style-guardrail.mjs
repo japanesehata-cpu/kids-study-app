@@ -31,16 +31,33 @@
 //    inanimate objects, real proportions) since children also name what they spot. See
 //    generate-spot-scenes.mjs and SCENE_ILLUSTRATION_GUARDRAIL below.
 //
-// Model tier policy: character portraits and reward decorations are both reused everywhere
-// (home screen, quiz, results) and are relatively few in number, so both use one tier above
-// the cheapest — worth the extra cost. Word-bank flashcards use the cheapest currently-GA
-// Gemini image model with no announced shutdown date, since there are many more of them and
-// each is used in fewer places. Both model constants below must always resolve to a model
-// that (a) is currently generally available and (b) has no publicly announced EOS/shutdown
-// date — check https://ai.google.dev/gemini-api/docs/models before changing either.
+// Model policy (docs/architecture.md, ADR "画像生成のモデル"): the Gemini API is used for
+// CHARACTER DESIGN ONLY — the mascots are the face of the app and the local models can't
+// reach that quality. Every other track (word flashcards, decorations, まちがいさがし
+// scenes, and character derivatives such as blink frames) is generated on-device with the
+// SDXL-family scripts (*-local.py, generate-spot-*.py, generate-blink-portraits.py), which
+// cost nothing per image. The Gemini versions of the non-character scripts are kept only as
+// a record of how the existing assets were first made and refuse to run — see
+// assertGeminiAllowed below.
+//
+// CHARACTER_MODEL must always resolve to a model that (a) is currently generally available
+// and (b) has no publicly announced EOS/shutdown date — check
+// https://ai.google.dev/gemini-api/docs/models before changing it.
 
 export const CHARACTER_MODEL = process.env.GEMINI_CHARACTER_MODEL ?? 'gemini-3.1-flash-image'
 export const NON_CHARACTER_MODEL = process.env.GEMINI_IMAGE_MODEL ?? 'gemini-3.1-flash-lite-image'
+
+/** Stops a Gemini script for any track other than character design (see the model policy
+ * above). Called first thing in each Gemini script's main(). */
+export function assertGeminiAllowed(track, localAlternative) {
+  if (track === 'character') return
+  console.error(
+    `Gemini image generation is reserved for character design (docs/architecture.md). ` +
+      `The "${track}" track is generated locally instead` +
+      (localAlternative ? `: ${localAlternative}` : ' — no local script exists for it yet.'),
+  )
+  process.exit(1)
+}
 
 /** Appended to every non-character image prompt. Keeps the "teach the real thing"
  * requirement from silently drifting per-prompt as new asset types get added. */

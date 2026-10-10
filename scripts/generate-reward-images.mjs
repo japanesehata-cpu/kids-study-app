@@ -16,7 +16,7 @@ import { execFileSync } from 'node:child_process'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { generateGeminiImage, geminiCooldown } from './gemini-client.mjs'
-import { CHARACTER_MODEL, DECORATION_STYLE_GUARDRAIL } from './image-style-guardrail.mjs'
+import { CHARACTER_MODEL, DECORATION_STYLE_GUARDRAIL, assertGeminiAllowed } from './image-style-guardrail.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const OUTPUT_DIR = path.join(__dirname, '..', 'public', 'images', 'rewards')
@@ -106,6 +106,7 @@ function extractWarnings(output) {
 const MAX_ATTEMPTS = 2
 
 async function main() {
+  assertGeminiAllowed('decoration')
   await mkdir(OUTPUT_DIR, { recursive: true })
 
   const targets = REWARDS.filter((r) => !onlyIds || onlyIds.has(r.id))

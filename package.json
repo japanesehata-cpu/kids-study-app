@@ -9,9 +9,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "vitest run",
-    "generate:word-images": "node --env-file-if-exists=.env scripts/generate-word-images.mjs",
     "generate:characters": "node --env-file-if-exists=.env scripts/generate-character-portraits.mjs",
-    "generate:rewards": "node --env-file-if-exists=.env scripts/generate-reward-images.mjs",
     "optimize:word-images": "cd public/images/words && for f in *.png; do sips -Z 320 \"$f\"; done",
     "tts-server": "~/piper-env/bin/python3 scripts/piper_server.py",
     "generate:tts-cache": "node --env-file-if-exists=.env scripts/generate-tts-cache.mjs"

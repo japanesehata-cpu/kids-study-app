@@ -15,7 +15,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { wordBank } from '../src/domain/wordBank.ts'
 import { generateGeminiImage, geminiCooldown } from './gemini-client.mjs'
-import { NON_CHARACTER_MODEL, REALISTIC_STYLE_GUARDRAIL } from './image-style-guardrail.mjs'
+import { NON_CHARACTER_MODEL, REALISTIC_STYLE_GUARDRAIL, assertGeminiAllowed } from './image-style-guardrail.mjs'
 
 const ICON_SIZE = 480
 
@@ -182,6 +182,7 @@ async function saveAsPng(bytes, mimeType, outPath) {
 }
 
 async function main() {
+  assertGeminiAllowed('word flashcard', 'scripts/generate-word-images-local.py')
   await mkdir(OUTPUT_DIR, { recursive: true })
 
   const targets = wordBank.filter((w) => !onlyIds || onlyIds.has(w.id))

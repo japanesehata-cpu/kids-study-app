@@ -1071,5 +1071,2379 @@
     ],
     "prompt": "a bird with a short tail",
     "rejected": true
+  },
+  "sea/shell": {
+    "boxes": [
+      [
+        0.133,
+        0.129,
+        0.867,
+        0.871
+      ]
+    ],
+    "prompt": "a pink spiral seashell, with one big bright red star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "sea/beachball": {
+    "boxes": [
+      [
+        0.131,
+        0.129,
+        0.869,
+        0.871
+      ]
+    ],
+    "prompt": "a striped beach ball, with one big bright red star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "sea/surfboard": {
+    "boxes": [
+      [
+        0.172,
+        0.054,
+        0.828,
+        0.958
+      ]
+    ],
+    "prompt": "a striped surfboard, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "sea/sunglasses": {
+    "boxes": [
+      [
+        0.079,
+        0.158,
+        0.925,
+        0.842
+      ]
+    ],
+    "prompt": "a pair of sunglasses, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "sea/sailboat": {
+    "boxes": [
+      [
+        0.204,
+        0.271,
+        0.791,
+        0.892
+      ]
+    ],
+    "prompt": "a small sailboat with a white sail and a blue hull, decorated with big red polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "sea/bucket": {
+    "boxes": [
+      [
+        0.163,
+        0.425,
+        0.833,
+        0.867
+      ]
+    ],
+    "prompt": "a small yellow sand bucket with a spade, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "forest/acorn": {
+    "boxes": [
+      [
+        0.125,
+        0.129,
+        0.871,
+        0.871
+      ]
+    ],
+    "prompt": "a brown acorn, with one big red heart printed on it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "forest/pinecone": {
+    "boxes": [
+      [
+        0.138,
+        0.104,
+        0.862,
+        0.896
+      ]
+    ],
+    "prompt": "a brown pinecone, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "forest/hedgehog": {
+    "boxes": [
+      [
+        0.217,
+        0.152,
+        0.875,
+        0.848
+      ]
+    ],
+    "prompt": "a small hedgehog, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "forest/mushroom": {
+    "boxes": [
+      [
+        0.139,
+        0.121,
+        0.861,
+        0.879
+      ]
+    ],
+    "prompt": "a single red mushroom with white spots, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "forest/leaf": {
+    "boxes": [
+      [
+        0.17,
+        0.142,
+        0.864,
+        0.754
+      ]
+    ],
+    "prompt": "an orange maple leaf, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "forest/butterfly": {
+    "boxes": [
+      [
+        0.138,
+        0.151,
+        0.817,
+        0.828
+      ]
+    ],
+    "prompt": "a yellow butterfly, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "park/pigeon": {
+    "boxes": [
+      [
+        0.133,
+        0.129,
+        0.867,
+        0.871
+      ]
+    ],
+    "prompt": "a grey pigeon, with one big red heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "park/frisbee": {
+    "boxes": [
+      [
+        0.134,
+        0.133,
+        0.866,
+        0.867
+      ]
+    ],
+    "prompt": "a yellow plastic frisbee disc toy, with one big bright red star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "park/soccerball": {
+    "boxes": [
+      [
+        0.136,
+        0.133,
+        0.864,
+        0.867
+      ]
+    ],
+    "prompt": "a soccer ball, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "park/icecream": {
+    "boxes": [
+      [
+        0.143,
+        0.121,
+        0.786,
+        0.942
+      ]
+    ],
+    "prompt": "an ice cream cone, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "park/jumprope": {
+    "boxes": [
+      [
+        0.135,
+        0.1,
+        0.809,
+        0.9
+      ]
+    ],
+    "prompt": "a jump rope, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "park/butterfly": {
+    "boxes": [
+      [
+        0.096,
+        0.141,
+        0.904,
+        0.859
+      ]
+    ],
+    "prompt": "an orange butterfly, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "kitchen/milk": {
+    "boxes": [
+      [
+        0.147,
+        0.058,
+        0.853,
+        0.942
+      ]
+    ],
+    "prompt": "a milk bottle, decorated with big red polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "kitchen/egg": {
+    "boxes": [
+      [
+        0.132,
+        0.104,
+        0.799,
+        0.896
+      ]
+    ],
+    "prompt": "a white egg, with one big bright red star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "kitchen/bread": {
+    "boxes": [
+      [
+        0.167,
+        0.141,
+        0.825,
+        0.859
+      ]
+    ],
+    "prompt": "a loaf of bread, decorated with big red polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "kitchen/cheese": {
+    "boxes": [
+      [
+        0.121,
+        0.14,
+        0.892,
+        0.86
+      ]
+    ],
+    "prompt": "a wedge of cheese, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "kitchen/carrot": {
+    "boxes": [
+      [
+        0.153,
+        0.054,
+        0.847,
+        0.946
+      ]
+    ],
+    "prompt": "an orange carrot, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "kitchen/apple": {
+    "boxes": [
+      [
+        0.136,
+        0.129,
+        0.864,
+        0.879
+      ]
+    ],
+    "prompt": "a red apple, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "kidsroom/book": {
+    "boxes": [
+      [
+        0.131,
+        0.108,
+        0.869,
+        0.892
+      ]
+    ],
+    "prompt": "a single closed hardcover picture book, with one big red heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "kidsroom/drum": {
+    "boxes": [
+      [
+        0.144,
+        0.108,
+        0.856,
+        0.867
+      ]
+    ],
+    "prompt": "a toy drum, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "kidsroom/ball": {
+    "boxes": [
+      [
+        0.136,
+        0.133,
+        0.864,
+        0.867
+      ]
+    ],
+    "prompt": "a single red and white beach ball, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "kidsroom/toycar": {
+    "boxes": [
+      [
+        0.153,
+        0.117,
+        0.847,
+        0.883
+      ]
+    ],
+    "prompt": "a small red toy car, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "kidsroom/clock": {
+    "boxes": [
+      [
+        0.137,
+        0.171,
+        0.863,
+        0.875
+      ]
+    ],
+    "prompt": "a round alarm clock, with one big red heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "kidsroom/teddybear": {
+    "boxes": [
+      [
+        0.156,
+        0.104,
+        0.85,
+        0.896
+      ]
+    ],
+    "prompt": "a brown teddy bear, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "meadow/mushroom": {
+    "boxes": [
+      [
+        0.139,
+        0.133,
+        0.861,
+        0.867
+      ]
+    ],
+    "prompt": "a small brown mushroom, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "meadow/frog": {
+    "boxes": [
+      [
+        0.137,
+        0.121,
+        0.863,
+        0.879
+      ]
+    ],
+    "prompt": "a green frog, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "meadow/ladybug": {
+    "boxes": [
+      [
+        0.136,
+        0.25,
+        0.734,
+        0.75
+      ]
+    ],
+    "prompt": "a red ladybug, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "meadow/sunflower": {
+    "boxes": [
+      [
+        0.217,
+        0.162,
+        0.81,
+        0.692
+      ]
+    ],
+    "prompt": "a sunflower, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "meadow/clover": {
+    "boxes": [
+      [
+        0.156,
+        0.112,
+        0.844,
+        0.704
+      ]
+    ],
+    "prompt": "a four-leaf clover, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "meadow/butterfly": {
+    "boxes": [
+      [
+        0.108,
+        0.14,
+        0.892,
+        0.831
+      ]
+    ],
+    "prompt": "a pink butterfly, with one big bright red star printed on it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "nightsky/satellite": {
+    "boxes": [
+      [
+        0.133,
+        0.129,
+        0.867,
+        0.871
+      ]
+    ],
+    "prompt": "a small satellite, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "nightsky/smallplanet": {
+    "boxes": [
+      [
+        0.136,
+        0.133,
+        0.864,
+        0.867
+      ]
+    ],
+    "prompt": "a small blue planet, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "nightsky/cloud": {
+    "boxes": [
+      [
+        0.092,
+        0.153,
+        0.908,
+        0.847
+      ]
+    ],
+    "prompt": "a small white cloud, with bold blue stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "nightsky/lantern": {
+    "boxes": [
+      [
+        0.137,
+        0.15,
+        0.863,
+        0.912
+      ]
+    ],
+    "prompt": "a paper lantern, with one big red heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "nightsky/planet": {
+    "boxes": [
+      [
+        0.133,
+        0.136,
+        0.825,
+        0.813
+      ]
+    ],
+    "prompt": "an orange planet with a ring, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "nightsky/ufo": {
+    "boxes": [
+      [
+        0.075,
+        0.15,
+        0.925,
+        0.85
+      ]
+    ],
+    "prompt": "a cute flying saucer, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "town/bus": {
+    "boxes": [
+      [
+        0.146,
+        0.131,
+        0.846,
+        0.869
+      ]
+    ],
+    "prompt": "a yellow bus, with one big bright red star printed on its side",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "town/car": {
+    "boxes": [
+      [
+        0.075,
+        0.153,
+        0.888,
+        0.847
+      ]
+    ],
+    "prompt": "a red car, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "town/taxi": {
+    "boxes": [
+      [
+        0.092,
+        0.159,
+        0.912,
+        0.841
+      ]
+    ],
+    "prompt": "a yellow taxi, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "town/truck": {
+    "boxes": [
+      [
+        0.104,
+        0.145,
+        0.9,
+        0.855
+      ]
+    ],
+    "prompt": "a small green truck, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "town/balloon": {
+    "boxes": [
+      [
+        0.139,
+        0.071,
+        0.861,
+        0.55
+      ]
+    ],
+    "prompt": "a blue balloon on a string, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "town/mailbox": {
+    "boxes": [
+      [
+        0.138,
+        0.092,
+        0.862,
+        0.521
+      ]
+    ],
+    "prompt": "a red mailbox, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "zoo/panda": {
+    "boxes": [
+      [
+        0.155,
+        0.108,
+        0.862,
+        0.892
+      ]
+    ],
+    "prompt": "a panda, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "zoo/seal": {
+    "boxes": [
+      [
+        0.129,
+        0.178,
+        0.754,
+        0.822
+      ]
+    ],
+    "prompt": "a grey seal, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "zoo/zebra": {
+    "boxes": [
+      [
+        0.146,
+        0.092,
+        0.854,
+        0.908
+      ]
+    ],
+    "prompt": "a zebra, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "zoo/giraffe": {
+    "boxes": [
+      [
+        0.261,
+        0.408,
+        0.739,
+        0.942
+      ]
+    ],
+    "prompt": "a giraffe, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "farm/sheep": {
+    "boxes": [
+      [
+        0.137,
+        0.117,
+        0.863,
+        0.808
+      ]
+    ],
+    "prompt": "a fluffy white sheep, with bold blue stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "farm/dog": {
+    "boxes": [
+      [
+        0.137,
+        0.1,
+        0.863,
+        0.9
+      ]
+    ],
+    "prompt": "a brown farm dog, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "farm/haybale": {
+    "boxes": [
+      [
+        0.182,
+        0.242,
+        0.809,
+        0.788
+      ]
+    ],
+    "prompt": "a round hay bale, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "farm/milkcan": {
+    "boxes": [
+      [
+        0.139,
+        0.108,
+        0.556,
+        0.892
+      ]
+    ],
+    "prompt": "a metal milk can, with one big red heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "farm/tractor": {
+    "boxes": [
+      [
+        0.133,
+        0.15,
+        0.871,
+        0.85
+      ]
+    ],
+    "prompt": "a red tractor, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "farm/basket": {
+    "boxes": [
+      [
+        0.154,
+        0.131,
+        0.875,
+        0.825
+      ]
+    ],
+    "prompt": "a basket of eggs, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "garden/hose": {
+    "boxes": [
+      [
+        0.148,
+        0.179,
+        0.79,
+        0.867
+      ]
+    ],
+    "prompt": "a green garden hose rolled on a reel, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "garden/gnome": {
+    "boxes": [
+      [
+        0.139,
+        0.117,
+        0.851,
+        0.883
+      ]
+    ],
+    "prompt": "a small garden statue of a frog, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "garden/wheelbarrow": {
+    "boxes": [
+      [
+        0.225,
+        0.135,
+        0.896,
+        0.865
+      ]
+    ],
+    "prompt": "a small wheelbarrow, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "garden/birdhouse": {
+    "boxes": [
+      [
+        0.136,
+        0.196,
+        0.677,
+        0.883
+      ]
+    ],
+    "prompt": "a wooden birdhouse, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "garden/wateringcan": {
+    "boxes": [
+      [
+        0.354,
+        0.135,
+        0.871,
+        0.865
+      ]
+    ],
+    "prompt": "a green watering can, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "garden/butterfly": {
+    "boxes": [
+      [
+        0.112,
+        0.147,
+        0.888,
+        0.859
+      ]
+    ],
+    "prompt": "a blue butterfly, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "river/lilypad": {
+    "boxes": [
+      [
+        0.104,
+        0.132,
+        0.896,
+        0.868
+      ]
+    ],
+    "prompt": "a lily pad with a pink flower, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "river/stone": {
+    "boxes": [
+      [
+        0.108,
+        0.14,
+        0.892,
+        0.86
+      ]
+    ],
+    "prompt": "a smooth grey stone, with one big red heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "river/bucket": {
+    "boxes": [
+      [
+        0.15,
+        0.112,
+        0.85,
+        0.858
+      ]
+    ],
+    "prompt": "a blue bucket, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "river/frog": {
+    "boxes": [
+      [
+        0.171,
+        0.141,
+        0.821,
+        0.865
+      ]
+    ],
+    "prompt": "a green frog, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "river/boat": {
+    "boxes": [
+      [
+        0.175,
+        0.207,
+        0.85,
+        0.857
+      ]
+    ],
+    "prompt": "a small wooden rowboat, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "river/leaf": {
+    "boxes": [
+      [
+        0.143,
+        0.175,
+        0.863,
+        0.721
+      ]
+    ],
+    "prompt": "a single green leaf, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "snowfield/cocoa": {
+    "boxes": [
+      [
+        0.134,
+        0.125,
+        0.862,
+        0.879
+      ]
+    ],
+    "prompt": "a mug of hot cocoa, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "snowfield/boots": {
+    "boxes": [
+      [
+        0.135,
+        0.125,
+        0.852,
+        0.875
+      ]
+    ],
+    "prompt": "a pair of snow boots, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "snowfield/snowball": {
+    "boxes": [
+      [
+        0.104,
+        0.141,
+        0.904,
+        0.859
+      ]
+    ],
+    "prompt": "a pile of snowballs, with one big bright red star printed on it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "snowfield/mitten": {
+    "boxes": [
+      [
+        0.148,
+        0.1,
+        0.858,
+        0.9
+      ]
+    ],
+    "prompt": "a red mitten, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "snowfield/beanie": {
+    "boxes": [
+      [
+        0.176,
+        0.108,
+        0.85,
+        0.892
+      ]
+    ],
+    "prompt": "a knitted hat, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "snowfield/sled": {
+    "boxes": [
+      [
+        0.088,
+        0.147,
+        0.904,
+        0.853
+      ]
+    ],
+    "prompt": "a red wooden sled, side view, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "underwater/anchor": {
+    "boxes": [
+      [
+        0.132,
+        0.129,
+        0.868,
+        0.871
+      ]
+    ],
+    "prompt": "an anchor, decorated with big red polka dots",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "underwater/shell": {
+    "boxes": [
+      [
+        0.129,
+        0.138,
+        0.871,
+        0.862
+      ]
+    ],
+    "prompt": "a white clam shell, decorated with big red polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "underwater/treasure": {
+    "boxes": [
+      [
+        0.139,
+        0.117,
+        0.856,
+        0.883
+      ]
+    ],
+    "prompt": "a small treasure chest, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "underwater/pufferfish": {
+    "boxes": [
+      [
+        0.121,
+        0.137,
+        0.733,
+        0.792
+      ]
+    ],
+    "prompt": "a pufferfish, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "underwater/submarine": {
+    "boxes": [
+      [
+        0.083,
+        0.142,
+        0.917,
+        0.858
+      ]
+    ],
+    "prompt": "a yellow submarine, side view, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "underwater/jellyfish": {
+    "boxes": [
+      [
+        0.178,
+        0.125,
+        0.822,
+        0.658
+      ]
+    ],
+    "prompt": "a pink jellyfish, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "space/earth": {
+    "boxes": [
+      [
+        0.135,
+        0.133,
+        0.865,
+        0.867
+      ]
+    ],
+    "prompt": "planet earth, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "space/planet": {
+    "boxes": [
+      [
+        0.134,
+        0.133,
+        0.866,
+        0.867
+      ]
+    ],
+    "prompt": "a ringed planet, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "space/rover": {
+    "boxes": [
+      [
+        0.129,
+        0.134,
+        0.808,
+        0.866
+      ]
+    ],
+    "prompt": "a small moon rover, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "space/spacestation": {
+    "boxes": [
+      [
+        0.212,
+        0.155,
+        0.754,
+        0.845
+      ]
+    ],
+    "prompt": "a small space station with solar panels, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "space/ufo": {
+    "boxes": [
+      [
+        0.179,
+        0.14,
+        0.817,
+        0.86
+      ]
+    ],
+    "prompt": "a purple flying saucer with a glass dome, side view, decorated with big yellow polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "space/rocket": {
+    "boxes": [
+      [
+        0.187,
+        0.075,
+        0.822,
+        0.833
+      ]
+    ],
+    "prompt": "a single red and white rocket, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "station/bottle": {
+    "boxes": [
+      [
+        0.161,
+        0.058,
+        0.839,
+        0.942
+      ]
+    ],
+    "prompt": "a blue water bottle, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "station/suitcase": {
+    "boxes": [
+      [
+        0.1,
+        0.133,
+        0.9,
+        0.867
+      ]
+    ],
+    "prompt": "a red suitcase, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "station/camera": {
+    "boxes": [
+      [
+        0.104,
+        0.137,
+        0.896,
+        0.863
+      ]
+    ],
+    "prompt": "a camera, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "station/backpack": {
+    "boxes": [
+      [
+        0.141,
+        0.129,
+        0.859,
+        0.892
+      ]
+    ],
+    "prompt": "a blue backpack, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "station/clock": {
+    "boxes": [
+      [
+        0.135,
+        0.129,
+        0.865,
+        0.871
+      ]
+    ],
+    "prompt": "a station clock, with one big red heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "station/ticket": {
+    "boxes": [
+      [
+        0.088,
+        0.145,
+        0.904,
+        0.855
+      ]
+    ],
+    "prompt": "a train ticket, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "supermarket/juice": {
+    "boxes": [
+      [
+        0.156,
+        0.058,
+        0.844,
+        0.942
+      ]
+    ],
+    "prompt": "a single bottle of orange juice, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "supermarket/cereal": {
+    "boxes": [
+      [
+        0.137,
+        0.104,
+        0.863,
+        0.896
+      ]
+    ],
+    "prompt": "a cereal box, with one big red heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "supermarket/bread": {
+    "boxes": [
+      [
+        0.117,
+        0.141,
+        0.871,
+        0.859
+      ]
+    ],
+    "prompt": "a loaf of bread, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "supermarket/basket": {
+    "boxes": [
+      [
+        0.129,
+        0.132,
+        0.875,
+        0.868
+      ]
+    ],
+    "prompt": "a shopping basket, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "supermarket/eggs": {
+    "boxes": [
+      [
+        0.129,
+        0.134,
+        0.871,
+        0.866
+      ]
+    ],
+    "prompt": "an egg carton, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "supermarket/watermelon": {
+    "boxes": [
+      [
+        0.138,
+        0.133,
+        0.862,
+        0.883
+      ]
+    ],
+    "prompt": "a watermelon, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "classroom/notebook": {
+    "boxes": [
+      [
+        0.131,
+        0.117,
+        0.869,
+        0.883
+      ]
+    ],
+    "prompt": "a closed red notebook, with bold blue stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "classroom/pencil": {
+    "boxes": [
+      [
+        0.2,
+        0.033,
+        0.8,
+        0.942
+      ]
+    ],
+    "prompt": "a yellow pencil, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "classroom/globe": {
+    "boxes": [
+      [
+        0.134,
+        0.133,
+        0.866,
+        0.867
+      ]
+    ],
+    "prompt": "a globe, decorated with big red polka dots",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "classroom/backpack": {
+    "boxes": [
+      [
+        0.138,
+        0.112,
+        0.862,
+        0.888
+      ]
+    ],
+    "prompt": "a red school backpack, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "classroom/clock": {
+    "boxes": [
+      [
+        0.137,
+        0.133,
+        0.863,
+        0.846
+      ]
+    ],
+    "prompt": "a wall clock, with bold blue stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "classroom/abacus": {
+    "boxes": [
+      [
+        0.174,
+        0.133,
+        0.787,
+        0.883
+      ]
+    ],
+    "prompt": "an abacus, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "bathroom/soap": {
+    "boxes": [
+      [
+        0.088,
+        0.148,
+        0.912,
+        0.852
+      ]
+    ],
+    "prompt": "a bar of soap, with one big red heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "bathroom/shampoo": {
+    "boxes": [
+      [
+        0.137,
+        0.088,
+        0.863,
+        0.929
+      ]
+    ],
+    "prompt": "a shampoo bottle, with one big bright red star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "bathroom/toothbrush": {
+    "boxes": [
+      [
+        0.172,
+        0.046,
+        0.828,
+        0.954
+      ]
+    ],
+    "prompt": "a toothbrush, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "bathroom/towel": {
+    "boxes": [
+      [
+        0.137,
+        0.117,
+        0.863,
+        0.883
+      ]
+    ],
+    "prompt": "a folded pink towel, with bold blue stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "bathroom/mirror": {
+    "boxes": [
+      [
+        0.134,
+        0.129,
+        0.866,
+        0.871
+      ]
+    ],
+    "prompt": "a small round hand mirror, with one big red heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "bathroom/toothpaste": {
+    "boxes": [
+      [
+        0.158,
+        0.067,
+        0.842,
+        0.938
+      ]
+    ],
+    "prompt": "a tube of toothpaste, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "picnic/thermos": {
+    "boxes": [
+      [
+        0.158,
+        0.067,
+        0.842,
+        0.933
+      ]
+    ],
+    "prompt": "a thermos, with bold blue stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "picnic/sandwich": {
+    "boxes": [
+      [
+        0.108,
+        0.141,
+        0.892,
+        0.859
+      ]
+    ],
+    "prompt": "a sandwich, with bold blue stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "picnic/basket": {
+    "boxes": [
+      [
+        0.136,
+        0.133,
+        0.864,
+        0.867
+      ]
+    ],
+    "prompt": "a picnic basket, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "picnic/cupcake": {
+    "boxes": [
+      [
+        0.141,
+        0.15,
+        0.853,
+        0.9
+      ]
+    ],
+    "prompt": "a cupcake, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "picnic/apple": {
+    "boxes": [
+      [
+        0.135,
+        0.208,
+        0.865,
+        0.888
+      ]
+    ],
+    "prompt": "a green apple, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "picnic/ball": {
+    "boxes": [
+      [
+        0.125,
+        0.138,
+        0.729,
+        0.862
+      ]
+    ],
+    "prompt": "a red ball, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "camp/flashlight": {
+    "boxes": [
+      [
+        0.154,
+        0.071,
+        0.846,
+        0.933
+      ]
+    ],
+    "prompt": "a flashlight, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "camp/backpack": {
+    "boxes": [
+      [
+        0.137,
+        0.104,
+        0.863,
+        0.896
+      ]
+    ],
+    "prompt": "a hiking backpack, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "camp/mug": {
+    "boxes": [
+      [
+        0.108,
+        0.136,
+        0.892,
+        0.864
+      ]
+    ],
+    "prompt": "a red enamel camping mug, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "camp/firefly": {
+    "boxes": [
+      [
+        0.156,
+        0.146,
+        0.848,
+        0.85
+      ]
+    ],
+    "prompt": "a glowing firefly, with bold blue stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "camp/kettle": {
+    "boxes": [
+      [
+        0.238,
+        0.117,
+        0.827,
+        0.883
+      ]
+    ],
+    "prompt": "a camping kettle, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "camp/chair": {
+    "boxes": [
+      [
+        0.144,
+        0.117,
+        0.828,
+        0.879
+      ]
+    ],
+    "prompt": "a folding camp chair, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "rainyday/car": {
+    "boxes": [
+      [
+        0.088,
+        0.143,
+        0.921,
+        0.857
+      ]
+    ],
+    "prompt": "a small blue car, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "rainyday/cloud": {
+    "boxes": [
+      [
+        0.083,
+        0.158,
+        0.917,
+        0.85
+      ]
+    ],
+    "prompt": "a small grey cloud, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "rainyday/snail": {
+    "boxes": [
+      [
+        0.158,
+        0.136,
+        0.9,
+        0.864
+      ]
+    ],
+    "prompt": "a snail, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "rainyday/bucket": {
+    "boxes": [
+      [
+        0.14,
+        0.104,
+        0.86,
+        0.896
+      ]
+    ],
+    "prompt": "a bucket, with bold blue stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "rainyday/puddle": {
+    "boxes": [
+      [
+        0.096,
+        0.145,
+        0.904,
+        0.83
+      ]
+    ],
+    "prompt": "a small blue puddle, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "rainyday/raincoat": {
+    "boxes": [
+      [
+        0.135,
+        0.083,
+        0.858,
+        0.858
+      ]
+    ],
+    "prompt": "a yellow raincoat, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "autumn/basket": {
+    "boxes": [
+      [
+        0.134,
+        0.129,
+        0.866,
+        0.871
+      ]
+    ],
+    "prompt": "a basket, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "autumn/sweetpotato": {
+    "boxes": [
+      [
+        0.138,
+        0.138,
+        0.862,
+        0.908
+      ]
+    ],
+    "prompt": "a single purple sweet potato, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "autumn/pumpkin": {
+    "boxes": [
+      [
+        0.138,
+        0.258,
+        0.862,
+        0.871
+      ]
+    ],
+    "prompt": "an orange pumpkin with a cute smiling face, with one big bright yellow star on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "autumn/persimmon": {
+    "boxes": [
+      [
+        0.178,
+        0.208,
+        0.865,
+        0.829
+      ]
+    ],
+    "prompt": "an orange persimmon fruit with a green leaf, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "autumn/hedgehog": {
+    "boxes": [
+      [
+        0.146,
+        0.168,
+        0.838,
+        0.836
+      ]
+    ],
+    "prompt": "a hedgehog, with one big pink heart on its belly",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "autumn/leaves": {
+    "boxes": [
+      [
+        0.162,
+        0.162,
+        0.838,
+        0.821
+      ]
+    ],
+    "prompt": "a small pile of autumn leaves, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "birthday/donut": {
+    "boxes": [
+      [
+        0.133,
+        0.134,
+        0.867,
+        0.866
+      ]
+    ],
+    "prompt": "a donut, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "birthday/cupcake": {
+    "boxes": [
+      [
+        0.14,
+        0.117,
+        0.86,
+        0.9
+      ]
+    ],
+    "prompt": "a cupcake, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "birthday/candle": {
+    "boxes": [
+      [
+        0.158,
+        0.083,
+        0.842,
+        0.933
+      ]
+    ],
+    "prompt": "a birthday candle, with bold blue stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "birthday/card": {
+    "boxes": [
+      [
+        0.139,
+        0.162,
+        0.759,
+        0.896
+      ]
+    ],
+    "prompt": "a single folded greeting card, with one big bright red star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "birthday/teddybear": {
+    "boxes": [
+      [
+        0.144,
+        0.108,
+        0.856,
+        0.892
+      ]
+    ],
+    "prompt": "a teddy bear, with one big red heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "birthday/present": {
+    "boxes": [
+      [
+        0.14,
+        0.133,
+        0.86,
+        0.871
+      ]
+    ],
+    "prompt": "a wrapped present box, decorated with big red polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "bakery/jam": {
+    "boxes": [
+      [
+        0.147,
+        0.092,
+        0.853,
+        0.908
+      ]
+    ],
+    "prompt": "a jar of jam, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "bakery/tray": {
+    "boxes": [
+      [
+        0.125,
+        0.135,
+        0.875,
+        0.865
+      ]
+    ],
+    "prompt": "a bread tray, with bold blue stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "bakery/pretzel": {
+    "boxes": [
+      [
+        0.125,
+        0.135,
+        0.875,
+        0.865
+      ]
+    ],
+    "prompt": "a single brown pretzel, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "bakery/cake": {
+    "boxes": [
+      [
+        0.131,
+        0.129,
+        0.869,
+        0.871
+      ]
+    ],
+    "prompt": "a slice of strawberry cake, with one big bright red star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "bakery/melonpan": {
+    "boxes": [
+      [
+        0.133,
+        0.135,
+        0.842,
+        0.865
+      ]
+    ],
+    "prompt": "a round melon bread, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "bakery/cookie": {
+    "boxes": [
+      [
+        0.136,
+        0.133,
+        0.864,
+        0.867
+      ]
+    ],
+    "prompt": "a cookie, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "toyshop/top": {
+    "boxes": [
+      [
+        0.134,
+        0.133,
+        0.866,
+        0.867
+      ]
+    ],
+    "prompt": "a spinning top, decorated with big red polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "toyshop/drum": {
+    "boxes": [
+      [
+        0.14,
+        0.104,
+        0.86,
+        0.758
+      ]
+    ],
+    "prompt": "a toy drum, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "toyshop/puzzle": {
+    "boxes": [
+      [
+        0.233,
+        0.137,
+        0.875,
+        0.863
+      ]
+    ],
+    "prompt": "a puzzle box, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "toyshop/ball": {
+    "boxes": [
+      [
+        0.133,
+        0.137,
+        0.779,
+        0.859
+      ]
+    ],
+    "prompt": "a striped ball, with one big red heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "toyshop/teddybear": {
+    "boxes": [
+      [
+        0.142,
+        0.1,
+        0.858,
+        0.9
+      ]
+    ],
+    "prompt": "a teddy bear, with bold blue stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "toyshop/trumpet": {
+    "boxes": [
+      [
+        0.067,
+        0.14,
+        0.933,
+        0.86
+      ]
+    ],
+    "prompt": "a yellow toy trumpet, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "pond/frog": {
+    "boxes": [
+      [
+        0.117,
+        0.133,
+        0.883,
+        0.867
+      ]
+    ],
+    "prompt": "a frog on a lily pad, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "pond/lilypad": {
+    "boxes": [
+      [
+        0.129,
+        0.151,
+        0.867,
+        0.839
+      ]
+    ],
+    "prompt": "a lily pad, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "pond/snail": {
+    "boxes": [
+      [
+        0.129,
+        0.139,
+        0.871,
+        0.787
+      ]
+    ],
+    "prompt": "a pond snail, with one big bright red star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "pond/net": {
+    "boxes": [
+      [
+        0.139,
+        0.121,
+        0.861,
+        0.879
+      ]
+    ],
+    "prompt": "a fishing net, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "pond/stone": {
+    "boxes": [
+      [
+        0.2,
+        0.137,
+        0.75,
+        0.863
+      ]
+    ],
+    "prompt": "a stone, with one big bright red star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "pond/boat": {
+    "boxes": [
+      [
+        0.117,
+        0.213,
+        0.867,
+        0.853
+      ]
+    ],
+    "prompt": "a small paper boat, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "jungle/coconut": {
+    "boxes": [
+      [
+        0.136,
+        0.167,
+        0.864,
+        0.879
+      ]
+    ],
+    "prompt": "a coconut, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "jungle/gorilla": {
+    "boxes": [
+      [
+        0.146,
+        0.092,
+        0.854,
+        0.912
+      ]
+    ],
+    "prompt": "a cute grey gorilla sitting, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "jungle/pineapple": {
+    "boxes": [
+      [
+        0.186,
+        0.108,
+        0.807,
+        0.917
+      ]
+    ],
+    "prompt": "a pineapple, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "jungle/sloth": {
+    "boxes": [
+      [
+        0.133,
+        0.138,
+        0.71,
+        0.883
+      ]
+    ],
+    "prompt": "a sloth, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "jungle/butterfly": {
+    "boxes": [
+      [
+        0.117,
+        0.145,
+        0.883,
+        0.782
+      ]
+    ],
+    "prompt": "a blue butterfly, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "jungle/snake": {
+    "boxes": [
+      [
+        0.145,
+        0.096,
+        0.855,
+        0.904
+      ]
+    ],
+    "prompt": "a green snake, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "airport/suitcase": {
+    "boxes": [
+      [
+        0.138,
+        0.117,
+        0.862,
+        0.883
+      ]
+    ],
+    "prompt": "a suitcase, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "airport/sunglasses": {
+    "boxes": [
+      [
+        0.067,
+        0.148,
+        0.933,
+        0.852
+      ]
+    ],
+    "prompt": "a pair of sunglasses, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "airport/fueltruck": {
+    "boxes": [
+      [
+        0.135,
+        0.133,
+        0.865,
+        0.85
+      ]
+    ],
+    "prompt": "a small fuel truck, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "airport/cloud": {
+    "boxes": [
+      [
+        0.112,
+        0.136,
+        0.888,
+        0.864
+      ]
+    ],
+    "prompt": "a white cloud, with one big red heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "airport/balloon": {
+    "boxes": [
+      [
+        0.135,
+        0.083,
+        0.865,
+        0.917
+      ]
+    ],
+    "prompt": "a hot air balloon, with bold white stripes across it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "airport/tractor": {
+    "boxes": [
+      [
+        0.104,
+        0.139,
+        0.9,
+        0.861
+      ]
+    ],
+    "prompt": "a small tow tractor, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "construction/mixer": {
+    "boxes": [
+      [
+        0.096,
+        0.138,
+        0.904,
+        0.862
+      ]
+    ],
+    "prompt": "a cement mixer truck, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "construction/dumptruck": {
+    "boxes": [
+      [
+        0.088,
+        0.139,
+        0.892,
+        0.861
+      ]
+    ],
+    "prompt": "an orange dump truck, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "construction/toolbox": {
+    "boxes": [
+      [
+        0.129,
+        0.136,
+        0.838,
+        0.864
+      ]
+    ],
+    "prompt": "a red toolbox, with one big pink heart printed on it",
+    "keepShape": true,
+    "batch": "pattern"
+  },
+  "construction/bulldozer": {
+    "boxes": [
+      [
+        0.104,
+        0.182,
+        0.875,
+        0.862
+      ]
+    ],
+    "prompt": "a single yellow bulldozer, side view, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "construction/barrier": {
+    "boxes": [
+      [
+        0.146,
+        0.192,
+        0.808,
+        0.868
+      ]
+    ],
+    "prompt": "a red and white striped road barrier, with one big bright yellow star printed on it",
+    "keepShape": true,
+    "batch": "pattern",
+    "rejected": true
+  },
+  "construction/wheelbarrow": {
+    "boxes": [
+      [
+        0.175,
+        0.151,
+        0.867,
+        0.869
+      ]
+    ],
+    "prompt": "a wheelbarrow, decorated with big white polka dots",
+    "keepShape": true,
+    "batch": "pattern"
   }
 }

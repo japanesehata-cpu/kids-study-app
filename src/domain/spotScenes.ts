@@ -102,7 +102,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.796,
         "flippable": true,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "starfish",
@@ -123,7 +123,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.971,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "octopus",
@@ -144,7 +144,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.983,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "bucket",
@@ -215,7 +215,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 2.376,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "windmill",
@@ -365,7 +365,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.034,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "bluebird",
@@ -547,7 +547,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.979,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "dog",
@@ -577,7 +577,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.971,
         "flippable": true,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "tulip",
@@ -608,7 +608,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.996,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "duck",
@@ -659,7 +659,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.538,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "icecream",
@@ -669,7 +669,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.408,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       }
     ],
     "bgDiffs": [
@@ -838,7 +838,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.356,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "egg",
@@ -848,7 +848,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.787,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "milk",
@@ -860,7 +860,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.396,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "strawberry",
@@ -902,7 +902,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.29,
         "flippable": true,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "tomato",
@@ -1006,7 +1006,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.696,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "ball",
@@ -1016,7 +1016,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.979,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "toycar",
@@ -1038,7 +1038,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.829,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "blocks",
@@ -1079,7 +1079,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.912,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "robot",
@@ -1111,7 +1111,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.754,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "train",
@@ -1234,7 +1234,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.892,
         "flippable": true,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "bee",
@@ -1275,7 +1275,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.883,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "dragonfly",
@@ -1366,7 +1366,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.829,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "ant",
@@ -1486,7 +1486,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.212,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "comet",
@@ -1576,7 +1576,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.637,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "cat",
@@ -1596,7 +1596,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.979,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       }
     ],
     "bgDiffs": [
@@ -1706,7 +1706,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.662,
         "flippable": true,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "cat",
@@ -1746,7 +1746,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.508,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "taxi",
@@ -1776,7 +1776,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.832,
         "flippable": true,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "scooter",
@@ -2028,7 +2028,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.579,
         "flippable": true,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       }
     ],
     "bgDiffs": [
@@ -2178,7 +2178,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.121,
         "flippable": true,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "haybale",
@@ -2188,7 +2188,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.983,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "milkcan",
@@ -2198,7 +2198,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.779,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "duck",
@@ -2238,7 +2238,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.048,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "crow",
@@ -2328,7 +2328,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.048,
         "flippable": true,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "flowerpot",
@@ -2401,7 +2401,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.838,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "hose",
@@ -2441,7 +2441,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.548,
         "flippable": true,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "cat",
@@ -2461,7 +2461,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.979,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "tomatoplant",
@@ -2602,7 +2602,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.714,
         "flippable": true,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "turtle",
@@ -2693,7 +2693,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.29,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "kingfisher",
@@ -2714,7 +2714,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.671,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       }
     ],
     "bgDiffs": [
@@ -2804,7 +2804,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.678,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "penguin",
@@ -2824,7 +2824,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.704,
         "flippable": true,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "cocoa",
@@ -2834,7 +2834,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.904,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "skis",
@@ -2905,7 +2905,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.804,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "snowball",
@@ -3076,7 +3076,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.067,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "crab",
@@ -3116,7 +3116,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.218,
         "flippable": true,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "treasure",
@@ -3126,7 +3126,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.838,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "anchor",
@@ -3146,7 +3146,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.702,
         "flippable": true,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "shark",
@@ -3242,7 +3242,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.446,
         "flippable": true,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "astronaut",
@@ -3263,7 +3263,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.996,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "moon",
@@ -3303,7 +3303,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.86,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "comet",
@@ -3333,7 +3333,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.034,
         "flippable": true,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "flag",
@@ -3373,7 +3373,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.988,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "spacestation",
@@ -3383,7 +3383,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.096,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       }
     ],
     "bgDiffs": [
@@ -3487,7 +3487,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.333,
         "flippable": true,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "clock",
@@ -3497,7 +3497,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.958,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "bench",
@@ -3517,7 +3517,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.655,
         "flippable": true,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "backpack",
@@ -3527,7 +3527,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.767,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "pigeon",
@@ -3557,7 +3557,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.362,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "dog",
@@ -3618,7 +3618,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.311,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       }
     ],
     "bgDiffs": [
@@ -3720,7 +3720,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.053,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "milk",
@@ -3771,7 +3771,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.846,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "cereal",
@@ -3781,7 +3781,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.758,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "juice",
@@ -3791,7 +3791,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.375,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "eggs",
@@ -3947,7 +3947,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.812,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "book",
@@ -4047,7 +4047,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.892,
         "flippable": true,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "plant",
@@ -4077,7 +4077,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.863,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       }
     ],
     "bgDiffs": [
@@ -4183,7 +4183,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.69,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "toothbrush",
@@ -4193,7 +4193,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.267,
         "flippable": true,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "towel",
@@ -4204,7 +4204,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.85,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "shampoo",
@@ -4215,7 +4215,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.517,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "sponge",
@@ -4286,7 +4286,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.963,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "slippers",
@@ -4316,7 +4316,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.421,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       }
     ],
     "bgDiffs": [
@@ -4446,7 +4446,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.708,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "ant",
@@ -4497,7 +4497,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.421,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "banana",
@@ -4638,7 +4638,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.257,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "backpack",
@@ -4648,7 +4648,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.758,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "marshmallow",
@@ -4668,7 +4668,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.842,
         "flippable": true,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "flashlight",
@@ -4718,7 +4718,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.725,
         "flippable": true,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "boots",
@@ -4878,7 +4878,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.356,
         "flippable": true,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "puddle",
@@ -4898,7 +4898,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.805,
         "flippable": true,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "cat",
@@ -4928,7 +4928,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.805,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "hydrangea",
@@ -4958,7 +4958,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.746,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "teruteru",
@@ -5119,7 +5119,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.667,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "basket",
@@ -5129,7 +5129,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.963,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "dragonfly",
@@ -5160,7 +5160,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.062,
         "flippable": true,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "pumpkin",
@@ -5170,7 +5170,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.938,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "leaves",
@@ -5180,7 +5180,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.026,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "bird",
@@ -5311,7 +5311,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.954,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "balloon",
@@ -5341,7 +5341,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.717,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "candy",
@@ -5371,7 +5371,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.783,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "cracker",
@@ -5391,7 +5391,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.9,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "star",
@@ -5441,7 +5441,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.421,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       }
     ],
     "bgDiffs": [
@@ -5572,7 +5572,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.013,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "cake",
@@ -5582,7 +5582,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.988,
         "flippable": true,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "cookie",
@@ -5593,7 +5593,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.979,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "muffin",
@@ -5664,7 +5664,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.625,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "rollingpin",
@@ -5807,7 +5807,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.026,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "doll",
@@ -5878,7 +5878,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.746,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "puzzle",
@@ -5888,7 +5888,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.096,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "airplane",
@@ -5919,7 +5919,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.992,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       }
     ],
     "bgDiffs": [
@@ -6037,7 +6037,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.206,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "lotus",
@@ -6077,7 +6077,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.6,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "heron",
@@ -6107,7 +6107,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.043,
         "flippable": true,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "swan",
@@ -6147,7 +6147,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.057,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       }
     ],
     "bgDiffs": [
@@ -6278,7 +6278,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.662,
         "flippable": true,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "frog",
@@ -6298,7 +6298,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.341,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "pineapple",
@@ -6319,7 +6319,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.875,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "chameleon",
@@ -6339,7 +6339,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.6,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "flower",
@@ -6500,7 +6500,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.988,
         "flippable": true,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "cone",
@@ -6540,7 +6540,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.206,
         "flippable": false,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "bus",
@@ -6560,7 +6560,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 0.617,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "propplane",
@@ -6580,7 +6580,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 2.222,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "tractor",
@@ -6590,7 +6590,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.333,
         "flippable": true,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       }
     ],
     "bgDiffs": [
@@ -6692,7 +6692,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.589,
         "flippable": true,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "bulldozer",
@@ -6752,7 +6752,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.206,
         "flippable": true,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "mixer",
@@ -6762,7 +6762,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.437,
         "flippable": true,
         "colorVariant": false,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "hammer",
@@ -6812,7 +6812,7 @@ export const SPOT_THEMES: SpotTheme[] = [
         "aspect": 1.053,
         "flippable": false,
         "colorVariant": true,
-        "partVariant": false
+        "partVariant": true
       },
       {
         "id": "bird",

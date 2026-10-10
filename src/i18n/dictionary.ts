@@ -3,6 +3,10 @@ export type Lang = 'ja' | 'en'
 export const dictionary = {
   appTitle: { ja: 'まなびフレンズ', en: 'Manabi Friends' },
   homeSubtitle: { ja: 'きょうは なにをべんきょうする？', en: 'What should we learn today?' },
+  languageToggleLabel: { ja: 'English に きりかえる', en: '日本語に切り替える' },
+  errorBoundaryMessage: { ja: 'ごめんね、うまく ひらけなかったよ。', en: 'Sorry, something went wrong.' },
+  errorBoundaryHome: { ja: 'ホームへ もどる', en: 'Back to Home' },
+  moneyAmount: { ja: '{amount}えん', en: '{amount} yen' },
   categoryAddition: { ja: 'たしざん', en: 'Addition' },
   categorySubtraction: { ja: 'ひきざん', en: 'Subtraction' },
   // "categoryEnglish" is the shared home-screen card label for the merged English chooser
@@ -394,7 +398,7 @@ export const dictionary = {
   parentGateSubmit: { ja: 'すすむ', en: 'Continue' },
   parentGateCancel: { ja: 'もどる', en: 'Cancel' },
 
-  progressTitle: { ja: 'がくしゅうきろく', en: 'Learning progress' },
+  progressTitle: { ja: 'すすみぐあい', en: 'Progress' },
   progressLevel: { ja: 'レベル {level}', en: 'Level {level}' },
   progressAccuracy: { ja: 'ちょくきん せいかいりつ', en: 'Recent accuracy' },
   progressBack: { ja: 'もどる', en: 'Back' },

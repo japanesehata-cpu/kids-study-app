@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from 'react'
+import { useI18n } from '../i18n/I18nContext'
 
 interface Props {
   children: (resetKey: number) => ReactNode
@@ -26,17 +27,20 @@ export class AppErrorBoundary extends Component<Props, State> {
 
   render() {
     if (!this.state.failed) return this.props.children(this.state.resetKey)
-    return (
-      <div className="screen" style={{ justifyContent: 'center' }}>
-        <p className="subtitle">ごめんね、うまく ひらけなかったよ。</p>
-        <button
-          type="button"
-          className="primary-button"
-          onClick={() => this.setState((s) => ({ failed: false, resetKey: s.resetKey + 1 }))}
-        >
-          ホームへ もどる
-        </button>
-      </div>
-    )
+    return <ErrorFallback onHome={() => this.setState((s) => ({ failed: false, resetKey: s.resetKey + 1 }))} />
   }
+}
+
+// A function component so the message can use useI18n (a class component can't call hooks).
+// AppErrorBoundary sits inside I18nProvider, so the context is always there.
+function ErrorFallback({ onHome }: { onHome: () => void }) {
+  const { t } = useI18n()
+  return (
+    <div className="screen" style={{ justifyContent: 'center' }}>
+      <p className="subtitle">{t('errorBoundaryMessage')}</p>
+      <button type="button" className="primary-button" onClick={onHome}>
+        {t('errorBoundaryHome')}
+      </button>
+    </div>
+  )
 }

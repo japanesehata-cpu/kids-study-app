@@ -92,6 +92,7 @@
 | 問題の生成 | カテゴリ名と同じ | `questionGenerators/money.ts` |
 | テスト | 対象と同じ名前に `.test` | `addition.test.ts` |
 | スクリプト | ケバブケース。先頭は動詞（`generate-`、`fetch-`、`build-`、`check-`、`audit-`） | `generate-spot-part-variants.py` |
+| スクリプトの共通モジュール・ローカルサーバー | 例外として、役割を表す名詞でよい（既存の名前は変えない） | `gemini-client.mjs`、`image-style-guardrail.mjs`、`remove_bg.py`、`kokoro_server.py` |
 | 音声ファイル | `<種類>-<内容>.wav`（キャッシュのキーと同じ名前） | `answer-counting-hon.wav` |
 | まちがいさがしの画像 | `spot/<テーマ>/<物>.png`、違いは `<物>__color.png`・`<物>__part.png`、背景の違いは `bg__<id>.jpg` | `spot/forest/fox__part.png` |
 | キャラクターの画像 | `characters/<キャラクターid>.png`、差分は `<id>__<差分>.png` | `characters/momo__blink.png` |

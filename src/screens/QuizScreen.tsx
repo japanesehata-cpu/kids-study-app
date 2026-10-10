@@ -946,7 +946,7 @@ function computeCorrectAnswerLabel(question: Question, lang: Lang): string {
     const counter = getCounterById(question.counterId)
     return `${counter.kana}（${counter.kanji}）`
   }
-  if (isMoney(question)) return `${question.targetAmount}えん`
+  if (isMoney(question)) return dictionary.moneyAmount[lang].replace('{amount}', String(question.targetAmount))
   if (isShapes(question)) {
     if (question.kind === 'countSides') return question.answer
     return dictionary[SHAPE_NAME_KEY[question.answer]][lang]

@@ -66,7 +66,7 @@ export function MoneyBoard({ question, promptText, onComplete, onFailed, disable
       <p className="money-wrong-count">
         {t('moneyWrongCount', { count: String(wrongCount), max: String(MAX_WRONG_GUESSES) })}
       </p>
-      <div className="money-target">{question.targetAmount}えん</div>
+      <div className="money-target">{t('moneyAmount', { amount: question.targetAmount })}</div>
       <div className="money-tray">
         {trayEntries.length === 0 ? (
           <span className="money-tray-empty">🪙</span>
@@ -74,7 +74,7 @@ export function MoneyBoard({ question, promptText, onComplete, onFailed, disable
           trayEntries.map((id, i) => <WordIcon key={`${id}-${i}`} wordId={id} size={44} />)
         )}
       </div>
-      <p className="money-tray-total">{trayTotal}えん</p>
+      <p className="money-tray-total">{t('moneyAmount', { amount: trayTotal })}</p>
       <button
         type="button"
         className="secondary-button money-reset-button"

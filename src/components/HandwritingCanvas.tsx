@@ -103,7 +103,8 @@ export function HandwritingCanvas({
     ctx.lineWidth = size * 0.06
     ctx.lineCap = 'round'
     ctx.lineJoin = 'round'
-    ctx.strokeStyle = '#ff8fc7'
+    // Canvas can't read CSS variables itself, so resolve the theme colour here.
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim() || '#ff8fc7'
     ctx.lineTo(x, y)
     ctx.stroke()
   }

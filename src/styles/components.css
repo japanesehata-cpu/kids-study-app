@@ -1687,77 +1687,14 @@
   opacity: 0.4;
 }
 
-/* WordIcon renders its `size` prop as a CSS variable (see WordIcon.tsx) rather than a
- * literal pixel attribute so it can scale up on wider screens — a PC browser window has
- * far more room than the phone/tablet viewport this app was originally sized for, and a
- * flat pixel size left flashcard images too small to make out clearly on a large screen. */
+/* WordIcon renders its `size` prop as a CSS variable (see WordIcon.tsx). There is no wider-
+ * screen enlargement any more: the app is built for a phone held upright only, with no
+ * PC/tablet-specific layout (docs/product-requirements.md, 6). */
 .word-icon {
   width: var(--icon-size);
   height: var(--icon-size);
   object-fit: contain;
   border-radius: 16px;
-}
-
-@media (min-width: 900px) {
-  .word-icon {
-    width: calc(var(--icon-size) * 1.6);
-    height: calc(var(--icon-size) * 1.6);
-  }
-
-  .card-panel {
-    max-width: 820px;
-    padding: 44px;
-  }
-
-  .card-panel-wide {
-    max-width: 1180px;
-  }
-
-  .choice-grid {
-    max-width: 760px;
-    gap: 28px;
-  }
-
-  /* .sudoku-cell/.sudoku-palette-item have a fixed size (unlike .choice-button, which
-     just grows with its padding) — without a matching bump here, the 1.6x-scaled
-     WordIcon above overflows its fixed-size box and paints over the cell borders that
-     mark the 2x2 blocks (see .sudoku-grid's comment for why those borders matter). */
-  .sudoku-cell {
-    width: 96px;
-    height: 96px;
-  }
-
-  .sudoku-palette-item {
-    width: 84px;
-    height: 84px;
-  }
-
-  /* Overrides the desktop .sudoku-cell/.sudoku-palette-item bump just above for classic
-   * specifically (same class-specificity, later in the cascade wins) — 9 cells at mini's
-   * 96px would make the board needlessly huge and the digits look oversized rather than
-   * like an actual sudoku board. */
-  .sudoku-cell--classic {
-    width: 60px;
-    height: 60px;
-  }
-
-  .sudoku-palette-item--classic {
-    width: 52px;
-    height: 52px;
-  }
-
-  /* Same reasoning as .sudoku-palette-item's bump above — money-palette-item is a
-     fixed-size box holding a WordIcon too. */
-  .money-palette-item {
-    width: 92px;
-    height: 92px;
-  }
-
-  .number-pad-button {
-    width: 76px;
-    height: 76px;
-    font-size: 28px;
-  }
 }
 
 /* components/QuizFlourishes.tsx */

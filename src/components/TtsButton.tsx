@@ -31,7 +31,7 @@ export function TtsButton({ text, lang, label, size = 72, voiceProfile, cacheKey
         borderRadius: '50%',
         border: 'none',
         background: 'var(--color-accent)',
-        boxShadow: '0 4px 0 #e0a83a',
+        boxShadow: '0 4px 0 var(--color-accent-dark)',
         fontSize: `clamp(20px, 3.6vh, ${size * 0.45}px)`,
         cursor: 'pointer',
         display: 'flex',

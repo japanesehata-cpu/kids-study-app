@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { MotionConfig } from 'framer-motion'
 import type { AnswerRecord, Category, Level, ProgressState, SetResult } from './domain/types'
 import { applySetResult, loadProgress, persistProgress, SET_SIZE } from './domain/progress'
-import { saveLastQuizFeedback } from './domain/homeFeedback'
 import type { ClockMode } from './domain/questionGenerators/clock'
 import type { SudokuMode } from './domain/questionGenerators/sudoku'
 import type { KanjiGrade } from './domain/kanjiBank'
@@ -169,14 +169,6 @@ function AppContent() {
   ) {
     const { progress: nextProgress, result } = applySetResult(category, level, progress, answers)
     setProgress(nextProgress)
-    saveLastQuizFeedback({
-      category,
-      leveledUp: result.leveledUp,
-      newLevel: nextProgress[category].level,
-      strongSubSkill: result.strongSubSkill,
-      correctCount: result.answers.filter((a) => a.correct).length,
-      total: result.answers.length,
-    })
 
     replace({
       name: 'result',
@@ -392,12 +384,17 @@ function AppContent() {
 
 function App() {
   return (
-    <I18nProvider>
-      <FloatingBackdrop />
-      <FitToViewport>
-        <AppErrorBoundary>{(resetKey) => <AppContent key={resetKey} />}</AppErrorBoundary>
-      </FitToViewport>
-    </I18nProvider>
+    // reducedMotion="user": with the phone's "reduce motion" setting on, every framer-motion
+    // movement (the mascots' endless bob and sway, the medal's spring) jumps straight to its
+    // end state instead of moving — fades still play. CSS animations are handled in theme.css.
+    <MotionConfig reducedMotion="user">
+      <I18nProvider>
+        <FloatingBackdrop />
+        <FitToViewport>
+          <AppErrorBoundary>{(resetKey) => <AppContent key={resetKey} />}</AppErrorBoundary>
+        </FitToViewport>
+      </I18nProvider>
+    </MotionConfig>
   )
 }
 

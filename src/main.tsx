@@ -4,8 +4,10 @@ import './index.css'
 import App from './App.tsx'
 import { initBgm } from './lib/bgm'
 import { initTapEffects } from './lib/tapEffects'
+import { clearRetiredData } from './lib/storage'
 import './lib/pointer'
 
+clearRetiredData()
 initBgm()
 initTapEffects()
 

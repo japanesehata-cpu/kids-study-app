@@ -1,3 +1,16 @@
+/* BIZ UDGothic: only for letters a child copies the exact shape of — the handwriting guide
+   (HandwritingCanvas.tsx) and the big glyph on the trace explanation (.kanji-meaning-char).
+   A Universal Design font with plain, unambiguous letterforms, closer to what's taught for
+   stroke shape than the app's rounded default. Self-hosted and cut down to the glyphs used
+   (scripts/fetch-handwriting-font.mjs) so nothing is fetched from outside at run time. */
+@font-face {
+  font-family: 'BIZ UDGothic';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/biz-udgothic-700.woff2') format('woff2');
+}
+
 :root {
   --color-bg: #ffe9f4;
   --color-bg-soft: #ffd9ec;

@@ -19,7 +19,7 @@ const GUIDE_ALPHA = 0.32
 const ALPHA_THRESHOLD = 24
 // Canvas's 2D context can't resolve CSS custom properties in ctx.font (var(--font-family)
 // silently fails to parse, falling back to a tiny default size) — this literal stack is
-// duplicated from the <link> in index.html for that reason. BIZ UDGothic specifically
+// duplicated from the @font-face in theme.css for that reason. BIZ UDGothic specifically
 // (rather than the app's playful default rounded font) because its letterforms are plain
 // and unambiguous — closer to what's actually taught for stroke shape, which matters a lot
 // more here than it does anywhere else in the app.

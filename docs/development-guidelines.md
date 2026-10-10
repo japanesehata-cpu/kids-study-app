@@ -45,7 +45,7 @@ npm run dev          # http://localhost:5173/kids-study-app/
 - 画像生成は、キャラクターデザインだけ Gemini API を使い、それ以外はローカルの SDXL 系モデルで作る（[architecture.md](./architecture.md#6-外部サービス依存関係)）。画風は `scripts/image-style-guardrail.mjs` に従う。
 - 生成した画像は、すべて元の画像と並べて目で確認し、使うものだけを `public/` に置く。採用しなかった候補は設定 JSON に `rejected` として残し、同じ失敗をくり返さない。
 - 固定の読み上げ文を足したり変えたりしたら、事前の音声を作り直す（`npm run generate:tts-cache`）。足りない音声がないかは `scripts/audit-tts-cache.mjs` で確かめる。
-- 漢字のデータを変えたら `node scripts/check-kanji-speech.mjs` で読み上げを確かめ、漢字の音声を作り直す。
+- 漢字のデータを変えたら `node scripts/check-kanji-speech.mjs` で読み上げを確かめ、漢字の音声を作り直す。漢字を足したときは、なぞり書き用のフォントも取り直す（`node --experimental-strip-types scripts/fetch-handwriting-font.mjs`）。
 - スクリプトが作るデータ（例：`src/domain/spotScenes.ts`）は手で書き換えない。
 - まちがいさがしの背景の違いは、2つの方式のファイル名の id が重ならないようにする（`bg__d<N>` は方式 A 専用。方式 B の id を `d` で始めない）。
 

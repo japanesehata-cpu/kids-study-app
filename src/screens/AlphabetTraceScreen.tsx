@@ -9,6 +9,7 @@ import { characterThemes } from '../components/characters/characterThemes'
 import { playCorrectSfx } from '../lib/sfx'
 import { useCorrectCelebration } from '../components/CorrectCelebration'
 import { shuffle } from '../lib/shuffle'
+import { ScreenTopBar } from '../components/ScreenTopBar'
 
 /** Example words with no fitting picture among images/words (queen). */
 const NO_PICTURE = new Set(['q'])
@@ -44,8 +45,8 @@ type Phase = 'tracing' | 'reveal'
  *
  * Unlike かんじ/かな, the stroke guide data isn't fetched from KanjiVG (it has no
  * Latin-alphabet coverage) — see generate-alphabet-strokes.mjs, which computes all 52
- * letterforms from line/arc primitives instead. That's also why this screen omits the
- * shared "traceStrokeCredit" line KanjiTraceScreen/KanaTraceScreen show. */
+ * letterforms from line/arc primitives instead. That's also why the KanjiVG credit
+ * (shown on ProgressScreen) doesn't cover this screen. */
 export function AlphabetTraceScreen({ onBack, onHome }: AlphabetTraceScreenProps) {
   const { t } = useI18n()
   const { celebrate, celebration } = useCorrectCelebration()
@@ -80,51 +81,45 @@ export function AlphabetTraceScreen({ onBack, onHome }: AlphabetTraceScreenProps
   return (
     <div className="screen">
       {celebration}
-      <div className="top-bar">
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" className="icon-button" onClick={onBack} aria-label={t('backButton')}>
-            ←
-          </button>
-          <button type="button" className="icon-button" onClick={onHome} aria-label={t('backHomeButton')}>
-            ⌂
-          </button>
-        </div>
+      <ScreenTopBar onBack={onBack} onHome={onHome}>
         <CategoryHeader category="alphabet" />
-      </div>
+      </ScreenTopBar>
 
-      <p className="hint-caption">
+      <p className="trace-progress">
         {t('kanjiTraceProgress', { current: String(index + 1), total: String(order.length) })}
       </p>
 
-      {phase === 'tracing' && (
-        <>
-          <p className="subtitle">{t('tracePrompt')}</p>
-          <KanjiTraceCanvas
-            key={entry.id}
-            char={entry.char}
-            strokes={alphabetStrokePaths[entry.char]}
-            restartLabel={t('traceRestartButton')}
-            onComplete={handleComplete}
-          />
-        </>
-      )}
+      <div className="screen-body">
+        {phase === 'tracing' && (
+          <>
+            <p className="subtitle">{t('tracePrompt')}</p>
+            <KanjiTraceCanvas
+              key={entry.id}
+              char={entry.char}
+              strokes={alphabetStrokePaths[entry.char]}
+              restartLabel={t('traceRestartButton')}
+              onComplete={handleComplete}
+            />
+          </>
+        )}
 
-      {phase === 'reveal' && (
-        <TraceReveal
-          key={entry.id}
-          glyph={entry.char}
-          imageId={NO_PICTURE.has(letter.id) ? undefined : letter.mnemonic.toLowerCase()}
-          label={letter.mnemonic}
-          sentence={letter.exampleSentenceEn}
-          speech={[
-            { text: alphabetSpeechPhrase(letter), lang: 'en-US', cacheKey: `alphabet-letter-${letter.id}` },
-            { text: letter.exampleSentenceEn, lang: 'en-US', cacheKey: `alphabet-review-${letter.id}` },
-          ]}
-          voiceProfile={voiceProfile}
-          nextLabel={isLastInDeck ? t('reviewDoneButton') : t('nextButton')}
-          onNext={handleNext}
-        />
-      )}
+        {phase === 'reveal' && (
+          <TraceReveal
+            key={entry.id}
+            glyph={entry.char}
+            imageId={NO_PICTURE.has(letter.id) ? undefined : letter.mnemonic.toLowerCase()}
+            label={letter.mnemonic}
+            sentence={letter.exampleSentenceEn}
+            speech={[
+              { text: alphabetSpeechPhrase(letter), lang: 'en-US', cacheKey: `alphabet-letter-${letter.id}` },
+              { text: letter.exampleSentenceEn, lang: 'en-US', cacheKey: `alphabet-review-${letter.id}` },
+            ]}
+            voiceProfile={voiceProfile}
+            nextLabel={isLastInDeck ? t('reviewDoneButton') : t('nextButton')}
+            onNext={handleNext}
+          />
+        )}
+      </div>
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { dictionary, type DictionaryKey, type Lang } from './dictionary'
 import { loadLang, saveLang } from '../lib/storage'
 
@@ -24,6 +24,12 @@ function readInitialLang(): Lang {
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<Lang>(readInitialLang)
+
+  // The page's lang follows the display language, so screen readers pick the right voice and
+  // CSS can size English text (longer words) with :lang(en).
+  useEffect(() => {
+    document.documentElement.lang = lang
+  }, [lang])
 
   const value = useMemo<I18nContextValue>(
     () => ({

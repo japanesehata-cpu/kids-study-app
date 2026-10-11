@@ -10,6 +10,8 @@ interface CharacterPortraitProps {
   size?: number
   /** Seconds into the idle loop to start from, so a row of portraits doesn't bob in lockstep. */
   phase?: number
+  /** Extra class on the root — `character-portrait--hero` for a screen's one large mascot. */
+  className?: string
 }
 
 const SPARKLE_POSITIONS = [
@@ -48,7 +50,7 @@ const celebrateAnimation = { rotate: [-8, 8, -8], y: [0, -16, 0], scale: 1 }
 const streakAnimation = { rotate: [-10, 10, -10], y: [0, -20, 0], scale: [1, 1.1, 1] }
 const thinkingAnimation = { rotate: [-3, 3, -3], y: [0, 2, 0], scale: 1 }
 
-export function CharacterPortrait({ theme, mood = 'happy', size = 220, phase = 0 }: CharacterPortraitProps) {
+export function CharacterPortrait({ theme, mood = 'happy', size = 220, phase = 0, className }: CharacterPortraitProps) {
   const animate =
     mood === 'streak'
       ? streakAnimation
@@ -66,7 +68,7 @@ export function CharacterPortrait({ theme, mood = 'happy', size = 220, phase = 0
 
   return (
     <div
-      className="character-portrait"
+      className={className ? `character-portrait ${className}` : 'character-portrait'}
       style={{ position: 'relative', display: 'inline-block', ['--portrait-max' as string]: `${size}px` }}
     >
       <Sparkles active={mood === 'celebrate' || mood === 'streak'} />

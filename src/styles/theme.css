@@ -120,6 +120,11 @@ body {
     linear-gradient(160deg, var(--color-bg) 0%, var(--color-bg-soft) 100%);
   background-color: var(--color-bg);
   color: var(--color-text);
+  /* Never break a Japanese word in the middle (えい / ご, けいさ / ん): child-facing text is
+     written with spaces between words, and keep-all wraps only at those spaces. break-word
+     is the fallback for a word that cannot fit a line at all, so nothing overflows. */
+  word-break: keep-all;
+  overflow-wrap: break-word;
   -webkit-tap-highlight-color: transparent;
 }
 

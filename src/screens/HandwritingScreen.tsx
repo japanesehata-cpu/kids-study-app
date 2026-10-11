@@ -14,6 +14,7 @@ import { playCorrectSfx } from '../lib/sfx'
 import { useCorrectCelebration } from '../components/CorrectCelebration'
 import { shuffle } from '../lib/shuffle'
 import { useResponsiveSize } from '../lib/useResponsiveSize'
+import { ScreenTopBar } from '../components/ScreenTopBar'
 
 type HandwritingCategory = 'hiragana' | 'katakana' | 'alphabet'
 
@@ -95,7 +96,7 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
   // drawing resolution and pixel-mask scoring both key off `size` directly, so it likewise
   // needs an actual number here, not a CSS clamp() string like KanjiTraceCanvas's wrapper.
   const charSize = useResponsiveSize(96, 0.14, 56)
-  const canvasSize = useResponsiveSize(280, 0.32, 160)
+  const canvasSize = useResponsiveSize(420, 0.4, 160, 0.86)
 
   useEffect(() => {
     if (praise) return
@@ -120,64 +121,58 @@ export function HandwritingScreen({ category, onBack, onHome }: HandwritingScree
   return (
     <div className="screen">
       {celebration}
-      <div className="top-bar">
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" className="icon-button" onClick={onBack} aria-label={t('backButton')}>
-            ←
-          </button>
-          <button type="button" className="icon-button" onClick={onHome} aria-label={t('backHomeButton')}>
-            ⌂
-          </button>
-        </div>
+      <ScreenTopBar onBack={onBack} onHome={onHome}>
         <CategoryHeader category={category} />
-      </div>
+      </ScreenTopBar>
 
-      <p className="subtitle">{t('handwritingListenWritePrompt')}</p>
+      <div className="screen-body">
+        <p className="subtitle">{t('handwritingListenWritePrompt')}</p>
 
-      {!praise && (
-        <>
-          {category === 'alphabet' && (
-            <span className={`handwriting-case-badge handwriting-case-badge--${(entry as AlphabetWritableEntry).case}`}>
-              {t((entry as AlphabetWritableEntry).case === 'upper' ? 'handwritingCaseUpper' : 'handwritingCaseLower')}
-            </span>
-          )}
-          <TtsButton
-            text={speechPhrase}
-            lang={speechLang}
-            label="listen"
-            size={72}
-            voiceProfile={voiceProfile}
-            cacheKey={cacheKey}
-          />
-        </>
-      )}
+        {!praise && (
+          <>
+            {category === 'alphabet' && (
+              <span className={`handwriting-case-badge handwriting-case-badge--${(entry as AlphabetWritableEntry).case}`}>
+                {t((entry as AlphabetWritableEntry).case === 'upper' ? 'handwritingCaseUpper' : 'handwritingCaseLower')}
+              </span>
+            )}
+            <TtsButton
+              text={speechPhrase}
+              lang={speechLang}
+              label="listen"
+              size={72}
+              voiceProfile={voiceProfile}
+              cacheKey={cacheKey}
+            />
+          </>
+        )}
 
-      {praise ? (
-        <div className="handwriting-praise">
-          <div className="handwriting-stars" aria-hidden="true">
-            {'★'.repeat(praise.stars)}
-            {'☆'.repeat(3 - praise.stars)}
+        {praise ? (
+          <div className="handwriting-praise">
+            <div className="handwriting-stars" aria-hidden="true">
+              {'★'.repeat(praise.stars)}
+              {'☆'.repeat(3 - praise.stars)}
+            </div>
+            {/* きいてかく never shows the glyph at all until now, so this is the child's
+                first chance to compare what they wrote against the real thing. */}
+            <p className="hint-caption">{t('handwritingAnswerLabel')}</p>
+            <HiraganaChar char={entry.char} size={charSize} />
+            <p className="handwriting-praise-text">{praise.text}</p>
+            <button type="button" className="primary-button next-button" onClick={handleNext}>
+              {t('nextButton')}
+            </button>
           </div>
-          {/* きいてかく never shows the glyph at all until now, so this is the child's
-              first chance to compare what they wrote against the real thing. */}
-          <p className="hint-caption">{t('handwritingAnswerLabel')}</p>
-          <HiraganaChar char={entry.char} size={charSize} />
-          <p className="handwriting-praise-text">{praise.text}</p>
-          <button type="button" className="primary-button next-button" onClick={handleNext}>
-            {t('nextButton')}
-          </button>
-        </div>
-      ) : (
-        <HandwritingCanvas
-          key={entry.id}
-          char={entry.char}
-          size={canvasSize}
-          showGuide={false}
-          doneLabel={t('handwritingDoneButton')}
-          clearLabel={t('handwritingClearButton')}
-          onDone={handleDone}
-        />
-      )}
+        ) : (
+          <HandwritingCanvas
+            key={entry.id}
+            char={entry.char}
+            size={canvasSize}
+            showGuide={false}
+            doneLabel={t('handwritingDoneButton')}
+            clearLabel={t('handwritingClearButton')}
+            onDone={handleDone}
+          />
+        )}
+      </div>
     </div>
   )
 }

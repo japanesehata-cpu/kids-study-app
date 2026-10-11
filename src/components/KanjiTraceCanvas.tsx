@@ -15,7 +15,7 @@ interface KanjiTraceCanvasProps {
   onComplete: () => void
 }
 
-const DEFAULT_SIZE = 280
+const DEFAULT_SIZE = 420
 const VIEWBOX = 109
 // How many strokes were traced correctly across all of this render, used only to key the
 // mistake-flash timeout so a rapid retry doesn't get its flash cut short by an earlier one.
@@ -147,7 +147,9 @@ export function KanjiTraceCanvas({ char, strokes, size = DEFAULT_SIZE, restartLa
     <div className="handwriting-board">
       <div
         className={`kanji-trace-canvas-stack${mistake ? ' kanji-trace-canvas-stack--mistake' : ''}`}
-        style={{ width: `clamp(160px, 32vh, ${size}px)`, height: `clamp(160px, 32vh, ${size}px)` }}
+        // As wide as the phone allows (it's traced with a finger), but never so tall that the
+        // prompt and the restart button no longer fit beside it.
+        style={{ width: `clamp(160px, min(86vw, 46vh), ${size}px)`, height: `clamp(160px, min(86vw, 46vh), ${size}px)` }}
       >
         <svg ref={svgRef} viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`} className="kanji-trace-svg">
           {strokes.map((d, i) => (

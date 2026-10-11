@@ -10,6 +10,7 @@ import { CharacterPortrait } from '../components/characters/CharacterPortrait'
 import { characterThemes } from '../components/characters/characterThemes'
 import { CategoryHeader } from '../components/CategoryHeader'
 import { InteractiveClock } from '../components/InteractiveClock'
+import { ScreenTopBar } from '../components/ScreenTopBar'
 
 const CLOCK_MODE_OPTIONS: ClockMode[] = ['multipleChoice', 'setTime']
 const SUDOKU_MODE_OPTIONS: SudokuMode[] = ['mini', 'classic']
@@ -69,101 +70,102 @@ export function LevelSelectScreen({
 
   return (
     <div className="screen">
-      <div className="top-bar">
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" className="icon-button" onClick={onBack} aria-label={t('backButton')}>
-            ←
-          </button>
-          <button type="button" className="icon-button" onClick={onHome} aria-label={t('backHomeButton')}>
-            ⌂
-          </button>
-        </div>
+      <ScreenTopBar onBack={onBack} onHome={onHome}>
         <CategoryHeader category={category} />
-      </div>
+      </ScreenTopBar>
 
-      <CharacterPortrait theme={theme} mood="happy" size={150} />
+      <div className="screen-body">
+        {/* とけい's level select also shows a clock to play with — a big mascot as well would
+            push the levels off a phone screen. */}
+        <CharacterPortrait
+          theme={theme}
+          mood="happy"
+          size={150}
+          className={category === 'clock' ? undefined : 'character-portrait--hero'}
+        />
 
-      {category === 'clock' && <InteractiveClock size={220} />}
+        {category === 'clock' && <InteractiveClock size={220} />}
 
-      <p className="subtitle">{t(category === 'logic' ? 'logicKindSelectTitle' : 'levelSelectTitle')}</p>
+        <p className="subtitle">{t(category === 'logic' ? 'logicKindSelectTitle' : 'levelSelectTitle')}</p>
 
-      {category === 'clock' && (
-        <div className="set-size-toggle">
-          {CLOCK_MODE_OPTIONS.map((mode) => (
-            <button
-              key={mode}
-              type="button"
-              className={`set-size-button ${clockMode === mode ? 'active' : ''}`.trim()}
-              onClick={() => setClockMode(mode)}
-            >
-              {t(mode === 'multipleChoice' ? 'clockModeReadLabel' : 'clockModeSetTimeLabel')}
-            </button>
-          ))}
+        {category === 'clock' && (
+          <div className="set-size-toggle">
+            {CLOCK_MODE_OPTIONS.map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                className={`set-size-button ${clockMode === mode ? 'active' : ''}`.trim()}
+                onClick={() => setClockMode(mode)}
+              >
+                {t(mode === 'multipleChoice' ? 'clockModeReadLabel' : 'clockModeSetTimeLabel')}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {category === 'sudoku' && (
+          <div className="set-size-toggle">
+            {SUDOKU_MODE_OPTIONS.map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                className={`set-size-button ${sudokuMode === mode ? 'active' : ''}`.trim()}
+                onClick={() => setSudokuMode(mode)}
+              >
+                {t(mode === 'mini' ? 'sudokuModeMiniLabel' : 'sudokuModeClassicLabel')}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {!isClassicSudoku && (
+          <div className="set-size-toggle">
+            {SET_SIZE_OPTIONS.map((size) => (
+              <button
+                key={size}
+                type="button"
+                className={`set-size-button ${setSize === size ? 'active' : ''}`.trim()}
+                onClick={() => setSetSize(size)}
+              >
+                {t(size === 5 ? 'setSizeShortLabel' : 'setSizeLongLabel')}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="level-grid">
+          {levels.map((level) => {
+            const descKey = isClassicSudoku ? getSudokuClassicLevelDescriptionKey(level) : getLevelDescriptionKey(category, level)
+            return (
+              <button
+                key={level}
+                type="button"
+                className="level-button"
+                onClick={() =>
+                  onSelectLevel(
+                    level,
+                    effectiveSetSize,
+                    category === 'clock' ? clockMode : undefined,
+                    category === 'sudoku' ? sudokuMode : undefined,
+                  )
+                }
+              >
+                {category === 'logic' ? (
+                  <span className="level-number">{t(LOGIC_KIND_LABEL_KEY[level])}</span>
+                ) : (
+                  <>
+                    <span className="level-number">{level}</span>
+                    <span className="level-stars">
+                      {'★'.repeat(level)}
+                      {'☆'.repeat(maxLevel - level)}
+                    </span>
+                  </>
+                )}
+                {descKey && <span className="level-description">{t(descKey)}</span>}
+              </button>
+            )
+          })}
         </div>
-      )}
-
-      {category === 'sudoku' && (
-        <div className="set-size-toggle">
-          {SUDOKU_MODE_OPTIONS.map((mode) => (
-            <button
-              key={mode}
-              type="button"
-              className={`set-size-button ${sudokuMode === mode ? 'active' : ''}`.trim()}
-              onClick={() => setSudokuMode(mode)}
-            >
-              {t(mode === 'mini' ? 'sudokuModeMiniLabel' : 'sudokuModeClassicLabel')}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {!isClassicSudoku && (
-        <div className="set-size-toggle">
-          {SET_SIZE_OPTIONS.map((size) => (
-            <button
-              key={size}
-              type="button"
-              className={`set-size-button ${setSize === size ? 'active' : ''}`.trim()}
-              onClick={() => setSetSize(size)}
-            >
-              {t(size === 5 ? 'setSizeShortLabel' : 'setSizeLongLabel')}
-            </button>
-          ))}
-        </div>
-      )}
-
-      <div className="level-grid">
-        {levels.map((level) => {
-          const descKey = isClassicSudoku ? getSudokuClassicLevelDescriptionKey(level) : getLevelDescriptionKey(category, level)
-          return (
-            <button
-              key={level}
-              type="button"
-              className="level-button"
-              onClick={() =>
-                onSelectLevel(
-                  level,
-                  effectiveSetSize,
-                  category === 'clock' ? clockMode : undefined,
-                  category === 'sudoku' ? sudokuMode : undefined,
-                )
-              }
-            >
-              {category === 'logic' ? (
-                <span className="level-number">{t(LOGIC_KIND_LABEL_KEY[level])}</span>
-              ) : (
-                <>
-                  <span className="level-number">{level}</span>
-                  <span className="level-stars">
-                    {'★'.repeat(level)}
-                    {'☆'.repeat(maxLevel - level)}
-                  </span>
-                </>
-              )}
-              {descKey && <span className="level-description">{t(descKey)}</span>}
-            </button>
-          )
-        })}
       </div>
     </div>
   )

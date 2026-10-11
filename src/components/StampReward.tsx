@@ -21,7 +21,7 @@ export function StampReward() {
   const medalSize = 110 * scale
 
   return (
-    <div style={{ position: 'relative', width: size, height: size, margin: '0 auto' }}>
+    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
       {ACCENT_IDS.map((id, i) => {
         const angle = (i / ACCENT_IDS.length) * Math.PI * 2
         const x = Math.cos(angle) * distance

@@ -1,5 +1,8 @@
 import { useI18n } from '../i18n/I18nContext'
 import { CategoryHeader } from '../components/CategoryHeader'
+import { ScreenTopBar } from '../components/ScreenTopBar'
+import { CharacterPortrait } from '../components/characters/CharacterPortrait'
+import { characterThemes } from '../components/characters/characterThemes'
 
 interface LogicEntryScreenProps {
   onSelect: (mode: 'practice' | 'sudoku') => void
@@ -18,29 +21,25 @@ export function LogicEntryScreen({ onSelect, onBack, onHome }: LogicEntryScreenP
 
   return (
     <div className="screen">
-      <div className="top-bar">
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" className="icon-button" onClick={onBack} aria-label={t('backButton')}>
-            ←
+      <ScreenTopBar onBack={onBack} onHome={onHome}>
+        <CategoryHeader category="logic" />
+      </ScreenTopBar>
+
+      <div className="screen-body">
+        <CharacterPortrait theme={characterThemes.logic} mood="happy" size={150} className="character-portrait--hero" />
+
+        <p className="subtitle">{t('modeEntryTitle')}</p>
+
+        <div className="level-grid mode-grid">
+          <button type="button" className="level-button mode-card" onClick={() => onSelect('practice')}>
+            <span className="mode-card-label">{t('categoryLogic')}</span>
+            <span className="mode-card-description">{t('logicEntryPracticeDescription')}</span>
           </button>
-          <button type="button" className="icon-button" onClick={onHome} aria-label={t('backHomeButton')}>
-            ⌂
+          <button type="button" className="level-button mode-card" onClick={() => onSelect('sudoku')}>
+            <span className="mode-card-label">{t('sudokuButton')}</span>
+            <span className="mode-card-description">{t('logicEntrySudokuDescription')}</span>
           </button>
         </div>
-        <CategoryHeader category="logic" />
-      </div>
-
-      <p className="subtitle">{t('modeEntryTitle')}</p>
-
-      <div className="level-grid">
-        <button type="button" className="level-button" onClick={() => onSelect('practice')}>
-          <span className="level-number">{t('categoryLogic')}</span>
-          <span className="hint-caption">{t('logicEntryPracticeDescription')}</span>
-        </button>
-        <button type="button" className="level-button" onClick={() => onSelect('sudoku')}>
-          <span className="level-number">{t('sudokuButton')}</span>
-          <span className="hint-caption">{t('logicEntrySudokuDescription')}</span>
-        </button>
       </div>
     </div>
   )

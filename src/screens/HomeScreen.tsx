@@ -231,13 +231,15 @@ export function HomeScreen({
                     : onSelectCategory(category)
             }
           >
-            <span
-              className="category-symbol"
-              style={{ background: characterThemes[category].colorMain, color: characterThemes[category].colorMainDark }}
-            >
-              {symbol}
+            <span className="category-card-figure">
+              <CharacterPortrait theme={characterThemes[category]} mood="happy" size={92} phase={i * 0.53} />
+              <span
+                className="category-symbol"
+                style={{ background: characterThemes[category].colorMain, color: characterThemes[category].colorMainDark }}
+              >
+                {symbol}
+              </span>
             </span>
-            <CharacterPortrait theme={characterThemes[category]} mood="happy" size={92} phase={i * 0.53} />
             <span className="category-label">
               {t(category === 'englishSpelling' ? 'categoryEnglish' : category === 'hiragana' ? 'categoryMoji' : labelKey)}
             </span>

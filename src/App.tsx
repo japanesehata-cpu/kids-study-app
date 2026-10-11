@@ -369,6 +369,7 @@ function AppContent() {
           <ParentGate
             onSuccess={() => navigate({ name: 'progress' })}
             onCancel={goBack}
+            onHome={goHome}
           />
         )
       case 'progress':

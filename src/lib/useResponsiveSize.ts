@@ -7,10 +7,13 @@ import { useEffect, useState } from 'react'
  * that a plain CSS clamp() string can't reach — those need an actual number, computed in
  * JS. `vhFactor` plays the same role as a CSS clamp()'s middle argument (e.g. 0.26 for
  * `26vh`). Resizes are tracked live so rotating a device or Safari's URL bar hiding/showing
- * doesn't leave a stale, wrong-for-the-viewport size behind. */
-export function useResponsiveSize(maxPx: number, vhFactor: number, minPx: number): number {
+ * doesn't leave a stale, wrong-for-the-viewport size behind. `vwFactor` additionally caps the
+ * size by viewport WIDTH, for something square that should fill most of a phone's width. */
+export function useResponsiveSize(maxPx: number, vhFactor: number, minPx: number, vwFactor = Infinity): number {
   const compute = () =>
-    typeof window === 'undefined' ? maxPx : Math.min(maxPx, Math.max(minPx, window.innerHeight * vhFactor))
+    typeof window === 'undefined'
+      ? maxPx
+      : Math.min(maxPx, Math.max(minPx, Math.min(window.innerHeight * vhFactor, window.innerWidth * vwFactor)))
 
   const [size, setSize] = useState(compute)
 
@@ -19,7 +22,7 @@ export function useResponsiveSize(maxPx: number, vhFactor: number, minPx: number
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [maxPx, vhFactor, minPx])
+  }, [maxPx, vhFactor, minPx, vwFactor])
 
   return size
 }

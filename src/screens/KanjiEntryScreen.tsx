@@ -1,6 +1,9 @@
 import { useI18n } from '../i18n/I18nContext'
 import { CategoryHeader } from '../components/CategoryHeader'
 import type { KanjiGrade } from '../domain/kanjiBank'
+import { ScreenTopBar } from '../components/ScreenTopBar'
+import { CharacterPortrait } from '../components/characters/CharacterPortrait'
+import { characterThemes } from '../components/characters/characterThemes'
 
 const GRADES: KanjiGrade[] = [1, 2]
 
@@ -28,42 +31,38 @@ export function KanjiEntryScreen({ grade, onChangeGrade, onSelect, onBack, onHom
 
   return (
     <div className="screen">
-      <div className="top-bar">
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" className="icon-button" onClick={onBack} aria-label={t('backButton')}>
-            ←
+      <ScreenTopBar onBack={onBack} onHome={onHome}>
+        <CategoryHeader category="kanji" />
+      </ScreenTopBar>
+
+      <div className="screen-body">
+        <CharacterPortrait theme={characterThemes.kanji} mood="happy" size={150} className="character-portrait--hero" />
+
+        <div className="set-size-toggle">
+          {GRADES.map((g) => (
+            <button
+              key={g}
+              type="button"
+              className={`set-size-button ${grade === g ? 'active' : ''}`.trim()}
+              onClick={() => onChangeGrade(g)}
+            >
+              {t(g === 1 ? 'kanjiGrade1Label' : 'kanjiGrade2Label')}
+            </button>
+          ))}
+        </div>
+
+        <p className="subtitle">{t('kanjiEntryTitle')}</p>
+
+        <div className="level-grid mode-grid">
+          <button type="button" className="level-button mode-card" onClick={() => onSelect('quiz')}>
+            <span className="mode-card-label">{t('kanjiEntryQuizLabel')}</span>
+            <span className="mode-card-description">{t('kanjiEntryQuizDescription')}</span>
           </button>
-          <button type="button" className="icon-button" onClick={onHome} aria-label={t('backHomeButton')}>
-            ⌂
+          <button type="button" className="level-button mode-card" onClick={() => onSelect('trace')}>
+            <span className="mode-card-label">{t('kanjiEntryTraceLabel')}</span>
+            <span className="mode-card-description">{t('kanjiEntryTraceDescription')}</span>
           </button>
         </div>
-        <CategoryHeader category="kanji" />
-      </div>
-
-      <div className="set-size-toggle">
-        {GRADES.map((g) => (
-          <button
-            key={g}
-            type="button"
-            className={`set-size-button ${grade === g ? 'active' : ''}`.trim()}
-            onClick={() => onChangeGrade(g)}
-          >
-            {t(g === 1 ? 'kanjiGrade1Label' : 'kanjiGrade2Label')}
-          </button>
-        ))}
-      </div>
-
-      <p className="subtitle">{t('kanjiEntryTitle')}</p>
-
-      <div className="level-grid">
-        <button type="button" className="level-button" onClick={() => onSelect('quiz')}>
-          <span className="level-number">{t('kanjiEntryQuizLabel')}</span>
-          <span className="hint-caption">{t('kanjiEntryQuizDescription')}</span>
-        </button>
-        <button type="button" className="level-button" onClick={() => onSelect('trace')}>
-          <span className="level-number">{t('kanjiEntryTraceLabel')}</span>
-          <span className="hint-caption">{t('kanjiEntryTraceDescription')}</span>
-        </button>
       </div>
     </div>
   )

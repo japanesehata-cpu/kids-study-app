@@ -8,6 +8,7 @@ import { CharacterPortrait } from '../components/characters/CharacterPortrait'
 import { characterThemes } from '../components/characters/characterThemes'
 import { CategoryHeader } from '../components/CategoryHeader'
 import { ResultStars } from '../components/QuizFlourishes'
+import { ScreenTopBar } from '../components/ScreenTopBar'
 
 interface ResultScreenProps {
   result: SetResult
@@ -78,53 +79,57 @@ export function ResultScreen({ result, onRetry, onBack, onBackHome }: ResultScre
 
   return (
     <div className="screen">
-      <CategoryHeader category={result.category} />
-      <h1 className="app-title">{t('resultTitle')}</h1>
-      <CharacterPortrait theme={characterThemes[result.category]} mood="celebrate" size={160} />
-      <StampReward />
+      <ScreenTopBar onBack={onBack} onHome={onBackHome}>
+        <CategoryHeader category={result.category} />
+      </ScreenTopBar>
 
-      <div className="card-panel">
-        <ResultStars correct={correctCount} total={total} />
-        <p className="result-score-text">{t('resultScoreLabel', { correct: correctCount, total })}</p>
-
-        {showBestStreak && (
-          <p style={{ fontWeight: 700, color: 'var(--color-primary-dark)' }}>
-            🔥 {t('resultBestStreak', { streak: result.bestStreak })}
-          </p>
-        )}
-
-        {leveledUp && (
-          <div className="feedback-banner correct">{t('resultLevelUp')}</div>
-        )}
-
-        {result.strongSubSkill || result.weakSubSkill ? (
-          <div className="stat-row">
-            {result.strongSubSkill && (
-              <p>
-                🌟 {t('resultStrongLabel')}: {t(subSkillLabelKey[result.strongSubSkill])}
-              </p>
-            )}
-            {result.weakSubSkill && (
-              <p>
-                💪 {t('resultWeakLabel')}: {t(subSkillLabelKey[result.weakSubSkill])}
-              </p>
-            )}
-          </div>
-        ) : (
-          <p>{t('resultAllGoodMessage')}</p>
-        )}
-
-        <div className="result-button-row">
-          <button type="button" className="primary-button" onClick={onRetry}>
-            {t('tryAgainButton')}
-          </button>
-          <button type="button" className="icon-button" onClick={onBack} aria-label={t('backButton')}>
-            ←
-          </button>
-          <button type="button" className="icon-button" onClick={onBackHome} aria-label={t('backHomeButton')}>
-            ⌂
-          </button>
+      <div className="screen-body">
+        <h1 className="app-title">{t('resultTitle')}</h1>
+        {/* Mascot and medal side by side: stacked, the two cost a third of a phone's height. */}
+        <div className="result-hero">
+          <CharacterPortrait
+            theme={characterThemes[result.category]}
+            mood="celebrate"
+            size={160}
+            className="character-portrait--hero"
+          />
+          <StampReward />
         </div>
+
+        <div className="card-panel">
+          <ResultStars correct={correctCount} total={total} />
+          <p className="result-score-text">{t('resultScoreLabel', { correct: correctCount, total })}</p>
+
+          {showBestStreak && <p className="result-streak">🔥 {t('resultBestStreak', { streak: result.bestStreak })}</p>}
+
+          {leveledUp && <div className="feedback-banner correct">{t('resultLevelUp')}</div>}
+
+          {result.strongSubSkill || result.weakSubSkill ? (
+            <div className="stat-row">
+              {result.strongSubSkill && (
+                <p>
+                  🌟 {t('resultStrongLabel')}: {t(subSkillLabelKey[result.strongSubSkill])}
+                </p>
+              )}
+              {result.weakSubSkill && (
+                <p>
+                  💪 {t('resultWeakLabel')}: {t(subSkillLabelKey[result.weakSubSkill])}
+                </p>
+              )}
+            </div>
+          ) : (
+            <p>{t('resultAllGoodMessage')}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="screen-actions screen-actions--row">
+        <button type="button" className="primary-button" onClick={onRetry}>
+          {t('tryAgainButton')}
+        </button>
+        <button type="button" className="secondary-button" onClick={onBackHome}>
+          {t('backHomeButton')}
+        </button>
       </div>
     </div>
   )

@@ -62,6 +62,7 @@ import { useResponsiveSize } from '../lib/useResponsiveSize'
 import { oppositeWordKey } from '../domain/oppositeBank'
 import { clockTimeSpeech, SET_TIME_PROMPT_AFTER, SET_TIME_PROMPT_BEFORE } from '../domain/answerSpeech'
 import { computeAnswerSpeech } from '../domain/answerSpeechFor'
+import { ScreenTopBar } from '../components/ScreenTopBar'
 
 interface QuizScreenProps {
   category: Category
@@ -1248,21 +1249,13 @@ export function QuizScreen({
     <div className="screen">
       {celebrationKey > 0 && <CorrectCelebration key={celebrationKey} streak={streak} />}
       {index > 0 && <PeekingMascot key={index} theme={characterThemes[category]} />}
-      <div className="top-bar">
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" className="icon-button" onClick={onExit} aria-label={t('backButton')}>
-            ←
-          </button>
-          <button type="button" className="icon-button" onClick={onHome} aria-label={t('backHomeButton')}>
-            ⌂
-          </button>
-        </div>
+      <ScreenTopBar onBack={onExit} onHome={onHome}>
         <CategoryHeader category={category} />
-        <QuizProgressStars total={questions.length} index={index} answers={answers} label={t('quizProgress', { current: index + 1, total: questions.length })} />
-      </div>
+      </ScreenTopBar>
+      <QuizProgressStars total={questions.length} index={index} answers={answers} label={t('quizProgress', { current: index + 1, total: questions.length })} />
 
       <div
-        className={`card-panel ${
+        className={`card-panel quiz-card ${
           isSpotDifference(question) ||
           isSudoku(question) ||
           isMoney(question) ||
@@ -1389,41 +1382,18 @@ export function QuizScreen({
           />
         )}
 
-        {isArithmetic(question) && usesNumberPad(question) ? (
-          <NumberPad key={question.id} onSubmit={(n) => handleSelect(n)} disabled={selected !== null} />
-        ) : isLogic(question) && question.kind === 'oddOneOut' ? (
-          <OddOneOutScene
-            key={question.id}
-            question={question}
-            selected={selected}
-            disabled={selected !== null}
-            onSelect={(choice) => handleSelect(choice)}
-          />
-        ) : (
-          !isSpotDifference(question) &&
-          !isSudoku(question) &&
-          !isMoney(question) &&
-          !(isClock(question) && question.kind === 'setTime') && (
-            <div className="choice-grid">
-              {choices.map((choice) => (
-                <button
-                  key={String(choice)}
-                  type="button"
-                  className={`choice-button ${choiceState(choice)}`.trim()}
-                  disabled={selected !== null}
-                  onClick={() => handleSelect(choice)}
-                >
-                  {renderChoiceContent(question, choice, lang, choiceIconSize)}
-                </button>
-              ))}
-            </div>
-          )
-        )}
-
         {selected !== null && (
-          <>
-            <div className={`feedback-banner ${isCorrectChoice(selected) ? 'correct' : 'incorrect'}`}>
-              {feedbackText}
+          <div className="quiz-feedback">
+            <div className="quiz-feedback-row">
+              <CharacterPortrait
+                theme={characterThemes[category]}
+                mood={isCorrectChoice(selected) ? (streak >= 3 ? 'streak' : 'celebrate') : 'thinking'}
+                size={120}
+                className="quiz-feedback-portrait"
+              />
+              <div className={`feedback-banner ${isCorrectChoice(selected) ? 'correct' : 'incorrect'}`}>
+                {feedbackText}
+              </div>
             </div>
             {isKanji(question) && getKanjiById(question.charId).traceImageId ? (
               // Links the kanji to the real thing it means with a picture instead of
@@ -1436,16 +1406,55 @@ export function QuizScreen({
             ) : (
               <p className="explanation-text">{explanationText}</p>
             )}
-            <CharacterPortrait
-              theme={characterThemes[category]}
-              mood={isCorrectChoice(selected) ? (streak >= 3 ? 'streak' : 'celebrate') : 'thinking'}
-              size={120}
-            />
-            <button type="button" className="primary-button next-button" onClick={handleNext}>
-              {t('nextButton')}
-            </button>
-          </>
+          </div>
         )}
+
+        <div className="quiz-answer-area">
+          {isArithmetic(question) && usesNumberPad(question) ? (
+            <NumberPad key={question.id} onSubmit={(n) => handleSelect(n)} disabled={selected !== null} />
+          ) : isLogic(question) && question.kind === 'oddOneOut' ? (
+            <OddOneOutScene
+              key={question.id}
+              question={question}
+              selected={selected}
+              disabled={selected !== null}
+              onSelect={(choice) => handleSelect(choice)}
+            />
+          ) : (
+            !isSpotDifference(question) &&
+            !isSudoku(question) &&
+            !isMoney(question) &&
+            !(isClock(question) && question.kind === 'setTime') && (
+              <div className="choice-grid">
+                {choices.map((choice) => (
+                  <button
+                    key={String(choice)}
+                    type="button"
+                    className={`choice-button ${choiceState(choice)}`.trim()}
+                    disabled={selected !== null}
+                    onClick={() => handleSelect(choice)}
+                  >
+                    {renderChoiceContent(question, choice, lang, choiceIconSize)}
+                  </button>
+                ))}
+              </div>
+            )
+          )}
+        </div>
+      </div>
+
+      {/* Always laid out, hidden until answered: its space is reserved from the start so
+          answering never shrinks or shifts the screen, and nothing ever sits under it. */}
+      <div className="screen-actions">
+        <button
+          type="button"
+          className={`primary-button next-button ${selected === null ? 'is-reserved' : ''}`.trim()}
+          onClick={handleNext}
+          disabled={selected === null}
+          aria-hidden={selected === null}
+        >
+          {t('nextButton')}
+        </button>
       </div>
     </div>
   )

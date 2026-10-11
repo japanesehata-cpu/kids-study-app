@@ -1,9 +1,11 @@
 import type { ProgressState } from '../domain/types'
 import { CATEGORY_META } from '../domain/categoryMeta'
 import { useI18n } from '../i18n/I18nContext'
+import { ScreenTopBar } from '../components/ScreenTopBar'
 
 interface ProgressScreenProps {
   progress: ProgressState
+  /** Always straight home — going back one step would reopen ParentGate's math challenge. */
   onBack: () => void
 }
 
@@ -12,9 +14,10 @@ export function ProgressScreen({ progress, onBack }: ProgressScreenProps) {
 
   return (
     <div className="screen screen-scroll">
+      <ScreenTopBar onBack={onBack} onHome={onBack} />
       <h1 className="app-title">{t('progressTitle')}</h1>
 
-      <div className="card-panel">
+      <div className="card-panel progress-panel">
         {CATEGORY_META.map(({ category, labelKey }) => {
           const categoryProgress = progress[category]
           const accuracyValues = categoryProgress.recentAccuracy
@@ -45,10 +48,13 @@ export function ProgressScreen({ progress, onBack }: ProgressScreenProps) {
             </div>
           )
         })}
+      </div>
 
-        <button type="button" className="secondary-button" onClick={onBack}>
-          {t('progressBack')}
-        </button>
+      {/* Material credits live here, on the parent-only screen, rather than under every
+          child-facing trace canvas (docs/functional-design.md 3.10). */}
+      <div className="card-panel credits-panel">
+        <h2 className="credits-title">{t('creditsTitle')}</h2>
+        <p>{t('traceStrokeCredit')}</p>
       </div>
     </div>
   )

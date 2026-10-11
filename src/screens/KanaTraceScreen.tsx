@@ -11,6 +11,7 @@ import { characterThemes } from '../components/characters/characterThemes'
 import { playCorrectSfx } from '../lib/sfx'
 import { useCorrectCelebration } from '../components/CorrectCelebration'
 import { shuffle } from '../lib/shuffle'
+import { ScreenTopBar } from '../components/ScreenTopBar'
 
 type KanaCategory = 'hiragana' | 'katakana'
 type KanaEntry = HiraganaEntry | KatakanaEntry
@@ -86,53 +87,45 @@ export function KanaTraceScreen({ category, onBack, onHome }: KanaTraceScreenPro
   return (
     <div className="screen">
       {celebration}
-      <div className="top-bar">
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" className="icon-button" onClick={onBack} aria-label={t('backButton')}>
-            ←
-          </button>
-          <button type="button" className="icon-button" onClick={onHome} aria-label={t('backHomeButton')}>
-            ⌂
-          </button>
-        </div>
+      <ScreenTopBar onBack={onBack} onHome={onHome}>
         <CategoryHeader category={category} />
-      </div>
+      </ScreenTopBar>
 
-      <p className="hint-caption">
+      <p className="trace-progress">
         {t('kanjiTraceProgress', { current: String(index + 1), total: String(order.length) })}
       </p>
 
-      {phase === 'tracing' && (
-        <>
-          <p className="subtitle">{t('tracePrompt')}</p>
-          <KanjiTraceCanvas
+      <div className="screen-body">
+        {phase === 'tracing' && (
+          <>
+            <p className="subtitle">{t('tracePrompt')}</p>
+            <KanjiTraceCanvas
+              key={entry.id}
+              char={entry.char}
+              strokes={kanaStrokePaths[entry.char]}
+              restartLabel={t('traceRestartButton')}
+              onComplete={handleComplete}
+            />
+          </>
+        )}
+
+        {phase === 'reveal' && (
+          <TraceReveal
             key={entry.id}
-            char={entry.char}
-            strokes={kanaStrokePaths[entry.char]}
-            restartLabel={t('traceRestartButton')}
-            onComplete={handleComplete}
+            glyph={entry.char}
+            imageId={KANA_TRACE_IMAGE[category][entry.id]}
+            label={entry.mnemonic ?? ''}
+            sentence={lang === 'ja' ? entry.exampleSentenceJa : entry.exampleSentenceEn}
+            speech={[
+              { text: speechPhraseFor(category, entry), lang: 'ja-JP', cacheKey: `${category}-${entry.id}` },
+              { text: entry.exampleSentenceJa!, lang: 'ja-JP', cacheKey: `${category}-review-${entry.id}` },
+            ]}
+            voiceProfile={voiceProfile}
+            nextLabel={isLastInDeck ? t('reviewDoneButton') : t('nextButton')}
+            onNext={handleNext}
           />
-          <p className="kanji-trace-credit">{t('traceStrokeCredit')}</p>
-        </>
-      )}
-
-      {phase === 'reveal' && (
-        <TraceReveal
-          key={entry.id}
-          glyph={entry.char}
-          imageId={KANA_TRACE_IMAGE[category][entry.id]}
-          label={entry.mnemonic ?? ''}
-          sentence={lang === 'ja' ? entry.exampleSentenceJa : entry.exampleSentenceEn}
-          speech={[
-            { text: speechPhraseFor(category, entry), lang: 'ja-JP', cacheKey: `${category}-${entry.id}` },
-            { text: entry.exampleSentenceJa!, lang: 'ja-JP', cacheKey: `${category}-review-${entry.id}` },
-          ]}
-          voiceProfile={voiceProfile}
-          nextLabel={isLastInDeck ? t('reviewDoneButton') : t('nextButton')}
-          onNext={handleNext}
-        />
-      )}
-
+        )}
+      </div>
     </div>
   )
 }

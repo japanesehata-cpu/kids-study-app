@@ -1,5 +1,8 @@
 import { useI18n } from '../i18n/I18nContext'
 import { CategoryHeader } from '../components/CategoryHeader'
+import { ScreenTopBar } from '../components/ScreenTopBar'
+import { CharacterPortrait } from '../components/characters/CharacterPortrait'
+import { characterThemes } from '../components/characters/characterThemes'
 
 interface SubtractionEntryScreenProps {
   onSelect: (mode: 'practice' | 'missingOperand') => void
@@ -18,29 +21,25 @@ export function SubtractionEntryScreen({ onSelect, onBack, onHome }: Subtraction
 
   return (
     <div className="screen">
-      <div className="top-bar">
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" className="icon-button" onClick={onBack} aria-label={t('backButton')}>
-            ←
+      <ScreenTopBar onBack={onBack} onHome={onHome}>
+        <CategoryHeader category="subtraction" />
+      </ScreenTopBar>
+
+      <div className="screen-body">
+        <CharacterPortrait theme={characterThemes.subtraction} mood="happy" size={150} className="character-portrait--hero" />
+
+        <p className="subtitle">{t('modeEntryTitle')}</p>
+
+        <div className="level-grid mode-grid">
+          <button type="button" className="level-button mode-card" onClick={() => onSelect('practice')}>
+            <span className="mode-card-label">{t('categorySubtraction')}</span>
+            <span className="mode-card-description">{t('subtractionEntryPracticeDescription')}</span>
           </button>
-          <button type="button" className="icon-button" onClick={onHome} aria-label={t('backHomeButton')}>
-            ⌂
+          <button type="button" className="level-button mode-card" onClick={() => onSelect('missingOperand')}>
+            <span className="mode-card-label">{t('missingOperandButton')}</span>
+            <span className="mode-card-description">{t('subtractionEntryMissingDescription')}</span>
           </button>
         </div>
-        <CategoryHeader category="subtraction" />
-      </div>
-
-      <p className="subtitle">{t('modeEntryTitle')}</p>
-
-      <div className="level-grid">
-        <button type="button" className="level-button" onClick={() => onSelect('practice')}>
-          <span className="level-number">{t('categorySubtraction')}</span>
-          <span className="hint-caption">{t('subtractionEntryPracticeDescription')}</span>
-        </button>
-        <button type="button" className="level-button" onClick={() => onSelect('missingOperand')}>
-          <span className="level-number">{t('missingOperandButton')}</span>
-          <span className="hint-caption">{t('subtractionEntryMissingDescription')}</span>
-        </button>
       </div>
     </div>
   )

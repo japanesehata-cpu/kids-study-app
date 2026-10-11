@@ -9,6 +9,7 @@ import { characterThemes } from '../components/characters/characterThemes'
 import { playCorrectSfx } from '../lib/sfx'
 import { useCorrectCelebration } from '../components/CorrectCelebration'
 import { shuffle } from '../lib/shuffle'
+import { ScreenTopBar } from '../components/ScreenTopBar'
 
 interface KanjiTraceScreenProps {
   grade: KanjiGrade
@@ -73,53 +74,46 @@ export function KanjiTraceScreen({ grade, onBack, onHome }: KanjiTraceScreenProp
   return (
     <div className="screen">
       {celebration}
-      <div className="top-bar">
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" className="icon-button" onClick={onBack} aria-label={t('backButton')}>
-            ←
-          </button>
-          <button type="button" className="icon-button" onClick={onHome} aria-label={t('backHomeButton')}>
-            ⌂
-          </button>
-        </div>
+      <ScreenTopBar onBack={onBack} onHome={onHome}>
         <CategoryHeader category={grade === 2 ? 'kanji2' : 'kanji'} />
-      </div>
+      </ScreenTopBar>
 
-      <p className="hint-caption">
+      <p className="trace-progress">
         {t('kanjiTraceProgress', { current: String(index + 1), total: String(order.length) })}
       </p>
 
-      {phase === 'tracing' && (
-        <>
-          <p className="subtitle">{t('tracePrompt')}</p>
-          <KanjiTraceCanvas
-            key={entry.id}
-            char={entry.char}
-            strokes={kanjiStrokePaths[entry.char]}
-            restartLabel={t('traceRestartButton')}
-            onComplete={() => {
-              playCorrectSfx()
-              celebrate()
-              setPhase('reveal')
-            }}
-          />
-          <p className="kanji-trace-credit">{t('traceStrokeCredit')}</p>
-        </>
-      )}
+      <div className="screen-body">
+        {phase === 'tracing' && (
+          <>
+            <p className="subtitle">{t('tracePrompt')}</p>
+            <KanjiTraceCanvas
+              key={entry.id}
+              char={entry.char}
+              strokes={kanjiStrokePaths[entry.char]}
+              restartLabel={t('traceRestartButton')}
+              onComplete={() => {
+                playCorrectSfx()
+                celebrate()
+                setPhase('reveal')
+              }}
+            />
+          </>
+        )}
 
-      {phase === 'reveal' && (
-        <TraceReveal
-          key={entry.id}
-          glyph={entry.char}
-          imageId={entry.traceImageId}
-          label={lang === 'ja' ? entry.meaningJa! : entry.meaningEn!}
-          sentence={lang === 'ja' ? entry.exampleSentenceJa : entry.exampleSentenceEn}
-          speech={[{ text: entry.exampleSentenceJa!, lang: 'ja-JP', cacheKey: `kanji-review-${entry.id}` }]}
-          voiceProfile={voiceProfile}
-          nextLabel={isLastInDeck ? t('reviewDoneButton') : t('nextButton')}
-          onNext={handleNext}
-        />
-      )}
+        {phase === 'reveal' && (
+          <TraceReveal
+            key={entry.id}
+            glyph={entry.char}
+            imageId={entry.traceImageId}
+            label={lang === 'ja' ? entry.meaningJa! : entry.meaningEn!}
+            sentence={lang === 'ja' ? entry.exampleSentenceJa : entry.exampleSentenceEn}
+            speech={[{ text: entry.exampleSentenceJa!, lang: 'ja-JP', cacheKey: `kanji-review-${entry.id}` }]}
+            voiceProfile={voiceProfile}
+            nextLabel={isLastInDeck ? t('reviewDoneButton') : t('nextButton')}
+            onNext={handleNext}
+          />
+        )}
+      </div>
     </div>
   )
 }

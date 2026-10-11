@@ -1,6 +1,8 @@
 import { useI18n } from '../i18n/I18nContext'
 import { CharacterPortrait } from '../components/characters/CharacterPortrait'
 import { characterThemes } from '../components/characters/characterThemes'
+import { CategoryHeader } from '../components/CategoryHeader'
+import { ScreenTopBar } from '../components/ScreenTopBar'
 
 interface MojiEntryScreenProps {
   onSelect: (category: 'hiragana' | 'katakana' | 'alphabet') => void
@@ -20,34 +22,29 @@ export function MojiEntryScreen({ onSelect, onBack, onHome }: MojiEntryScreenPro
 
   return (
     <div className="screen">
-      <div className="top-bar">
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" className="icon-button" onClick={onBack} aria-label={t('backButton')}>
-            ←
+      <ScreenTopBar onBack={onBack} onHome={onHome}>
+        <CategoryHeader category="hiragana" labelKey="categoryMoji" />
+      </ScreenTopBar>
+
+      <div className="screen-body">
+        <CharacterPortrait theme={characterThemes.hiragana} mood="happy" size={150} className="character-portrait--hero" />
+
+        <p className="subtitle">{t('mojiEntryTitle')}</p>
+
+        <div className="level-grid mode-grid">
+          <button type="button" className="level-button mode-card" onClick={() => onSelect('hiragana')}>
+            <span className="mode-card-label">{t('categoryHiragana')}</span>
+            <span className="mode-card-description">{t('mojiHiraganaDescription')}</span>
           </button>
-          <button type="button" className="icon-button" onClick={onHome} aria-label={t('backHomeButton')}>
-            ⌂
+          <button type="button" className="level-button mode-card" onClick={() => onSelect('katakana')}>
+            <span className="mode-card-label">{t('categoryKatakana')}</span>
+            <span className="mode-card-description">{t('mojiKatakanaDescription')}</span>
+          </button>
+          <button type="button" className="level-button mode-card" onClick={() => onSelect('alphabet')}>
+            <span className="mode-card-label">{t('categoryAlphabet')}</span>
+            <span className="mode-card-description">{t('mojiAlphabetDescription')}</span>
           </button>
         </div>
-      </div>
-
-      <CharacterPortrait theme={characterThemes.hiragana} mood="happy" size={150} />
-
-      <p className="subtitle">{t('mojiEntryTitle')}</p>
-
-      <div className="level-grid">
-        <button type="button" className="level-button" onClick={() => onSelect('hiragana')}>
-          <span className="level-number">{t('categoryHiragana')}</span>
-          <span className="hint-caption">{t('mojiHiraganaDescription')}</span>
-        </button>
-        <button type="button" className="level-button" onClick={() => onSelect('katakana')}>
-          <span className="level-number">{t('categoryKatakana')}</span>
-          <span className="hint-caption">{t('mojiKatakanaDescription')}</span>
-        </button>
-        <button type="button" className="level-button" onClick={() => onSelect('alphabet')}>
-          <span className="level-number">{t('categoryAlphabet')}</span>
-          <span className="hint-caption">{t('mojiAlphabetDescription')}</span>
-        </button>
       </div>
     </div>
   )

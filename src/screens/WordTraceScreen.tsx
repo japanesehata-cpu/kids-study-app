@@ -10,6 +10,8 @@ import { characterThemes } from '../components/characters/characterThemes'
 import { playCorrectSfx } from '../lib/sfx'
 import { useCorrectCelebration } from '../components/CorrectCelebration'
 import { shuffle } from '../lib/shuffle'
+import { CategoryHeader } from '../components/CategoryHeader'
+import { ScreenTopBar } from '../components/ScreenTopBar'
 
 interface WordTraceScreenProps {
   onBack: () => void
@@ -76,77 +78,61 @@ export function WordTraceScreen({ onBack, onHome }: WordTraceScreenProps) {
   return (
     <div className="screen">
       {celebration}
-      <div className="top-bar">
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" className="icon-button" onClick={onBack} aria-label={t('backButton')}>
-            ←
-          </button>
-          <button type="button" className="icon-button" onClick={onHome} aria-label={t('backHomeButton')}>
-            ⌂
-          </button>
-        </div>
-        {/* Not <CategoryHeader category="englishSpelling" /> — that pulls in the
-            "（よむ）" quiz-mode suffix baked into categoryEnglishSpelling's label, which
-            would misleadingly claim this trace screen is the spelling quiz. Same visual
-            treatment (englishSpelling's own theme colors/symbol, since wordTrace is a
-            sibling practice mode under the same えいご umbrella), correct label text. */}
-        <div
-          className="category-header"
-          style={{ background: theme.colorMain, boxShadow: `0 4px 0 ${theme.colorMainDark}` }}
-        >
-          <span className="category-header-symbol" style={{ color: theme.colorMainDark }}>
-            Aa
-          </span>
-          <span className="category-header-label">{t('englishEntryWordLabel')}</span>
-        </div>
-      </div>
+      <ScreenTopBar onBack={onBack} onHome={onHome}>
+        {/* englishSpelling's colors and symbol (wordTrace is a sibling practice mode under the
+            same えいご umbrella) but not its label, whose "（よむ）" quiz-mode suffix would
+            misleadingly claim this trace screen is the spelling quiz. */}
+        <CategoryHeader category="englishSpelling" labelKey="englishEntryWordLabel" />
+      </ScreenTopBar>
 
-      <p className="hint-caption">
+      <p className="trace-progress">
         {t('kanjiTraceProgress', { current: String(wordIndex + 1), total: String(wordOrder.length) })}
       </p>
 
-      {phase === 'tracing' && (
-        <>
-          <WordIcon wordId={entry.id} size="clamp(56px, 11vh, 90px)" />
-          <p className="word-trace-progress">
-            {letters.map((letter, i) => (
-              <span
-                key={i}
-                className={
-                  i < letterIndex
-                    ? 'word-trace-letter word-trace-letter--done'
-                    : i === letterIndex
-                      ? 'word-trace-letter word-trace-letter--current'
-                      : 'word-trace-letter word-trace-letter--pending'
-                }
-              >
-                {letter}
-              </span>
-            ))}
-          </p>
-          <p className="subtitle">{t('tracePrompt')}</p>
-          <KanjiTraceCanvas
-            key={`${entry.id}-${letterIndex}`}
-            char={currentLetter}
-            strokes={alphabetStrokePaths[currentLetter]}
-            restartLabel={t('traceRestartButton')}
-            onComplete={handleLetterComplete}
-          />
-        </>
-      )}
+      <div className="screen-body">
+        {phase === 'tracing' && (
+          <>
+            <WordIcon wordId={entry.id} size="clamp(56px, 11vh, 90px)" />
+            <p className="word-trace-progress">
+              {letters.map((letter, i) => (
+                <span
+                  key={i}
+                  className={
+                    i < letterIndex
+                      ? 'word-trace-letter word-trace-letter--done'
+                      : i === letterIndex
+                        ? 'word-trace-letter word-trace-letter--current'
+                        : 'word-trace-letter word-trace-letter--pending'
+                  }
+                >
+                  {letter}
+                </span>
+              ))}
+            </p>
+            <p className="subtitle">{t('tracePrompt')}</p>
+            <KanjiTraceCanvas
+              key={`${entry.id}-${letterIndex}`}
+              char={currentLetter}
+              strokes={alphabetStrokePaths[currentLetter]}
+              restartLabel={t('traceRestartButton')}
+              onComplete={handleLetterComplete}
+            />
+          </>
+        )}
 
-      {phase === 'reveal' && (
-        <TraceReveal
-          key={entry.id}
-          glyph={entry.word}
-          imageId={entry.id}
-          label={lang === 'ja' ? entry.translationJa : entry.word}
-          speech={[{ text: entry.word, lang: 'en-US', cacheKey: `word-en-${entry.id}` }]}
-          voiceProfile={voiceProfile}
-          nextLabel={isLastWordInDeck ? t('reviewDoneButton') : t('nextButton')}
-          onNext={handleNext}
-        />
-      )}
+        {phase === 'reveal' && (
+          <TraceReveal
+            key={entry.id}
+            glyph={entry.word}
+            imageId={entry.id}
+            label={lang === 'ja' ? entry.translationJa : entry.word}
+            speech={[{ text: entry.word, lang: 'en-US', cacheKey: `word-en-${entry.id}` }]}
+            voiceProfile={voiceProfile}
+            nextLabel={isLastWordInDeck ? t('reviewDoneButton') : t('nextButton')}
+            onNext={handleNext}
+          />
+        )}
+      </div>
     </div>
   )
 }

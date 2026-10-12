@@ -94,15 +94,17 @@ export const dictionary = {
   levelDescEnglishWords4: { ja: 'もっと ながい たんご', en: 'Longer words' },
   levelDescEnglishWords5: { ja: 'どんな たんごも', en: 'Any word' },
   levelDescLogic1: { ja: 'なかまはずれを みつけよう', en: 'Find the odd one out' },
-  levelDescLogic2: { ja: 'きまりを みつけよう', en: 'Spot the repeating pattern' },
-  levelDescLogic3: { ja: 'おおきい・ちいさいを くらべよう', en: 'Compare biggest and smallest' },
-  levelDescLogic4: { ja: 'はんたいの いみの ことばを みつけよう', en: 'Find the word with the opposite meaning' },
+  levelDescLogic2: { ja: 'くだもの と やさい みたいに わけよう', en: 'Fruit or vegetable? Sort finely' },
+  levelDescLogic3: { ja: 'きまりを みつけよう', en: 'Spot the repeating pattern' },
+  levelDescLogic4: { ja: 'おおきい・ちいさいを くらべよう', en: 'Compare biggest and smallest' },
+  levelDescLogic5: { ja: 'はんたいの いみの ことばを みつけよう', en: 'Find the word with the opposite meaning' },
   // Short names for ろんり's 3 puzzle kinds, shown as each choice's main label on
   // LevelSelectScreen instead of a level number + star count — see that screen's
   // isKindChoiceCategory branch for why: these 3 kinds aren't a difficulty ladder (nothing
   // about "compare two numbers" is inherently harder than "spot the pattern"), so a ★1/★2/★3
   // star row next to them would misleadingly imply an ordering that isn't real.
   logicKindOddOneOut: { ja: 'なかまはずれ', en: 'Odd One Out' },
+  logicKindOddOneOutFine: { ja: 'こまかい なかまはずれ', en: 'Odd One Out+' },
   logicKindPattern: { ja: 'きまり さがし', en: 'Pattern' },
   logicKindCompare: { ja: 'おおきさ くらべ', en: 'Compare' },
   logicKindOpposite: { ja: 'はんたいことば', en: 'Opposites' },
@@ -344,6 +346,7 @@ export const dictionary = {
   subSkillSentenceNature: { ja: 'しぜんの リスニング', en: 'nature listening' },
   subSkillLogicPattern: { ja: 'パターンのつづき', en: 'pattern sequences' },
   subSkillLogicOddOneOut: { ja: 'なかまはずれさがし', en: 'finding the odd one out' },
+  subSkillLogicOddOneOutFine: { ja: 'こまかい なかまはずれさがし', en: 'finding the odd one out by finer groups' },
   subSkillLogicCompare: { ja: 'おおきさくらべ', en: 'comparing numbers' },
   subSkillLogicOpposite: { ja: 'はんたいことば', en: 'opposite words' },
   subSkillSudokuFill: { ja: 'すうどく', en: 'sudoku' },

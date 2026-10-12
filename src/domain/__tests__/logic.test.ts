@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateLogicQuestion, SYMBOL_SETS } from '../questionGenerators/logic'
-import { getWordById } from '../wordBank'
+import { getWordById, wordBank } from '../wordBank'
 
 describe('generateLogicQuestion', () => {
   it('Lv1 (age 4) only ever produces oddOneOut questions', () => {
@@ -25,16 +25,16 @@ describe('generateLogicQuestion', () => {
     }
   })
 
-  it('Lv2 (age 5) only ever produces pattern questions', () => {
+  it('Lv3 only ever produces pattern questions', () => {
     for (let i = 0; i < 100; i++) {
-      const q = generateLogicQuestion(2)
+      const q = generateLogicQuestion(3)
       expect(q.kind).toBe('pattern')
     }
   })
 
   it('pattern: the answer correctly continues the repeating 3-symbol cycle on an 8-long strip', () => {
     for (let i = 0; i < 100; i++) {
-      const q = generateLogicQuestion(2)
+      const q = generateLogicQuestion(3)
       const seq = q.sequence!
       expect(seq).toHaveLength(8)
       const cycleLen = new Set(seq).size
@@ -53,7 +53,7 @@ describe('generateLogicQuestion', () => {
     // only leftover distractors are visually unrelated symbols (a sun, a cloud) and the
     // real heart-colored answer stands out by shape alone before the sequence is read.
     for (let i = 0; i < 100; i++) {
-      const q = generateLogicQuestion(2)
+      const q = generateLogicQuestion(3)
       const ownSet = SYMBOL_SETS.find((set) => set.includes(q.answer))!
       for (const choice of q.choices) {
         expect(ownSet).toContain(choice)
@@ -61,16 +61,16 @@ describe('generateLogicQuestion', () => {
     }
   })
 
-  it('Lv3 (age 6) only ever produces compare questions', () => {
+  it('Lv4 only ever produces compare questions', () => {
     for (let i = 0; i < 100; i++) {
-      const q = generateLogicQuestion(3)
+      const q = generateLogicQuestion(4)
       expect(q.kind).toBe('compare')
     }
   })
 
   it('compare: the answer is genuinely the max/min of 4 distinct choices, each 0-14', () => {
     for (let i = 0; i < 100; i++) {
-      const q = generateLogicQuestion(3)
+      const q = generateLogicQuestion(4)
       const nums = q.choices.map(Number)
       expect(new Set(nums).size).toBe(4)
       for (const n of nums) {
@@ -80,5 +80,27 @@ describe('generateLogicQuestion', () => {
       const expected = q.compareGoal === 'max' ? Math.max(...nums) : Math.min(...nums)
       expect(Number(q.answer)).toBe(expected)
     }
+  })
+
+  it('Lv2 is a finer odd-one-out: 3 words of one subgroup and 1 of another subgroup in the same category', () => {
+    for (let i = 0; i < 300; i++) {
+      const q = generateLogicQuestion(2)
+      expect(q.kind).toBe('oddOneOut')
+      expect(q.subSkill).toBe('logic-oddOneOutFine')
+      expect(new Set(q.choices).size).toBe(4)
+      const words = q.choices.map(getWordById)
+      const odd = getWordById(q.answer)
+      const rest = words.filter((w) => w.id !== q.answer)
+      for (const w of words) expect(w.subgroup, w.id).toBeDefined()
+      expect(new Set(words.map((w) => w.category)).size).toBe(1)
+      expect(new Set(rest.map((w) => w.subgroup)).size).toBe(1)
+      expect(rest[0].subgroup).not.toBe(odd.subgroup)
+      expect(['fish', 'amphibian']).not.toContain(rest[0].subgroup)
+    }
+  })
+
+  it('Lv2 never uses a word whose grouping is ambiguous', () => {
+    const ambiguous = ['tomato', 'strawberry', 'watermelon', 'melon', 'avocado', 'corn', 'mushroom', 'potato', 'pumpkin', 'eggplant', 'cucumber', 'pea', 'bean', 'whale', 'dolphin', 'seal', 'bat', 'penguin', 'spider', 'snail', 'octopus', 'bird', 'fish']
+    for (const id of ambiguous) expect(wordBank.find((w) => w.id === id)?.subgroup, id).toBeUndefined()
   })
 })

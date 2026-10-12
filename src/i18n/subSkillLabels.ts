@@ -53,6 +53,7 @@ export const subSkillLabelKey: Record<string, DictionaryKey> = {
   'sentence-nature': 'subSkillSentenceNature',
   'logic-pattern': 'subSkillLogicPattern',
   'logic-oddOneOut': 'subSkillLogicOddOneOut',
+  'logic-oddOneOutFine': 'subSkillLogicOddOneOutFine',
   'logic-compare': 'subSkillLogicCompare',
   'logic-opposite': 'subSkillLogicOpposite',
   'sudoku-fill': 'subSkillSudokuFill',

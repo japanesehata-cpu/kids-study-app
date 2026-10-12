@@ -336,6 +336,9 @@ export interface CategoryProgress {
    * oldest first — lets the next round avoid repeating what was just asked. Optional so
    * progress saved before this field existed still loads. */
   recent?: string[]
+  /** Which ★ ladder `level` was saved against, for a category whose ladder has been
+   * reordered (see progress.ts's migrateLadder). Absent on progress saved before that. */
+  ladderVersion?: number
 }
 
 export type ProgressState = Record<Category, CategoryProgress>

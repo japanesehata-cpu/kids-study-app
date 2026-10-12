@@ -52,7 +52,7 @@ function scatterPositions(sizes: number[]): { xPct: number; yPct: number }[] {
   return placed
 }
 
-/** Replaces the plain .choice-grid for logic's ★1 'oddOneOut' kind — the same 4 items and
+/** Replaces the plain .choice-grid for logic's ★1/★2 'oddOneOut' kind — the same 4 items and
  * tap-to-answer interaction as before (question.choices/answer unchanged), but scattered
  * in a free-form scene like SpotDifferenceBoard.tsx instead of an even button grid, so it
  * reads as "find the different one in a scene" rather than "pick from a boring grid". */

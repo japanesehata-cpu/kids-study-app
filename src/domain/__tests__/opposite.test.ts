@@ -11,8 +11,8 @@ describe('oppositeBank', () => {
   })
 })
 
-describe('はんたいことば questions (ろんり★4)', () => {
-  const questions = Array.from({ length: 800 }, () => generateLogicQuestion(4))
+describe('はんたいことば questions (ろんり★5)', () => {
+  const questions = Array.from({ length: 800 }, () => generateLogicQuestion(5))
 
   it('are opposite-kind questions with 4 distinct choices including every listed answer', () => {
     for (const q of questions) {

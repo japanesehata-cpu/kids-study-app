@@ -1,5 +1,5 @@
 import type { Level, LogicQuestion } from '../types'
-import { eligibleWordBank } from '../wordBank'
+import { eligibleWordBank, type WordSubgroup } from '../wordBank'
 import { shuffle } from '../../lib/shuffle'
 import { oppositeWords, pairsFor, partnerIn } from '../oppositeBank'
 
@@ -70,6 +70,33 @@ function generateOddOneOut(level: Level): LogicQuestion {
   }
 }
 
+/** Groups with enough typical words to be the 3 that belong together; 'fish' and
+ * 'amphibian' (only a shark and a frog) can only be the odd one. */
+const MAIN_SUBGROUPS: WordSubgroup[] = ['mammal', 'bird', 'insect', 'reptile', 'fruit', 'vegetable', 'sweets', 'drink']
+
+/** ★2 なかまはずれ: three words from one finer group (fruit) and one from another finer group
+ * of the same category (vegetable) — e.g. apple/grape/peach + carrot. Only words with a
+ * `subgroup` take part; wordBank leaves it unset for every word whose grouping is ambiguous
+ * (see WordEntry.subgroup), so ★2 never hinges on a debatable case like a tomato. */
+function generateFineOddOneOut(level: Level): LogicQuestion {
+  const tagged = ODD_ONE_OUT_POOL.filter((w) => w.subgroup)
+  const mainSubgroup = pickRandom(MAIN_SUBGROUPS)
+  const mainWords = tagged.filter((w) => w.subgroup === mainSubgroup)
+  const group = shuffle(mainWords).slice(0, 3)
+  const category = mainWords[0].category
+  const odd = pickRandom(tagged.filter((w) => w.category === category && w.subgroup !== mainSubgroup))
+
+  return {
+    id: makeId(),
+    category: 'logic',
+    level,
+    kind: 'oddOneOut',
+    choices: shuffle([...group.map((w) => w.id), odd.id]),
+    answer: odd.id,
+    subSkill: 'logic-oddOneOutFine',
+  }
+}
+
 export const SYMBOL_SETS: string[][] = [
   ['🔴', '🔵', '🟡', '🟢', '🟣'],
   ['⭐️', '🌙', '☀️', '☁️', '⚡️'],
@@ -78,7 +105,7 @@ export const SYMBOL_SETS: string[][] = [
   ['💗', '💛', '💚', '💙', '💜'],
 ]
 
-/** Fixed, not level-indexed — ★2 is pattern's only level now (see KIND_BY_LEVEL below),
+/** Fixed, not level-indexed — ★3 is pattern's only level now (see KIND_BY_LEVEL below),
  * so there's nothing left to escalate across. A 3-symbol cycle on an 8-long strip is
  * enough to require actually tracking the sequence rather than guessing from the strip's
  * shape alone. */
@@ -118,7 +145,7 @@ function generatePattern(level: Level): LogicQuestion {
   }
 }
 
-/** Fixed, not level-indexed — ★3 is compare's only level now (see KIND_BY_LEVEL below),
+/** Fixed, not level-indexed — ★4 is compare's only level now (see KIND_BY_LEVEL below),
  * so there's nothing left to escalate across. 14 splits the difference between the old
  * ★3 (10, too easy to be a level on its own) and ★5 (18, harder than a first exposure to
  * numeric comparison needs to be). */
@@ -150,19 +177,21 @@ function generateCompare(level: Level): LogicQuestion {
  * could be three entirely different reasoning skills depending on the draw, with no way
  * to tell which from the star count alone. Same "one level, one consistent thing being
  * tested" principle applied to addition/subtraction's ★ ladder this session — see the
- * level-redefinition discussion. ★1 odd-one-out (spot the different category) is the
- * most concrete/visual of the three; ★2 pattern (track a repeating sequence) adds
- * holding a short sequence in mind; ★3 compare (biggest/smallest of 4 numbers) is the
+ * level-redefinition discussion. odd-one-out (spot the different category) is the
+ * most concrete/visual of the three; pattern (track a repeating sequence) adds
+ * holding a short sequence in mind; compare (biggest/smallest of 4 numbers) is the
  * most abstract, numeric-only skill — a natural difficulty order even without needing to
  * blend them together.
- * ★4 はんたいことば (opposite words) is the one language-based kind. ★5/★6 are never reached
- * (logic caps at ★4, see CATEGORY_MAX_LEVEL) — kept only so this Record type-checks against
+ * ★2 is a second odd-one-out level, one step finer (fruit vs vegetable instead of food vs
+ * animal), so pattern/compare moved up to ★3/★4.
+ * ★5 はんたいことば (opposite words) is the one language-based kind. ★6 is never reached
+ * (logic caps at ★5, see CATEGORY_MAX_LEVEL) — kept only so this Record type-checks against
  * the full Level union. */
 const KIND_BY_LEVEL: Record<Level, LogicQuestion['kind']> = {
   1: 'oddOneOut',
-  2: 'pattern',
-  3: 'compare',
-  4: 'opposite',
+  2: 'oddOneOut',
+  3: 'pattern',
+  4: 'compare',
   5: 'opposite',
   6: 'opposite',
 }
@@ -203,7 +232,7 @@ function generateOpposite(level: Level): LogicQuestion {
 export function generateLogicQuestion(level: Level): LogicQuestion {
   switch (KIND_BY_LEVEL[level]) {
     case 'oddOneOut':
-      return generateOddOneOut(level)
+      return level === 1 ? generateOddOneOut(level) : generateFineOddOneOut(level)
     case 'pattern':
       return generatePattern(level)
     case 'compare':

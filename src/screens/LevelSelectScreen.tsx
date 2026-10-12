@@ -15,7 +15,7 @@ import { ScreenTopBar } from '../components/ScreenTopBar'
 const CLOCK_MODE_OPTIONS: ClockMode[] = ['multipleChoice', 'setTime']
 const SUDOKU_MODE_OPTIONS: SudokuMode[] = ['mini', 'classic']
 
-/** ろんり's ★1/★2/★3 are 3 unrelated puzzle kinds (odd-one-out/pattern/compare — see
+/** ろんり's levels are mostly unrelated puzzle kinds (odd-one-out/pattern/compare — see
  * questionGenerators/logic.ts's KIND_BY_LEVEL), not an escalating difficulty ladder — a
  * ★1/★2/★3 star row next to them would claim an ordering ("compare is harder than spotting
  * the odd one out") that isn't actually true. So logic is the one category whose level
@@ -25,9 +25,10 @@ const SUDOKU_MODE_OPTIONS: SudokuMode[] = ['mini', 'classic']
  * usual difficulty-ladder look. */
 const LOGIC_KIND_LABEL_KEY: Record<number, DictionaryKey> = {
   1: 'logicKindOddOneOut',
-  2: 'logicKindPattern',
-  3: 'logicKindCompare',
-  4: 'logicKindOpposite',
+  2: 'logicKindOddOneOutFine',
+  3: 'logicKindPattern',
+  4: 'logicKindCompare',
+  5: 'logicKindOpposite',
 }
 
 interface LevelSelectScreenProps {

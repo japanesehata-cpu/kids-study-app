@@ -1,6 +1,6 @@
 import type { Lang } from '../i18n/dictionary'
 import type { Question, ShapeId } from './types'
-import { getWordById, type WordEntry } from './wordBank'
+import { getWordById, type WordEntry, type WordSubgroup } from './wordBank'
 import { getCounterById } from './counterBank'
 import { getHiraganaById } from './hiraganaBank'
 import { getKatakanaById } from './katakanaBank'
@@ -24,6 +24,20 @@ const CATEGORY_LABEL: Record<WordEntry['category'], Record<Lang, string>> = {
   instrument: { ja: 'がっき', en: 'instruments' },
   shape: { ja: 'かたち', en: 'shapes' },
   place: { ja: 'ばしょ', en: 'places' },
+}
+
+/** なかまはずれ★2's finer groups, in the plain words a child knows (not ほにゅうるい). */
+const SUBGROUP_LABEL: Record<WordSubgroup, Record<Lang, string>> = {
+  mammal: { ja: 'けもの', en: 'mammals' },
+  bird: { ja: 'とり', en: 'birds' },
+  insect: { ja: 'むし', en: 'insects' },
+  reptile: { ja: 'へびや とかげの なかま', en: 'reptiles' },
+  fish: { ja: 'さかな', en: 'a fish' },
+  amphibian: { ja: 'かえるの なかま', en: 'an amphibian' },
+  fruit: { ja: 'くだもの', en: 'fruits' },
+  vegetable: { ja: 'やさい', en: 'vegetables' },
+  sweets: { ja: 'おかし', en: 'sweets' },
+  drink: { ja: 'のみもの', en: 'drinks' },
 }
 
 /** Casual per-shape names (shapes ★1/★2/★4's `pickShape`/`pickName` answers) — kept as
@@ -138,11 +152,22 @@ export function buildExplanation(
       }
       if (question.kind === 'oddOneOut') {
         const answerEntry = getWordById(question.answer)
-        const otherCategory = question.choices
-          .filter((id) => id !== question.answer)
-          .map((id) => getWordById(id).category)[0]
-        const mainLabel = otherCategory ? CATEGORY_LABEL[otherCategory][lang] : ''
+        const other = question.choices.filter((id) => id !== question.answer).map((id) => getWordById(id))[0]
         const answerLabel = lang === 'ja' ? answerEntry.translationJa : answerEntry.word
+        // ★2: all four share a category, so name both finer groups.
+        if (other && other.category === answerEntry.category && other.subgroup && answerEntry.subgroup) {
+          const mainGroup = SUBGROUP_LABEL[other.subgroup][lang]
+          const oddGroup = SUBGROUP_LABEL[answerEntry.subgroup][lang]
+          // "かえるは かえるの なかまだよ" says nothing, so a group named after the word itself
+          // is explained by what the word is not.
+          if (lang === 'ja' && oddGroup.includes(answerLabel)) {
+            return `ほかは みんな ${mainGroup}だけど、${answerLabel}は ${mainGroup}じゃないよ。`
+          }
+          return lang === 'ja'
+            ? `ほかは みんな ${mainGroup}だけど、${answerLabel}は ${oddGroup}だよ。`
+            : `The others are all ${mainGroup}, but ${answerLabel} is ${answerEntry.subgroup === 'fish' || answerEntry.subgroup === 'amphibian' ? oddGroup : `one of the ${oddGroup}`}.`
+        }
+        const mainLabel = other ? CATEGORY_LABEL[other.category][lang] : ''
         return lang === 'ja'
           ? `ほかは みんな${mainLabel}だけど、${answerLabel}だけ ちがう なかまだよ。`
           : `The others are all ${mainLabel}, but ${answerLabel} is a different kind of thing.`

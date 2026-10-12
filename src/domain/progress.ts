@@ -61,7 +61,7 @@ export const CATEGORY_MAX_LEVEL: Record<Category, Level> = {
   subtraction: 6,
   englishSpelling: 5,
   englishListening: 5,
-  logic: 4,
+  logic: 5,
   hiragana: 4,
   katakana: 5,
   // Full 6 steps — each ★ cumulatively unlocks one more theme (or two merged themes) of
@@ -122,7 +122,7 @@ export function createInitialProgress(): ProgressState {
     subtraction: { level: 1, recentAccuracy: [], reviewQueue: [] },
     englishSpelling: { level: 1, recentAccuracy: [], reviewQueue: [] },
     englishListening: { level: 1, recentAccuracy: [], reviewQueue: [] },
-    logic: { level: 1, recentAccuracy: [], reviewQueue: [] },
+    logic: { level: 1, recentAccuracy: [], reviewQueue: [], ladderVersion: LOGIC_LADDER_VERSION },
     hiragana: { level: 1, recentAccuracy: [], reviewQueue: [] },
     katakana: { level: 1, recentAccuracy: [], reviewQueue: [] },
     kanji: { level: 1, recentAccuracy: [], reviewQueue: [] },
@@ -247,11 +247,30 @@ function isCompatibleQuestion(q: Question): boolean {
   }
 }
 
+/** ろんり's ladder gained ★2 なかまはずれ (finer groups) in version 2, pushing pattern/
+ * compare/opposite up one step. A level saved against the old ladder at ★2 or above is
+ * moved up one so the child keeps playing the same kind they had reached
+ * (docs/functional-design.md 3.9). */
+const LOGIC_LADDER_VERSION = 2
+
+function migrateLadder(
+  category: Category,
+  stored: ProgressState[Category] | undefined,
+): ProgressState[Category] | undefined {
+  if (category !== 'logic' || !stored || typeof stored.level !== 'number') return stored
+  if ((stored.ladderVersion ?? 1) >= LOGIC_LADDER_VERSION) return stored
+  const level = (stored.level >= 2 ? stored.level + 1 : stored.level) as Level
+  // recentAccuracy was earned on the old level, so it must not count toward a level-up on
+  // the new one.
+  return { ...stored, level, recentAccuracy: stored.level >= 2 ? [] : stored.recentAccuracy, ladderVersion: LOGIC_LADDER_VERSION }
+}
+
 function sanitizeCategoryProgress(
   category: Category,
   stored: ProgressState[Category] | undefined,
   fallback: ProgressState[Category],
 ): ProgressState[Category] {
+  stored = migrateLadder(category, stored)
   const maxLevel = CATEGORY_MAX_LEVEL[category]
   if (!stored || typeof stored.level !== 'number' || stored.level < 1 || stored.level > maxLevel) {
     return fallback
@@ -563,7 +582,7 @@ export function applySetResult(
 
   const nextProgress: ProgressState = {
     ...progress,
-    [category]: { level, recentAccuracy: nextRecentAccuracy, reviewQueue, recent },
+    [category]: { ...categoryProgress, level, recentAccuracy: nextRecentAccuracy, reviewQueue, recent },
   }
 
   const bySubSkill = groupBySubSkill(answers)

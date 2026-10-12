@@ -93,4 +93,13 @@ describe('buildExplanation', () => {
       }
     }
   })
+
+  it('★2 odd-one-out explanation names both finer groups', () => {
+    for (let i = 0; i < 50; i++) {
+      const q = generateLogicQuestion(2)
+      const ja = buildExplanation(q, 'ja')
+      expect(ja).toMatch(/^ほかは みんな (けもの|とり|むし|へびや とかげの なかま|くだもの|やさい|おかし|のみもの)だけど、.+は (けもの|とり|むし|へびや とかげの なかま|さかな|かえるの なかま|くだもの|やさい|おかし|のみもの)(だよ|じゃないよ)。$/)
+      expect(ja).not.toMatch(/かえるは かえるの なかま/)
+    }
+  })
 })

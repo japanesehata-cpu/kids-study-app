@@ -50,6 +50,7 @@ export const LEVEL_DESCRIPTION_KEY: Partial<Record<Category, Partial<Record<Leve
     2: 'levelDescLogic2',
     3: 'levelDescLogic3',
     4: 'levelDescLogic4',
+    5: 'levelDescLogic5',
   },
   hiragana: {
     1: 'levelDescHiragana1',

@@ -574,6 +574,20 @@
 /** The large number next to かぞえる's counted group (see CountingQuestionView) — makes
  * the picture read as "N of these", not just one example, which is the actual point of a
  * counter word. */
+.counting-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  max-width: 100%;
+}
+
+.counting-icons {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+}
+
 .count-badge {
   font-size: clamp(24px, 5vh, 40px);
   font-weight: 800;

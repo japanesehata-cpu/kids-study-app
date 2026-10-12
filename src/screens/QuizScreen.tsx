@@ -819,34 +819,37 @@ function CountingQuestionView({
   lang,
   voiceProfile,
   cacheKey,
+  answered,
 }: {
   question: CountingQuestion
   promptText: string
   lang: Lang
   voiceProfile: VoiceProfile
   cacheKey?: string
+  answered: boolean
 }) {
   const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
-  // Fixed at 56px regardless of viewport height, in a fixed 240px-wide wrap container —
-  // question.count is 2-5 (see questionGenerators/counting.ts), and 5 icons at 56px+gap
-  // don't fit in 240px on one row, wrapping to 2 rows. That extra row's fixed height was a
-  // real (and, since `count` is random, intermittent) contributor to #root overflow. Sized
-  // small enough here that even 5 icons fit on one row at an ordinary phone height, so it
-  // no longer depends on wrap at all.
-  const exampleIconSize = useResponsiveSize(56, 0.058, 32)
+  // One row, always: the icons share the width left beside the badge (count is 1-5, see
+  // questionGenerators/counting.ts), so a 5-icon row shrinks instead of wrapping to a second
+  // row — a wrapped row used to make the screen too tall once the feedback appeared.
+  const iconSize = `min(clamp(32px, 7vh, 64px), calc((100vw - 150px - ${(question.count - 1) * 6}px) / ${Math.max(question.count, 3)}))`
 
   return (
     <div className="quiz-prompt-stack">
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+      <div className="counting-visual">
         <span className="count-badge">{question.count}</span>
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center', maxWidth: 260 }}>
+        <div className="counting-icons">
           {Array.from({ length: question.count }, (_, i) => (
-            <WordIcon key={i} wordId={question.exampleWordId} size={exampleIconSize} />
+            <WordIcon key={i} wordId={question.exampleWordId} size={iconSize} />
           ))}
         </div>
       </div>
       <p className="subtitle">{promptText}</p>
-      <TtsButton text={promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
+      {/* Same as the clock: nothing left to replay once answered, and hiding it makes room
+          for the feedback without shrinking the screen. */}
+      {!answered && (
+        <TtsButton text={promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
+      )}
     </div>
   )
 }
@@ -1395,6 +1398,7 @@ export function QuizScreen({
             lang={lang}
             voiceProfile={voiceProfile}
             cacheKey={autoSpeech.cacheKey}
+            answered={selected !== null}
           />
         ) : isMoney(question) ? (
           <MoneyBoard

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useReducedMotion } from 'framer-motion'
 import { playStarSfx } from '../lib/sfx'
 import type { AnswerRecord } from '../domain/types'
 import type { CharacterTheme } from './characters/characterThemes'
@@ -51,10 +50,9 @@ export function PeekingMascot({ theme }: { theme: CharacterTheme }) {
  * in with a rising "ピコン", the misses stay as faint outlines. About 0.12s per star, and
  * nothing waits for it (the buttons below work immediately). */
 export function ResultStars({ correct, total }: { correct: number; total: number }) {
-  const reduceMotion = useReducedMotion()
-  const [landed, setLanded] = useState(reduceMotion ? correct : 0)
+  const [landed, setLanded] = useState(0)
   useEffect(() => {
-    if (reduceMotion || correct === 0) return
+    if (correct === 0) return
     let n = 0
     let timer: ReturnType<typeof setTimeout>
     const next = () => {
@@ -65,7 +63,7 @@ export function ResultStars({ correct, total }: { correct: number; total: number
     }
     timer = setTimeout(next, 450)
     return () => clearTimeout(timer)
-  }, [correct, reduceMotion])
+  }, [correct])
 
   return (
     <div className="result-stars" aria-hidden="true">

@@ -385,11 +385,11 @@ function AppContent() {
 
 function App() {
   return (
-    // reducedMotion="user": with the phone's "reduce motion" setting on, framer-motion
-    // movements (the medal's spring, the celebration) jump straight to their end state
-    // instead of moving — fades still play. The mascots' own small bob opts back in
-    // (CharacterPortrait). CSS animations are handled in theme.css / components.css.
-    <MotionConfig reducedMotion="user">
+    // reducedMotion="never": the flourishes (mascots, はなまる, the medal) play even with the
+    // phone's "reduce motion" setting on, which is often on for iPhones — without them the app
+    // loses most of its fun (docs/development-guidelines.md 子ども向けの UI の規則). Only the
+    // screen slide is stopped for that setting (theme.css).
+    <MotionConfig reducedMotion="never">
       <I18nProvider>
         <FloatingBackdrop />
         <FitToViewport>

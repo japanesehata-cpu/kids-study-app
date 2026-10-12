@@ -37,14 +37,13 @@ function sparkle(x: number, y: number): void {
 
 export function initTapEffects(): void {
   if (typeof window === 'undefined') return
-  const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')
   window.addEventListener(
     'pointerdown',
     (e) => {
       // Not while drawing on a trace/handwriting canvas — sparkles would cover the stroke.
       const target = e.target as Element | null
       if (target?.closest('canvas')) return
-      if (!reduceMotion?.matches) sparkle(e.clientX, e.clientY)
+      sparkle(e.clientX, e.clientY)
     },
     { capture: true, passive: true },
   )

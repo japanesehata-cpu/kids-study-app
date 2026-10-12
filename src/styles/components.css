@@ -256,9 +256,7 @@
   to { opacity: 1; transform: none; }
 }
 
-/* HomeScreen picks one mascot every few seconds: a little hop with a wave-like wiggle.
-   Kept under prefers-reduced-motion: one mascot's small hop, not a screen-wide movement
-   (docs/development-guidelines.md 子ども向けの UI の規則). */
+/* HomeScreen picks one mascot every few seconds: a little hop with a wave-like wiggle. */
 .character-intro-button.is-waving {
   animation: mascot-wave 0.8s ease-in-out;
   transform-origin: 50% 90%;
@@ -1396,12 +1394,6 @@
   rotate: -8deg;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .counting-card {
-    animation: none;
-  }
-}
-
 /* Everything left below the head; a size container so the grid can be the largest square
    that fits both its width and height. */
 .oddoneout-board {
@@ -1583,18 +1575,6 @@
   }
   to {
     opacity: 1;
-    transform: rotate(-12deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .nakama-card,
-  .nakama-grid.is-answered .nakama-card.is-mate,
-  .nakama-grid.is-answered .nakama-card.is-missed,
-  .nakama-card-stamp {
-    animation: none;
-  }
-  .nakama-card-stamp {
     transform: rotate(-12deg);
   }
 }
@@ -2081,13 +2061,6 @@
   box-shadow: 0 4px 12px rgba(255, 92, 157, 0.35);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .choice-button.correct,
-  .feedback-banner.correct {
-    animation: none;
-  }
-}
-
 .feedback-banner.incorrect {
   color: #c65f4b;
   background: var(--color-error-soft);
@@ -2301,19 +2274,12 @@
  * marching-ants animation — unmistakably a "start here" cue, not completed ink.
  * .kanji-trace-ink (the live in-progress line under the child's finger) is pink like
  * --done instead of matching this yellow guide, so what they're actively drawing already
- * looks like the finished stroke color, not like a second guide line.
- * prefers-reduced-motion gets the same visual without the motion. */
+ * looks like the finished stroke color, not like a second guide line. */
 .kanji-trace-stroke--current {
   stroke: var(--color-accent);
   stroke-dasharray: 5 6;
   opacity: 0.95;
   animation: kanji-trace-current-march 0.9s linear infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .kanji-trace-stroke--current {
-    animation: none;
-  }
 }
 
 @keyframes kanji-trace-current-march {
@@ -2492,14 +2458,6 @@
   opacity: 1;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .quiz-progress-star.is-current,
-  .quiz-progress-star.is-correct,
-  .choice-button.incorrect {
-    animation: none;
-  }
-}
-
 .result-stars {
   display: flex;
   flex-wrap: wrap;
@@ -2527,15 +2485,8 @@
   100% { transform: none; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .result-star.is-landed {
-    animation: none;
-  }
-}
-
 /* CharacterPortrait's blink: the closed-eye frame flashes on for ~0.13s per cycle (the
-   cycle length is set per portrait inline, 3.5-6.5s, so ~2-4% of it). Kept under
-   prefers-reduced-motion, like .peeking-mascot — the mascots' small motions stay on. */
+   cycle length is set per portrait inline, 3.5-6.5s, so ~2-4% of it). */
 .portrait-blink {
   position: absolute;
   inset: 0;

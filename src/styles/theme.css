@@ -250,14 +250,12 @@ button:not(:disabled):active {
   animation: screen-enter-open 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* The one motion stopped for the phone's "reduce motion" setting: the whole screen sliding.
+   Every other flourish stays on (docs/development-guidelines.md 子ども向けの UI の規則). */
 @media (prefers-reduced-motion: reduce) {
   .screen,
   .screen[data-nav] {
     animation: none;
-  }
-  button,
-  button:not(:disabled):active {
-    transition: none;
   }
 }
 
@@ -338,11 +336,5 @@ button:not(:disabled):active {
   }
   to {
     transform: translateX(var(--sway)) rotate(8deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .floating-backdrop {
-    display: none;
   }
 }

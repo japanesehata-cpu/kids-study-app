@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useI18n } from '../i18n/I18nContext'
 import { RewardRain } from './RewardRain'
 
@@ -88,7 +88,6 @@ export function Hanamaru() {
 
 export function CorrectCelebration({ streak: streakProp }: { streak: number }) {
   const { t } = useI18n()
-  const reduceMotion = useReducedMotion()
   // Frozen at mount: the parent's streak resets on the next wrong answer while this is still
   // mounted, which must not restart (or shrink) the animation mid-way.
   const [streak] = useState(streakProp)
@@ -97,33 +96,28 @@ export function CorrectCelebration({ streak: streakProp }: { streak: number }) {
 
   return (
     <div aria-hidden="true" className="correct-celebration">
-      {!reduceMotion && <RewardRain count={streak >= 5 ? 28 : streak >= 3 ? 22 : 16} />}
+      <RewardRain count={streak >= 5 ? 28 : streak >= 3 ? 22 : 16} />
       <div className="correct-celebration-center">
-        {!reduceMotion &&
-          burst.map((p) => (
-            <motion.span
-              key={p.key}
-              className="correct-burst-piece"
-              style={{ width: p.size, height: p.size, background: p.color, borderRadius: p.round ? '50%' : 3 }}
-              initial={{ x: 0, y: 0, opacity: 1, scale: 0.4, rotate: 0 }}
-              animate={{
-                x: Math.cos(p.angle) * p.distance,
-                y: Math.sin(p.angle) * p.distance,
-                opacity: [1, 1, 0],
-                scale: 1,
-                rotate: 180,
-              }}
-              transition={{ duration: 0.75, delay: p.delay, ease: 'easeOut' }}
-            />
-          ))}
+        {burst.map((p) => (
+          <motion.span
+            key={p.key}
+            className="correct-burst-piece"
+            style={{ width: p.size, height: p.size, background: p.color, borderRadius: p.round ? '50%' : 3 }}
+            initial={{ x: 0, y: 0, opacity: 1, scale: 0.4, rotate: 0 }}
+            animate={{
+              x: Math.cos(p.angle) * p.distance,
+              y: Math.sin(p.angle) * p.distance,
+              opacity: [1, 1, 0],
+              scale: 1,
+              rotate: 180,
+            }}
+            transition={{ duration: 0.75, delay: p.delay, ease: 'easeOut' }}
+          />
+        ))}
         <motion.div
           className="correct-hanamaru"
-          initial={reduceMotion ? { opacity: 0 } : { scale: 0.2, rotate: -25, opacity: 0 }}
-          animate={
-            reduceMotion
-              ? { opacity: [0, 1, 1, 0] }
-              : { scale: [0.2, 1.15, 1, 1, 0.9], rotate: [-25, 6, 0, 0, 0], opacity: [0, 1, 1, 1, 0] }
-          }
+          initial={{ scale: 0.2, rotate: -25, opacity: 0 }}
+          animate={{ scale: [0.2, 1.15, 1, 1, 0.9], rotate: [-25, 6, 0, 0, 0], opacity: [0, 1, 1, 1, 0] }}
           transition={{ duration: 1.25, times: [0, 0.25, 0.4, 0.8, 1], ease: 'easeOut' }}
         >
           <Hanamaru />

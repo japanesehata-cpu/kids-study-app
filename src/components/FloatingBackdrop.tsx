@@ -2,8 +2,7 @@ import { useMemo } from 'react'
 
 /* A few soft hearts and soap bubbles drifting up behind every screen — slow (20-34s per
  * trip) and faint, so it reads as "the room is alive" without ever pulling the eye from a
- * question. Pure CSS transforms (GPU-composited), behind FitToViewport, ignores taps.
- * Hidden entirely for prefers-reduced-motion (theme.css). */
+ * question. Pure CSS transforms (GPU-composited), behind FitToViewport, ignores taps. */
 
 const COUNT = 9
 

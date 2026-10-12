@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import type {
   AnswerRecord,
   ArithmeticQuestion,
@@ -497,17 +497,52 @@ const FIT_STIMULUS = 'quiz-layout--fit'
  * "sushi"は すし」), and はんたいことば can list two meanings — one line more than the rest. */
 const LONG_EXPLANATION = 'quiz-layout--long-explanation'
 
+/** The 問題文の欄 itself. Its height is fixed (so answering never moves what's below), but how
+ * many lines the prompt or the wrong-answer reply wraps to depends on the phone — a fixed
+ * font size fitted on one size still got clipped on another (iPhone 393×852). So after each
+ * render this shrinks the text step by step (--head-fit) until everything fits. */
+function QuizHead({ children, fitKey }: { children: ReactNode; fitKey: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const fit = () => {
+      let scale = 1
+      el.style.setProperty('--head-fit', '1')
+      while (el.scrollHeight > el.clientHeight && scale > 0.6) {
+        scale = Math.round((scale - 0.05) * 100) / 100
+        el.style.setProperty('--head-fit', String(scale))
+      }
+    }
+    fit()
+    // Re-fit only when something outside this fitting changes the size: the mascot image
+    // finishing loading, or the window resizing. (A ResizeObserver on the content would also
+    // fire on the resizes fit() itself causes, and loop forever.)
+    el.addEventListener('load', fit, true)
+    window.addEventListener('resize', fit)
+    return () => {
+      el.removeEventListener('load', fit, true)
+      window.removeEventListener('resize', fit)
+    }
+  }, [fitKey])
+  return (
+    <div ref={ref} className="quiz-head">
+      {children}
+    </div>
+  )
+}
+
 /** The 問題文の欄 before answering: the category's character asks the question in a speech
  * bubble — the same mascot-and-bubble row the feedback replaces it with, so the slot is
  * filled both before and after answering. */
 function QuizPrompt({ text, speech, theme }: { text: string; speech?: ReactNode; theme: CharacterTheme }) {
   return (
     <div className="quiz-prompt">
-      <div className="quiz-feedback-row">
-        <CharacterPortrait theme={theme} mood="happy" size={120} className="quiz-feedback-portrait" />
-        <p className="quiz-prompt-bubble">{text}</p>
-      </div>
-      {speech}
+      <CharacterPortrait theme={theme} mood="happy" size={120} className="quiz-feedback-portrait" />
+      <p className="quiz-prompt-bubble">{text}</p>
+      {/* Beside the bubble, not under it: one row is what fits the fixed-height slot on every
+          phone (stacked, the bubble's top and the button's bottom were clipped on an iPhone). */}
+      {speech && <div className="quiz-prompt-speaker">{speech}</div>}
     </div>
   )
 }
@@ -1321,6 +1356,8 @@ export function QuizScreen({
     </div>
   )
 
+  // Re-fit the 問題文の欄 whenever what it shows changes: a new question, the answer, the language.
+  const headFitKey = `${question.id}|${selected === null ? '' : String(selected)}|${lang}|${feedbackText}|${explanationText}`
   const layoutParts = usesQuizLayout(question)
     ? quizLayoutParts(question, { t, lang, voiceProfile, autoSpeech, selected, theme: characterThemes[category] })
     : null
@@ -1373,7 +1410,7 @@ export function QuizScreen({
                 : undefined
             }
           >
-            <div className="quiz-head">{feedbackBlock || layoutParts.prompt}</div>
+            <QuizHead fitKey={headFitKey}>{feedbackBlock || layoutParts.prompt}</QuizHead>
             {layoutParts.stimulus && <div className="quiz-stimulus">{layoutParts.stimulus}</div>}
             <div className="quiz-answers">
               <div className="choice-grid choice-grid--fill" style={{ '--choice-font': choiceFont } as CSSProperties}>
@@ -1393,7 +1430,7 @@ export function QuizScreen({
           // The pictures keep their place and size when the answer comes in: the prompt's
           // slot (reserved at a fixed height) turns into the feedback instead.
           <div className="oddoneout-layout">
-            <div className="quiz-head">
+            <QuizHead fitKey={headFitKey}>
               {feedbackBlock || (
                 <QuizPrompt
                   theme={characterThemes[category]}
@@ -1409,7 +1446,7 @@ export function QuizScreen({
                   }
                 />
               )}
-            </div>
+            </QuizHead>
             <div className="oddoneout-board">
               <OddOneOutScene
                 key={question.id}

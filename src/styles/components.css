@@ -1103,42 +1103,50 @@
 
 /* The question's own pictures/letters stay on screen, so the feedback can stay compact. */
 .quiz-head .feedback-banner {
-  font-size: clamp(14px, 2.2vh, 20px);
+  font-size: calc(clamp(14px, 2.2vh, 20px) * var(--head-fit, 1));
 }
 
 /* A correct answer's line is short (やったね！せいかい！), so it can be big and still fill the
    slot that was sized for the longest wrong-answer reply. */
 .quiz-head .feedback-banner.correct {
-  font-size: clamp(18px, 3.4vh, 30px);
+  font-size: calc(clamp(18px, 3.4vh, 30px) * var(--head-fit, 1));
 }
 
 .quiz-head .explanation-text {
-  font-size: clamp(12px, 1.9vh, 16px);
+  font-size: calc(clamp(12px, 1.9vh, 16px) * var(--head-fit, 1));
 }
 
 /* The mascot grows with the slot, so a one-line "やったね！" still fills it. */
 .quiz-head .character-portrait.quiz-feedback-portrait,
 .quiz-head .quiz-prompt .character-portrait {
-  width: min(calc(var(--head-h, 120px) * 0.6), 16vw);
+  width: calc(min(var(--head-h, 120px) * 0.6, 16vw) * var(--head-fit, 1));
 }
 
 .quiz-prompt {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: clamp(6px, 1.4vh, 14px);
+  justify-content: center;
+  gap: clamp(6px, 2vw, 12px);
+  width: 100%;
+}
+
+.quiz-prompt-speaker {
+  flex-shrink: 0;
 }
 
 /* The character's question, in the same bubble shape as the feedback that replaces it. */
 .quiz-prompt-bubble {
   margin: 0;
   min-width: 0;
+  flex: 0 1 auto;
   padding: clamp(6px, 1.3vh, 12px) clamp(12px, 3.6vw, 20px);
   border-radius: var(--radius-md);
   background: var(--color-paper);
   box-shadow: var(--shadow-card);
   color: var(--color-text);
-  font-size: clamp(16px, 3vh, 28px);
+  /* Tied to the width as well as the height: a tall, narrow phone otherwise got 26px text in
+     a bubble squeezed between the mascot and the speaker, too many lines for the slot. */
+  font-size: calc(min(clamp(15px, 3vh, 26px), 4.8vw) * var(--head-fit, 1));
   font-weight: 800;
   text-align: center;
 }

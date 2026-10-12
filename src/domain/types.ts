@@ -245,7 +245,10 @@ export interface CountingQuestion {
   /** How many copies of exampleWordId are shown — the actual group being counted, not
    * just a single example (see CountingQuestionView in QuizScreen.tsx). */
   count: number
-  choiceCounterIds: string[]
+  /** Readings with the number (ふたり, にこ, ににん…) — see questionGenerators/counting.ts. */
+  choiceReadings: string[]
+  /** The right reading for `count` of counterId (2人 → ふたり). */
+  answerReading: string
   subSkill: string
 }
 

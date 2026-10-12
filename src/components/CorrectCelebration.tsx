@@ -37,7 +37,7 @@ function buildBurst(count: number): BurstPiece[] {
   }))
 }
 
-function Hanamaru() {
+export function Hanamaru() {
   // Spiral: three loops winding inward, drawn as one stroke so it can "write" itself.
   const spiral = useMemo(() => {
     const pts: string[] = []

@@ -1095,56 +1095,233 @@
   }
 }
 
-/* Same "a place, not a color swatch" scene treatment as .spot-scene-panel above, but a
- * single scene (logic's oddOneOut has only one set of 4 items, not two panels to compare). */
-.oddoneout-scene {
-  position: relative;
-  aspect-ratio: 1;
+/* components/OddOneOutScene.tsx — なかまはずれ: a fixed-height prompt/feedback slot on top,
+   the なかまカード grid filling everything below it. */
+.oddoneout-layout {
+  flex: 1 1 0;
+  min-height: 0;
   width: 100%;
-  /* Square, so width also drives height — capped by vh too (not just 380px) so a short
-     phone viewport shrinks the whole scene instead of only being width-limited. 60vh was
-     still hitting the 380px ceiling untouched at an ordinary ~696px-tall phone viewport
-     (60% of 696 = 417.6 > 380) — unlike the standard .choice-grid, this scene stays on
-     screen through the post-answer feedback state too (quiz-prompt-stack + this scene +
-     feedback-banner + explanation-text + portrait + next-button all stacked at once), so
-     its full 380px size caused a genuine #root overflow/bounce there. Lowered the ceiling
-     and vh factor so it actually shrinks well before the feedback state needs the room;
-     max(160px, ...) keeps a floor so the scattered items (≥19% of panel each, see
-     OddOneOutScene.tsx's MIN_SIZE) don't shrink below a comfortably tappable size. */
-  max-width: max(160px, min(240px, 32vh));
-  margin: 0 auto;
-  border-radius: var(--radius-md);
-  background: linear-gradient(
-    to bottom,
-    var(--color-accent-soft) 0%,
-    var(--color-accent-soft) 35%,
-    var(--color-primary-soft) 100%
-  );
-  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, 1.2vh, 14px);
+}
+
+/* Fixed height, so swapping the prompt for the feedback never moves the cards. Sized to fit
+   the feedback (mascot + banner, then a two-line explanation) at 320px wide. */
+.oddoneout-head {
+  flex: 0 0 auto;
+  height: clamp(136px, 22vh, 210px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   overflow: hidden;
 }
 
-.oddoneout-item {
-  position: absolute;
-  border: none;
-  background: transparent;
-  padding: 0;
+/* The pictures already show each name and group, so the feedback stays compact enough for
+   the fixed head on every phone height. */
+.oddoneout-head .feedback-banner {
+  font-size: clamp(14px, 2.2vh, 20px);
+}
+
+.oddoneout-head .explanation-text {
+  font-size: clamp(12px, 1.9vh, 16px);
+}
+
+/* Everything left below the head; a size container so the grid can be the largest square
+   that fits both its width and height. */
+.oddoneout-board {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  container-type: size;
+  display: flex;
+  /* Answers sit at the bottom, like every other quiz (development-guidelines). */
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.nakama-grid {
+  width: min(100cqw, 100cqh);
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(8px, 2.6cqw, 16px);
+}
+
+/* なかまカード: a sticker — white rim, pastel outline, soft shadow. All four the same color
+   so the color is never a hint. */
+.nakama-card {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(4px, 1.6cqw, 8px);
+  border: 3px solid var(--color-primary-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-paper);
+  box-shadow: 0 4px 0 var(--color-border), var(--shadow-card);
   cursor: pointer;
-  border-radius: var(--radius-sm);
+  animation: nakama-pop 0.16s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  animation-delay: calc(var(--i) * 0.04s);
 }
 
-.oddoneout-item:disabled {
-  cursor: default;
+.nakama-card-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: calc(var(--radius-md) - 8px);
+  overflow: hidden;
 }
 
-.oddoneout-item.correct {
-  outline: 4px solid var(--color-success);
-  outline-offset: 4px;
+.nakama-card-photo .word-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
 }
 
-.oddoneout-item.incorrect {
-  outline: 4px solid var(--color-error);
-  outline-offset: 4px;
+/* After answering: the name and the group badge over the bottom of the picture, so the card
+   keeps its size. */
+.nakama-card-caption {
+  position: absolute;
+  /* Both edges set (not left: 50% + translate): an absolutely placed box shrinks to fit the
+     room right of `left`, which wrapped the badges at only half the card's width. */
+  left: 6px;
+  right: 6px;
+  bottom: clamp(6px, 2cqw, 12px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.nakama-card-name {
+  max-width: 100%;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--color-text);
+  font-size: clamp(10px, 4.2cqw, 20px);
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nakama-card-badge {
+  max-width: 100%;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: var(--color-primary);
+  color: #fff;
+  /* Small enough that a group name fits one line on most phones (いえの なかの もの at a
+     320px-wide phone's 9px floor), so the badge never covers much of the picture; only
+     へびや とかげの なかま there breaks onto a second line, at its word gaps. */
+  font-size: clamp(9px, 3.4cqw, 15px);
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.nakama-card.is-odd .nakama-card-badge {
+  background: var(--color-accent-dark);
+}
+
+.nakama-card.is-odd {
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 3px var(--color-success), 0 4px 0 var(--color-border), var(--shadow-card);
+}
+
+.nakama-card.is-wrong-pick {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 3px var(--color-error), 0 4px 0 var(--color-border), var(--shadow-card);
+}
+
+/* The three that belong together hop as one; the odd one wobbles when the child missed it. */
+.nakama-grid.is-answered .nakama-card.is-mate {
+  animation: nakama-hop 0.5s ease-out both;
+}
+
+.nakama-grid.is-answered .nakama-card.is-missed {
+  animation: nakama-wobble 0.6s ease-in-out both;
+}
+
+.nakama-card-stamp {
+  position: absolute;
+  top: 2%;
+  right: 2%;
+  width: 42%;
+  aspect-ratio: 1;
+  pointer-events: none;
+  animation: nakama-stamp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes nakama-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes nakama-hop {
+  0%,
+  100% {
+    transform: none;
+  }
+  35% {
+    transform: translateY(-9%);
+  }
+  65% {
+    transform: translateY(0) scaleY(0.94);
+  }
+}
+
+@keyframes nakama-wobble {
+  0%,
+  100% {
+    transform: none;
+  }
+  20% {
+    transform: rotate(-6deg);
+  }
+  40% {
+    transform: rotate(5deg);
+  }
+  60% {
+    transform: rotate(-4deg);
+  }
+  80% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes nakama-stamp {
+  from {
+    opacity: 0;
+    transform: scale(2) rotate(-30deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-12deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nakama-card,
+  .nakama-grid.is-answered .nakama-card.is-mate,
+  .nakama-grid.is-answered .nakama-card.is-missed,
+  .nakama-card-stamp {
+    animation: none;
+  }
+  .nakama-card-stamp {
+    transform: rotate(-12deg);
+  }
 }
 
 .sudoku-board {

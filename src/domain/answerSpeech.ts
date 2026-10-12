@@ -104,9 +104,10 @@ export function kanjiAnswerSpeech(id: string, reading: string): AnswerSpeechPart
   return { text: reading, cacheKey: `answer-kanji-${id}` }
 }
 
-/** Just the counter's reading — the on-screen label's 「（本）」 is for the eyes only. */
-export function countingAnswerSpeech(id: string, kana: string): AnswerSpeechPart {
-  return { text: speechSafeWord(kana), cacheKey: `answer-counting-${id}` }
+/** Just the reading with the number (ふたり) — the on-screen label's 「（2人）」 is for the
+ * eyes only. */
+export function countingAnswerSpeech(id: string, count: number, reading: string): AnswerSpeechPart {
+  return { text: speechSafeWord(reading), cacheKey: `answer-counting-${id}-${count}` }
 }
 
 export function oppositeAnswerSpeech(word: string, wordKey: string): AnswerSpeechPart {

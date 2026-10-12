@@ -1,47 +1,21 @@
-import type { Lang } from '../i18n/dictionary'
+import { dictionary, type Lang } from '../i18n/dictionary'
+import { wordCategoryLabelKey, wordSubgroupLabelKey } from '../i18n/wordGroupLabels'
 import type { Question, ShapeId } from './types'
 import { getWordById, type WordEntry, type WordSubgroup } from './wordBank'
-import { getCounterById } from './counterBank'
+import { getCounterById, naiveCounterReading } from './counterBank'
 import { getHiraganaById } from './hiraganaBank'
 import { getKatakanaById } from './katakanaBank'
 import { getKanjiById } from './kanjiBank'
 import { pairsFor, partnerIn } from './oppositeBank'
 import { formatClockKey } from './questionGenerators/clock'
 
-const CATEGORY_LABEL: Record<WordEntry['category'], Record<Lang, string>> = {
-  animal: { ja: 'どうぶつ', en: 'animals' },
-  food: { ja: 'たべもの', en: 'food' },
-  nature: { ja: 'しぜんの もの', en: 'nature things' },
-  color: { ja: 'いろ', en: 'colors' },
-  vehicle: { ja: 'のりもの', en: 'vehicles' },
-  clothing: { ja: 'ふくや もちもの', en: 'things you wear' },
-  household: { ja: 'いえの なかの もの', en: 'household things' },
-  school: { ja: 'がっこうの どうぐ', en: 'school things' },
-  weather: { ja: 'おてんき', en: 'weather' },
-  bodyPart: { ja: 'からだの ぶぶん', en: 'body parts' },
-  toy: { ja: 'おもちゃ', en: 'toys' },
-  sport: { ja: 'スポーツ', en: 'sports' },
-  instrument: { ja: 'がっき', en: 'instruments' },
-  shape: { ja: 'かたち', en: 'shapes' },
-  place: { ja: 'ばしょ', en: 'places' },
-}
+const CATEGORY_LABEL = (category: WordEntry['category'], lang: Lang) => dictionary[wordCategoryLabelKey[category]][lang]
 
 /** なかまはずれ★2's finer groups, in the plain words a child knows (not ほにゅうるい). */
-const SUBGROUP_LABEL: Record<WordSubgroup, Record<Lang, string>> = {
-  mammal: { ja: 'けもの', en: 'mammals' },
-  bird: { ja: 'とり', en: 'birds' },
-  insect: { ja: 'むし', en: 'insects' },
-  reptile: { ja: 'へびや とかげの なかま', en: 'reptiles' },
-  fish: { ja: 'さかな', en: 'a fish' },
-  amphibian: { ja: 'かえるの なかま', en: 'an amphibian' },
-  fruit: { ja: 'くだもの', en: 'fruits' },
-  vegetable: { ja: 'やさい', en: 'vegetables' },
-  sweets: { ja: 'おかし', en: 'sweets' },
-  drink: { ja: 'のみもの', en: 'drinks' },
-}
+const SUBGROUP_LABEL = (subgroup: WordSubgroup, lang: Lang) => dictionary[wordSubgroupLabelKey[subgroup]][lang]
 
 /** Casual per-shape names (shapes ★1/★2/★4's `pickShape`/`pickName` answers) — kept as
- * this file's own self-contained table (matching CATEGORY_LABEL above) rather than
+ * this file's own self-contained table rather than
  * importing from i18n/dictionary.ts's shapeNameXxx keys, since every other explanation in
  * this file is a hardcoded ja/en pair, not a t() lookup. */
 const SHAPE_CASUAL_LABEL: Record<ShapeId, Record<Lang, string>> = {
@@ -156,8 +130,8 @@ export function buildExplanation(
         const answerLabel = lang === 'ja' ? answerEntry.translationJa : answerEntry.word
         // ★2: all four share a category, so name both finer groups.
         if (other && other.category === answerEntry.category && other.subgroup && answerEntry.subgroup) {
-          const mainGroup = SUBGROUP_LABEL[other.subgroup][lang]
-          const oddGroup = SUBGROUP_LABEL[answerEntry.subgroup][lang]
+          const mainGroup = SUBGROUP_LABEL(other.subgroup, lang)
+          const oddGroup = SUBGROUP_LABEL(answerEntry.subgroup, lang)
           // "かえるは かえるの なかまだよ" says nothing, so a group named after the word itself
           // is explained by what the word is not.
           if (lang === 'ja' && oddGroup.includes(answerLabel)) {
@@ -165,9 +139,9 @@ export function buildExplanation(
           }
           return lang === 'ja'
             ? `ほかは みんな ${mainGroup}だけど、${answerLabel}は ${oddGroup}だよ。`
-            : `The others are all ${mainGroup}, but ${answerLabel} is ${answerEntry.subgroup === 'fish' || answerEntry.subgroup === 'amphibian' ? oddGroup : `one of the ${oddGroup}`}.`
+            : `The others are all ${mainGroup}, but ${answerLabel} is one of the ${oddGroup}.`
         }
-        const mainLabel = other ? CATEGORY_LABEL[other.category][lang] : ''
+        const mainLabel = other ? CATEGORY_LABEL(other.category, lang) : ''
         return lang === 'ja'
           ? `ほかは みんな${mainLabel}だけど、${answerLabel}だけ ちがう なかまだよ。`
           : `The others are all ${mainLabel}, but ${answerLabel} is a different kind of thing.`
@@ -260,9 +234,16 @@ export function buildExplanation(
     }
     case 'counting': {
       const counter = getCounterById(question.counterId)
-      return lang === 'ja'
-        ? `こたえは 「${counter.kana}」（${counter.kanji}）だよ。`
-        : `The answer is "${counter.kana}" (${counter.kanji}).`
+      const answer = question.answerReading
+      const written = `${question.count}${counter.kanji}`
+      // When the sound changes with the number, name the easy mistake next to it.
+      const naive = naiveCounterReading(counter, question.count)
+      if (lang === 'ja') {
+        return naive !== answer
+          ? `「${naive}」じゃなくて 「${answer}」（${written}）と いうよ。`
+          : `こたえは 「${answer}」（${written}）だよ。`
+      }
+      return `The answer is "${answer}" (${written}).`
     }
     case 'money': {
       const { targetAmount } = question

@@ -193,7 +193,14 @@ function isCompatibleShape(q: Question): boolean {
     // with counterId undefined and crash getCounterById downstream. Also guards against an
     // entry from before `count` (how many copies to show) was added — an old entry would
     // resurface with count undefined and break CountingQuestionView's Array.from.
-    return typeof q.counterId === 'string' && Array.isArray(q.choiceCounterIds) && typeof q.count === 'number'
+    // Also drops an entry from before the answer became the reading with the number
+    // (choiceCounterIds → choiceReadings, 2+にん → ふたり).
+    return (
+      typeof q.counterId === 'string' &&
+      Array.isArray(q.choiceReadings) &&
+      typeof q.answerReading === 'string' &&
+      typeof q.count === 'number'
+    )
   }
   if (q.category === 'money') {
     // Guards against a stored reviewQueue entry from before the coin-collection redesign
@@ -229,7 +236,7 @@ function referencedLookups(q: Question): (() => unknown)[] {
     case 'englishSentence':
       return [() => getWordById(q.correctWordId), ...ids(q.choiceWordIds, getWordById)]
     case 'counting':
-      return [() => getCounterById(q.counterId), ...ids(q.choiceCounterIds, getCounterById)]
+      return [() => getCounterById(q.counterId)]
     case 'money':
       return ids(q.paletteCoinIds, getCoinById)
     default:

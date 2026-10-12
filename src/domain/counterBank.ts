@@ -5,6 +5,12 @@ export interface CounterEntry {
    * where `kanji` gets its one supplementary appearance. */
   kana: string
   kanji: string
+  /** How 1〜5 of this thing are read, number included — the sound often changes with the
+   * number (ひとり・ふたり, いっぽん・さんぼん, いっぴき・さんびき), so each is written out
+   * rather than built from the number. `null` where dictionaries or regions disagree
+   * (3羽 さんわ／さんば, 3軒 さんげん／さんけん, 3足 さんぞく／さんそく, 皿・粒 from 3 on):
+   * those counts are never asked (docs/functional-design.md 3.4). */
+  readings: (string | null)[]
   /** wordBank id (or a words-folder image id with no wordBank entry — person/house/shoe,
    * generated specifically for this feature; see WordIcon, which only needs the id string
    * to resolve `images/words/{id}.png` and never requires a wordBank entry). */
@@ -54,6 +60,7 @@ export const counterBank: CounterEntry[] = [
     id: 'nin',
     kana: 'にん',
     kanji: '人',
+    readings: ['ひとり', 'ふたり', 'さんにん', 'よにん', 'ごにん'],
     // A generic faceless silhouette, not a photo — see
     // scripts/generate-person-icon.py's comment for why. Repeated N times (see
     // CountingQuestionView) so it doubles as the actual counted group in the picture,
@@ -67,6 +74,7 @@ export const counterBank: CounterEntry[] = [
     id: 'ko',
     kana: 'こ',
     kanji: '個',
+    readings: ['いっこ', 'にこ', 'さんこ', 'よんこ', 'ごこ'],
     exampleWordId: 'apple',
     promptJa: 'りんごを かぞえる ときは、なんと いうかな？',
     promptEn: 'What counter word do you use to count an apple?',
@@ -75,6 +83,7 @@ export const counterBank: CounterEntry[] = [
     id: 'mai',
     kana: 'まい',
     kanji: '枚',
+    readings: ['いちまい', 'にまい', 'さんまい', 'よんまい', 'ごまい'],
     exampleWordId: 'leaf',
     promptJa: 'はっぱを かぞえる ときは、なんと いうかな？',
     promptEn: 'What counter word do you use to count a leaf?',
@@ -83,6 +92,7 @@ export const counterBank: CounterEntry[] = [
     id: 'dai',
     kana: 'だい',
     kanji: '台',
+    readings: ['いちだい', 'にだい', 'さんだい', 'よんだい', 'ごだい'],
     exampleWordId: 'car',
     promptJa: 'くるまを かぞえる ときは、なんと いうかな？',
     promptEn: 'What counter word do you use to count a car?',
@@ -91,6 +101,7 @@ export const counterBank: CounterEntry[] = [
     id: 'hon',
     kana: 'ほん',
     kanji: '本',
+    readings: ['いっぽん', 'にほん', 'さんぼん', 'よんほん', 'ごほん'],
     exampleWordId: 'pencil',
     promptJa: 'えんぴつを かぞえる ときは、なんと いうかな？',
     promptEn: 'What counter word do you use to count a pencil?',
@@ -99,6 +110,7 @@ export const counterBank: CounterEntry[] = [
     id: 'sara',
     kana: 'さら',
     kanji: '皿',
+    readings: ['ひとさら', 'ふたさら', null, null, null],
     exampleWordId: 'plate',
     promptJa: 'おさらを かぞえる ときは、なんと いうかな？',
     promptEn: 'What counter word do you use to count a plate?',
@@ -107,6 +119,7 @@ export const counterBank: CounterEntry[] = [
     id: 'hiki',
     kana: 'ひき',
     kanji: '匹',
+    readings: ['いっぴき', 'にひき', 'さんびき', 'よんひき', 'ごひき'],
     exampleWordId: 'dog',
     promptJa: 'いぬを かぞえる ときは、なんと いうかな？',
     promptEn: 'What counter word do you use to count a dog?',
@@ -115,6 +128,7 @@ export const counterBank: CounterEntry[] = [
     id: 'wa',
     kana: 'わ',
     kanji: '羽',
+    readings: ['いちわ', 'にわ', null, 'よんわ', 'ごわ'],
     exampleWordId: 'bird',
     promptJa: 'とりを かぞえる ときは、なんと いうかな？',
     promptEn: 'What counter word do you use to count a bird?',
@@ -123,6 +137,7 @@ export const counterBank: CounterEntry[] = [
     id: 'tou',
     kana: 'とう',
     kanji: '頭',
+    readings: ['いっとう', 'にとう', 'さんとう', 'よんとう', 'ごとう'],
     exampleWordId: 'elephant',
     promptJa: 'ぞうを かぞえる ときは、なんと いうかな？',
     promptEn: 'What counter word do you use to count an elephant?',
@@ -131,6 +146,7 @@ export const counterBank: CounterEntry[] = [
     id: 'satsu',
     kana: 'さつ',
     kanji: '冊',
+    readings: ['いっさつ', 'にさつ', 'さんさつ', 'よんさつ', 'ごさつ'],
     exampleWordId: 'book',
     promptJa: 'ほんを かぞえる ときは、なんと いうかな？',
     promptEn: 'What counter word do you use to count a book?',
@@ -139,6 +155,7 @@ export const counterBank: CounterEntry[] = [
     id: 'tsubu',
     kana: 'つぶ',
     kanji: '粒',
+    readings: ['ひとつぶ', 'ふたつぶ', null, null, null],
     // Was 'pea' — but pea.png shows an open POD with 4 peas inside, not a single grain,
     // so repeating it N times (see CountingQuestionView) showed N pods (4N peas), not N
     // grains, defeating the whole point of the redesign. blueberry.png is a single
@@ -152,6 +169,7 @@ export const counterBank: CounterEntry[] = [
     id: 'ken',
     kana: 'けん',
     kanji: '軒',
+    readings: ['いっけん', 'にけん', null, 'よんけん', 'ごけん'],
     exampleWordId: 'house',
     promptJa: 'いえを かぞえる ときは、なんと いうかな？',
     promptEn: 'What counter word do you use to count a house?',
@@ -160,6 +178,7 @@ export const counterBank: CounterEntry[] = [
     id: 'hai',
     kana: 'はい',
     kanji: '杯',
+    readings: ['いっぱい', 'にはい', 'さんばい', 'よんはい', 'ごはい'],
     exampleWordId: 'cup',
     promptJa: 'コップに はいった のみものを かぞえる ときは、なんと いうかな？',
     promptEn: 'What counter word do you use to count a cup of a drink?',
@@ -168,6 +187,7 @@ export const counterBank: CounterEntry[] = [
     id: 'soku',
     kana: 'そく',
     kanji: '足',
+    readings: ['いっそく', 'にそく', null, 'よんそく', 'ごそく'],
     // Was 'shoes' (wordBank's own image, correctly a matched PAIR since the English word
     // is plural) — but repeating a pair image N times (see CountingQuestionView) showed
     // 2N shoe shapes against a badge reading N. `shoe` is a dedicated single-shoe image
@@ -181,6 +201,7 @@ export const counterBank: CounterEntry[] = [
     id: 'chaku',
     kana: 'ちゃく',
     kanji: '着',
+    readings: ['いっちゃく', 'にちゃく', 'さんちゃく', 'よんちゃく', 'ごちゃく'],
     exampleWordId: 'shirt',
     promptJa: 'ふくを かぞえる ときは、なんと いうかな？',
     promptEn: 'What counter word do you use to count a piece of clothing?',
@@ -189,6 +210,7 @@ export const counterBank: CounterEntry[] = [
     id: 'tsu',
     kana: 'つ',
     kanji: 'つ',
+    readings: ['ひとつ', 'ふたつ', 'みっつ', 'よっつ', 'いつつ'],
     exampleWordId: 'ball',
     promptJa: 'ボールを かぞえる ときは、なんと いうかな？',
     promptEn: 'What counter word do you use to count a ball?',
@@ -197,11 +219,29 @@ export const counterBank: CounterEntry[] = [
     id: 'kyaku',
     kana: 'きゃく',
     kanji: '脚',
+    readings: ['いっきゃく', 'にきゃく', 'さんきゃく', 'よんきゃく', 'ごきゃく'],
     exampleWordId: 'chair',
     promptJa: 'いすを かぞえる ときは、なんと いうかな？',
     promptEn: 'What counter word do you use to count a chair?',
   },
 ]
+
+/** The counts (1〜5) this counter can be asked with — every one with a settled reading. */
+export function askableCounts(counter: CounterEntry): number[] {
+  return counter.readings.flatMap((r, i) => (r ? [i + 1] : []))
+}
+
+export function counterReading(counter: CounterEntry, count: number): string | null {
+  return counter.readings[count - 1] ?? null
+}
+
+const NUMBER_KANA = ['いち', 'に', 'さん', 'よん', 'ご']
+
+/** The reading a child gets by just putting the number in front, with no sound change
+ * (2人 → ににん, 1本 → いちほん). Equal to the real reading for a regular one (にまい). */
+export function naiveCounterReading(counter: CounterEntry, count: number): string {
+  return NUMBER_KANA[count - 1] + counter.kana
+}
 
 export function getCounterById(id: string): CounterEntry {
   const entry = counterBank.find((c) => c.id === id)

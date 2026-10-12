@@ -904,7 +904,7 @@ function renderChoiceContent(question: Question, choice: Choice, lang: Lang, ico
   if (isSpotDifference(question)) return null
   // never rendered: sudoku has no choice-grid either (see SudokuBoard)
   if (isSudoku(question)) return null
-  if (isCounting(question)) return getCounterById(choice as string).kana
+  if (isCounting(question)) return choice as string
   // never rendered: money has its own MoneyBoard, no choice-grid (see MoneyBoard.tsx)
   if (isMoney(question)) return null
   if (isShapes(question)) {
@@ -945,7 +945,7 @@ function computeCorrectAnswerLabel(question: Question, lang: Lang): string {
   if (isSudoku(question)) return ''
   if (isCounting(question)) {
     const counter = getCounterById(question.counterId)
-    return `${counter.kana}（${counter.kanji}）`
+    return `${question.answerReading}（${question.count}${counter.kanji}）`
   }
   if (isMoney(question)) return dictionary.moneyAmount[lang].replace('{amount}', String(question.targetAmount))
   if (isShapes(question)) {
@@ -1061,7 +1061,7 @@ export function QuizScreen({
     if (isSpotDifference(question)) return []
     // sudoku likewise answers by tapping the board (blank cell + palette), not a choice-grid
     if (isSudoku(question)) return []
-    if (isCounting(question)) return question.choiceCounterIds
+    if (isCounting(question)) return question.choiceReadings
     // money answers by tapping coins into MoneyBoard's own tray, not a choice-grid
     if (isMoney(question)) return []
     if (isShapes(question)) return question.choices
@@ -1093,7 +1093,7 @@ export function QuizScreen({
     // reached either once every blank is filled correctly (SUDOKU_DONE) or once the
     // wrong-guess limit is hit (SUDOKU_FAILED)
     if (isSudoku(question)) return choice !== SUDOKU_FAILED
-    if (isCounting(question)) return choice === question.counterId
+    if (isCounting(question)) return choice === question.answerReading
     // reached either once the tray total exactly matches targetAmount (MONEY_DONE) or once
     // the wrong-guess limit is hit (MONEY_FAILED)
     if (isMoney(question)) return choice !== MONEY_FAILED
@@ -1245,6 +1245,34 @@ export function QuizScreen({
     }
   }
 
+  const isOddOneOut = isLogic(question) && question.kind === 'oddOneOut'
+  const feedbackBlock = selected !== null && (
+    <div className="quiz-feedback">
+      <div className="quiz-feedback-row">
+        <CharacterPortrait
+          theme={characterThemes[category]}
+          mood={isCorrectChoice(selected) ? (streak >= 3 ? 'streak' : 'celebrate') : 'thinking'}
+          size={120}
+          className="quiz-feedback-portrait"
+        />
+        <div className={`feedback-banner ${isCorrectChoice(selected) ? 'correct' : 'incorrect'}`}>
+          {feedbackText}
+        </div>
+      </div>
+      {isKanji(question) && getKanjiById(question.charId).traceImageId ? (
+        // Links the kanji to the real thing it means with a picture instead of
+        // words — see explanations.ts's kanji case for why the old text-only
+        // mnemonic sentence read as confusing to a child.
+        <div className="explanation-media">
+          <WordIcon wordId={getKanjiById(question.charId).traceImageId!} size={56} />
+          <p className="explanation-text">{explanationText}</p>
+        </div>
+      ) : (
+        <p className="explanation-text">{explanationText}</p>
+      )}
+    </div>
+  )
+
   return (
     <div className="screen">
       {celebrationKey > 0 && <CorrectCelebration key={celebrationKey} streak={streak} />}
@@ -1272,6 +1300,33 @@ export function QuizScreen({
             cacheKey={autoSpeech.cacheKey}
             missingOperandPrompt={t('missingOperandPrompt')}
           />
+        ) : isLogic(question) && question.kind === 'oddOneOut' ? (
+          // The pictures keep their place and size when the answer comes in: the prompt's
+          // slot (reserved at a fixed height) turns into the feedback instead.
+          <div className="oddoneout-layout">
+            <div className="oddoneout-head">
+              {feedbackBlock || (
+                <LogicQuestionView
+                  question={question}
+                  promptText={t(logicPromptKey(question))}
+                  spokenText={autoSpeech.text}
+                  lang={lang}
+                  voiceProfile={voiceProfile}
+                  cacheKey={autoSpeech.cacheKey}
+                  selected={selected}
+                />
+              )}
+            </div>
+            <div className="oddoneout-board">
+              <OddOneOutScene
+                key={question.id}
+                question={question}
+                selected={selected}
+                onSelect={(choice) => handleSelect(choice)}
+                voiceProfile={voiceProfile}
+              />
+            </div>
+          </div>
         ) : isLogic(question) ? (
           <LogicQuestionView
             question={question}
@@ -1382,45 +1437,13 @@ export function QuizScreen({
           />
         )}
 
-        {selected !== null && (
-          <div className="quiz-feedback">
-            <div className="quiz-feedback-row">
-              <CharacterPortrait
-                theme={characterThemes[category]}
-                mood={isCorrectChoice(selected) ? (streak >= 3 ? 'streak' : 'celebrate') : 'thinking'}
-                size={120}
-                className="quiz-feedback-portrait"
-              />
-              <div className={`feedback-banner ${isCorrectChoice(selected) ? 'correct' : 'incorrect'}`}>
-                {feedbackText}
-              </div>
-            </div>
-            {isKanji(question) && getKanjiById(question.charId).traceImageId ? (
-              // Links the kanji to the real thing it means with a picture instead of
-              // words — see explanations.ts's kanji case for why the old text-only
-              // mnemonic sentence read as confusing to a child.
-              <div className="explanation-media">
-                <WordIcon wordId={getKanjiById(question.charId).traceImageId!} size={56} />
-                <p className="explanation-text">{explanationText}</p>
-              </div>
-            ) : (
-              <p className="explanation-text">{explanationText}</p>
-            )}
-          </div>
-        )}
+        {!isOddOneOut && feedbackBlock}
 
         <div className="quiz-answer-area">
           {isArithmetic(question) && usesNumberPad(question) ? (
             <NumberPad key={question.id} onSubmit={(n) => handleSelect(n)} disabled={selected !== null} />
-          ) : isLogic(question) && question.kind === 'oddOneOut' ? (
-            <OddOneOutScene
-              key={question.id}
-              question={question}
-              selected={selected}
-              disabled={selected !== null}
-              onSelect={(choice) => handleSelect(choice)}
-            />
           ) : (
+            !isOddOneOut &&
             !isSpotDifference(question) &&
             !isSudoku(question) &&
             !isMoney(question) &&

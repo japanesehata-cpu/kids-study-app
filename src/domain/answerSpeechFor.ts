@@ -57,7 +57,7 @@ export function computeAnswerSpeech(question: Question): SpeechPart[] | undefine
       return clockTimeSpeech(question.hour, question.minute)
     case 'counting': {
       const counter = getCounterById(question.counterId)
-      return [countingAnswerSpeech(counter.id, counter.kana)]
+      return [countingAnswerSpeech(counter.id, question.count, question.answerReading)]
     }
     case 'money':
       return [moneyAnswerSpeech(question.targetAmount)]

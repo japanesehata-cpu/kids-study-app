@@ -507,7 +507,11 @@ function buildJobs() {
   for (const e of hiraganaBank) jobs.push(answerJob('hiragana', kanaAnswerSpeech('hiragana', e.id, speechSafeChar(e.char))))
   for (const e of katakanaBank) jobs.push(answerJob('katakana', kanaAnswerSpeech('katakana', e.id, e.char)))
   for (const e of kanjiBank) jobs.push(answerJob('kanji', kanjiAnswerSpeech(e.id, kanjiSpokenReading(e))))
-  for (const c of counterBank) jobs.push(answerJob('counting', countingAnswerSpeech(c.id, c.kana)))
+  for (const c of counterBank) {
+    c.readings.forEach((reading, i) => {
+      if (reading) jobs.push(answerJob('counting', countingAnswerSpeech(c.id, i + 1, reading)))
+    })
+  }
   for (const w of oppositeWords) jobs.push(answerJob('logic', oppositeAnswerSpeech(w, oppositeWordKey(w))))
   // A superset of ろんり「なかまはずれ」's pool (that filter lives in logic.ts, which plain node
   // can't import) — the answerSpeech test checks every generated answer is covered.

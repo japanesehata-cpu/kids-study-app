@@ -256,7 +256,9 @@
   to { opacity: 1; transform: none; }
 }
 
-/* HomeScreen picks one mascot every few seconds: a little hop with a wave-like wiggle. */
+/* HomeScreen picks one mascot every few seconds: a little hop with a wave-like wiggle.
+   Kept under prefers-reduced-motion: one mascot's small hop, not a screen-wide movement
+   (docs/development-guidelines.md 子ども向けの UI の規則). */
 .character-intro-button.is-waving {
   animation: mascot-wave 0.8s ease-in-out;
   transform-origin: 50% 90%;
@@ -269,13 +271,6 @@
   60% { transform: translateY(-4px) rotate(-6deg); }
   80% { transform: translateY(0) rotate(3deg); }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .character-intro-button.is-waving {
-    animation: none;
-  }
-}
-
 
 .hint-caption {
   font-size: clamp(11px, 1.8vh, 14px);
@@ -2503,9 +2498,6 @@
   .choice-button.incorrect {
     animation: none;
   }
-  .peeking-mascot {
-    display: none;
-  }
 }
 
 .result-stars {
@@ -2542,7 +2534,8 @@
 }
 
 /* CharacterPortrait's blink: the closed-eye frame flashes on for ~0.13s per cycle (the
-   cycle length is set per portrait inline, 3.5-6.5s, so ~2-4% of it). */
+   cycle length is set per portrait inline, 3.5-6.5s, so ~2-4% of it). Kept under
+   prefers-reduced-motion, like .peeking-mascot — the mascots' small motions stay on. */
 .portrait-blink {
   position: absolute;
   inset: 0;
@@ -2560,12 +2553,6 @@
   0%, 96% { opacity: 0; }
   97%, 99% { opacity: 1; }
   100% { opacity: 0; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .portrait-blink {
-    display: none;
-  }
 }
 
 /* ResultScreen */

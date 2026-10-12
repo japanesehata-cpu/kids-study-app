@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { MotionConfig, motion, useReducedMotion } from 'framer-motion'
 import type { CharacterTheme } from './characterThemes'
 
 export type CharacterMood = 'happy' | 'celebrate' | 'streak' | 'thinking'
@@ -51,12 +51,17 @@ const streakAnimation = { rotate: [-10, 10, -10], y: [0, -20, 0], scale: [1, 1.1
 const thinkingAnimation = { rotate: [-3, 3, -3], y: [0, 2, 0], scale: 1 }
 
 export function CharacterPortrait({ theme, mood = 'happy', size = 220, phase = 0, className }: CharacterPortraitProps) {
+  // The mascot keeps moving even with the phone's "reduce motion" setting on — its bob and
+  // blink are small and are what makes it feel alive (docs/development-guidelines.md 子ども向けの
+  // UI の規則). Only the big celebratory jumps calm down to the ordinary bob.
+  const reduceMotion = useReducedMotion()
+  const effectiveMood = reduceMotion && (mood === 'streak' || mood === 'celebrate') ? 'happy' : mood
   const animate =
-    mood === 'streak'
+    effectiveMood === 'streak'
       ? streakAnimation
-      : mood === 'celebrate'
+      : effectiveMood === 'celebrate'
         ? celebrateAnimation
-        : mood === 'thinking'
+        : effectiveMood === 'thinking'
           ? thinkingAnimation
           : bounceAnimation
   // Each portrait blinks on its own rhythm (every 3.5-6.5s), starting at a random point.
@@ -64,7 +69,8 @@ export function CharacterPortrait({ theme, mood = 'happy', size = 220, phase = 0
     const period = 3.5 + Math.random() * 3
     return { animationDuration: `${period}s`, animationDelay: `${-Math.random() * period}s` }
   })
-  const duration = mood === 'streak' ? 0.5 : mood === 'celebrate' ? 0.6 : mood === 'thinking' ? 1.6 : 2.4
+  const duration =
+    effectiveMood === 'streak' ? 0.5 : effectiveMood === 'celebrate' ? 0.6 : effectiveMood === 'thinking' ? 1.6 : 2.4
 
   return (
     <div
@@ -83,26 +89,28 @@ export function CharacterPortrait({ theme, mood = 'happy', size = 220, phase = 0
           💦
         </motion.span>
       )}
-      <motion.div
-        style={{ position: 'relative', width: '100%', height: '100%' }}
-        animate={animate}
-        transition={{ duration, repeat: Infinity, ease: 'easeInOut', delay: -phase }}
-      >
-        <img
-          src={`${import.meta.env.BASE_URL}images/characters/${theme.id}.png`}
-          alt={theme.id}
-          style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
-        />
-        {BLINK_IDS.has(theme.id) && (
+      <MotionConfig reducedMotion="never">
+        <motion.div
+          style={{ position: 'relative', width: '100%', height: '100%' }}
+          animate={animate}
+          transition={{ duration, repeat: Infinity, ease: 'easeInOut', delay: -phase }}
+        >
           <img
-            className="portrait-blink"
-            src={`${import.meta.env.BASE_URL}images/characters/${theme.id}__blink.png`}
-            alt=""
-            aria-hidden="true"
-            style={blinkTiming}
+            src={`${import.meta.env.BASE_URL}images/characters/${theme.id}.png`}
+            alt={theme.id}
+            style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
           />
-        )}
-      </motion.div>
+          {BLINK_IDS.has(theme.id) && (
+            <img
+              className="portrait-blink"
+              src={`${import.meta.env.BASE_URL}images/characters/${theme.id}__blink.png`}
+              alt=""
+              aria-hidden="true"
+              style={blinkTiming}
+            />
+          )}
+        </motion.div>
+      </MotionConfig>
     </div>
   )
 }

@@ -385,9 +385,10 @@ function AppContent() {
 
 function App() {
   return (
-    // reducedMotion="user": with the phone's "reduce motion" setting on, every framer-motion
-    // movement (the mascots' endless bob and sway, the medal's spring) jumps straight to its
-    // end state instead of moving — fades still play. CSS animations are handled in theme.css.
+    // reducedMotion="user": with the phone's "reduce motion" setting on, framer-motion
+    // movements (the medal's spring, the celebration) jump straight to their end state
+    // instead of moving — fades still play. The mascots' own small bob opts back in
+    // (CharacterPortrait). CSS animations are handled in theme.css / components.css.
     <MotionConfig reducedMotion="user">
       <I18nProvider>
         <FloatingBackdrop />

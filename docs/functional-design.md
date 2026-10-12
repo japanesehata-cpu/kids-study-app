@@ -304,6 +304,7 @@ erDiagram
 | CategoryProgress | recentAccuracy | 数値の配列 | ○ | 到達レベルで遊んだ直近セットの正答率（最大2件） |
 | CategoryProgress | reviewQueue | Question の配列 | ○ | まちがえた問題（最大12問） |
 | CategoryProgress | recent | 文字列の配列 | － | 直近に出した問題の識別子（最大40件）。古い保存データにはない |
+| CategoryProgress | ladderVersion | 数値 | － | ★レベルの並びの版。並びを変えたカテゴリ（ろんり）で、保存済みの到達レベルを読み替えたかどうかを示す（[3.9](#39-f-11学習記録とレベルアップ)）。古い保存データにはない |
 | Question | id, category, subSkill など | カテゴリごとの形 | ○ | 1問分の内容（問題・選択肢・正解）。カテゴリごとに形が違う |
 | SetResult | answers, accuracy, strongSubSkill, weakSubSkill, bestStreak, leveledUp | － | ○ | 1セットの結果。保存しない（結果画面の表示用） |
 | AnswerRecord | questionId, category, subSkill, correct, question | － | ○ | 1問の回答記録。保存しない |

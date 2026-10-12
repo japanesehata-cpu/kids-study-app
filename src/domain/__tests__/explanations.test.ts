@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { buildExplanation } from '../explanations'
+import { buildExplanation, CATEGORY_LABEL, SUBGROUP_LABEL } from '../explanations'
+import { wordCategoryLabelKey, wordSubgroupLabelKey } from '../wordGroupLabels'
+import { dictionary } from '../../i18n/dictionary'
 import { generateAdditionQuestion } from '../questionGenerators/addition'
 import { generateSubtractionQuestion } from '../questionGenerators/subtraction'
 import { generateEnglishSpellingQuestion, generateEnglishListeningQuestion } from '../questionGenerators/englishWords'
@@ -100,6 +102,17 @@ describe('buildExplanation', () => {
       const ja = buildExplanation(q, 'ja')
       expect(ja).toMatch(/^ほかは みんな (けもの|とり|むし|へびや とかげの なかま|くだもの|やさい|おかし|のみもの)だけど、.+は (けもの|とり|むし|へびや とかげの なかま|さかな|かえるの なかま|くだもの|やさい|おかし|のみもの)(だよ|じゃないよ)。$/)
       expect(ja).not.toMatch(/かえるは かえるの なかま/)
+    }
+  })
+
+  it('names the groups exactly as the なかまカード badge does (dictionary)', () => {
+    for (const lang of ['ja', 'en'] as const) {
+      for (const [category, key] of Object.entries(wordCategoryLabelKey)) {
+        expect(CATEGORY_LABEL[category as keyof typeof CATEGORY_LABEL][lang], category).toBe(dictionary[key][lang])
+      }
+      for (const [subgroup, key] of Object.entries(wordSubgroupLabelKey)) {
+        expect(SUBGROUP_LABEL[subgroup as keyof typeof SUBGROUP_LABEL][lang], subgroup).toBe(dictionary[key][lang])
+      }
     }
   })
 })

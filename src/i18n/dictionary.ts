@@ -462,7 +462,8 @@ export const dictionary = {
     ja: 'ぼくは かく！ かたちあわせが だいすきな はりねずみだよ！ まるや さんかく、しかく、いっしょに みつけようね！',
     en: "I'm Kaku! I'm a hedgehog who loves shape-sorting games. Let's find circles, triangles, and squares together!",
   },
-  // なかまはずれ: group names — the explanation sentence and the なかまカード badge.
+  // なかまはずれ: group names on the なかまカード badge (explanations.ts says the same words;
+  // a test keeps them identical).
   wordCategoryAnimal: { ja: 'どうぶつ', en: 'animals' },
   wordCategoryFood: { ja: 'たべもの', en: 'food' },
   wordCategoryNature: { ja: 'しぜんの もの', en: 'nature things' },

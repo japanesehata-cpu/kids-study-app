@@ -1,7 +1,9 @@
-import type { DictionaryKey } from './dictionary'
-import type { WordEntry, WordSubgroup } from '../domain/wordBank'
+import type { DictionaryKey } from '../i18n/dictionary'
+import type { WordEntry, WordSubgroup } from './wordBank'
 
-/** なかまはずれ's group names: ★1 names the big category, ★2 the finer subgroup. */
+/** なかまはずれ's group names on the なかまカード badge: ★1 names the big category, ★2 the
+ * finer subgroup. Keys only — the same pattern as categoryMeta.ts — so domain depends on
+ * the dictionary's key type alone (repository-structure.md 3). */
 export const wordCategoryLabelKey: Record<WordEntry['category'], DictionaryKey> = {
   animal: 'wordCategoryAnimal',
   food: 'wordCategoryFood',

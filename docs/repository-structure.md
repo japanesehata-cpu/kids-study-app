@@ -47,7 +47,7 @@
 | `src/domain/` | 学習内容とそのルール | 出題範囲のデータ（`〇〇Bank.ts`）、型（`types.ts`）、問題の生成、採点・レベルアップ・復習（`progress.ts`）、読み上げる文の組み立て | React の部品、画面、ブラウザの API を直接呼ぶ処理 |
 | `src/domain/questionGenerators/` | カテゴリごとの問題の生成 | `<カテゴリ>.ts`（レベルに応じた1問を作る関数） | 画面の表示、保存 |
 | `src/lib/` | ブラウザの機能を包む共通処理 | 読み上げ（`tts.ts`）、効果音（`sfx.ts`）、BGM（`bgm.ts`）、保存（`storage.ts`）、乱数・並べ替え、書き順の照合 | 学習内容のデータ、画面 |
-| `src/i18n/` | 表示文字列と言語の切替 | 日本語・英語の辞書（`dictionary.ts`）、言語の Context | 読み上げ専用の文、出題データ |
+| `src/i18n/` | 表示文字列と言語の切替 | 日本語・英語の辞書（`dictionary.ts`）、言語の Context、コードの値から辞書のキーを引く表（`subSkillLabels.ts`） | 読み上げ専用の文、出題データ |
 | `src/styles/` | 見た目の共通ルール | テーマの変数（`theme.css`）、部品のスタイル（`components.css`） | 1つの部品だけで完結する一時的な調整 |
 | `public/` | 実行時に読み込む素材 | 画像・音声・アイコン | 実行時に使わない元データや候補画像 |
 | `scripts/` | 素材の生成・検査（開発時のみ） | 生成スクリプト（`generate-*`）、取得（`fetch-*`）、検査（`check-*`、`audit-*`）、組み立て（`build-*`）と、その設定 JSON | アプリが実行時に読み込むコード |
@@ -93,7 +93,7 @@
 | テスト | 対象と同じ名前に `.test` | `addition.test.ts` |
 | スクリプト | ケバブケース。先頭は動詞（`generate-`、`fetch-`、`build-`、`check-`、`audit-`） | `generate-spot-part-variants.py` |
 | スクリプトの共通モジュール・ローカルサーバー | 例外として、役割を表す名詞でよい（既存の名前は変えない） | `gemini-client.mjs`、`image-style-guardrail.mjs`、`remove_bg.py`、`kokoro_server.py` |
-| 音声ファイル | `<種類>-<内容>.wav`（キャッシュのキーと同じ名前） | `answer-counting-hon.wav` |
+| 音声ファイル | `<種類>-<内容>.wav`（キャッシュのキーと同じ名前） | `answer-counting-hon-1.wav` |
 | まちがいさがしの画像 | `spot/<テーマ>/<物>.png`、違いは `<物>__color.png`・`<物>__part.png`、背景の違いは `bg__<id>.jpg` | `spot/forest/fox__part.png` |
 | キャラクターの画像 | `characters/<キャラクターid>.png`、差分は `<id>__<差分>.png` | `characters/momo__blink.png` |
 

@@ -571,38 +571,6 @@
   border-radius: var(--radius-sm);
 }
 
-/** The large number next to かぞえる's counted group (see CountingQuestionView) — makes
- * the picture read as "N of these", not just one example, which is the actual point of a
- * counter word. */
-.counting-visual {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  max-width: 100%;
-}
-
-.counting-icons {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 6px;
-}
-
-.count-badge {
-  font-size: clamp(24px, 5vh, 40px);
-  font-weight: 800;
-  color: var(--color-primary);
-  background: var(--color-surface);
-  border-radius: var(--radius-sm);
-  width: clamp(44px, 8vh, 64px);
-  height: clamp(44px, 8vh, 64px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: var(--shadow-card);
-  flex-shrink: 0;
-}
-
 .story-text {
   font-size: clamp(18px, 3.2vh, 26px);
   font-weight: 700;
@@ -1112,6 +1080,7 @@
 /* components/OddOneOutScene.tsx — なかまはずれ: a fixed-height prompt/feedback slot on top,
    the なかまカード grid filling everything below it. */
 .oddoneout-layout {
+  --head-h: clamp(136px, 22vh, 210px);
   flex: 1 1 0;
   min-height: 0;
   width: 100%;
@@ -1120,25 +1089,314 @@
   gap: clamp(6px, 1.2vh, 14px);
 }
 
-/* Fixed height, so swapping the prompt for the feedback never moves the cards. Sized to fit
-   the feedback (mascot + banner, then a two-line explanation) at 320px wide. */
-.oddoneout-head {
+/* 問題文の欄 (QuizScreen, shared by every choice question and なかまはずれ): fixed height, so
+   swapping the prompt for the feedback never moves the 問いの欄 or 答えの欄 below. Sized to
+   fit the feedback (mascot + banner, then a two-line explanation) at 320px wide. */
+.quiz-head {
   flex: 0 0 auto;
-  height: clamp(136px, 22vh, 210px);
+  height: var(--head-h, clamp(124px, 19vh, 190px));
   display: flex;
   flex-direction: column;
   justify-content: center;
   overflow: hidden;
 }
 
-/* The pictures already show each name and group, so the feedback stays compact enough for
-   the fixed head on every phone height. */
-.oddoneout-head .feedback-banner {
+/* The question's own pictures/letters stay on screen, so the feedback can stay compact. */
+.quiz-head .feedback-banner {
   font-size: clamp(14px, 2.2vh, 20px);
 }
 
-.oddoneout-head .explanation-text {
+/* A correct answer's line is short (やったね！せいかい！), so it can be big and still fill the
+   slot that was sized for the longest wrong-answer reply. */
+.quiz-head .feedback-banner.correct {
+  font-size: clamp(18px, 3.4vh, 30px);
+}
+
+.quiz-head .explanation-text {
   font-size: clamp(12px, 1.9vh, 16px);
+}
+
+/* The mascot grows with the slot, so a one-line "やったね！" still fills it. */
+.quiz-head .character-portrait.quiz-feedback-portrait,
+.quiz-head .quiz-prompt .character-portrait {
+  width: min(calc(var(--head-h, 120px) * 0.6), 16vw);
+}
+
+.quiz-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(6px, 1.4vh, 14px);
+}
+
+/* The character's question, in the same bubble shape as the feedback that replaces it. */
+.quiz-prompt-bubble {
+  margin: 0;
+  min-width: 0;
+  padding: clamp(6px, 1.3vh, 12px) clamp(12px, 3.6vw, 20px);
+  border-radius: var(--radius-md);
+  background: var(--color-paper);
+  box-shadow: var(--shadow-card);
+  color: var(--color-text);
+  font-size: clamp(16px, 3vh, 28px);
+  font-weight: 800;
+  text-align: center;
+}
+
+/* The rest of the card: 問いの欄 over 答えの欄 (about 5.5 : 4.5), each a size container so
+   what's inside grows with the room it actually has (development-guidelines: use the whole
+   phone screen). A question with nothing to show above its choices (くらべる) gives the
+   答えの欄 the whole card. */
+.quiz-layout {
+  --head-h: clamp(124px, 19vh, 190px);
+  --zone-gap: clamp(6px, 1.2vh, 14px);
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  /* A size container too, so a 問いの欄 sized by its own content (かぞえる) can still be
+     measured against the room the whole layout has. */
+  container-type: size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--zone-gap);
+}
+
+.quiz-layout--long-explanation {
+  --head-h: clamp(140px, 21vh, 210px);
+}
+
+.quiz-layout--short-head {
+  --head-h: clamp(104px, 16vh, 156px);
+}
+
+.quiz-layout--fit {
+  /* cq units inside the 問いの欄 below: cqw is the 問いの欄's own width (an inline-size
+     container), cqh is the whole layout's height — of which the 問いの欄 may take 6/10 after
+     the 問題文の欄. */
+  --stimulus-max: calc((100cqh - var(--head-h) - 2 * var(--zone-gap)) * 0.6);
+}
+
+.quiz-layout--fit .quiz-stimulus {
+  flex: 0 0 auto;
+  container-type: inline-size;
+}
+
+.quiz-layout--fit .quiz-answers {
+  flex: 1 1 0;
+}
+
+.quiz-stimulus {
+  flex: var(--stimulus-share, 11) 1 0;
+  min-height: 0;
+  width: 100%;
+  container-type: size;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quiz-answers {
+  flex: var(--answers-share, 9) 1 0;
+  min-height: 0;
+  width: 100%;
+  container-type: size;
+  display: flex;
+}
+
+.choice-grid--fill {
+  max-width: none;
+  height: 100%;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(8px, 3cqw, 16px);
+}
+
+.choice-grid--fill .choice-button {
+  min-height: 0;
+  min-width: 0;
+  font-size: var(--choice-font);
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.choice-emoji {
+  font-size: min(32cqh, 30cqw);
+  line-height: 1;
+}
+
+.quiz-stimulus .arithmetic-stimulus {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--stimulus-max) * 0.04);
+  width: 100%;
+}
+
+.apple-rows {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--stimulus-max) * 0.03);
+}
+
+.apple-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.apple {
+  font-size: var(--apple);
+  line-height: 1;
+}
+
+.apple.removed {
+  opacity: 0.25;
+}
+
+.apple-plus {
+  font-size: calc(var(--apple) * 0.8);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-primary-dark);
+  padding: 0 0.15em;
+}
+
+.quiz-stimulus .equation-text {
+  font-size: min(calc(var(--stimulus-max) * 0.3), 17cqw);
+  line-height: 1.1;
+}
+
+.quiz-stimulus .story-text {
+  font-size: min(calc(var(--stimulus-max) * 0.1), 6.4cqw);
+  max-width: none;
+  margin: 0;
+}
+
+.quiz-stimulus .opposite-prompt-word {
+  font-size: min(calc(var(--stimulus-max) * 0.5), calc(76cqw / var(--len)));
+  padding: calc(var(--stimulus-max) * 0.06) 6cqw;
+}
+
+/* ろんり「きまり」: 9 cells (8 + the empty slot) in two rows of 5 and 4, as large as fits. */
+.quiz-stimulus .pattern-visual-row {
+  --cell: min(calc((var(--stimulus-max) - 8px) / 2), 16.5cqw);
+  flex-wrap: wrap;
+  width: calc(var(--cell) * 5 + 8px * 4);
+  overflow: visible;
+  touch-action: auto;
+  padding: 0;
+}
+
+.quiz-stimulus .pattern-visual-item {
+  width: var(--cell);
+  height: var(--cell);
+  font-size: calc(var(--cell) * 0.86);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quiz-stimulus .pattern-slot {
+  min-width: 0;
+  min-height: 0;
+}
+
+/* かぞえる (CountingStimulus): sticker cards as large as the grid (--cols × --rows) allows,
+   with the number as a big badge in the corner. */
+.counting-stage {
+  --gap: 3cqw;
+  --card: min(
+    (100cqw - (var(--cols) - 1) * var(--gap)) / var(--cols),
+    (var(--stimulus-max) - (var(--rows) - 1) * var(--gap)) / var(--rows)
+  );
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.counting-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--gap);
+  width: calc(var(--card) * var(--cols) + var(--gap) * (var(--cols) - 1));
+}
+
+.counting-card {
+  position: relative;
+  width: var(--card);
+  height: var(--card);
+  padding: calc(var(--card) * 0.05);
+  border: 3px solid var(--color-primary-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-paper);
+  box-shadow: 0 4px 0 var(--color-border), var(--shadow-card);
+  animation: nakama-pop 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  animation-delay: calc(var(--i) * 0.08s);
+}
+
+.counting-card-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: calc(var(--radius-md) - 8px);
+  overflow: hidden;
+}
+
+.counting-card-photo .word-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+/* 1, 2, 3… on each card, in the order they popped in: the counting itself, shown. */
+.counting-tag {
+  position: absolute;
+  right: -4%;
+  bottom: -4%;
+  width: max(22px, calc(var(--card) * 0.26));
+  height: max(22px, calc(var(--card) * 0.26));
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 2px 0 var(--color-accent-dark);
+  color: var(--color-text);
+  font-size: max(13px, calc(var(--card) * 0.15));
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.counting-number {
+  position: absolute;
+  top: calc(var(--card) * -0.08);
+  left: 0;
+  z-index: 1;
+  width: max(40px, calc(var(--card) * 0.4));
+  height: max(40px, calc(var(--card) * 0.4));
+  border-radius: 50%;
+  border: 4px solid var(--color-paper);
+  background: var(--color-primary);
+  box-shadow: var(--shadow-card);
+  color: #fff;
+  font-size: max(24px, calc(var(--card) * 0.26));
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  rotate: -8deg;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .counting-card {
+    animation: none;
+  }
 }
 
 /* Everything left below the head; a size container so the grid can be the largest square
@@ -1450,6 +1708,81 @@
 .sudoku-palette-item:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+/* おかね・すうどく in the 問題カード: the board fills the card (a size container) and its
+   coins, tray, cells and keys grow with it, so a tall phone shows a bigger board instead of
+   a small one with empty space around it (development-guidelines: use the whole screen). */
+.quiz-card > .money-board,
+.quiz-card > .sudoku-board {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  container-type: size;
+  justify-content: space-evenly;
+  /* space-evenly spreads any room left over; the fixed gap stays small for a short phone. */
+  gap: clamp(4px, 1vh, 12px);
+}
+
+.quiz-card > .money-board .money-target {
+  font-size: min(9cqh, 14cqw);
+  line-height: 1.1;
+}
+
+.quiz-card > .money-board .money-tray {
+  min-height: 13cqh;
+  max-width: none;
+}
+
+.quiz-card > .money-board .money-tray-empty {
+  font-size: 10cqh;
+}
+
+.quiz-card > .money-board .money-tray-total {
+  font-size: min(6cqh, 7cqw);
+}
+
+/* --per-row / --coin-h come from MoneyBoard: one row of up to 4, or two rows of 3. */
+.quiz-card > .money-board .money-palette {
+  --coin: min(var(--coin-h), calc((100cqw - (var(--per-row) - 1) * 10px) / var(--per-row)));
+  gap: 10px;
+  max-width: calc(var(--coin) * var(--per-row) + 10px * (var(--per-row) - 1));
+}
+
+.quiz-card > .money-board .money-palette-item {
+  width: var(--coin);
+  height: var(--coin);
+}
+
+.quiz-card > .sudoku-board {
+  --cell: min(calc((100cqw - 6px) / var(--n)), calc(58cqh / var(--n)));
+  --key: min(17cqh, 20cqw);
+}
+
+.quiz-card > .sudoku-board--classic {
+  --key: min(9cqh, 15cqw);
+}
+
+.quiz-card > .sudoku-board .sudoku-cell {
+  width: var(--cell);
+  height: var(--cell);
+}
+
+.quiz-card > .sudoku-board .sudoku-cell .sudoku-digit {
+  font-size: calc(var(--cell) * 0.55);
+}
+
+.quiz-card > .sudoku-board .sudoku-palette-item {
+  width: var(--key);
+  height: var(--key);
+}
+
+.quiz-card > .sudoku-board .sudoku-palette-item .sudoku-digit {
+  font-size: calc(var(--key) * 0.5);
+}
+
+.quiz-card > .sudoku-board--classic .sudoku-palette {
+  max-width: calc(var(--key) * 5 + 8px * 4);
 }
 
 /* Same clamp()/vh discipline as .money-board — see its comment. */

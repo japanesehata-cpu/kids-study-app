@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import type { SudokuQuestion } from '../domain/types'
 import type { SudokuMode } from '../domain/questionGenerators/sudoku'
 import { useI18n } from '../i18n/I18nContext'
@@ -74,7 +74,10 @@ export function SudokuBoard({ question, promptText, onComplete, onFailed, disabl
   }
 
   return (
-    <div className="sudoku-board">
+    <div
+      className={`sudoku-board ${question.mode === 'classic' ? 'sudoku-board--classic' : ''}`.trim()}
+      style={{ '--n': size } as CSSProperties}
+    >
       <p className="subtitle">{promptText}</p>
       <p className="sudoku-wrong-count">{t('sudokuWrongCount', { count: String(wrongCount), max: String(maxWrongGuesses) })}</p>
       <div

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import type { MoneyQuestion } from '../domain/types'
 import { getCoinById } from '../domain/moneyBank'
 import { useI18n } from '../i18n/I18nContext'
@@ -24,6 +24,16 @@ const MAX_WRONG_GUESSES = 5
  * running total exactly equals `targetAmount`. Mirrors SudokuBoard.tsx's
  * select→check→wrongCount→onFailed shape, minus the "select a cell first" step (there's
  * only one tray, so tapping a coin acts on it immediately). */
+/** In the board's own container units (.money-board fills the 問題カード), so coins grow
+ * with the phone instead of staying 44px on a tall screen. */
+const TRAY_COIN_SIZE = 'min(11cqh, 13cqw)'
+
+/** Up to 4 coins in one row; 5〜6 as two rows of 3, each coin as large as its row allows. */
+function paletteStyle(coins: number): CSSProperties {
+  const perRow = coins > 4 ? 3 : coins
+  return { '--per-row': perRow, '--coin-h': coins > 4 ? '12cqh' : '20cqh' } as CSSProperties
+}
+
 export function MoneyBoard({ question, promptText, onComplete, onFailed, disabled }: MoneyBoardProps) {
   const { t } = useI18n()
   const [trayCounts, setTrayCounts] = useState<Record<string, number>>({})
@@ -71,7 +81,7 @@ export function MoneyBoard({ question, promptText, onComplete, onFailed, disable
         {trayEntries.length === 0 ? (
           <span className="money-tray-empty">🪙</span>
         ) : (
-          trayEntries.map((id, i) => <WordIcon key={`${id}-${i}`} wordId={id} size={44} />)
+          trayEntries.map((id, i) => <WordIcon key={`${id}-${i}`} wordId={id} size={TRAY_COIN_SIZE} />)
         )}
       </div>
       <p className="money-tray-total">{t('moneyAmount', { amount: trayTotal })}</p>
@@ -83,7 +93,7 @@ export function MoneyBoard({ question, promptText, onComplete, onFailed, disable
       >
         {t('moneyResetButton')}
       </button>
-      <div className="money-palette">
+      <div className="money-palette" style={paletteStyle(question.paletteCoinIds.length)}>
         {question.paletteCoinIds.map((coinId) => (
           <button
             key={coinId}
@@ -93,7 +103,7 @@ export function MoneyBoard({ question, promptText, onComplete, onFailed, disable
             disabled={disabled}
             aria-label={coinId}
           >
-            <WordIcon wordId={coinId} size={44} />
+            <WordIcon wordId={coinId} size="82%" />
           </button>
         ))}
       </div>

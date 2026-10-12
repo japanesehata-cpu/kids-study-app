@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import type {
   AnswerRecord,
   ArithmeticQuestion,
@@ -54,7 +54,7 @@ import { MoneyBoard } from '../components/MoneyBoard'
 import { NumberPad } from '../components/NumberPad'
 import { OddOneOutScene } from '../components/OddOneOutScene'
 import { CharacterPortrait } from '../components/characters/CharacterPortrait'
-import { characterThemes } from '../components/characters/characterThemes'
+import { characterThemes, type CharacterTheme } from '../components/characters/characterThemes'
 import { CorrectCelebration } from '../components/CorrectCelebration'
 import { PeekingMascot, QuizProgressStars } from '../components/QuizFlourishes'
 import { CategoryHeader } from '../components/CategoryHeader'
@@ -453,187 +453,318 @@ function ArithmeticQuestionView({
   )
 }
 
-function EnglishQuestionView({
-  question,
-  listenPrompt,
-  lookPrompt,
-  voiceProfile,
-}: {
-  question: EnglishWordQuestion
-  listenPrompt: string
-  lookPrompt: string
-  voiceProfile: VoiceProfile
-}) {
-  if (question.mode === 'listenAndPick') {
-    return (
-      <div className="quiz-prompt-stack">
-        <p className="subtitle">{listenPrompt}</p>
-        <TtsButton
-          text={question.word}
-          lang="en-US"
-          label="listen"
-          size={96}
-          voiceProfile={voiceProfile}
-          cacheKey={`word-en-${question.wordId}`}
-        />
+type AutoSpeech = ReturnType<typeof computeAutoSpeech>
+
+/** 問題画面の3つの欄 (docs/functional-design.md 3.3): choice questions are laid out as a
+ * fixed-height 問題文の欄 (the prompt; it turns into the feedback once answered, so nothing
+ * below it moves), a 問いの欄 holding what is being asked as large as it fits, and a 答えの欄
+ * whose 2×2 buttons stretch to fill the rest. Boards (おかね, すうどく, まちがいさがし), the
+ * clock, □をもとめる, the number pad and なかまはずれ keep their own layouts. */
+function usesQuizLayout(q: Question): boolean {
+  if (isArithmetic(q)) return !q.blank && !usesNumberPad(q)
+  if (isLogic(q)) return q.kind !== 'oddOneOut'
+  return (
+    isHiragana(q) ||
+    isKatakana(q) ||
+    isKanji(q) ||
+    isAlphabet(q) ||
+    isCounting(q) ||
+    isEnglishSentence(q) ||
+    isEnglishWord(q)
+  )
+}
+
+/** Container units of .quiz-stimulus / .quiz-answers (both size containers), so each grows
+ * with the room its own slot actually has. */
+const BIG_SPEAKER_SIZE = 'min(80cqh, 50cqw)'
+const LAYOUT_ICON_SIZE = 'min(38cqh, 40cqw)'
+
+/** 問いの欄 : 答えの欄 when the question is only a sound: the speaker needs little room, the
+ * letters or pictures to choose from need a lot. */
+const LISTEN_SHARE: [number, number] = [7, 13]
+
+/** Letter questions' explanations are one short line (「こ」は「こま」の「こ」だよ), so their
+ * 問題文の欄 needs less height than a counting or English one. */
+const SHORT_HEAD = 'quiz-layout--short-head'
+
+/** A 問いの欄 whose content is limited by the width (2 counted pictures side by side, a row
+ * of apples, the きまり strip): it is only as tall as that content (up to 6/10 of the room
+ * below the 問題文の欄), and the 答えの欄 takes all the rest instead of a fixed share, so no
+ * empty band is left above and below the content. */
+const FIT_STIMULUS = 'quiz-layout--fit'
+
+/** English questions explain both the answer and the picked word (「"owl"は ふくろう…。えらんだ
+ * "sushi"は すし」), and はんたいことば can list two meanings — one line more than the rest. */
+const LONG_EXPLANATION = 'quiz-layout--long-explanation'
+
+/** The 問題文の欄 before answering: the category's character asks the question in a speech
+ * bubble — the same mascot-and-bubble row the feedback replaces it with, so the slot is
+ * filled both before and after answering. */
+function QuizPrompt({ text, speech, theme }: { text: string; speech?: ReactNode; theme: CharacterTheme }) {
+  return (
+    <div className="quiz-prompt">
+      <div className="quiz-feedback-row">
+        <CharacterPortrait theme={theme} mood="happy" size={120} className="quiz-feedback-portrait" />
+        <p className="quiz-prompt-bubble">{text}</p>
       </div>
-    )
+      {speech}
+    </div>
+  )
+}
+
+/** Rough on-screen width of a label in ems (kana/kanji ≈ 1, Latin and digits ≈ 0.62), for
+ * sizing the 答えの欄's text so the longest choice still fits its button on one line. */
+function labelWidthEm(label: string): number {
+  let width = 0
+  for (const ch of label) width += /[　-鿿＀-￯]/.test(ch) ? 1 : 0.62
+  return width
+}
+
+/** Apples above the equation, in one row when few (3 + 2 = ?) and in two rows when many
+ * (row 1: the first group, row 2: + the second), each as large as the row allows. */
+function ArithmeticStimulus({ question, lang }: { question: ArithmeticQuestion; lang: Lang }) {
+  const symbol = question.operator === 'addition' ? '+' : '−'
+  // ★4's round tens (20+30) set showVisual: false — that many apples would be absurd.
+  const visual = question.showVisual !== false
+  let rows: ReactNode[][] = []
+  let units = 1
+  if (visual && question.operator === 'addition') {
+    const apples = (n: number, from: number) =>
+      Array.from({ length: n }, (_, i) => <span key={from + i} className="apple">🍎</span>)
+    const plus = <span key="plus" className="apple-plus">+</span>
+    if (question.operandA + question.operandB + 1 <= 9) {
+      rows = [[...apples(question.operandA, 0), plus, ...apples(question.operandB, 100)]]
+      units = question.operandA + question.operandB + 1
+    } else {
+      rows = [apples(question.operandA, 0), [plus, ...apples(question.operandB, 100)]]
+      units = Math.max(question.operandA, question.operandB + 1)
+    }
+  } else if (visual) {
+    // Subtraction: all of operandA, the first operandB of them faded as taken away.
+    const all = Array.from({ length: question.operandA }, (_, i) => (
+      <span key={i} className={`apple ${i < question.operandB ? 'removed' : ''}`.trim()}>
+        🍎
+      </span>
+    ))
+    const perRow = question.operandA <= 8 ? question.operandA : Math.ceil(question.operandA / 2)
+    rows = perRow === question.operandA ? [all] : [all.slice(0, perRow), all.slice(perRow)]
+    units = perRow
   }
+  const appleSize = `min(calc(var(--stimulus-max) * ${rows.length === 1 ? 0.45 : 0.3}), calc(92cqw / ${units}))`
+
   return (
-    <div className="quiz-prompt-stack">
-      <p className="subtitle">{lookPrompt}</p>
-      <WordIcon wordId={question.wordId} size={140} />
+    <div className="arithmetic-stimulus">
+      {rows.length > 0 && (
+        <div className="apple-rows" style={{ '--apple': appleSize } as CSSProperties}>
+          {rows.map((row, i) => (
+            <div key={i} className="apple-row">
+              {row}
+            </div>
+          ))}
+        </div>
+      )}
+      {question.story ? (
+        <p className="story-text">{question.story[lang]}</p>
+      ) : (
+        <div className="equation-text">
+          {question.operandA} {symbol} {question.operandB} = ?
+        </div>
+      )}
     </div>
   )
 }
 
-/** Deliberately shows no picture — the whole point of this format is that the only way to
- * answer is to have understood the spoken English question (see the plan for this
- * feature: an earlier draft that showed a matching picture tested mostly noun
- * recognition instead of real listening comprehension). */
-function EnglishSentenceQuestionView({
-  question,
-  promptText,
-  voiceProfile,
-}: {
-  question: EnglishSentenceQuestion
-  promptText: string
-  voiceProfile: VoiceProfile
-}) {
+/** かぞえる: the counted things as big sticker cards (1 / 2 / 3 in a row, 4 as 2×2, 5 as 3+2),
+ * each popping in with its own 1, 2, 3… tag so the counting itself is shown, and the number
+ * as a big badge in the corner. */
+const COUNTING_GRID: Record<number, [number, number]> = { 1: [1, 1], 2: [2, 1], 3: [3, 1], 4: [2, 2], 5: [3, 2] }
+
+function CountingStimulus({ question }: { question: CountingQuestion }) {
+  const [cols, rows] = COUNTING_GRID[question.count] ?? [3, 2]
   return (
-    <div className="quiz-prompt-stack">
-      <p className="subtitle">{promptText}</p>
-      <TtsButton
-        text={question.question}
-        lang="en-US"
-        label="listen"
-        size={96}
-        voiceProfile={voiceProfile}
-        cacheKey={`sentence-${question.sentenceId}`}
-      />
+    <div className="counting-stage" style={{ '--cols': cols, '--rows': rows } as CSSProperties}>
+      <span className="counting-number">{question.count}</span>
+      <div className="counting-cards">
+        {Array.from({ length: question.count }, (_, i) => (
+          <span key={i} className="counting-card" style={{ '--i': i } as CSSProperties}>
+            <span className="counting-card-photo">
+              <WordIcon wordId={question.exampleWordId} size="100%" />
+            </span>
+            <span className="counting-tag">{i + 1}</span>
+          </span>
+        ))}
+      </div>
     </div>
   )
 }
 
-function HiraganaQuestionView({
-  question,
-  listenPrompt,
-  voiceProfile,
-}: {
-  question: HiraganaQuestion
-  listenPrompt: string
-  voiceProfile: VoiceProfile
-}) {
-  return (
-    <div className="quiz-prompt-stack">
-      <p className="subtitle">{listenPrompt}</p>
-      <TtsButton
-        text={hiraganaSpeechPhrase(getHiraganaById(question.charId))}
-        lang="ja-JP"
-        label="listen"
-        size={96}
-        voiceProfile={voiceProfile}
-        cacheKey={`hiragana-${question.charId}`}
-      />
-    </div>
+/** The 問題文の欄 and 問いの欄 of a usesQuizLayout question. */
+function quizLayoutParts(
+  question: Question,
+  {
+    t,
+    lang,
+    voiceProfile,
+    autoSpeech,
+    selected,
+    theme,
+  }: {
+    theme: CharacterTheme
+    t: (key: DictionaryKey, vars?: Record<string, string | number>) => string
+    lang: Lang
+    voiceProfile: VoiceProfile
+    autoSpeech: AutoSpeech
+    selected: Choice | null
+  },
+): { prompt: ReactNode; stimulus: ReactNode | null; share?: [number, number]; className?: string } {
+  const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
+  const promptSpeaker = (
+    <TtsButton
+      text={autoSpeech.text}
+      lang={autoSpeech.speechLang}
+      label="listen"
+      voiceProfile={voiceProfile}
+      cacheKey={autoSpeech.cacheKey}
+      parts={autoSpeech.parts}
+    />
   )
-}
-
-function KatakanaQuestionView({
-  question,
-  listenPrompt,
-  voiceProfile,
-}: {
-  question: KatakanaQuestion
-  listenPrompt: string
-  voiceProfile: VoiceProfile
-}) {
-  return (
-    <div className="quiz-prompt-stack">
-      <p className="subtitle">{listenPrompt}</p>
-      <TtsButton
-        text={katakanaSpeechPhrase(getKatakanaById(question.charId))}
-        lang="ja-JP"
-        label="listen"
-        size={96}
-        voiceProfile={voiceProfile}
-        cacheKey={`katakana-${question.charId}`}
-      />
-    </div>
+  const bigSpeaker = (text: string, speakLang: SpeechLang, cacheKey: string) => (
+    <TtsButton text={text} lang={speakLang} label="listen" size={BIG_SPEAKER_SIZE} voiceProfile={voiceProfile} cacheKey={cacheKey} />
   )
-}
 
-function KanjiQuestionView({
-  question,
-  listenPrompt,
-  voiceProfile,
-}: {
-  question: KanjiQuestion
-  listenPrompt: string
-  voiceProfile: VoiceProfile
-}) {
-  return (
-    <div className="quiz-prompt-stack">
-      <p className="subtitle">{listenPrompt}</p>
-      <TtsButton
-        text={kanjiSpeechPhrase(getKanjiById(question.charId))}
-        lang="ja-JP"
-        label="listen"
-        size={96}
-        voiceProfile={voiceProfile}
-        cacheKey={`kanji-${question.charId}`}
-      />
-    </div>
-  )
-}
-
-function AlphabetQuestionView({
-  question,
-  listenPrompt,
-  caseMatchPrompt,
-  voiceProfile,
-}: {
-  question: AlphabetQuestion
-  listenPrompt: string
-  caseMatchPrompt: string
-  voiceProfile: VoiceProfile
-}) {
-  if (question.kind === 'caseMatch') {
-    // Same speak-again affordance as the letterName view below — the question is already
-    // auto-spoken once on load (see computeAutoSpeech's isAlphabet branch, which doesn't
-    // distinguish kind), but caseMatch had no way to hear it a second time.
+  if (isArithmetic(question)) {
+    const { text } = equationSpeech(question, lang)
+    return {
+      prompt: (
+        <QuizPrompt
+          theme={theme}
+          text={t(question.operator === 'addition' ? 'additionPrompt' : 'subtractionPrompt')}
+          speech={<TtsButton text={text} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={autoSpeech.cacheKey} />}
+        />
+      ),
+      stimulus: <ArithmeticStimulus question={question} lang={lang} />,
+      className: FIT_STIMULUS,
+    }
+  }
+  if (isCounting(question)) {
+    // The counted pictures are the question itself.
+    return {
+      prompt: <QuizPrompt theme={theme} text={autoSpeech.text} speech={promptSpeaker} />,
+      stimulus: <CountingStimulus question={question} />,
+      className: FIT_STIMULUS,
+    }
+  }
+  if (isHiragana(question)) {
+    return {
+      prompt: <QuizPrompt theme={theme} text={t('hiraganaListenPrompt')} />,
+      stimulus: bigSpeaker(hiraganaSpeechPhrase(getHiraganaById(question.charId)), 'ja-JP', `hiragana-${question.charId}`),
+      share: LISTEN_SHARE,
+      className: SHORT_HEAD,
+    }
+  }
+  if (isKatakana(question)) {
+    return {
+      prompt: <QuizPrompt theme={theme} text={t('katakanaListenPrompt')} />,
+      stimulus: bigSpeaker(katakanaSpeechPhrase(getKatakanaById(question.charId)), 'ja-JP', `katakana-${question.charId}`),
+      share: LISTEN_SHARE,
+      className: SHORT_HEAD,
+    }
+  }
+  if (isKanji(question)) {
+    return {
+      prompt: <QuizPrompt theme={theme} text={t('kanjiListenPrompt')} />,
+      stimulus: bigSpeaker(kanjiSpeechPhrase(getKanjiById(question.charId)), 'ja-JP', `kanji-${question.charId}`),
+      share: LISTEN_SHARE,
+    }
+  }
+  if (isAlphabet(question)) {
     const entry = getAlphabetById(question.letterId)
-    return (
-      <div className="quiz-prompt-stack">
-        <p className="subtitle">{caseMatchPrompt}</p>
-        <HiraganaChar char={question.promptChar ?? ''} size={120} />
-        <TtsButton
-          text={alphabetSpeechPhrase(entry)}
-          lang="en-US"
-          label="listen"
-          size={72}
-          voiceProfile={voiceProfile}
-          cacheKey={`alphabet-letter-${question.letterId}`}
-        />
-      </div>
-    )
+    const cacheKey = `alphabet-letter-${question.letterId}`
+    if (question.kind === 'caseMatch') {
+      return {
+        prompt: (
+          <QuizPrompt
+            theme={theme}
+            text={t('alphabetCaseMatchPrompt')}
+            speech={<TtsButton text={alphabetSpeechPhrase(entry)} lang="en-US" label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />}
+          />
+        ),
+        stimulus: <HiraganaChar char={question.promptChar ?? ''} size="min(88cqh, 62cqw)" />,
+        className: SHORT_HEAD,
+      }
+    }
+    // See computeAutoSpeech's isAlphabet branch for why this speaks the mnemonic phrase.
+    return {
+      prompt: <QuizPrompt theme={theme} text={t('alphabetListenPrompt')} />,
+      stimulus: bigSpeaker(alphabetSpeechPhrase(entry), 'en-US', cacheKey),
+      share: LISTEN_SHARE,
+      className: SHORT_HEAD,
+    }
   }
-
-  // See computeAutoSpeech's isAlphabet branch for why this speaks the mnemonic phrase.
-  const entry = getAlphabetById(question.letterId)
-  return (
-    <div className="quiz-prompt-stack">
-      <p className="subtitle">{listenPrompt}</p>
-      <TtsButton
-        text={alphabetSpeechPhrase(entry)}
-        lang="en-US"
-        label="listen"
-        size={96}
-        voiceProfile={voiceProfile}
-        cacheKey={`alphabet-letter-${question.letterId}`}
-      />
-    </div>
-  )
+  if (isEnglishSentence(question)) {
+    // No picture on purpose: the only way to answer is to have understood the spoken
+    // English (a matching picture tested noun recognition instead of listening).
+    return {
+      prompt: <QuizPrompt theme={theme} text={t('englishSentencePrompt')} />,
+      stimulus: bigSpeaker(question.question, 'en-US', `sentence-${question.sentenceId}`),
+      share: LISTEN_SHARE,
+      className: LONG_EXPLANATION,
+    }
+  }
+  if (isEnglishWord(question)) {
+    if (question.mode === 'listenAndPick') {
+      return {
+        prompt: <QuizPrompt theme={theme} text={t('listenPrompt')} />,
+        stimulus: bigSpeaker(question.word, 'en-US', `word-en-${question.wordId}`),
+        share: LISTEN_SHARE,
+        className: LONG_EXPLANATION,
+      }
+    }
+    return {
+      prompt: <QuizPrompt theme={theme} text={t('lookPrompt')} />,
+      stimulus: <WordIcon wordId={question.wordId} size="min(94cqh, 78cqw)" />,
+      className: LONG_EXPLANATION,
+    }
+  }
+  if (isLogic(question)) {
+    const prompt = <QuizPrompt theme={theme} text={t(logicPromptKey(question))} speech={promptSpeaker} />
+    if (question.kind === 'pattern') {
+      // The trailing slot fills with the picked symbol once answered, instead of a static "?".
+      const slotState = selected === null ? '' : selected === question.answer ? 'correct' : 'incorrect'
+      return {
+        className: FIT_STIMULUS,
+        prompt,
+        stimulus: (
+          <div className="pattern-visual-row">
+            {question.sequence!.map((symbol, i) => (
+              <span key={i} className="pattern-visual-item">
+                {symbol}
+              </span>
+            ))}
+            <span className={`pattern-visual-item pattern-slot ${slotState}`.trim()}>
+              {selected !== null ? String(selected) : ''}
+            </span>
+          </div>
+        ),
+      }
+    }
+    if (question.kind === 'opposite') {
+      return {
+        // The explanation can list two meanings' pairs on their own lines (たかい ⇔ ひくい /
+        // やすい), one line more than other questions need on a small phone.
+        className: `${FIT_STIMULUS} ${LONG_EXPLANATION}`,
+        prompt,
+        stimulus: (
+          <p className="opposite-prompt-word" style={{ '--len': labelWidthEm(question.promptWord!) } as CSSProperties}>
+            {question.promptWord}
+          </p>
+        ),
+      }
+    }
+    // compare: the numbers to compare ARE the choices, so the 答えの欄 takes the whole card.
+    return { prompt, stimulus: null }
+  }
+  return { prompt: null, stimulus: null }
 }
 
 function logicPromptKey(question: LogicQuestion): DictionaryKey {
@@ -655,51 +786,6 @@ function shapesPromptText(
   }
   if (question.kind === 'countSides') return t('shapeCountSidesPrompt')
   return t('shapeNamePrompt')
-}
-
-function LogicQuestionView({
-  question,
-  promptText,
-  spokenText,
-  lang,
-  voiceProfile,
-  cacheKey,
-  selected,
-}: {
-  question: LogicQuestion
-  promptText: string
-  /** What the replay button says when it differs from the on-screen prompt (opposite: the
-   * screen shows the word big plus "の はんたいの いみは どれかな？", speech says it whole). */
-  spokenText?: string
-  lang: Lang
-  voiceProfile: VoiceProfile
-  cacheKey?: string
-  /** pattern only: fills the trailing slot with the picked symbol once answered, instead
-   * of a static "?" — see the plan's "ろんり（パターン）: 空きスロット表示" section. */
-  selected: Choice | null
-}) {
-  const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
-  const slotState = selected === null ? '' : selected === question.answer ? 'correct' : 'incorrect'
-
-  return (
-    <div className="quiz-prompt-stack">
-      {question.kind === 'pattern' && (
-        <div className="pattern-visual-row">
-          {question.sequence!.map((s, i) => (
-            <span key={i} className="pattern-visual-item">
-              {s}
-            </span>
-          ))}
-          <span className={`pattern-visual-item pattern-slot ${slotState}`.trim()}>
-            {selected !== null ? String(selected) : ''}
-          </span>
-        </div>
-      )}
-      {question.kind === 'opposite' && <p className="opposite-prompt-word">{question.promptWord}</p>}
-      <p className="subtitle">{promptText}</p>
-      <TtsButton text={spokenText ?? promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
-    </div>
-  )
 }
 
 function ClockQuestionView({
@@ -813,47 +899,6 @@ function ClockSetTimeView({
   )
 }
 
-function CountingQuestionView({
-  question,
-  promptText,
-  lang,
-  voiceProfile,
-  cacheKey,
-  answered,
-}: {
-  question: CountingQuestion
-  promptText: string
-  lang: Lang
-  voiceProfile: VoiceProfile
-  cacheKey?: string
-  answered: boolean
-}) {
-  const speechLang: SpeechLang = lang === 'ja' ? 'ja-JP' : 'en-US'
-  // One row, always: the icons share the width left beside the badge (count is 1-5, see
-  // questionGenerators/counting.ts), so a 5-icon row shrinks instead of wrapping to a second
-  // row — a wrapped row used to make the screen too tall once the feedback appeared.
-  const iconSize = `min(clamp(32px, 7vh, 64px), calc((100vw - 150px - ${(question.count - 1) * 6}px) / ${Math.max(question.count, 3)}))`
-
-  return (
-    <div className="quiz-prompt-stack">
-      <div className="counting-visual">
-        <span className="count-badge">{question.count}</span>
-        <div className="counting-icons">
-          {Array.from({ length: question.count }, (_, i) => (
-            <WordIcon key={i} wordId={question.exampleWordId} size={iconSize} />
-          ))}
-        </div>
-      </div>
-      <p className="subtitle">{promptText}</p>
-      {/* Same as the clock: nothing left to replay once answered, and hiding it makes room
-          for the feedback without shrinking the screen. */}
-      {!answered && (
-        <TtsButton text={promptText} lang={speechLang} label="listen" voiceProfile={voiceProfile} cacheKey={cacheKey} />
-      )}
-    </div>
-  )
-}
-
 /** pickShape (★1/★6): the prompt itself names the target shape, and the 4 choices are the
  * rendered shapes — no big stimulus icon here. pickName/countSides (★2-★5): one shape is
  * rendered as the stimulus and the prompt asks a fixed question about it. */
@@ -881,12 +926,12 @@ function ShapeQuestionView({
   )
 }
 
-function renderChoiceContent(question: Question, choice: Choice, lang: Lang, iconSize: number) {
+function renderChoiceContent(question: Question, choice: Choice, lang: Lang, iconSize: number | string) {
   if (isArithmetic(question)) return choice
   if (isLogic(question)) {
     if (question.kind === 'oddOneOut') return <WordIcon wordId={choice as string} size={iconSize} />
     if (question.kind === 'opposite') return choice
-    return <span style={{ fontSize: 40 }}>{choice}</span>
+    return <span className="choice-emoji">{choice}</span>
   }
   if (isHiragana(question)) {
     return <HiraganaChar char={getHiraganaById(choice as string).char} size={iconSize} />
@@ -915,7 +960,7 @@ function renderChoiceContent(question: Question, choice: Choice, lang: Lang, ico
     // shapes (production direction). pickName (★2/★4/★5)/countSides (★3): the choices
     // are name/number LABELS about the one shape already shown as the stimulus
     // (recognition direction) — see ShapeQuestionView.
-    if (question.kind === 'pickShape') return <ShapeIcon shape={choice as ShapeId} size={iconSize} />
+    if (question.kind === 'pickShape') return <ShapeIcon shape={choice as ShapeId} size={typeof iconSize === 'number' ? iconSize : 72} />
     if (question.kind === 'countSides') return <span style={{ fontSize: 40 }}>{choice}</span>
     return dictionary[SHAPE_NAME_KEY[choice as string]][lang]
   }
@@ -1276,6 +1321,30 @@ export function QuizScreen({
     </div>
   )
 
+  const layoutParts = usesQuizLayout(question)
+    ? quizLayoutParts(question, { t, lang, voiceProfile, autoSpeech, selected, theme: characterThemes[category] })
+    : null
+  // The longest text choice still fits its stretched button on one line.
+  const choiceFont = `min(26cqh, calc(40cqw / ${Math.max(
+    1.4,
+    ...choices.map((c) => {
+      const content = renderChoiceContent(question, c, lang, 0)
+      return typeof content === 'string' || typeof content === 'number' ? labelWidthEm(String(content)) + 0.4 : 1.4
+    }),
+  ).toFixed(2)}))`
+  const renderChoiceButtons = (iconSize: number | string) =>
+    choices.map((choice) => (
+      <button
+        key={String(choice)}
+        type="button"
+        className={`choice-button ${choiceState(choice)}`.trim()}
+        disabled={selected !== null}
+        onClick={() => handleSelect(choice)}
+      >
+        {renderChoiceContent(question, choice, lang, iconSize)}
+      </button>
+    ))
+
   return (
     <div className="screen">
       {celebrationKey > 0 && <CorrectCelebration key={celebrationKey} streak={streak} />}
@@ -1295,7 +1364,24 @@ export function QuizScreen({
             : ''
         }`.trim()}
       >
-        {isArithmetic(question) ? (
+        {layoutParts ? (
+          <div
+            className={`quiz-layout ${layoutParts.className ?? ''}`.trim()}
+            style={
+              layoutParts.share
+                ? ({ '--stimulus-share': layoutParts.share[0], '--answers-share': layoutParts.share[1] } as CSSProperties)
+                : undefined
+            }
+          >
+            <div className="quiz-head">{feedbackBlock || layoutParts.prompt}</div>
+            {layoutParts.stimulus && <div className="quiz-stimulus">{layoutParts.stimulus}</div>}
+            <div className="quiz-answers">
+              <div className="choice-grid choice-grid--fill" style={{ '--choice-font': choiceFont } as CSSProperties}>
+                {renderChoiceButtons(LAYOUT_ICON_SIZE)}
+              </div>
+            </div>
+          </div>
+        ) : isArithmetic(question) ? (
           <ArithmeticQuestionView
             question={question}
             lang={lang}
@@ -1307,16 +1393,20 @@ export function QuizScreen({
           // The pictures keep their place and size when the answer comes in: the prompt's
           // slot (reserved at a fixed height) turns into the feedback instead.
           <div className="oddoneout-layout">
-            <div className="oddoneout-head">
+            <div className="quiz-head">
               {feedbackBlock || (
-                <LogicQuestionView
-                  question={question}
-                  promptText={t(logicPromptKey(question))}
-                  spokenText={autoSpeech.text}
-                  lang={lang}
-                  voiceProfile={voiceProfile}
-                  cacheKey={autoSpeech.cacheKey}
-                  selected={selected}
+                <QuizPrompt
+                  theme={characterThemes[category]}
+                  text={t(logicPromptKey(question))}
+                  speech={
+                    <TtsButton
+                      text={autoSpeech.text}
+                      lang={autoSpeech.speechLang}
+                      label="listen"
+                      voiceProfile={voiceProfile}
+                      cacheKey={autoSpeech.cacheKey}
+                    />
+                  }
                 />
               )}
             </div>
@@ -1330,37 +1420,6 @@ export function QuizScreen({
               />
             </div>
           </div>
-        ) : isLogic(question) ? (
-          <LogicQuestionView
-            question={question}
-            promptText={t(logicPromptKey(question))}
-            spokenText={autoSpeech.text}
-            lang={lang}
-            voiceProfile={voiceProfile}
-            cacheKey={autoSpeech.cacheKey}
-            selected={selected}
-          />
-        ) : isHiragana(question) ? (
-          <HiraganaQuestionView
-            question={question}
-            listenPrompt={t('hiraganaListenPrompt')}
-            voiceProfile={voiceProfile}
-          />
-        ) : isKatakana(question) ? (
-          <KatakanaQuestionView
-            question={question}
-            listenPrompt={t('katakanaListenPrompt')}
-            voiceProfile={voiceProfile}
-          />
-        ) : isKanji(question) ? (
-          <KanjiQuestionView question={question} listenPrompt={t('kanjiListenPrompt')} voiceProfile={voiceProfile} />
-        ) : isAlphabet(question) ? (
-          <AlphabetQuestionView
-            question={question}
-            listenPrompt={t('alphabetListenPrompt')}
-            caseMatchPrompt={t('alphabetCaseMatchPrompt')}
-            voiceProfile={voiceProfile}
-          />
         ) : isClock(question) && question.kind === 'setTime' ? (
           <ClockSetTimeView
             key={question.id}
@@ -1391,15 +1450,6 @@ export function QuizScreen({
             onFailed={() => handleSelect(SPOT_DIFFERENCE_FAILED)}
             disabled={selected !== null}
           />
-        ) : isCounting(question) ? (
-          <CountingQuestionView
-            question={question}
-            promptText={autoSpeech.text}
-            lang={lang}
-            voiceProfile={voiceProfile}
-            cacheKey={autoSpeech.cacheKey}
-            answered={selected !== null}
-          />
         ) : isMoney(question) ? (
           <MoneyBoard
             key={question.id}
@@ -1417,57 +1467,36 @@ export function QuizScreen({
             voiceProfile={voiceProfile}
             cacheKey={autoSpeech.cacheKey}
           />
-        ) : isEnglishSentence(question) ? (
-          <EnglishSentenceQuestionView
-            question={question}
-            promptText={t('englishSentencePrompt')}
-            voiceProfile={voiceProfile}
-          />
-        ) : isSudoku(question) ? (
-          <SudokuBoard
-            key={question.id}
-            question={question}
-            promptText={t(question.mode === 'classic' ? 'sudokuPromptClassic' : 'sudokuPrompt')}
-            onComplete={() => handleSelect(SUDOKU_DONE)}
-            onFailed={() => handleSelect(SUDOKU_FAILED)}
-            disabled={selected !== null}
-          />
         ) : (
-          <EnglishQuestionView
-            question={question}
-            listenPrompt={t('listenPrompt')}
-            lookPrompt={t('lookPrompt')}
-            voiceProfile={voiceProfile}
-          />
+          isSudoku(question) && (
+            <SudokuBoard
+              key={question.id}
+              question={question}
+              promptText={t(question.mode === 'classic' ? 'sudokuPromptClassic' : 'sudokuPrompt')}
+              onComplete={() => handleSelect(SUDOKU_DONE)}
+              onFailed={() => handleSelect(SUDOKU_FAILED)}
+              disabled={selected !== null}
+            />
+          )
         )}
 
-        {!isOddOneOut && feedbackBlock}
+        {!isOddOneOut && !layoutParts && feedbackBlock}
 
-        <div className="quiz-answer-area">
-          {isArithmetic(question) && usesNumberPad(question) ? (
-            <NumberPad key={question.id} onSubmit={(n) => handleSelect(n)} disabled={selected !== null} />
-          ) : (
-            !isOddOneOut &&
-            !isSpotDifference(question) &&
-            !isSudoku(question) &&
-            !isMoney(question) &&
-            !(isClock(question) && question.kind === 'setTime') && (
-              <div className="choice-grid">
-                {choices.map((choice) => (
-                  <button
-                    key={String(choice)}
-                    type="button"
-                    className={`choice-button ${choiceState(choice)}`.trim()}
-                    disabled={selected !== null}
-                    onClick={() => handleSelect(choice)}
-                  >
-                    {renderChoiceContent(question, choice, lang, choiceIconSize)}
-                  </button>
-                ))}
-              </div>
-            )
-          )}
-        </div>
+        {!layoutParts && (
+          <div className="quiz-answer-area">
+            {isArithmetic(question) && usesNumberPad(question) ? (
+              <NumberPad key={question.id} onSubmit={(n) => handleSelect(n)} disabled={selected !== null} />
+            ) : (
+              !isOddOneOut &&
+              !isSpotDifference(question) &&
+              !isSudoku(question) &&
+              !isMoney(question) &&
+              !(isClock(question) && question.kind === 'setTime') && (
+                <div className="choice-grid">{renderChoiceButtons(choiceIconSize)}</div>
+              )
+            )}
+          </div>
+        )}
       </div>
 
       {/* Always laid out, hidden until answered: its space is reserved from the start so

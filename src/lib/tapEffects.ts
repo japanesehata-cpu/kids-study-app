@@ -3,7 +3,7 @@ import { playTapSfx } from './sfx'
 /* Two tiny touches on every tap, wired once from main.tsx:
  *  - a few ★ sparkles scatter from the spot the finger touched (0.45s, pure CSS, in a
  *    layer outside FitToViewport so they're never scaled or clipped);
- *  - ordinary buttons go "ぽん" (only while 🎵 is on — the same switch silences both).
+ *  - ordinary buttons go "ぽん" (silenced, like every sound, by the device's silent mode).
  *    Answer choices and anything that already plays its own sound are skipped. */
 
 const SPARKLE_COLORS = ['#ff7eb6', '#ffd166', '#7bdff2', '#b388ff']

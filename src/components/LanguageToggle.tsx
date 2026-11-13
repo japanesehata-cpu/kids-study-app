@@ -1,7 +1,7 @@
 import { useI18n } from '../i18n/I18nContext'
 
-/* Flags only (the active one in full colour), so it fits on one row with Home's 🎵 and ⚙️
- * buttons even on a narrow phone. */
+/* Flags only (the active one in full colour), so it fits on one row with Home's ⚙️
+ * button even on a narrow phone. */
 export function LanguageToggle() {
   const { lang, toggleLang, t } = useI18n()
 

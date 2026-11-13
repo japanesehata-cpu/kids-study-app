@@ -217,26 +217,26 @@ function stop(): void {
  * otherwise on the very first touch/click/key anywhere. Also pauses in the background. */
 export function initBgm(): void {
   if (typeof window === 'undefined') return
-  // iOS mutes Web Audio while the ring/silent switch is on silent — music, chimes and the
-  // pre-recorded voice (tts.ts plays it through this same context) all went quiet. A
-  // 'playback' session plays like a media app instead (Safari 16.4+; ignored elsewhere).
+  // Spec (F-08): silent while the device is in silent/manner mode, audible otherwise. An
+  // 'ambient' session makes everything on the page — Web Audio and the <audio> fallback
+  // alike — follow the iOS ring/silent switch the same way (Safari 16.4+; ignored
+  // elsewhere). The earlier 'playback' type ignored the switch, and on iOS an <audio>
+  // element playing under it could knock the shared Web Audio context into 'interrupted',
+  // after which no voice played at all.
   const session = (navigator as unknown as { audioSession?: { type: string } }).audioSession
-  if (session) session.type = 'playback'
+  if (session) session.type = 'ambient'
 
   const UNLOCK_EVENTS = ['pointerdown', 'mousedown', 'touchstart', 'pointerup', 'touchend', 'click', 'keydown'] as const
-  const disarm = () => {
-    for (const type of UNLOCK_EVENTS) window.removeEventListener(type, unlock, true)
-  }
   const unlock = () => {
-    const ctx = getContext() // resumes the context inside the gesture
+    const ctx = getContext() // resumes the context inside the gesture if it isn't running
     if (!ctx) return
     unlocked = true
     start()
-    if (ctx.state === 'running') disarm()
   }
   // Which events count as a user activation differs by browser and input (iOS only lets
   // touchend/click start audio; desktop Chrome already allows it on mousedown), so listen
-  // for all of them and stop at the first one that actually got the context running.
+  // for all of them. They stay armed for good: the device can stop the context at any time
+  // (a call, another app, the screen locking), and the next tap must bring sound back.
   for (const type of UNLOCK_EVENTS) window.addEventListener(type, unlock, true)
 
   // Autoplay attempt: resume() succeeds without a gesture when the browser's autoplay
@@ -247,17 +247,25 @@ export function initBgm(): void {
       if (ctx.state !== 'running') return
       unlocked = true
       start()
-      disarm()
     }, () => {})
     ctx.addEventListener('statechange', () => {
       if (ctx.state === 'running' && !unlocked) unlock()
     })
   }
 
+  // Coming back to the app (tab switch, unlock, back/forward cache): try to restart sound
+  // right away; where the browser insists on a gesture, the tap listeners above finish it.
+  const resumeIfVisible = () => {
+    if (document.hidden) return
+    getContext()
+    start()
+  }
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) stop()
-    else start()
+    else resumeIfVisible()
   })
+  window.addEventListener('pageshow', resumeIfVisible)
+  window.addEventListener('focus', resumeIfVisible)
 }
 
 export function isBgmEnabled(): boolean {

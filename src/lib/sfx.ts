@@ -5,9 +5,24 @@ export function getContext(): AudioContext | null {
   if (typeof window === 'undefined') return null
   const AudioContextClass = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
   if (!AudioContextClass) return null
-  if (!sharedContext) sharedContext = new AudioContextClass()
-  if (sharedContext.state === 'suspended') void sharedContext.resume()
+  if (!sharedContext || sharedContext.state === 'closed') sharedContext = new AudioContextClass()
+  // Not just 'suspended': iOS Safari parks the context in 'interrupted' after a call, Siri,
+  // another app's audio or a screen lock, and it never comes back on its own.
+  if (sharedContext.state !== 'running') void sharedContext.resume().catch(() => {})
   return sharedContext
+}
+
+/** Like getContext(), but waits briefly for a stopped context to start again (a resume
+ * kicked off by the latest tap or by returning to the app). Null if it doesn't. */
+export async function getRunningContext(timeoutMs = 400): Promise<AudioContext | null> {
+  const ctx = getContext()
+  if (!ctx) return null
+  if (ctx.state === 'running') return ctx
+  await Promise.race([
+    ctx.resume().catch(() => {}),
+    new Promise((resolve) => setTimeout(resolve, timeoutMs)),
+  ])
+  return (ctx.state as string) === 'running' ? ctx : null
 }
 
 function playTone(ctx: AudioContext, freq: number, startOffset: number, duration: number, peakVolume: number): void {

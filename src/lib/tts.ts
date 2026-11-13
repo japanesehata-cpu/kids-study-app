@@ -1,5 +1,5 @@
 import { setBgmDucked } from './bgm'
-import { getContext } from './sfx'
+import { getRunningContext } from './sfx'
 import { isLocalDevHost, isVoicevoxAvailable, resolveVoicevoxSpeakerId, synthesizeVoicevox } from './voicevox'
 
 export type SpeechLang = 'ja-JP' | 'en-US'
@@ -172,8 +172,9 @@ const AUDIO_CACHE_BASE = `${import.meta.env.BASE_URL}audio`
  * any tap it can start sounds at any time. Resolves true if it played (or was superseded),
  * false if the file doesn't exist / couldn't be decoded, null if Web Audio isn't usable yet. */
 async function playCachedWithWebAudio(url: string, token: number): Promise<boolean | null> {
-  const ctx = getContext()
-  if (!ctx || ctx.state !== 'running') return null
+  const ctx = await getRunningContext()
+  if (!ctx) return null
+  if (token !== callToken) return true
   let buffer: AudioBuffer
   try {
     const res = await fetch(url)
@@ -188,7 +189,13 @@ async function playCachedWithWebAudio(url: string, token: number): Promise<boole
   source.connect(ctx.destination)
   currentSource = source
   await new Promise<void>((resolve) => {
-    source.onended = () => resolve()
+    // If the device stops the context mid-phrase, 'ended' never fires — don't let that
+    // hold up the rest of a sentence (or the BGM duck) forever.
+    const guard = setTimeout(resolve, (buffer.duration + 1.5) * 1000)
+    source.onended = () => {
+      clearTimeout(guard)
+      resolve()
+    }
     source.start()
   })
   if (currentSource === source) currentSource = null

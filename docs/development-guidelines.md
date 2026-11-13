@@ -3,6 +3,7 @@
 前提：[architecture.md](./architecture.md)、[repository-structure.md](./repository-structure.md)。
 
 ## 1. 開発環境のセットアップ
+Node.js は 24 以上を使う（テストで使う jsdom が Node 22.22／24.15 以上を求めるため。GitHub Actions も 24 で動かす）。
 ```bash
 npm install
 npm run dev          # http://localhost:5173/kids-study-app/

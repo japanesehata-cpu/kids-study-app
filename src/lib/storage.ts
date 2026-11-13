@@ -1,5 +1,6 @@
 const PROGRESS_KEY = 'manabi-friends:progress:v1'
 const LANG_KEY = 'manabi-friends:lang:v1'
+const ERROR_LOG_KEY = 'manabi-friends:errors:v1'
 // Keys the app no longer reads (the Home "last quiz" bubble and the BGM on/off switch were
 // removed) — deleted on start so the phone keeps only the data docs/functional-design.md lists.
 const RETIRED_KEYS = ['manabi-friends:homeFeedback:v1', 'manabi-friends:bgm:v1']
@@ -34,6 +35,14 @@ export function loadLang(): string | null {
 
 export function saveLang(lang: string): void {
   writeRaw(LANG_KEY, lang)
+}
+
+export function loadErrorLogJson(): string | null {
+  return readRaw(ERROR_LOG_KEY)
+}
+
+export function saveErrorLogJson(json: string): void {
+  writeRaw(ERROR_LOG_KEY, json)
 }
 
 export function clearRetiredData(): void {

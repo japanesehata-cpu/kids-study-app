@@ -39,7 +39,7 @@ import {
   buildMoneyFailedFeedback,
 } from '../domain/feedbackMessages'
 import { buildExplanation } from '../domain/explanations'
-import { speak, speakSequence, type SpeechLang, type SpeechPart, type VoiceProfile } from '../lib/tts'
+import { preloadSpeech, speak, speakSequence, type SpeechLang, type SpeechPart, type VoiceProfile } from '../lib/tts'
 import { playCorrectSfx, playIncorrectSfx } from '../lib/sfx'
 import { useI18n } from '../i18n/I18nContext'
 import { dictionary, type Lang, type DictionaryKey } from '../i18n/dictionary'
@@ -1010,6 +1010,13 @@ function renderChoiceContent(question: Question, choice: Choice, lang: Lang, ico
 /** Shown/spoken when the answer was wrong (see buildFeedbackMessage's `{answer}` segment).
  * An if-chain rather than a nested ternary — the ternary version accreted a new level with
  * every category this session added and became genuinely error-prone to extend correctly. */
+/** Word pictures the next question will show, to fetch ahead of time. */
+function nextQuestionWordImages(q: Question): string[] {
+  if (isEnglishWord(q)) return [q.wordId, ...q.choiceWordIds]
+  if (isEnglishSentence(q)) return q.choiceWordIds
+  return []
+}
+
 function computeCorrectAnswerLabel(question: Question, lang: Lang): string {
   if (isArithmetic(question)) return String(question.blank ? question[question.blank] : question.answer)
   if (isLogic(question)) {
@@ -1206,6 +1213,22 @@ export function QuizScreen({
       ? `word-en-${question.correctWordId}`
       : undefined
 
+  // While this question is on screen, fetch what comes next (F-03): the correct answer's
+  // voice (said on a wrong answer), and the next question's opening speech and pictures —
+  // so neither waits on the network after the child taps.
+  useEffect(() => {
+    const ownAnswer = lang === 'ja' ? (computeAnswerSpeech(question) ?? []).map((p) => p.cacheKey) : []
+    preloadSpeech([answerCacheKey, ...ownAnswer])
+    const next = questions[index + 1]
+    if (!next) return
+    const nextSpeech = computeAutoSpeech(next, lang, t)
+    preloadSpeech([nextSpeech.cacheKey, ...(nextSpeech.parts ?? []).map((p) => p.cacheKey)])
+    for (const wordId of nextQuestionWordImages(next)) {
+      new Image().src = `${import.meta.env.BASE_URL}images/words/${wordId}.png`
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [question, lang])
+
   function handleSelect(choice: Choice) {
     if (selected !== null || answeredIndexRef.current === index) return
     answeredIndexRef.current = index
@@ -1386,7 +1409,7 @@ export function QuizScreen({
     <div className="screen">
       {celebrationKey > 0 && <CorrectCelebration key={celebrationKey} streak={streak} />}
       {index > 0 && <PeekingMascot key={index} theme={characterThemes[category]} />}
-      <ScreenTopBar onBack={onExit} onHome={onHome}>
+      <ScreenTopBar onBack={onExit} onHome={onHome} confirmLeave={answers.length > 0}>
         <CategoryHeader category={category} />
       </ScreenTopBar>
       <QuizProgressStars total={questions.length} index={index} answers={answers} label={t('quizProgress', { current: index + 1, total: questions.length })} />

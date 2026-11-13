@@ -1,5 +1,5 @@
 import { setBgmDucked } from './bgm'
-import { getRunningContext } from './sfx'
+import { getContext, getRunningContext } from './sfx'
 import { isLocalDevHost, isVoicevoxAvailable, resolveVoicevoxSpeakerId, synthesizeVoicevox } from './voicevox'
 
 export type SpeechLang = 'ja-JP' | 'en-US'
@@ -175,14 +175,8 @@ async function playCachedWithWebAudio(url: string, token: number): Promise<boole
   const ctx = await getRunningContext()
   if (!ctx) return null
   if (token !== callToken) return true
-  let buffer: AudioBuffer
-  try {
-    const res = await fetch(url)
-    if (!res.ok) return false
-    buffer = await ctx.decodeAudioData(await res.arrayBuffer())
-  } catch {
-    return false
-  }
+  const buffer = await loadBuffer(url)
+  if (!buffer) return false
   if (token !== callToken) return true
   const source = ctx.createBufferSource()
   source.buffer = buffer
@@ -202,14 +196,48 @@ async function playCachedWithWebAudio(url: string, token: number): Promise<boole
   return true
 }
 
+// Decoded cached files, so a phrase heard before (the feedback pieces repeat constantly) or
+// fetched ahead of time by preloadSpeech() starts the instant it's asked for instead of after
+// a fetch + decode. Kept small: a decoded second of speech is ~100KB.
+const BUFFER_CACHE_CAP = 40
+const bufferCache = new Map<string, Promise<AudioBuffer | null>>()
+
+function loadBuffer(url: string): Promise<AudioBuffer | null> {
+  const hit = bufferCache.get(url)
+  if (hit) {
+    // refresh its place as most recently used
+    bufferCache.delete(url)
+    bufferCache.set(url, hit)
+    return hit
+  }
+  const ctx = getContext()
+  if (!ctx) return Promise.resolve(null)
+  const pending = fetch(url)
+    .then(async (res) => (res.ok ? ctx.decodeAudioData(await res.arrayBuffer()) : null))
+    .catch(() => {
+      // a network hiccup — let the next attempt try again instead of remembering a failure
+      bufferCache.delete(url)
+      return null
+    })
+  bufferCache.set(url, pending)
+  while (bufferCache.size > BUFFER_CACHE_CAP) bufferCache.delete(bufferCache.keys().next().value!)
+  return pending
+}
+
+/** Fetches and decodes these pre-rendered phrases now, so they play without delay when
+ * spoken later (docs/functional-design.md F-03: the next question, the correct answer). */
+export function preloadSpeech(cacheKeys: (string | undefined)[]): void {
+  for (const key of cacheKeys) if (key) void loadBuffer(`${AUDIO_CACHE_BASE}/${key}.wav`)
+}
+
 /** Resolves true if the cached file played, false if it doesn't exist / failed to load. */
-async function speakWithCachedFile(cacheKey: string, token: number): Promise<boolean> {
-  if (token !== callToken) return true
+async function speakWithCachedFile(cacheKey: string, token: number): Promise<SpeechRoute | null> {
+  if (token !== callToken) return 'superseded'
   const url = `${AUDIO_CACHE_BASE}/${cacheKey}.wav`
   const viaWebAudio = await playCachedWithWebAudio(url, token)
   if (viaWebAudio !== null) {
     if (!viaWebAudio) logFallback('cached file missing or undecodable', cacheKey)
-    return viaWebAudio
+    return viaWebAudio ? 'cached' : null
   }
   // Before the first tap has unlocked the audio context (e.g. the very first sound, played
   // from inside that tap's own handler): an <audio> element, which IS allowed there.
@@ -222,7 +250,48 @@ async function speakWithCachedFile(cacheKey: string, token: number): Promise<boo
   })
   if (currentAudio === audio) currentAudio = null
   if (!played) logFallback('<audio> playback failed', cacheKey)
-  return played
+  return played ? 'cached-element' : null
+}
+
+/** How one speak() call ended up sounding — shown on the parent screen's diagnostics so a
+ * "the voice didn't play" report can be pinned down on the phone itself (F-12). */
+export type SpeechRoute = 'cached' | 'cached-element' | 'voicevox' | 'local' | 'webspeech' | 'superseded' | 'unsupported'
+export interface SpeechLogEntry {
+  at: number
+  text: string
+  route: SpeechRoute
+  /** the AudioContext state when the phrase was asked for */
+  contextState: string
+}
+const SPEECH_LOG_CAP = 20
+const speechLog: SpeechLogEntry[] = []
+
+function logSpeech(text: string, route: SpeechRoute, contextState: string): void {
+  speechLog.push({ at: Date.now(), text: text.slice(0, 40), route, contextState })
+  if (speechLog.length > SPEECH_LOG_CAP) speechLog.shift()
+}
+
+export function getSpeechLog(): readonly SpeechLogEntry[] {
+  return speechLog
+}
+
+/** A snapshot of the audio pipeline for the diagnostics panel. */
+export function getAudioStatus(): { contextState: string; audioSession: string; webSpeech: boolean } {
+  const session = (navigator as unknown as { audioSession?: { type: string } }).audioSession
+  return {
+    contextState: getContext()?.state ?? 'unavailable',
+    audioSession: session?.type ?? 'unsupported',
+    webSpeech: isTtsSupported(),
+  }
+}
+
+/** Stops whatever is being said right now (and any sentence still queued behind it) —
+ * used when the screen changes, so the previous screen's voice doesn't run on (F-08). */
+export function stopSpeaking(): void {
+  callToken++
+  if (isTtsSupported()) window.speechSynthesis.cancel()
+  stopCurrentPlayback()
+  setBgmDucked(false)
 }
 
 /** Dev aid: every time a phrase can't use its pre-rendered file and drops to a live engine
@@ -306,8 +375,10 @@ export async function speak(
   // BGM dips for as long as anything is being said. Only the latest call un-ducks — a
   // superseded call's tail end must not bring the music back up mid-sentence of the newer one.
   setBgmDucked(true)
+  const contextState = getContext()?.state ?? 'unavailable'
   try {
-    await speakTiers(text, lang, profile, cacheKey, token)
+    const route = await speakTiers(text, lang, profile, cacheKey, token)
+    logSpeech(text, token === callToken ? route : 'superseded', contextState)
   } finally {
     if (token === callToken) setBgmDucked(false)
   }
@@ -319,28 +390,30 @@ async function speakTiers(
   profile: VoiceProfile,
   cacheKey: string | undefined,
   token: number,
-): Promise<void> {
+): Promise<SpeechRoute> {
   if (cacheKey) {
-    if (token !== callToken) return
-    const played = await speakWithCachedFile(cacheKey, token)
-    if (played) return
+    if (token !== callToken) return 'superseded'
+    const route = await speakWithCachedFile(cacheKey, token)
+    if (route) return route
   } else if (lang === 'ja-JP') {
     logFallback('no pre-rendered audio for', text)
   }
 
   if (lang === 'ja-JP' && profile.voicevoxSpeaker !== undefined && (await isVoicevoxAvailable())) {
-    if (token !== callToken) return
+    if (token !== callToken) return 'superseded'
     const { name, style } = profile.voicevoxSpeaker
     const played = await speakWithVoicevox(text, token, name, style)
-    if (played) return
+    if (played) return 'voicevox'
   }
 
   if (await checkLocalVoiceAvailable(lang)) {
-    if (token !== callToken) return
+    if (token !== callToken) return 'superseded'
     const played = await speakWithLocalVoice(text, token, profile, lang)
-    if (played) return
+    if (played) return 'local'
   }
 
-  if (token !== callToken) return
+  if (token !== callToken) return 'superseded'
+  if (!isTtsSupported()) return 'unsupported'
   await speakWithWebSpeech(text, lang, profile)
+  return 'webspeech'
 }

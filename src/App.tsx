@@ -28,6 +28,8 @@ import { FitToViewport } from './components/FitToViewport'
 import { FloatingBackdrop } from './components/FloatingBackdrop'
 import { AppErrorBoundary } from './components/AppErrorBoundary'
 import { setBgmMode } from './lib/bgm'
+import { stopSpeaking } from './lib/tts'
+import { setAtSafePoint } from './lib/appUpdate'
 import { lastPointer } from './lib/pointer'
 
 // Screens where the child is answering or writing — BGM drops to a quiet background level
@@ -85,6 +87,7 @@ function AppContent() {
 
   useEffect(() => {
     setBgmMode(FOCUS_SCREENS.has(screen.name) ? 'focus' : 'normal')
+    setAtSafePoint(screen.name === 'home')
   }, [screen.name])
 
   // A double tap on any navigation button (a level, ←, ⌂, a result-screen button) used to
@@ -100,6 +103,16 @@ function AppContent() {
   // from the right, back from the left, and leaving Home "opens" the new screen out of the
   // card that was tapped. Set before paint so the very first frame already uses it.
   const navKindRef = useRef<'forward' | 'back' | 'open' | 'swap'>('swap')
+  // The previous screen's voice stops the moment the screen changes (F-08). A layout effect,
+  // so it runs before the new screen's own passive effects start that screen's speech.
+  const firstScreenRef = useRef(true)
+  useLayoutEffect(() => {
+    if (firstScreenRef.current) {
+      firstScreenRef.current = false
+      return
+    }
+    stopSpeaking()
+  }, [screen])
   useLayoutEffect(() => {
     const el = document.querySelector<HTMLElement>('.fit-viewport-inner > .screen')
     if (!el) return

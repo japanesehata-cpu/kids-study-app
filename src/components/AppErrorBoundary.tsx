@@ -1,5 +1,6 @@
 import { Component, type ReactNode } from 'react'
 import { useI18n } from '../i18n/I18nContext'
+import { recordError } from '../lib/errorLog'
 
 interface Props {
   children: (resetKey: number) => ReactNode
@@ -23,6 +24,7 @@ export class AppErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: unknown) {
     console.error('AppErrorBoundary caught', error)
+    recordError('render', error)
   }
 
   render() {

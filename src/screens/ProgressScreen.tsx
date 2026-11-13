@@ -2,6 +2,7 @@ import type { ProgressState } from '../domain/types'
 import { CATEGORY_META } from '../domain/categoryMeta'
 import { useI18n } from '../i18n/I18nContext'
 import { ScreenTopBar } from '../components/ScreenTopBar'
+import { DiagnosticsPanel } from '../components/DiagnosticsPanel'
 
 interface ProgressScreenProps {
   progress: ProgressState
@@ -49,6 +50,8 @@ export function ProgressScreen({ progress, onBack }: ProgressScreenProps) {
           )
         })}
       </div>
+
+      <DiagnosticsPanel />
 
       {/* Material credits live here, on the parent-only screen, rather than under every
           child-facing trace canvas (docs/functional-design.md 3.10). */}

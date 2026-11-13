@@ -70,9 +70,38 @@
 }
 
 .top-bar-nav {
+  position: relative;
   display: flex;
   gap: 8px;
   flex-shrink: 0;
+}
+
+/* First tap on ← / ⌂ during a quiz (F-03): the button wobbles and a bubble says a second
+   tap is needed. Not tied to "reduce motion" — it's short and is the whole message. */
+.icon-button.nav-button-armed {
+  animation: nav-armed-wobble 0.5s ease-in-out infinite;
+  background: var(--color-accent);
+}
+
+@keyframes nav-armed-wobble {
+  0%, 100% { rotate: 0deg; }
+  25% { rotate: -10deg; }
+  75% { rotate: 10deg; }
+}
+
+.nav-confirm-bubble {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  padding: 6px 12px;
+  border-radius: 14px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  font-size: clamp(14px, 2.2vh, 18px);
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 .icon-button.nav-button {
@@ -2550,4 +2579,34 @@
 .credits-panel p {
   font-size: 13px;
   color: var(--color-text-soft);
+}
+
+/* Parent-only diagnostics (F-12): plain, small, selectable so it can be copied into a report. */
+.diagnostics-panel {
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-text-soft);
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.diagnostics-panel p {
+  margin: 0;
+  word-break: break-all;
+}
+
+.diagnostics-subtitle {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+.diagnostics-list {
+  margin: 0;
+  padding-left: 18px;
+  max-height: 180px;
+  overflow-y: auto;
+  touch-action: pan-y;
+  word-break: break-all;
 }

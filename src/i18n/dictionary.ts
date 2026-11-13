@@ -299,6 +299,7 @@ export const dictionary = {
   resultBestStreak: { ja: 'さいこうきろく：{streak}もんれんぞく せいかい！', en: 'Best streak: {streak} in a row!' },
   tryAgainButton: { ja: 'もういちど', en: 'Try again' },
   backHomeButton: { ja: 'ホームへ', en: 'Back home' },
+  leaveConfirm: { ja: 'もういちど おすと やめるよ', en: 'Tap again to stop' },
   backButton: { ja: 'もどる', en: 'Back' },
 
   subSkillAdditionNoCarry: { ja: 'くりあがりなしのたしざん', en: 'addition without carrying' },
@@ -404,6 +405,19 @@ export const dictionary = {
   progressAccuracy: { ja: 'ちょくきん せいかいりつ', en: 'Recent accuracy' },
   creditsTitle: { ja: 'クレジット', en: 'Credits' },
   progressNoData: { ja: 'まだきろくがないよ', en: 'No records yet' },
+
+  // Diagnostics on the parent-only progress screen (F-12) — kanji allowed here.
+  diagTitle: { ja: '診断', en: 'Diagnostics' },
+  diagVersion: { ja: '版: {version}（{built} ビルド）', en: 'Version: {version} (built {built})' },
+  diagAudio: { ja: '音: {state} ／ マナーモード対応: {session} ／ 音声合成: {webSpeech}', en: 'Audio: {state} / silent-mode handling: {session} / speech synthesis: {webSpeech}' },
+  diagAudioTest: { ja: '音のテスト', en: 'Test sound' },
+  diagSpeechLogTitle: { ja: '直近の読み上げ', en: 'Recent speech' },
+  diagSpeechLogEmpty: { ja: 'まだ読み上げていません', en: 'Nothing spoken yet' },
+  diagErrorLogTitle: { ja: 'エラーの記録', en: 'Error log' },
+  diagErrorLogEmpty: { ja: 'エラーはありません', en: 'No errors' },
+  diagErrorLogClear: { ja: '記録を消す', en: 'Clear log' },
+  diagYes: { ja: 'あり', en: 'yes' },
+  diagNo: { ja: 'なし', en: 'no' },
 
   greetMorning: { ja: 'おはよう！ きょうも いっしょに がんばろうね！', en: "Good morning! Let's do our best together today!" },
   greetDay: { ja: 'こんにちは！ きょうは なにを して あそぶ？', en: 'Hello! What shall we play today?' },

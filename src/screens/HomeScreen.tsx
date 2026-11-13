@@ -8,7 +8,6 @@ import { getContext } from '../lib/sfx'
 import { CharacterPortrait } from '../components/characters/CharacterPortrait'
 import { characterThemes } from '../components/characters/characterThemes'
 import { LanguageToggle } from '../components/LanguageToggle'
-import { isBgmEnabled, setBgmEnabled } from '../lib/bgm'
 
 interface HomeScreenProps {
   onSelectCategory: (category: Category) => void
@@ -88,7 +87,6 @@ export function HomeScreen({
 }: HomeScreenProps) {
   const { t, lang } = useI18n()
   const [atEnd, setAtEnd] = useState(false)
-  const [bgmOn, setBgmOn] = useState(isBgmEnabled)
   const showcaseRef = useRef<HTMLDivElement>(null)
 
   // Hides the "swipe for more" fade once there's nothing left to scroll to — both once the
@@ -164,18 +162,6 @@ export function HomeScreen({
         <h1 className="app-title">{t('appTitle')}</h1>
         <div className="top-bar-controls">
           <LanguageToggle />
-          <button
-            type="button"
-            className={`icon-button icon-button-small ${bgmOn ? '' : 'icon-button-off'}`.trim()}
-            aria-label={t(bgmOn ? 'bgmOnLabel' : 'bgmOffLabel')}
-            aria-pressed={bgmOn}
-            onClick={() => {
-              setBgmEnabled(!bgmOn)
-              setBgmOn(!bgmOn)
-            }}
-          >
-            🎵
-          </button>
           <button
             type="button"
             className="icon-button icon-button-small"

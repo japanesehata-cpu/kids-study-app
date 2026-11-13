@@ -1,4 +1,3 @@
-import { isBgmEnabled } from './bgm'
 import { playTapSfx } from './sfx'
 
 /* Two tiny touches on every tap, wired once from main.tsx:
@@ -52,7 +51,7 @@ export function initTapEffects(): void {
     (e) => {
       const button = (e.target as Element | null)?.closest('button')
       if (!button || button.disabled || button.closest(SILENT_SELECTOR)) return
-      if (isBgmEnabled()) playTapSfx()
+      playTapSfx()
     },
     { capture: true },
   )

@@ -1,8 +1,8 @@
 const PROGRESS_KEY = 'manabi-friends:progress:v1'
 const LANG_KEY = 'manabi-friends:lang:v1'
-// Keys the app no longer reads (the Home "last quiz" bubble was removed) — deleted on start
-// so the phone keeps only the data docs/functional-design.md lists.
-const RETIRED_KEYS = ['manabi-friends:homeFeedback:v1']
+// Keys the app no longer reads (the Home "last quiz" bubble and the BGM on/off switch were
+// removed) — deleted on start so the phone keeps only the data docs/functional-design.md lists.
+const RETIRED_KEYS = ['manabi-friends:homeFeedback:v1', 'manabi-friends:bgm:v1']
 
 function readRaw(key: string): string | null {
   try {
@@ -46,14 +46,3 @@ export function clearRetiredData(): void {
   }
 }
 
-const BGM_KEY = 'manabi-friends:bgm:v1'
-
-/** null when never set — the caller decides the default (on). */
-export function loadBgmEnabled(): boolean | null {
-  const raw = readRaw(BGM_KEY)
-  return raw === null ? null : raw === '1'
-}
-
-export function saveBgmEnabled(enabled: boolean): void {
-  writeRaw(BGM_KEY, enabled ? '1' : '0')
-}

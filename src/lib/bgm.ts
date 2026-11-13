@@ -1,12 +1,11 @@
 import { getContext } from './sfx'
-import { loadBgmEnabled, saveBgmEnabled } from './storage'
 
 /* A gentle music-box waltz, synthesized live with Web Audio rather than shipped as an audio
  * file — no download, no licensing question, and it shares sfx.ts's AudioContext. The tune
  * is an original 32-bar loop (A B A B, C major, 3/4) of about a minute.
  *
- * Volume is the product of four independent states, each owned by a different caller:
- * - enabled  — the child/parent's 🎵 toggle on Home (persisted)
+ * Always on — there is no in-app switch; whether anything is heard follows the device's
+ * silent/manner mode (see initBgm). Volume is the product of three independent states:
  * - mode     — 'focus' while a question is on screen (App.tsx), so the music never competes
  *              with thinking
  * - ducked   — while tts.ts is speaking, so every spoken word stays easy to hear
@@ -110,7 +109,6 @@ const DUCK_FACTOR = 0.3
 const LOOKAHEAD_SEC = 0.3
 const TICK_MS = 80
 
-let enabled = loadBgmEnabled() ?? true
 let mode: 'normal' | 'focus' = 'normal'
 let ducked = false
 let unlocked = false
@@ -161,7 +159,7 @@ function ensureMaster(ctx: AudioContext): GainNode {
 }
 
 function targetVolume(): number {
-  if (!enabled || document.hidden) return 0
+  if (document.hidden) return 0
   return (mode === 'focus' ? FOCUS_VOLUME : NORMAL_VOLUME) * (ducked ? DUCK_FACTOR : 1)
 }
 
@@ -195,7 +193,7 @@ function tick(): void {
 }
 
 function start(): void {
-  if (timer || !enabled || !unlocked || document.hidden) return
+  if (timer || !unlocked || document.hidden) return
   const ctx = getContext()
   if (!ctx) return
   ensureMaster(ctx)
@@ -266,21 +264,6 @@ export function initBgm(): void {
   })
   window.addEventListener('pageshow', resumeIfVisible)
   window.addEventListener('focus', resumeIfVisible)
-}
-
-export function isBgmEnabled(): boolean {
-  return enabled
-}
-
-export function setBgmEnabled(next: boolean): void {
-  enabled = next
-  saveBgmEnabled(next)
-  if (next) {
-    unlocked = true // only ever called from a tap, which is itself a gesture
-    start()
-  } else {
-    stop()
-  }
 }
 
 export function setBgmMode(next: 'normal' | 'focus'): void {
